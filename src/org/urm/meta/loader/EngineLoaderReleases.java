@@ -9,7 +9,6 @@ import org.urm.engine.dist.DistRepository;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.storage.ProductStorage;
-import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
@@ -23,21 +22,20 @@ public class EngineLoaderReleases {
 	public static String XML_ROOT_RELEASE = "release";
 	
 	public EngineLoader loader;
-	public ProductMeta set;
-	public Meta meta;
+	public EngineProduct ep;
 	
-	public EngineLoaderReleases( EngineLoader loader , ProductMeta set ) {
+	public EngineLoaderReleases( EngineLoader loader , EngineProduct ep ) {
 		this.loader = loader;
-		this.set = set;
-		this.meta = set.meta;
+		this.ep = ep;
 	}
 
-	public void createAll( boolean forceClearMeta , boolean forceClearDist ) throws Exception {
-		ReleaseRepository repo = DBProductReleases.createdb( loader , meta , forceClearMeta , forceClearDist );
+	public void createReleases( ProductMeta set , boolean forceClearMeta ) throws Exception {
+		ReleaseRepository repo = DBProductReleases.createdb( loader , set.meta , forceClearMeta );
 		set.setReleaseRepository( repo );
+	}
 
+	public void createDistributives( boolean forceClearDist ) throws Exception {
 		// distributives
-		EngineProduct ep = set.ep;
 		EngineProductReleases releases = ep.getReleases();
 		ActionBase action = loader.getAction();
 		DistRepository distrepo = DistRepository.createInitialRepository( action , releases , forceClearDist );
@@ -45,11 +43,12 @@ public class EngineLoaderReleases {
 	}
 	
 	public void loadReleases( ProductMeta set , boolean importxml ) throws Exception {
-		ReleaseRepository repo = DBProductReleases.loaddb( loader , meta , importxml );
+		ReleaseRepository repo = DBProductReleases.loaddb( loader , set.meta , importxml );
 		set.setReleaseRepository( repo );
-		
+	}
+	
+	public void loadDistributives( boolean importxml ) throws Exception {
 		// distributives
-		EngineProduct ep = set.ep;
 		EngineProductReleases releases = ep.getReleases();
 		ActionBase action = loader.getAction();
 		try {
@@ -57,7 +56,7 @@ public class EngineLoaderReleases {
 			releases.setDistRepository( distrepo );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductReleases1 , e , "unable to load release repository, product=" + set.NAME , set.NAME );
+			loader.setLoadFailed( action , _Error.UnableLoadProductDistributives1 , e , "unable to load release repository, product=" + ep.productName , ep.productName );
 		}
 	}
 	

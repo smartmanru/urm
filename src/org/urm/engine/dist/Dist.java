@@ -705,7 +705,7 @@ public class Dist {
 		// create empty release.xml
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		EngineLoader loader = action.engine.createLoader( action );
-		EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , meta.getStorage() );
+		EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , meta.getEngineProduct() );
 		loaderReleases.exportxmlReleaseDist( release , releaseDist , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 	}

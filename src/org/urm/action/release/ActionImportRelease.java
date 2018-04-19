@@ -56,7 +56,7 @@ public class ActionImportRelease extends ActionBase {
 			dist.copyDistToFolder( this , workFolder , fileName );
 			
 			EngineLoader loader = engine.createLoader( method , this );
-			EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , meta.getStorage() );
+			EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , ep );
 			String filePath = workFolder.getFilePath( this ,  fileName );
 			DBReleaseDist.updateHash( method , this , release , releaseDist , dist );
 			loaderReleases.importxmlReleaseDist( release , releaseDist , dist , filePath );

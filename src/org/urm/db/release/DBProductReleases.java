@@ -18,7 +18,7 @@ import org.urm.meta.release.ReleaseRepository;
 
 public class DBProductReleases {
 
-	public static ReleaseRepository createdb( EngineLoader loader , Meta meta , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
+	public static ReleaseRepository createdb( EngineLoader loader , Meta meta , boolean forceClearMeta ) throws Exception {
 		matchRepositories( loader , meta );
 		
 		ReleaseRepository repo = null;

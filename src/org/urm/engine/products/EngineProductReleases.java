@@ -137,14 +137,16 @@ public class EngineProductReleases {
 				if( release != null )
 					break;
 			}
+		
+			if( release == null )
+				return( null );
+		
+			return( release.getDefaultReleaseDist() );
 		}
 		
+		release = findRelease( dist.release.ID );
 		if( release == null )
 			return( null );
-		
-		if( dist.isMaster() )
-			return( release.getDefaultReleaseDist() );
-		
 		return( release.findDistVariant( dist.releaseDist.DIST_VARIANT ) ); 
 	}
 	

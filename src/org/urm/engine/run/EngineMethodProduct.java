@@ -24,6 +24,7 @@ public class EngineMethodProduct {
 	private Map<String,EngineMethodProductRelease> mapReleases;
 	private Map<String,EngineMethodProductDist> mapDist;
 	private DistRepository updateDistRepository;
+	private DistRepository distRepository;
 	
 	public EngineMethodProduct( EngineMethod method , EngineProduct ep ) {
 		this.method = method;
@@ -74,8 +75,10 @@ public class EngineMethodProduct {
 		if( updateDistRepository == null ) {
 			EngineProductReleases releases = ep.getReleases();
 			DistRepository repo = releases.getDistRepository();
-			repo.modify( false );
+			
+			distRepository = repo;
 			updateDistRepository = repo.copy( releases );
+			repo.modify( false );
 		}
 		return( updateDistRepository );
 	}
@@ -189,7 +192,6 @@ public class EngineMethodProduct {
 		}
 		
 		if( updateDistRepository != null ) {
-			updateDistRepository.modify( true );
 			for( EngineMethodProductDist emmd : mapDist.values() )
 				emmd.commit();
 			
@@ -207,11 +209,8 @@ public class EngineMethodProduct {
 			repo.modify( true );
 		}
 			
-		if( updateDistRepository != null ) {
-			EngineProductReleases releases = updateDistRepository.releases;
-			DistRepository repo = releases.getDistRepository();
-			repo.modify( true );
-		}
+		if( updateDistRepository != null )
+			distRepository.modify( true );
 			
 		for( EngineMethodProductRelease emmr : mapReleases.values() )
 			emmr.abort();

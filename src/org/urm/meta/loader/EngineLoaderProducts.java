@@ -76,8 +76,9 @@ public class EngineLoaderProducts {
 			folder.ensureExists( action );
 	
 			// create releases
-			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
-			ldr.createAll( forceClearMeta , forceClearDist );
+			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , ep );
+			ldr.createReleases( set , forceClearMeta );
+			ldr.createDistributives( forceClearDist );
 			
 			// add product
 			products.setProductDraft( product , set );
@@ -197,7 +198,7 @@ public class EngineLoaderProducts {
 				ProductContext context = new ProductContext( product , loader.getSettings() , home );
 				
 				ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , product );
-				importxmlAll( set , storageMeta , context , update , includingEnvironments );
+				importxmlAll( ep , set , storageMeta , context , update , includingEnvironments );
 
 				EngineMatcher matcher = loader.getMatcher();
 				if( !matcher.matchProduct( loader , product , set , update ) )
@@ -237,6 +238,8 @@ public class EngineLoaderProducts {
 			for( ProductMeta set : sets )
 				loadProductRevision( product , context , update , ep , set );
 			
+			loadProductDistributives( product , context , update , ep );
+			
 			ProductMeta draft = ep.findDraftRevision();
 			if( draft == null ) {
 				action.error( "unable to use metadata because of missing draft revision, product=" + product.NAME );
@@ -266,7 +269,7 @@ public class EngineLoaderProducts {
 		ActionBase action = loader.getAction();
 		try {
 			set.setMatched( true );
-			loaddbAll( set , context );
+			loaddbAll( ep , set , context );
 	
 			EngineMatcher matcher = loader.getMatcher();
 			if( !matcher.matchProduct( loader , product , set , update ) )
@@ -283,7 +286,12 @@ public class EngineLoaderProducts {
 		}
 	}
 
-	private void importxmlAll( ProductMeta set , ProductStorage ms , ProductContext context , boolean update , boolean includingEnvironments ) throws Exception {
+	private void loadProductDistributives( AppProduct product , ProductContext context , boolean update , EngineProduct ep ) throws Exception {
+		EngineLoaderReleases ldr = new EngineLoaderReleases( loader , ep );
+		ldr.loadDistributives( false );
+	}
+	
+	private void importxmlAll( EngineProduct ep , ProductMeta set , ProductStorage ms , ProductContext context , boolean update , boolean includingEnvironments ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
@@ -298,15 +306,16 @@ public class EngineLoaderProducts {
 				
 			ldm.loadDesignDocs( ms );
 			
-			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
+			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , ep );
 			ldr.loadReleases( set , true );
+			ldr.loadDistributives( true );
 		}
 		catch( Throwable e ) {
 			loader.setLoadFailed( action , _Error.UnableLoadProductMeta1 , e , "unable to load metadata, product=" + set.NAME , set.NAME );
 		}
 	}
 	
-	private void loaddbAll( ProductMeta set , ProductContext context ) throws Exception {
+	private void loaddbAll( EngineProduct ep , ProductMeta set , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		
 		try {
@@ -316,7 +325,7 @@ public class EngineLoaderProducts {
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
 			lde.loaddbAll();
 			
-			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , set );
+			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , ep );
 			ldr.loadReleases( set , false );
 		}
 		catch( Throwable e ) {

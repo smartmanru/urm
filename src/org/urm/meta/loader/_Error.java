@@ -80,5 +80,6 @@ public class _Error {
 	public static final int MissingDistItemType0 = ErrorBase + 124;
 	public static final int MissingProductFolder1 = ErrorBase + 125;
 	public static final int InvalidVersion2 = ErrorBase + 126;
+	public static final int UnableLoadProductDistributives1 = ErrorBase + 127;
 
 }
