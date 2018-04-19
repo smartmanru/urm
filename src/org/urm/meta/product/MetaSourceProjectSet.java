@@ -110,23 +110,33 @@ public class MetaSourceProjectSet {
 		map.put( project.NAME , project );
 		reorderProjects();
 	}
+
+	private void addProjectOnly( MetaSourceProject project ) throws Exception {
+		map.put( project.NAME , project );
+	}
 	
 	public void updateProject( MetaSourceProject project ) throws Exception {
 		Common.changeMapKey( map , project , project.NAME );
 	}
 	
 	public void removeProject( MetaSourceProject project ) throws Exception {
-		map.remove( project.NAME );
+		removeProjectOnly( project );
 		reorderProjects();
+	}
+
+	private void removeProjectOnly( MetaSourceProject project ) throws Exception {
+		map.remove( project.NAME );
 	}
 	
 	public void changeProjectOrder( MetaSourceProject project , int POS ) throws Exception {
+		removeProjectOnly( project );
 		for( MetaSourceProject p : orderedList ) {
 			if( p.PROJECT_POS >= POS )
 				p.changeOrder( p.PROJECT_POS + 1 );
 		}
 			
 		project.changeOrder( POS );
+		addProjectOnly( project );
 		reorderProjects();
 	}
 

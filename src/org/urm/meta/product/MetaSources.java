@@ -59,6 +59,10 @@ public class MetaSources {
 				p.changeOrder( p.SET_POS + 1 );
 		}
 			
+		addProjectSetOnly( set );
+	}
+	
+	private void addProjectSetOnly( MetaSourceProjectSet set ) {
 		setMap.put( set.NAME , set );
 		setMapById.put( set.ID , set );
 	}
@@ -281,7 +285,7 @@ public class MetaSources {
 		return( item.NAME );
 	}
 
-	public void removeProjectSetOnly( MetaSourceProjectSet set ) throws Exception {
+	private void removeProjectSetOnly( MetaSourceProjectSet set ) throws Exception {
 		setMap.remove( set.NAME );
 		setMapById.remove( set.ID );
 	}
@@ -290,8 +294,7 @@ public class MetaSources {
 		for( MetaSourceProject project : set.getProjects() )
 			removeProject( project );
 		
-		setMap.remove( set.NAME );
-		setMapById.remove( set.ID );
+		removeProjectSetOnly( set );
 	}
 
 	public boolean hasProjects() {
@@ -317,12 +320,14 @@ public class MetaSources {
 	}
 
 	public void changeSetOrder( MetaSourceProjectSet set , int POS ) throws Exception {
+		removeProjectSetOnly( set );
 		for( MetaSourceProjectSet p : setMap.values() ) {
 			if( p.SET_POS >= POS )
 				p.changeOrder( p.SET_POS + 1 );
 		}
 			
 		set.changeOrder( POS );
+		addProjectSetOnly( set );
 		reorderSets();
 	}
 

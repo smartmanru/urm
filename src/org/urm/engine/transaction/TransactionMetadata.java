@@ -217,8 +217,11 @@ public class TransactionMetadata {
 
 		String name = metadataOld.NAME;
 		try {
-			if( save )
+			if( save ) {
+				EngineDirectory directory = transaction.getDirectory();
+				AppProduct product = directory.getProduct( ep.productId );
 				transaction.setProductDraft( product , metadataOld );
+			}
 			
 			if( productType != CHANGETYPE.DELETE && sessionMeta != null ) {
 				EngineProductSessions sessions = ep.getSessions();

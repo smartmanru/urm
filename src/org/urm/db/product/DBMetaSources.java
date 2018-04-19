@@ -545,6 +545,9 @@ public class DBMetaSources {
 	public static void modifyProjectSet( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , String name , String desc , int pos , boolean parallel ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
+		if( set.SET_POS != pos )
+			changeProjectSetOrder( transaction , storage , sources , set , pos );
+		
 		MetaSourceProjectSet old = sources.findProjectSet( name );
 		if( old != null && old != set )
 			transaction.exitUnexpectedState();
@@ -666,7 +669,6 @@ public class DBMetaSources {
 		if( posNew > set.getProjects().length )
 			posNew = set.getProjects().length;
 		
-		set.removeProject( project );
 		if( !c.modify( DBQueries.MODIFY_SOURCE_SHIFTPOS_ONDELETEPROJECT3 , new String[] {
 				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getInteger( set.ID ) ,
@@ -698,7 +700,6 @@ public class DBMetaSources {
 		if( posNew > set.getProjects().length )
 			posNew = set.getProjects().length;
 		
-		sources.removeProjectSetOnly( set );
 		if( !c.modify( DBQueries.MODIFY_SOURCE_SHIFTPOS_ONDELETESET2 , new String[] {
 				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getInteger( set.SET_POS )
