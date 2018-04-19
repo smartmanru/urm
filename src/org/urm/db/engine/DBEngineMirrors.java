@@ -359,10 +359,14 @@ public class DBEngineMirrors {
 
 	private static Map<String,LocalFolder> getFolderMap( EngineTransaction transaction , EngineMirrors mirrors , MirrorRepository repo ) throws Exception {
 		EngineDirectory directory = transaction.getDirectory();
+		
+		ActionInit action = transaction.getAction();
+		if( repo.isServer() )
+			return( getFolderMap( action , mirrors , repo , null ) );
+			
 		AppProduct product = directory.getProduct( repo.productId );
 		EngineProductRevisions revisions = product.findRevisions();
 		ProductMeta storage = revisions.getDraftRevision();
-		ActionInit action = transaction.getAction();
 		return( getFolderMap( action , mirrors , repo , storage ) );
 	}
 	
