@@ -110,6 +110,8 @@ public class MetaProductSettings {
 	
 	public void updateSettings( AppProduct product ) throws Exception {
 		updateVersion( ops , product );
+		ops.recalculateProperties();
+		ops.recalculateChildProperties();
 		updateContextSettings();
 	}
 

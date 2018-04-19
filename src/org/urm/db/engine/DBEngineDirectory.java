@@ -9,6 +9,8 @@ import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineSettings;
+import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.LocalFolder;
@@ -18,6 +20,8 @@ import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.loader.EngineMatcher;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -238,6 +242,12 @@ public abstract class DBEngineDirectory {
 		
 		product.setVersions( majorLastFirstNumber , majorLastSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
 		DBAppProduct.modifyProduct( c , product , false );
+		
+		EngineProductRevisions revisions = product.findRevisions();
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			MetaProductSettings settings = storage.getSettings();
+			settings.updateSettings( product );
+		}
 	}
 	
 }
