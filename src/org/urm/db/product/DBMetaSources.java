@@ -730,7 +730,7 @@ public class DBMetaSources {
 	public static void deleteProject( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProject project , boolean leaveManual ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
-		PropertyEntity entity = entities.entityAppMetaSourceItem;
+		PropertyEntity entity = entities.entityAppMetaSourceProject;
 
 		MetaDistr distr = storage.getDistr();
 		for( MetaSourceProjectItem item : project.getItems() ) {
@@ -743,11 +743,6 @@ public class DBMetaSources {
 			else
 				DBMetaDistr.deleteBinaryItem( transaction , storage , distr , distItem );
 		}
-		
-		if( !c.modify( DBQueries.MODIFY_SOURCE_DELETEPROJECTITEMS1 , new String[] {
-				EngineDB.getInteger( project.ID )
-				}))
-			transaction.exitUnexpectedState();
 		
 		int version = c.getCurrentProductVersion( storage );
 		project.CHANGETYPE = EngineDB.getChangeDelete( project.CHANGETYPE );
