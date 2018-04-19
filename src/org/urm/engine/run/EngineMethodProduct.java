@@ -189,6 +189,7 @@ public class EngineMethodProduct {
 		}
 		
 		if( updateDistRepository != null ) {
+			updateDistRepository.modify( true );
 			for( EngineMethodProductDist emmd : mapDist.values() )
 				emmd.commit();
 			

@@ -3,8 +3,9 @@ package org.urm.engine.run;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.engine.products.EngineProductReleases;
+import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseRepository;
 
 public class EngineMethodProductDist {
 
@@ -56,8 +57,9 @@ public class EngineMethodProductDist {
 		
 		if( itemNew != null ) {
 			Dist dist = itemNew.dist;
-			EngineProductReleases releases = repo.releases;
-			ReleaseDist releaseDist = releases.findReleaseDist( dist );
+			ReleaseRepository releases = emm.getReleaseRepository( dist.meta.getStorage() );
+			Release release = releases.getRelease( dist.release.ID );
+			ReleaseDist releaseDist = release.getDistVariant( dist.releaseDist.ID );
 			dist.setReleaseDist( releaseDist );
 		}
 	}
