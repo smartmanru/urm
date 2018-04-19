@@ -5,6 +5,7 @@ CREATE TABLE main.urm_product_meta (
                 name VARCHAR(30) NOT NULL,
                 revision VARCHAR(30) NOT NULL,
                 draft BOOLEAN NOT NULL,
+                savedate DATE,
                 matched BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
                 CONSTRAINT urm_product_meta_pk PRIMARY KEY (meta_id)
@@ -36,6 +37,8 @@ CREATE TABLE main.urm_source_set (
                 meta_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
+                set_pos INTEGER NOT NULL,
+                parallel BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
                 change_type INTEGER NOT NULL,
                 CONSTRAINT urm_source_set_pk PRIMARY KEY (srcset_id)

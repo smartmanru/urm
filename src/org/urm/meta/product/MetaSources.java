@@ -1,5 +1,6 @@
 package org.urm.meta.product;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -52,9 +53,14 @@ public class MetaSources {
 		return( r );
 	}
 	
-	public void addProjectSet( MetaSourceProjectSet projectset ) {
-		setMap.put( projectset.NAME , projectset );
-		setMapById.put( projectset.ID , projectset );
+	public void addProjectSet( MetaSourceProjectSet set ) {
+		for( MetaSourceProjectSet p : setMap.values() ) {
+			if( p.SET_POS >= set.SET_POS )
+				p.changeOrder( p.SET_POS + 1 );
+		}
+			
+		setMap.put( set.NAME , set );
+		setMapById.put( set.ID , set );
 	}
 	
 	public void addProject( MetaSourceProjectSet set , MetaSourceProject project ) throws Exception {
@@ -63,6 +69,10 @@ public class MetaSources {
 		projectMapById.put( project.ID , project );
 	}
 
+	public void updateProjectSet( MetaSourceProjectSet set ) throws Exception {
+		Common.changeMapKey( setMap , set , set.NAME );
+	}
+	
 	public void updateProject( MetaSourceProject project ) throws Exception {
 		Common.changeMapKey( projectMap , project , project.NAME );
 		project.set.updateProject( project );
@@ -271,6 +281,11 @@ public class MetaSources {
 		return( item.NAME );
 	}
 
+	public void removeProjectSetOnly( MetaSourceProjectSet set ) throws Exception {
+		setMap.remove( set.NAME );
+		setMapById.remove( set.ID );
+	}
+	
 	public void removeProjectSet( MetaSourceProjectSet set ) throws Exception {
 		for( MetaSourceProject project : set.getProjects() )
 			removeProject( project );
@@ -299,6 +314,56 @@ public class MetaSources {
 		MetaSourceProject project = ( id == null )? findProject( name ) : getProject( id );
 		MatchItem match = ( project == null )? new MatchItem( name ) : new MatchItem( project.ID );
 		return( match );
+	}
+
+	public void changeSetOrder( MetaSourceProjectSet set , int POS ) throws Exception {
+		for( MetaSourceProjectSet p : setMap.values() ) {
+			if( p.SET_POS >= POS )
+				p.changeOrder( p.SET_POS + 1 );
+		}
+			
+		set.changeOrder( POS );
+		reorderSets();
+	}
+
+	public void reorderSets() {
+		List<String> order = new LinkedList<String>();
+		for( MetaSourceProjectSet set : setMap.values() ) {
+			String key = Common.getZeroPadded( set.SET_POS , 10 ) + "#" + set.NAME;
+			order.add( key );
+		}
+		
+		Collections.sort( order );
+		
+		int POS = 1;
+		for( String key : order ) {
+			String setName = Common.getPartAfterFirst( key , "#" );
+			MetaSourceProjectSet set = setMap.get( setName );
+			set.changeOrder( POS++ );
+		}
+	}
+
+	public MetaSourceProjectSet[] getOrderedSets() {
+		List<String> order = new LinkedList<String>();
+		for( MetaSourceProjectSet set : setMap.values() ) {
+			String key = Common.getZeroPadded( set.SET_POS , 10 ) + "#" + set.NAME;
+			order.add( key );
+		}
+		
+		Collections.sort( order );
+		
+		List<MetaSourceProjectSet> list = new LinkedList<MetaSourceProjectSet>();
+		for( String key : order ) {
+			String setName = Common.getPartAfterFirst( key , "#" );
+			MetaSourceProjectSet set = setMap.get( setName );
+			list.add( set );
+		}
+		
+		return( list.toArray( new MetaSourceProjectSet[0] ) );
+	}
+
+	public int getSetCount() {
+		return( setMap.size() );
 	}
 	
 }

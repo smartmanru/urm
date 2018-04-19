@@ -53,6 +53,7 @@ public class DBMeta {
 				EngineDB.getString( storage.NAME ) ,
 				EngineDB.getString( storage.REVISION ) ,
 				EngineDB.getBoolean( storage.DRAFT ) ,
+				EngineDB.getDate( storage.SAVEDATE ) ,
 				EngineDB.getBoolean( storage.MATCHED )
 				} , insert );
 	}
@@ -81,6 +82,7 @@ public class DBMeta {
 				meta.create(
 						entity.loaddbString( rs , DBProductData.FIELD_META_PRODUCT_REVISION ) ,
 						entity.loaddbBoolean( rs , DBProductData.FIELD_META_PRODUCT_DRAFT ) ,
+						entity.loaddbDate( rs , DBProductData.FIELD_META_PRODUCT_SAVEDATE ) ,
 						entity.loaddbBoolean( rs , DBProductData.FIELD_META_PRODUCT_MATCHED )
 						);
 				products.add( meta );

@@ -13,6 +13,8 @@ public class MetaSourceProjectSet {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_POS = "pos";
+	public static String PROPERTY_PARALLEL = "parallel";
 	
 	public Meta meta;
 	public MetaSources sources;
@@ -20,6 +22,8 @@ public class MetaSourceProjectSet {
 	public int ID;
 	public String NAME;
 	public String DESC;
+	public int SET_POS;
+	public boolean PARALLEL;
 	public int PV;
 	public DBEnumChangeType CHANGETYPE;
 
@@ -40,6 +44,8 @@ public class MetaSourceProjectSet {
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
+		r.SET_POS = SET_POS;
+		r.PARALLEL = PARALLEL;
 		r.PV = PV;
 		r.CHANGETYPE = CHANGETYPE;
 		
@@ -53,13 +59,15 @@ public class MetaSourceProjectSet {
 		return( r );
 	}
 	
-	public void createProjectSet( String name , String desc ) {
-		modifyProjectSet( name , desc );
+	public void createProjectSet( String name , String desc , int pos , boolean parallel ) {
+		modifyProjectSet( name , desc , pos , parallel );
 	}
 	
-	public void modifyProjectSet( String name , String desc ) {
+	public void modifyProjectSet( String name , String desc , int pos , boolean parallel ) {
 		this.NAME = name;
 		this.DESC = desc;
+		this.SET_POS = pos;
+		this.PARALLEL = parallel;
 	}
 	
 	public MetaSourceProject findProject( String name ) {
@@ -136,7 +144,7 @@ public class MetaSourceProjectSet {
 		for( String key : order ) {
 			String projectName = Common.getPartAfterFirst( key , "#" );
 			MetaSourceProject project = map.get( projectName );
-			project.PROJECT_POS = POS++;
+			project.changeOrder( POS++ );
 			orderedList.add( project );
 		}
 	}
@@ -146,5 +154,10 @@ public class MetaSourceProjectSet {
 			return( true );
 		return( false );
 	}
+
+	public void changeOrder( int POS ) {
+		this.SET_POS = POS;
+	}
+
 	
 }

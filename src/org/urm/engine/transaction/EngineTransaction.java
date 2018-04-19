@@ -200,14 +200,6 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineMirrors.dropDetachedMirror( this , repo.mirrors , repo );
 	}
 
-	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
-		ProductMeta storage = project.meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		
-		MetaSources sources = storage.getSources();
-		DBMetaSources.deleteProject( this , storage , sources , project , leaveManual );
-	}
-
 	public void createDetachedMirror( EngineMirrors mirrors , DBEnumMirrorType type , String product , String project ) throws Exception {
 		super.checkTransactionMirrors( mirrors );
 		DBEngineMirrors.createDetachedMirror( this , mirrors , type , product , project );
@@ -874,10 +866,32 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaDistr.deleteComponentItem( this , storage , item.comp.dist , item.comp , item );
 	}
 
-	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name , String desc ) throws Exception {
+	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name , String desc , int pos , boolean parallel ) throws Exception {
 		ProductMeta storage = sources.meta.getStorage();
 		super.checkTransactionMetadata( storage );
-		return( DBMetaSources.createProjectSet( this , storage , sources , name , desc ) );
+		return( DBMetaSources.createProjectSet( this , storage , sources , name , desc , pos , parallel ) );
+	}
+
+	public void changeProjectSetOrder( MetaSourceProjectSet set , int pos ) throws Exception {
+		ProductMeta storage = set.meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		
+		MetaSources sources = storage.getSources();
+		DBMetaSources.changeProjectSetOrder( this , storage , sources , set , pos );
+	}
+
+	public void modifySourceProjectSet( MetaSources sources , MetaSourceProjectSet set , String name , String desc , int pos , boolean parallel ) throws Exception {
+		ProductMeta storage = set.meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		DBMetaSources.modifyProjectSet( this , storage , sources , set , name , desc , pos , parallel );
+	}
+
+	public void deleteSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
+		ProductMeta storage = set.meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		
+		MetaSources sources = storage.getSources();
+		DBMetaSources.deleteProjectSet( this , storage , sources , set );
 	}
 
 	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , 
@@ -936,6 +950,14 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaSources.modifySetOrder( this , storage , sources , set , namesOrdered );
 	}
 	
+	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
+		ProductMeta storage = project.meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		
+		MetaSources sources = storage.getSources();
+		DBMetaSources.deleteProject( this , storage , sources , project , leaveManual );
+	}
+
 	public MetaSourceProjectItem createSourceProjectItem( MetaSourceProject project , 
 			String name , String desc ,  
 			DBEnumSourceItemType srcType , String basename , String ext , String staticext , String path , String version , boolean internal ) throws Exception {

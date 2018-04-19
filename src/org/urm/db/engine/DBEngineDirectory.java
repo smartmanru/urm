@@ -9,7 +9,6 @@ import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineSettings;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;

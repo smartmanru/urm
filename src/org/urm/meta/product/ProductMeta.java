@@ -1,5 +1,7 @@
 package org.urm.meta.product;
 
+import java.util.Date;
+
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.engine.AppProduct;
@@ -16,8 +18,9 @@ public class ProductMeta extends EngineObject {
 	public Meta meta;
 	public Integer ID;
 	public String NAME;
-	public boolean DRAFT;
 	public String REVISION;
+	public boolean DRAFT;
+	public Date SAVEDATE;
 	public int PV;
 	public boolean MATCHED;
 	
@@ -57,8 +60,9 @@ public class ProductMeta extends EngineObject {
 		
 		r.ID = ID;
 		r.NAME = NAME;
-		r.DRAFT = DRAFT;
 		r.REVISION = REVISION;
+		r.DRAFT = DRAFT;
+		r.SAVEDATE = SAVEDATE;
 		r.PV = PV;
 		r.MATCHED = MATCHED;
 		
@@ -76,9 +80,10 @@ public class ProductMeta extends EngineObject {
 		return( r );
 	}
 
-	public void create( String revision , boolean draft , boolean matched ) {
+	public void create( String revision , boolean draft , Date saveDate , boolean matched ) {
 		this.REVISION = revision;
 		this.DRAFT = draft;
+		this.SAVEDATE = saveDate;
 		this.MATCHED = matched;
 	}
 	

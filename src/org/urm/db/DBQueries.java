@@ -109,9 +109,12 @@ public abstract class DBQueries {
 	public static String MODIFY_META_SETSTATUS2 = "update urm_product_meta set matched = @2@ where meta_id = @1@";
 	
 	public static String MODIFY_SOURCE_SHIFTPOS_ONDELETEPROJECT3 = "update urm_source_project set project_pos = project_pos - 1 where meta_id = @1@ and srcset_id = @2@ and project_pos > @3@";
+	public static String MODIFY_SOURCE_SHIFTPOS_ONDELETESET2 = "update urm_source_set set set_pos = set_pos - 1 where meta_id = @1@ and set_pos > @2@";
 	public static String MODIFY_SOURCE_SHIFTPOS_ONINSERTPROJECT3 = "update urm_source_project set project_pos = project_pos + 1 where meta_id = @1@ and srcset_id = @2@ and project_pos >= @3@";
+	public static String MODIFY_SOURCE_SHIFTPOS_ONINSERTSET2 = "update urm_source_set set set_pos = set_pos + 1 where meta_id = @1@ and set_pos >= @2@";
 	public static String MODIFY_SOURCE_CHANGEPROJECTSET2 = "update urm_source_project set srcset_id = @2@ where meta_id = @1@";
 	public static String MODIFY_SOURCE_CHANGEPROJECTORDER2 = "update urm_source_project set project_pos = @2@ where meta_id = @1@";
+	public static String MODIFY_SOURCE_CHANGESETORDER2 = "update urm_source_set set set_pos = @2@ where meta_id = @1@";
 	public static String MODIFY_SOURCE_DELETEPROJECTITEMS1 = "delete from urm_source_item where project_id = @1@";
 	
 	public static String MODIFY_DISTR_CASCADEBINARY_COMPITEM1 = "delete from urm_dist_compitem where binary_id = @1@";

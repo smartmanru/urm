@@ -93,7 +93,9 @@ public class DBMetaSources {
 		MetaSourceProjectSet set = new MetaSourceProjectSet( storage.meta , sources );
 		set.createProjectSet( 
 				entity.importxmlStringAttr( root , MetaSourceProjectSet.PROPERTY_NAME ) ,
-				entity.importxmlStringAttr( root , MetaSourceProjectSet.PROPERTY_DESC )
+				entity.importxmlStringAttr( root , MetaSourceProjectSet.PROPERTY_DESC ) ,
+				entity.importxmlIntAttr( root , MetaSourceProjectSet.PROPERTY_POS ) ,
+				entity.importxmlBooleanAttr( root , MetaSourceProjectSet.PROPERTY_PARALLEL , false )
 				);
 		modifyProjectSet( c , storage , set , true , EnumModifyType.ORIGINAL );
 		
@@ -120,7 +122,9 @@ public class DBMetaSources {
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceSet , set.ID , set.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
 				EngineDB.getString( set.NAME ) ,
-				EngineDB.getString( set.DESC )
+				EngineDB.getString( set.DESC ) ,
+				EngineDB.getInteger( set.SET_POS ) ,
+				EngineDB.getBoolean( set.PARALLEL )
 				} , insert , set.CHANGETYPE );
 	}
 	
@@ -298,7 +302,9 @@ public class DBMetaSources {
 		PropertyEntity entity = entities.entityAppMetaSourceSet;
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
 				entity.exportxmlString( set.NAME ) ,
-				entity.exportxmlString( set.DESC )
+				entity.exportxmlString( set.DESC ) ,
+				entity.exportxmlInt( set.SET_POS ) ,
+				entity.exportxmlBoolean( set.PARALLEL )
 		} , true );
 		
 		for( MetaSourceProject project : set.getOrderedList() ) {
@@ -398,7 +404,9 @@ public class DBMetaSources {
 				set.CHANGETYPE = entity.loaddbChangeType( rs );
 				set.createProjectSet( 
 						entity.loaddbString( rs , MetaSourceProjectSet.PROPERTY_NAME ) , 
-						entity.loaddbString( rs , MetaSourceProjectSet.PROPERTY_DESC )
+						entity.loaddbString( rs , MetaSourceProjectSet.PROPERTY_DESC ) ,
+						entity.loaddbInt( rs , MetaSourceProjectSet.PROPERTY_POS ) ,
+						entity.loaddbBoolean( rs , MetaSourceProjectSet.PROPERTY_PARALLEL )
 						);
 				sources.addProjectSet( set );
 			}
@@ -520,18 +528,31 @@ public class DBMetaSources {
 		}
 	}
 	
-	public static MetaSourceProjectSet createProjectSet( EngineTransaction transaction , ProductMeta storage , MetaSources sources , String name , String desc ) throws Exception {
+	public static MetaSourceProjectSet createProjectSet( EngineTransaction transaction , ProductMeta storage , MetaSources sources , String name , String desc , int pos , boolean parallel ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		if( sources.findProjectSet( name ) != null )
 			transaction.exitUnexpectedState();
 		
 		MetaSourceProjectSet set = new MetaSourceProjectSet( storage.meta , sources );
-		set.createProjectSet( name , desc );
+		set.createProjectSet( name , desc , pos , parallel );
 		modifyProjectSet( c , storage , set , true , EnumModifyType.NORMAL );
 		
 		sources.addProjectSet( set );
 		return( set );
+	}
+	
+	public static void modifyProjectSet( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , String name , String desc , int pos , boolean parallel ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		MetaSourceProjectSet old = sources.findProjectSet( name );
+		if( old != null && old != set )
+			transaction.exitUnexpectedState();
+		
+		set.modifyProjectSet( name , desc , pos , parallel );
+		modifyProjectSet( c , storage , set , false , EnumModifyType.NORMAL );
+		
+		sources.updateProjectSet( set );
 	}
 	
 	public static MetaSourceProject createProject( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , 
@@ -669,6 +690,36 @@ public class DBMetaSources {
 			transaction.exitUnexpectedState();
 	}
 
+	public static void changeProjectSetOrder( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , int posNew ) throws Exception {
+		DBConnection c = transaction.getConnection();
+
+		if( posNew < 1 )
+			posNew = 1;
+		if( posNew > set.getProjects().length )
+			posNew = set.getProjects().length;
+		
+		sources.removeProjectSetOnly( set );
+		if( !c.modify( DBQueries.MODIFY_SOURCE_SHIFTPOS_ONDELETESET2 , new String[] {
+				EngineDB.getInteger( storage.ID ) ,
+				EngineDB.getInteger( set.SET_POS )
+				}))
+			transaction.exitUnexpectedState();
+		
+		sources.changeSetOrder( set , posNew );
+		
+		if( !c.modify( DBQueries.MODIFY_SOURCE_CHANGEPROJECTORDER2 , new String[] {
+				EngineDB.getInteger( set.ID ) ,
+				EngineDB.getInteger( posNew )
+				}))
+			transaction.exitUnexpectedState();
+		
+		if( !c.modify( DBQueries.MODIFY_SOURCE_SHIFTPOS_ONINSERTSET2 , new String[] {
+				EngineDB.getInteger( storage.ID ) ,
+				EngineDB.getInteger( posNew )
+				}))
+			transaction.exitUnexpectedState();
+	}
+
 	public static void modifySetOrder( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , String[] namesOrdered ) throws Exception {
 		DBConnection c = transaction.getConnection();
 
@@ -725,6 +776,21 @@ public class DBMetaSources {
 		
 		modifyProjectItem( c , storage , item , false , EnumModifyType.NORMAL );
 		sources.updateProjectItem( item );
+	}
+
+	public static void deleteProjectSet( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppMetaSourceSet;
+		
+		if( !set.isEmpty() )
+			Common.exitUnexpected();
+		
+		int version = c.getCurrentProductVersion( storage );
+		set.CHANGETYPE = EngineDB.getChangeDelete( set.CHANGETYPE );
+		DBEngineEntities.deleteAppObject( c , entity , set.ID , version , set.CHANGETYPE );
+		if( set.CHANGETYPE == null )
+			sources.removeProjectSet( set );
 	}
 
 	public static void deleteProject( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProject project , boolean leaveManual ) throws Exception {

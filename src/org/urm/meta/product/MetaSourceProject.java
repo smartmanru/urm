@@ -147,7 +147,7 @@ public class MetaSourceProject {
 		this.CUSTOMGET = customGet;
 	}
 
-	public void changeOrder( int POS ) throws Exception {
+	public void changeOrder( int POS ) {
 		this.PROJECT_POS = POS;
 	}
 

@@ -48,6 +48,7 @@ public class DBProductData {
 	public static String FIELD_META_PRODUCT_NAME = "name";
 	public static String FIELD_META_PRODUCT_REVISION = "revision";
 	public static String FIELD_META_PRODUCT_DRAFT = "draft";
+	public static String FIELD_META_PRODUCT_SAVEDATE = "savedate";
 	public static String FIELD_META_PRODUCT_MATCHED = "matched";
 	public static String FIELD_UNIT_ID = "unit_id";
 	public static String FIELD_UNIT_DESC = "xdesc";
@@ -56,6 +57,7 @@ public class DBProductData {
 	public static String FIELD_SCHEMA_DBTYPE = "dbms_type";
 	public static String FIELD_SOURCESET_ID = "srcset_id";
 	public static String FIELD_SOURCESET_DESC = "xdesc";
+	public static String FIELD_SOURCESET_POS = "set_pos";
 	public static String FIELD_SOURCEPROJECT_ID = "project_id";
 	public static String FIELD_SOURCEPROJECT_DESC = "xdesc";
 	public static String FIELD_SOURCEPROJECT_SET_ID = "srcset_id";
@@ -201,8 +203,9 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_PRODUCT_ID , "Application product id" , DBEnumObjectType.APPPRODUCT , false ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , true , null ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_REVISION , "Product revision name" , true , null ) ,
-				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_DRAFT , "Product draft status" , true , true ) ,
-				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , true , false )
+				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_DRAFT , "Revision draft status" , true , true ) ,
+				EntityVar.metaDateDatabaseOnly( FIELD_META_PRODUCT_SAVEDATE , "Revision save date" , true ) ,
+				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Revision match status" , true , false )
 		} ) );
 	}
 
@@ -264,6 +267,8 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaSourceProjectSet.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaSourceProjectSet.PROPERTY_DESC , FIELD_SOURCESET_DESC , MetaSourceProjectSet.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaIntegerVar( MetaSourceProjectSet.PROPERTY_POS , FIELD_SOURCESET_POS , MetaSourceProjectSet.PROPERTY_POS , "Build order" , false , null ) ,
+				EntityVar.metaBoolean( MetaSourceProjectSet.PROPERTY_PARALLEL , "parallel build" , false , false )
 		} ) );
 	}
 
