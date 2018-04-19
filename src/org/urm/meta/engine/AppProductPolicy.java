@@ -104,6 +104,8 @@ public class AppProductPolicy {
 	}
 	
 	public boolean checkUrgentIncluded( ReleaseLifecycle lc ) {
+		if( lc.isUrgent() && LCUrgentAll )
+			return( true );
 		for( Integer item : LC_URGENT_LIST ) {
 			if( item == lc.ID )
 				return( true );
