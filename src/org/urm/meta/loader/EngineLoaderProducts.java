@@ -239,18 +239,6 @@ public class EngineLoaderProducts {
 				loadProductRevision( product , context , update , ep , set );
 			
 			loadProductDistributives( product , context , update , ep );
-			
-			ProductMeta draft = ep.findDraftRevision();
-			if( draft == null ) {
-				action.error( "unable to use metadata because of missing draft revision, product=" + product.NAME );
-				return( false );
-			}
-			
-			if( !draft.MATCHED ){
-				action.error( "unable to use metadata because of mismatched draft revision, product=" + product.NAME );
-				return( false );
-			}
-			
 			return( true );
 		}
 		catch( Throwable e ) {
