@@ -162,8 +162,8 @@ public class DBMetaMonitoring {
 		DBEngineEntities.modifyAppObject( c , entities.entityAppSegmentMonItem , item.ID , item.EV , new String[] {
 				EngineDB.getObject( env.ID ) ,
 				EngineDB.getObject( item.target.ID ) ,
-				EngineDB.getEnum( item.MONITEM_TYPE ) ,
 				EngineDB.getString( item.DESC ) ,
+				EngineDB.getEnum( item.MONITEM_TYPE ) ,
 				EngineDB.getString( item.URL ) ,
 				EngineDB.getString( item.WSDATA ) ,
 				EngineDB.getString( item.WSCHECK )
