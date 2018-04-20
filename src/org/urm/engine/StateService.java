@@ -212,15 +212,15 @@ public class StateService extends EngineObject {
 		productStatus.modifyProduct( transaction , storageOld , storageNew );
 	}
 	
-	public synchronized void deleteProduct( TransactionBase transaction , ProductMeta storage ) {
-		EngineStatusProduct productStatus = products.get( storage.NAME );
+	public synchronized void deleteProduct( TransactionBase transaction , AppProduct product ) {
+		EngineStatusProduct productStatus = products.get( product.NAME );
 		if( productStatus == null )
 			return;
 		
 		productStatus.stop( transaction.getAction() );
-		products.remove( storage.NAME );
+		products.remove( product.NAME );
 		
-		deleteGlobalSource( StatusType.PRODUCT , storage.NAME );
+		deleteGlobalSource( StatusType.PRODUCT , product.NAME );
 	}
 
 	private EngineStatusProduct getProductStatus( Meta meta ) {
