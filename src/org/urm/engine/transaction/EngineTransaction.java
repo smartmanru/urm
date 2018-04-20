@@ -71,6 +71,7 @@ public class EngineTransaction extends TransactionBase {
 	//		product:
 	//			PRODUCT
 	//			ENVIRONMENT
+	//			REVISIONS
 	
 	// ################################################################################
 	// ################################################################################
@@ -1300,5 +1301,17 @@ public class EngineTransaction extends TransactionBase {
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
 		DBMetaMonitoring.deleteTargetItem( this , storage , env , item.target , item );
 	}
+
+	// ################################################################################
+	// ################################################################################
+	// REVISIONS
+	
+	public void renameRevision( Meta meta , String name ) throws Exception {
+		ProductMeta storage = meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		
+		DBMeta.renameRevision( this , storage , name );
+	}
+
 	
 }

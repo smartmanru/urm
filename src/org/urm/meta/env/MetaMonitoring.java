@@ -3,6 +3,8 @@ package org.urm.meta.env;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.common.Common;
+
 public class MetaMonitoring {
 
 	public ProductEnvs envs;
@@ -34,7 +36,7 @@ public class MetaMonitoring {
 		mapTargets.put( target.ID , target );
 	}
 
-	public MetaMonitoringTarget findMonitoringTarget( MetaEnvSegment sg ) {
+	public MetaMonitoringTarget findTarget( MetaEnvSegment sg ) {
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
 			if( target.SEGMENT_ID == sg.ID )
 				return( target );
@@ -42,4 +44,11 @@ public class MetaMonitoring {
 		return( null );
 	}
 
+	public MetaMonitoringTarget getTarget( int id ) throws Exception {
+		MetaMonitoringTarget target = mapTargets.get( id );
+		if( target == null )
+			Common.exitUnexpected();
+		return( target );
+	}
+	
 }

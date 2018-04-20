@@ -206,7 +206,7 @@ public class EngineMonitoring extends EngineObject {
 			return( false );
 		
 		MetaMonitoring metamon = sg.meta.getMonitoring();
-		MetaMonitoringTarget target = metamon.findMonitoringTarget( sg );
+		MetaMonitoringTarget target = metamon.findTarget( sg );
 		return( target != null && isRunning( sg.env ) && sg.OFFLINE == false && ( target.MAJOR_ENABLED || target.MINOR_ENABLED ) );
 	}	
 	

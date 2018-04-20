@@ -1,8 +1,11 @@
 package org.urm.meta.env;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumMonItemType;
 import org.urm.engine.schedule.ScheduleProperties;
 
@@ -30,7 +33,8 @@ public class MetaMonitoringTarget {
 
 	public ScheduleProperties majorSchedule;
 	public ScheduleProperties minorSchedule;
-	
+
+	private Map<Integer,MetaMonitoringItem> mapItems;
 	private List<MetaMonitoringItem> listUrls;
 	private List<MetaMonitoringItem> listWS;
 
@@ -40,8 +44,10 @@ public class MetaMonitoringTarget {
 		
 		ID = -1;
 		EV = -1;
+		
 		listUrls = new LinkedList<MetaMonitoringItem>();
 		listWS = new LinkedList<MetaMonitoringItem>();
+		mapItems = new HashMap<Integer,MetaMonitoringItem>(); 
 	}
 
 	public MetaMonitoringTarget copy( ProductEnvs renvs , MetaMonitoring rmon ) {
@@ -73,10 +79,12 @@ public class MetaMonitoringTarget {
 	
 	public void addUrl( MetaMonitoringItem item ) {
 		listUrls.add( item );
+		mapItems.put( item.ID , item );
 	}
 	
 	public void addWS( MetaMonitoringItem item ) {
 		listWS.add( item );
+		mapItems.put( item.ID , item );
 	}
 	
 	public MetaMonitoringItem[] getUrlsList() {
@@ -100,6 +108,7 @@ public class MetaMonitoringTarget {
 		else
 		if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKWS )
 			listWS.remove( item );
+		mapItems.remove( item.ID );
 	}
 	
 	public void modifyTarget( boolean major , boolean enabled , ScheduleProperties schedule , int maxTime ) throws Exception {
@@ -122,6 +131,13 @@ public class MetaMonitoringTarget {
 	public MetaEnvSegment getSegment() {
 		MetaEnv env = envs.findMetaEnv( ENV_ID );
 		return( env.findSegment( SEGMENT_ID ) );
+	}
+
+	public MetaMonitoringItem getItem( int id ) throws Exception {
+		MetaMonitoringItem item = mapItems.get( id );
+		if( item == null )
+			Common.exitUnexpected();
+		return( item );
 	}
 	
 }

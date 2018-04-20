@@ -49,6 +49,9 @@ import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaMonitoring;
+import org.urm.meta.env.MetaMonitoringItem;
+import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
@@ -1522,6 +1525,20 @@ public class TransactionBase extends EngineObject {
 		if( dump.EXPORT )
 			return( db.findExportDump( dump.NAME ) );
 		return( db.findImportDump( dump.NAME ) );
+	}
+	
+	public MetaMonitoringTarget getMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
+		Meta meta = getMeta( target.envs.meta );
+		MetaMonitoring mon = meta.getMonitoring();
+		MetaMonitoringTarget targetUpdated = mon.getTarget( target.ID );
+		if( targetUpdated == null )
+			Common.exitUnexpected();
+		return( target );
+	}
+
+	public MetaMonitoringItem getMonitoringItem( MetaMonitoringItem item ) throws Exception {
+		MetaMonitoringTarget targetUpdated = getMonitoringTarget( item.target );
+		return( targetUpdated.getItem( item.ID ) );
 	}
 	
 	public void checkSecurityFailed() {

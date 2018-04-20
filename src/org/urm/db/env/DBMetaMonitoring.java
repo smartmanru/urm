@@ -178,7 +178,7 @@ public class DBMetaMonitoring {
 		ProductEnvs envs = storage.getEnviroments();
 		MetaMonitoring mon = envs.getMonitoring();
 				
-		MetaMonitoringTarget target = mon.findMonitoringTarget( sg );
+		MetaMonitoringTarget target = mon.findTarget( sg );
 		if( target == null ) {
 			target = new MetaMonitoringTarget( storage.getEnviroments() , mon );
 			target.createTarget( sg );

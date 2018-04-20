@@ -13,7 +13,9 @@ import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.loader.EngineLoader;
@@ -93,6 +95,19 @@ public class DBMeta {
 		}
 		
 		return( products.toArray( new ProductMeta[0] ) );
+	}
+
+	public static void renameRevision( EngineTransaction transaction , ProductMeta storage , String name ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		AppProduct product = storage.getProduct();
+		EngineProductRevisions revisions = product.findRevisions();
+		
+		ProductMeta metaOther = revisions.findRevision( name );
+		if( metaOther != null && metaOther != storage )
+			Common.exitUnexpected();
+		
+		storage.setRevision( name );
+		modifyMeta( c , product , storage , false );
 	}
 	
 }
