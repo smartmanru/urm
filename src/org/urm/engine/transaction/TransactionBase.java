@@ -1581,9 +1581,9 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	protected void setProductDraft( AppProduct product , ProductMeta metadata ) throws Exception {
+	protected void updateRevision( AppProduct product , ProductMeta metadata ) throws Exception {
 		EngineProducts products = data.getProducts();
-		products.setProductDraft( product , metadata );
+		products.updateRevision( product , metadata );
 	}
 	
 	public void deleteProductMetadata( ProductMeta metadata ) throws Exception {

@@ -109,5 +109,15 @@ public class DBMeta {
 		storage.setRevision( name );
 		modifyMeta( c , product , storage , false );
 	}
+
+	public static void saveRevision( EngineTransaction transaction , ProductMeta storage ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		AppProduct product = storage.getProduct();
+		if( !storage.isDraft() )
+			Common.exitUnexpected();
+		
+		storage.setDraft( false );
+		modifyMeta( c , product , storage , false );
+	}
 	
 }

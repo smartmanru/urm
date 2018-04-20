@@ -183,8 +183,8 @@ public class DBMetaMonitoring {
 			target = new MetaMonitoringTarget( storage.getEnviroments() , mon );
 			target.createTarget( sg );
 			target.modifyTarget( major , enabled , schedule , maxTime );
-			mon.addTarget( target );
 			modifyTarget( c , storage , env , target , true );
+			mon.addTarget( target );
 		}
 		else {
 			target.modifyTarget( major , enabled , schedule , maxTime );

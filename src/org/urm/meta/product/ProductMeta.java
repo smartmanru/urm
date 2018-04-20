@@ -125,6 +125,10 @@ public class ProductMeta extends EngineObject {
 		return( DRAFT );
 	}
 	
+	public void setDraft( boolean draft ) {
+		this.DRAFT = draft;
+	}
+	
 	public ReleaseRepository getReleaseRepository() {
 		return( releases );
 	}

@@ -81,7 +81,7 @@ public class EngineLoaderProducts {
 			ldr.createDistributives( forceClearDist );
 			
 			// add product
-			products.setProductDraft( product , set );
+			ep.addProductMeta( set );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -204,7 +204,7 @@ public class EngineLoaderProducts {
 				if( !matcher.matchProduct( loader , product , set , update ) )
 					trace( "match failed for product=" + product.NAME );
 				else {
-					products.setProductDraft( product , set );
+					products.updateRevision( product , set );
 					if( setOld != null )
 						products.unloadProduct( setOld );
 					trace( "successfully matched product=" + product.NAME );

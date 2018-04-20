@@ -123,8 +123,8 @@ public class EngineProduct {
 		}
 	}
 
-	public void setDraftRevision( ProductMeta storage ) throws Exception {
-		revisions.setDraftRevision( storage );
+	public void updateRevision( ProductMeta storage ) throws Exception {
+		revisions.updateRevision( storage );
 	}
 	
 	public ProductMeta findRevision( String revision ) {

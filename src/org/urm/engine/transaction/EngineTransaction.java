@@ -1313,5 +1313,11 @@ public class EngineTransaction extends TransactionBase {
 		DBMeta.renameRevision( this , storage , name );
 	}
 
+	public void saveRevision( Meta meta ) throws Exception {
+		ProductMeta storage = meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		
+		DBMeta.saveRevision( this , storage );
+	}
 	
 }

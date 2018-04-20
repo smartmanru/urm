@@ -220,7 +220,7 @@ public class TransactionMetadata {
 			if( save ) {
 				EngineDirectory directory = transaction.getDirectory();
 				AppProduct product = directory.getProduct( ep.productId );
-				transaction.setProductDraft( product , metadataOld );
+				transaction.updateRevision( product , metadataOld );
 			}
 			
 			if( productType != CHANGETYPE.DELETE && sessionMeta != null ) {
@@ -259,7 +259,7 @@ public class TransactionMetadata {
 				
 			EngineDirectory directory = transaction.getDirectory();
 			AppProduct product = directory.getProduct( ep.productId );
-			transaction.setProductDraft( product , metadata );
+			transaction.updateRevision( product , metadata );
 			
 			if( sessionMeta != null ) {
 				EngineProductSessions sessions = ep.getSessions();

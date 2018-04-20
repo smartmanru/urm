@@ -72,12 +72,16 @@ public class EngineProductRevisions {
 		return( productMetaById.values().toArray( new ProductMeta[0] ) );
 	}
 	
-	public synchronized void setDraftRevision( ProductMeta storage ) throws Exception {
+	public synchronized void updateRevision( ProductMeta storage ) throws Exception {
 		ProductMeta storageOld = productMetaById.get( storage.ID );
+		if( storageOld == storage )
+			return;
+		
 		if( storageOld != null )
 			storageOld.setPrimary( false );
 
-		draft = null;
+		if( storageOld == draft )
+			draft = null;
 		addProductMeta( storage );
 	}
 	

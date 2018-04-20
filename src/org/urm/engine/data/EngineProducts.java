@@ -102,9 +102,9 @@ public class EngineProducts {
 		ep.unloadProduct( storage );
 	}
 	
-	public void setProductDraft( AppProduct product , ProductMeta storage ) throws Exception {
+	public void updateRevision( AppProduct product , ProductMeta storage ) throws Exception {
 		EngineProduct ep = findEngineProduct( product );
-		ep.setDraftRevision( storage );
+		ep.updateRevision( storage );
 	}
 	
 	public void deleteProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
