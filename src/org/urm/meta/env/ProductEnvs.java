@@ -46,6 +46,8 @@ public class ProductEnvs {
 		for( MetaEnv renv : r.getEnvs() )
 			renv.refreshProperties();
 		
+		r.mon = mon.copy( r );
+		
 		return( r );
 	}
 
