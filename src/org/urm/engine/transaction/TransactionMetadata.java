@@ -307,7 +307,7 @@ public class TransactionMetadata {
 		CallService jmx = transaction.engine.jmx;
 
 		if( matchedBeforeImport ) {
-			status.deleteProduct( transaction , metadata );
+			status.deleteProduct( transaction , product );
 			mon.transactionCommitDeleteProduct( transaction , product );
 		}
 		
@@ -326,7 +326,7 @@ public class TransactionMetadata {
 	
 	private void deleteProductFinish( AppProduct product , ProductMeta metadata ) throws Exception {
 		StateService status = transaction.action.getEngineStatus();
-		status.deleteProduct( transaction , metadata );
+		status.deleteProduct( transaction , product );
 		EngineMonitoring mon = transaction.action.getEngineMonitoring();
 		mon.transactionCommitDeleteProduct( transaction , product );
 		CallService jmx = transaction.engine.jmx;
