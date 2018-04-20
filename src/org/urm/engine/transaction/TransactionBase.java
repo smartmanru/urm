@@ -986,6 +986,9 @@ public class TransactionBase extends EngineObject {
 	public boolean changeMetadata( Meta meta ) {
 		synchronized( engine ) {
 			try {
+				if( !meta.isDraft() )
+					Common.exitUnexpected();
+					
 				if( !continueTransaction() )
 					return( false );
 

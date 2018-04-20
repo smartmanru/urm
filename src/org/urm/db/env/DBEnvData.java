@@ -100,7 +100,7 @@ public class DBEnvData {
 	public static String FIELD_MONTARGET_MINOR_SCHEDULE = "minor_schedule";
 	public static String FIELD_MONTARGET_MINOR_MAXTIME = "minor_maxtime";
 	public static String FIELD_MONITEM_ID = "monitem_id";
-	public static String FIELD_MONITEM_TARGET_ID = "monitem_id";
+	public static String FIELD_MONITEM_TARGET_ID = "montarget_id";
 	public static String FIELD_MONITEM_TYPE = "monitem_type";
 	public static String FIELD_MONITEM_DESC = "xdesc";
 
