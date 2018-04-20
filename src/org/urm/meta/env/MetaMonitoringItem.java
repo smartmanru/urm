@@ -39,11 +39,26 @@ public class MetaMonitoringItem {
 		return( r );
 	}		
 
-	public void create( String url , String wsdata , String wscheck , String desc ) {
+	public void create( DBEnumMonItemType type , String url , String desc , String wsdata , String wscheck ) {
+		this.MONITEM_TYPE = type;
 		this.URL = url;
 		this.WSDATA = wsdata;
 		this.WSCHECK = wscheck;
 		this.DESC = desc;
+	}
+	
+	public void modifyPage( String url , String desc ) {
+		this.URL = url;
+		this.DESC = desc;
+		this.WSDATA = "";
+		this.WSCHECK = "";
+	}
+	
+	public void modifyWebService( String url , String desc , String wsdata , String wscheck ) {
+		this.URL = url;
+		this.DESC = desc;
+		this.WSDATA = wsdata;
+		this.WSCHECK = wscheck;
 	}
 	
 }

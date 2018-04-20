@@ -3,6 +3,7 @@ package org.urm.meta.env;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.db.core.DBEnums.DBEnumMonItemType;
 import org.urm.engine.schedule.ScheduleProperties;
 
 public class MetaMonitoringTarget {
@@ -93,6 +94,14 @@ public class MetaMonitoringTarget {
 		minorSchedule = new ScheduleProperties();
 	}
 
+	public void removeItem( MetaMonitoringItem item ) {
+		if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKURL )
+			listUrls.remove( item );
+		else
+		if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKWS )
+			listWS.remove( item );
+	}
+	
 	public void modifyTarget( boolean major , boolean enabled , ScheduleProperties schedule , int maxTime ) throws Exception {
 		if( major ) {
 			this.MAJOR_ENABLED = enabled;

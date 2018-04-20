@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
+import org.urm.db.core.DBEnums.DBEnumMonItemType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
@@ -95,11 +96,13 @@ public class DBMetaMonitoring {
 		
 		for( Node node : items ) {
 			MetaMonitoringItem item = new MetaMonitoringItem( storage.getEnviroments() , target );
-			item.create( 
-					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_URL ) , 
+			item.create(
+					DBEnumMonItemType.CHECKURL ,
+					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_URL ) ,
+					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_DESC ) ,
 					"" , 
-					"" ,
-					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_DESC ) );
+					""
+					);
 			target.addUrl( item );
 			modifyItem( c , storage , env , item , true );
 		}
@@ -118,10 +121,12 @@ public class DBMetaMonitoring {
 		for( Node node : items ) {
 			MetaMonitoringItem item = new MetaMonitoringItem( storage.getEnviroments() , target );
 			item.create( 
-					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_URL ) , 
+					DBEnumMonItemType.CHECKWS ,
+					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_URL ) ,
+					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_DESC ) ,
 					getNodeSubTree( action , node , MetaMonitoringItem.PROPERTY_WSDATA ) ,
-					getNodeSubTree( action , node , MetaMonitoringItem.PROPERTY_WSCHECK ) ,
-					entity.importxmlStringAttr( node , MetaMonitoringItem.PROPERTY_DESC ) );
+					getNodeSubTree( action , node , MetaMonitoringItem.PROPERTY_WSCHECK )
+					);
 			target.addWS( item );
 			modifyItem( c , storage , env , item , true );
 		}
@@ -187,6 +192,48 @@ public class DBMetaMonitoring {
 		}
 		
 		return( target );
+	}
+
+	public static MetaMonitoringItem createTargetItem( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaMonitoringTarget target , DBEnumMonItemType type , String url , String desc , String wsdata , String wscheck ) throws Exception {
+		DBConnection c = transaction.getConnection();
+				
+		MetaMonitoringItem item = new MetaMonitoringItem( storage.getEnviroments() , target );
+		item.create( type , url , desc , wsdata , wscheck );
+		if( type == DBEnumMonItemType.CHECKURL )
+			target.addUrl( item );
+		else
+		if( type == DBEnumMonItemType.CHECKWS )
+			target.addUrl( item );
+		else
+			Common.exitUnexpected();
+			
+		modifyItem( c , storage , env , item , true );
+		
+		return( item );
+	}
+
+	public static void modifyTargetItem( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaMonitoringTarget target , MetaMonitoringItem item , String url , String desc , String wsdata , String wscheck ) throws Exception {
+		DBConnection c = transaction.getConnection();
+				
+		if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKURL )
+			item.modifyPage( url , desc );
+		else
+		if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKWS )
+			item.modifyWebService( url , desc , wsdata , wscheck );
+		else
+			Common.exitUnexpected();
+			
+		modifyItem( c , storage , env , item , true );
+	}
+
+	public static void deleteTargetItem( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaMonitoringTarget target , MetaMonitoringItem item ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+
+		int version = c.getNextEnvironmentVersion( env );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppSegmentMonItem , item.ID , version );
+		
+		target.removeItem( item );
 	}
 
 	private static String getNodeSubTree( ActionBase action , Node node , String name ) throws Exception {
