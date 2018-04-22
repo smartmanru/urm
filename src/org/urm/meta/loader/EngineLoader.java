@@ -347,6 +347,16 @@ public class EngineLoader {
 		return( ldp.createProductMetadata( product , forceClearMeta , forceClearDist ) );
 	}
 	
+	public ProductMeta createProductRevision( AppProduct product , String name , boolean forceClearMeta ) throws Exception {
+		trace( "create engine product=" + product.NAME + " revision=" + name + " ..." );
+		return( ldp.createProductRevision( product , name , forceClearMeta ) );
+	}
+	
+	public ProductMeta copyProductRevision( AppProduct product , String name , ProductMeta src ) throws Exception {
+		trace( "copy engine product=" + product.NAME + " revision=" + src.NAME + " to revision=" + name + " ..." );
+		return( ldp.copyProductRevision( product , name , src ) );
+	}
+	
 	private void exportProduct( Integer productId ) throws Exception {
 		EngineDirectory directory = data.getDirectory();
 		AppProduct product = directory.getProduct( productId );

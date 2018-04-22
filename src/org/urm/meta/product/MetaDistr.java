@@ -42,18 +42,12 @@ public class MetaDistr {
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			MetaDistrDelivery rd = delivery.copy( rmeta , r , rdb , rdocs , true );
 			r.addDelivery( rd );
-		}
 		
-		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
-			MetaDistrDelivery rd = r.getDelivery( item.delivery.ID );
-			MetaDistrBinaryItem ritem = item.copy( rmeta , rd );
-			r.addBinaryItem( ritem );
-		}
-		
-		for( MetaDistrConfItem item : mapConfItems.values() ) {
-			MetaDistrDelivery rd = r.getDelivery( item.delivery.ID );
-			MetaDistrConfItem ritem = item.copy( rmeta , rd );
-			r.addConfItem( ritem );
+			for( MetaDistrBinaryItem ritem : rd.getBinaryItems() )
+				r.addBinaryItem( ritem );
+			
+			for( MetaDistrConfItem ritem : rd.getConfItems() )
+				r.addConfItem( ritem );
 		}
 		
 		for( MetaDistrComponent item : mapComps.values() ) {

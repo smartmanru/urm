@@ -949,6 +949,9 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public Meta getContextMeta() throws Exception {
+		if( context.meta != null )
+			return( context.meta );
+		
 		AppProduct product = getContextProduct();
 		EngineProduct ep = product.getEngineProduct();
 		EngineProductRevisions revisions = ep.getRevisions();

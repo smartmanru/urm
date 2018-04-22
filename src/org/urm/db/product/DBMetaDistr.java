@@ -32,6 +32,7 @@ import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaDocs;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaProductUnit;
+import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaUnits;
@@ -69,6 +70,7 @@ public class DBMetaDistr {
 		MetaDistr distr = new MetaDistr( dst , dst.meta );
 		MetaDatabase db = dst.getDatabase();
 		MetaDocs docs = dst.getDocs();
+		MetaSources sources = dst.getSources();
 		
 		dst.setDistr( distr );
 		for( MetaDistrDelivery deliverySrc : distrSrc.getDeliveries() ) {
@@ -78,6 +80,15 @@ public class DBMetaDistr {
 			
 			for( MetaDistrBinaryItem itemSrc : deliverySrc.getBinaryItems() ) {
 				MetaDistrBinaryItem item = itemSrc.copy( dst.meta , delivery );
+				if( itemSrc.isProjectItem() ) {
+					MetaSourceProject project = sources.getProject( itemSrc.sourceProjectItem.project.NAME );
+					MetaSourceProjectItem srcitem = project.getItem( itemSrc.sourceProjectItem.NAME );
+					item.setBuildOrigin( srcitem );
+				}
+				else
+				if( item.isDerivedItem() )
+					item.setDistOrigin( null , itemSrc.SRC_ITEMPATH );
+				
 				modifyBinaryItem( c , dst , item , true , EnumModifyType.ORIGINAL );
 				distr.addBinaryItem( delivery , item );
 			}
@@ -132,8 +143,15 @@ public class DBMetaDistr {
 		}
 		
 		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
-			for( MetaDistrBinaryItem item : delivery.getBinaryItems() )
-				item.resolveReferences();
+			for( MetaDistrBinaryItem item : delivery.getBinaryItems() ) {
+				if( item.isDerivedItem() ) {
+					MetaDistrBinaryItem itemSrc = distrSrc.getBinaryItem( item.NAME );
+					MetaDistrBinaryItem itemOriginSrc = distrSrc.getBinaryItem( itemSrc.SRC_BINARY_ID );
+					MetaDistrBinaryItem itemOrigin = distr.getBinaryItem( itemOriginSrc.NAME );
+					item.setDistOrigin( itemOrigin , itemSrc.SRC_ITEMPATH );
+					modifyBinaryItem( c , dst , item , false , EnumModifyType.SET );
+				}
+			}
 		}
 	}
 	

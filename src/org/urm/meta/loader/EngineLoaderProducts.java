@@ -19,12 +19,15 @@ import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
 
 public class EngineLoaderProducts {
 
+	public static String REVISION_INITIAL = "initial";
+	
 	private EngineLoader loader;
 	private DataService data;
 	public RunContext execrc;
@@ -39,23 +42,12 @@ public class EngineLoaderProducts {
 	
 	public ProductMeta createProductMetadata( AppProduct product , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
 		ActionBase action = loader.getAction();
-		EngineSettings settings = loader.getSettings();
-		UrmStorage urm = action.artefactory.getUrmStorage();
-		ProductContext context = new ProductContext( product , settings , urm.getProductHome( action , product ) );
-		
 		EngineProducts products = data.getProducts();
 		EngineProduct ep = products.getEngineProduct( product );
-		ProductMeta set = new ProductMeta( ep );
-		set.setMatched( true );
-		set.setRevision( "initial" );
 		
+		ProductMeta set = null;
 		try {
-			// create in database
-			EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
-			ldm.createdbAll( context );
-	
-			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-			lde.createAll( forceClearMeta );
+			set = createProductRevision( product , "initial" , forceClearMeta );
 	
 			// create folders
 			ProductStorage ms = action.artefactory.getMetadataStorage( action , product );
@@ -74,20 +66,66 @@ public class EngineLoaderProducts {
 			folder.ensureExists( action );
 			folder = ms.getEnvConfFolder( action );
 			folder.ensureExists( action );
-	
-			// create releases
+
+			// create distributives
 			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , ep );
-			ldr.createReleases( set , forceClearMeta );
 			ldr.createDistributives( forceClearDist );
-			
-			// add product
-			ep.addProductMeta( set );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
 			action.error( "unable to create metadata, product=" + product.NAME );
-			set.meta.deleteObject();
-			set.deleteObject();
+			if( set != null ) {
+				set.meta.deleteObject();
+				set.deleteObject();
+			}
+			return( null );
+		}
+		
+		return( set );
+	}
+	
+	public ProductMeta createProductRevision( AppProduct product , String name , boolean forceClearMeta ) throws Exception {
+		return( createProductRevision( product , name , null , forceClearMeta ) );
+	}
+
+	public ProductMeta copyProductRevision( AppProduct product , String name , ProductMeta src ) throws Exception {
+		return( createProductRevision( product , name , src , false ) );
+	}
+	
+	public ProductMeta createProductRevision( AppProduct product , String name , ProductMeta src , boolean forceClearMeta ) throws Exception {
+		ActionBase action = loader.getAction();
+		EngineSettings settings = loader.getSettings();
+		UrmStorage urm = action.artefactory.getUrmStorage();
+		ProductContext context = new ProductContext( product , settings , urm.getProductHome( action , product ) );
+		
+		EngineProduct ep = product.getEngineProduct();
+		ProductMeta set = new ProductMeta( engine , ep );
+		set.setMatched( true );
+		set.setRevision( name );
+		
+		try {
+			// create in database
+			EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
+			if( src != null )
+				ldm.copydbAll( context , src );
+			else
+				ldm.createdbAll( context );
+	
+			// create releases repository
+			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , ep );
+			ldr.createReleases( set , forceClearMeta );
+			
+			// create environments
+			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
+			lde.createAll( forceClearMeta );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			action.error( "unable to create revision, product=" + product.NAME + ", revision=" + name );
+			if( set != null ) {
+				set.meta.deleteObject();
+				set.deleteObject();
+			}
 			return( null );
 		}
 		
@@ -111,7 +149,7 @@ public class EngineLoaderProducts {
 		}
 	}
 
-	public void importProduct( AppProduct product , boolean includingEnvironments ) throws Exception {
+	public ProductMeta importProduct( AppProduct product , boolean includingEnvironments ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
 		EngineProducts products = data.getProducts();
@@ -142,8 +180,7 @@ public class EngineLoaderProducts {
 			if( !storageNew.MATCHED )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
 			
-			EngineDirectory directory = product.directory;
-			directory.addMatchedProduct( product );
+			return( storageNew );
 		}
 	}
 	
@@ -184,12 +221,21 @@ public class EngineLoaderProducts {
 		EngineProducts products = data.getProducts();
 		EngineProduct ep = products.findEngineProduct( product );
 		
-		ProductMeta set = new ProductMeta( ep );
+		ProductMeta set = new ProductMeta( engine , ep );
 		set.setMatched( true );
-		set.setRevision( "initial" );
+		set.setRevision( REVISION_INITIAL );
 		
 		ActionBase action = loader.getAction();
 		try {
+			if( setOld == null && ep.findRevision( REVISION_INITIAL ) != null )
+				Common.exit1( _Error.FinalRevisionExists1 , "Cannot replace finalized revision=" + REVISION_INITIAL , REVISION_INITIAL );
+			
+			TransactionBase transaction = loader.getTransaction();
+			if( setOld == null )
+				transaction.createProductMetadata( set );
+			else
+				transaction.replaceProductMetadata( set , setOld );
+			
 			UrmStorage urm = action.artefactory.getUrmStorage();
 			LocalFolder meta = urm.getProductCoreMetadataFolder( action , product );
 			
@@ -203,12 +249,8 @@ public class EngineLoaderProducts {
 				EngineMatcher matcher = loader.getMatcher();
 				if( !matcher.matchProduct( loader , product , set , update ) )
 					trace( "match failed for product=" + product.NAME );
-				else {
-					products.updateRevision( product , set );
-					if( setOld != null )
-						products.unloadProduct( setOld );
+				else
 					trace( "successfully matched product=" + product.NAME );
-				}
 			}
 			else {
 				String path = meta.getLocalPath( action );
@@ -264,13 +306,19 @@ public class EngineLoaderProducts {
 				trace( "match failed for product=" + product.NAME + ", revision=" + set.REVISION );
 			else
 				trace( "successfully matched product=" + product.NAME + ", revision=" + set.REVISION );
-			
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+			action.error( "unable to load revision metadata, product=" + product.NAME + ", revision=" + set.REVISION );
+			set.setMatched( false );
+		}
+	
+		try {
 			ep.addProductMeta( set );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
-			action.error( "unable to load metadata, product=" + product.NAME );
-			set.setMatched( false );
+			action.error( "unable to add revision metadata, product=" + product.NAME + ", revision=" + set.REVISION );
 		}
 	}
 
@@ -288,7 +336,7 @@ public class EngineLoaderProducts {
 		
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
 			if( includingEnvironments )
-				lde.importxmlAll( ms , update );
+				lde.importxmlAll( ep , ms , update );
 			else
  				lde.loaddbAll();
 				

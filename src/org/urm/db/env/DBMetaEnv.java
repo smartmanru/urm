@@ -17,6 +17,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
@@ -44,11 +45,20 @@ public class DBMetaEnv {
 	public static String ELEMENT_SEGMENT = "segment";
 	public static String ATTR_VERSION = "envversion";
 	
-	public static MetaEnv importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
+	public static MetaEnv importxml( EngineLoader loader , EngineProduct ep , ProductMeta storage , Node root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppEnvPrimary;
+		String name = entity.importxmlStringAttr( root , MetaEnv.PROPERTY_NAME );
+		
+		if( ep.findEnv( name ) != null ) {
+			loader.trace( "skip import existing environment, name=" + name );
+			return( null );
+		}
+		
 		ProductEnvs envs = storage.getEnviroments();
 		MetaEnv env = new MetaEnv( storage , storage.meta , envs );
 		
-		importxmlMain( loader , storage , env , root );
+		importxmlMain( loader , storage , name , env , root );
 		importxmlSegments( loader , storage , env , root );
 		
 		envs.addEnv( env );
@@ -78,7 +88,7 @@ public class DBMetaEnv {
 		}
 	}
 	
-	private static void importxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
+	private static void importxmlMain( EngineLoader loader , ProductMeta storage , String name , MetaEnv env , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		EngineMatcher matcher = loader.getMatcher();
@@ -88,10 +98,9 @@ public class DBMetaEnv {
 		// identify
 		String version = ConfReader.getAttrValue( root , ATTR_VERSION );
 		PropertyEntity entity = entities.entityAppEnvPrimary;
-		String NAME = entity.importxmlStringAttr( root , MetaEnv.PROPERTY_NAME );
-		env.ID = DBNames.getNameIndex( c , storage.ID , NAME , DBEnumParamEntityType.ENV_PRIMARY );
+		env.ID = DBNames.getNameIndex( c , storage.ID , name , DBEnumParamEntityType.ENV_PRIMARY );
 
-		loader.trace( "import meta env object, object=" + env.objectId + ", id=" + env.ID + ", name=" + NAME + ", source version=" + version );
+		loader.trace( "import meta env object, object=" + env.objectId + ", id=" + env.ID + ", name=" + name + ", source version=" + version );
 
 		TransactionBase transaction = loader.getTransaction();
 		if( !transaction.importEnv( env ) )
@@ -124,7 +133,7 @@ public class DBMetaEnv {
 		
 		// primary
 		env.setEnvPrimary(
-				NAME ,
+				name ,
 				entity.importxmlStringAttr( root , MetaEnv.PROPERTY_DESC ) ,
 				DBEnumEnvType.getValue( entity.importxmlEnumAttr( root , MetaEnv.PROPERTY_ENVTYPE ) , true ) ,
 				BASELINE ,

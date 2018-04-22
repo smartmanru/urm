@@ -45,8 +45,11 @@ public class EngineProductRevisions {
 	}
 
 	public synchronized void unloadProduct( ProductMeta storage ) {
-		if( productMetaById.get( storage.ID ) == storage )
+		if( productMetaById.get( storage.ID ) == storage ) {
 			productMetaById.remove( storage.ID );
+			if( draft != null && storage.ID == draft.ID )
+				draft = null;
+		}
 	}
 
 	public synchronized ProductMeta findRevision( String name ) {
@@ -72,16 +75,12 @@ public class EngineProductRevisions {
 		return( productMetaById.values().toArray( new ProductMeta[0] ) );
 	}
 	
-	public synchronized void updateRevision( ProductMeta storage ) throws Exception {
-		ProductMeta storageOld = productMetaById.get( storage.ID );
-		if( storageOld == storage )
-			return;
-		
-		if( storageOld != null )
+	public synchronized void updateRevision( ProductMeta storage , ProductMeta storageOld ) throws Exception {
+		if( storageOld != null ) {
+			unloadProduct( storageOld );
 			storageOld.setPrimary( false );
+		}
 
-		if( storageOld == draft )
-			draft = null;
 		addProductMeta( storage );
 	}
 	

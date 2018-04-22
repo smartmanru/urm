@@ -8,6 +8,7 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineProducts;
 import org.urm.engine.dist.DistRepository;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 
@@ -123,8 +124,8 @@ public class EngineProduct {
 		}
 	}
 
-	public void updateRevision( ProductMeta storage ) throws Exception {
-		revisions.updateRevision( storage );
+	public void updateRevision( ProductMeta storage , ProductMeta storageOld ) throws Exception {
+		revisions.updateRevision( storage , storageOld );
 	}
 	
 	public ProductMeta findRevision( String revision ) {
@@ -155,6 +156,10 @@ public class EngineProduct {
 
 	public void releaseSessionMeta( ActionBase action , Meta meta ) throws Exception {
 		sessions.releaseSessionProductMetadata( action , meta );
+	}
+
+	public MetaEnv findEnv( String name ) throws Exception {
+		return( envs.findEnv( name ) );
 	}
 	
 }

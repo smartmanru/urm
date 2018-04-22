@@ -145,7 +145,9 @@ public class EngineDB {
 		return( "" + value );
 	}
 	
-	public static String getBoolean( boolean value ) {
+	public static String getBoolean( Boolean value ) {
+		if( value == null )
+			return( "null" );
 		return( ( value )? "'yes'" : "'no'" );
 	}
 

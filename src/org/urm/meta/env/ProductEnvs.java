@@ -172,4 +172,8 @@ public class ProductEnvs {
 			env.getApplicationReferences( account , refs );
 	}
 
+	public boolean isEmpty() {
+		return( mapEnvsById.isEmpty() );
+	}
+	
 }

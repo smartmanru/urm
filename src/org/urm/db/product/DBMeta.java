@@ -8,17 +8,20 @@ import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
-import org.urm.db.core.DBNames;
-import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
+import org.urm.engine.Engine;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.dist._Error;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Node;
 
@@ -44,9 +47,7 @@ public class DBMeta {
 
 	private static void modifyMeta( DBConnection c , AppProduct product , ProductMeta storage , boolean insert ) throws Exception {
 		if( insert )
-			storage.ID = DBNames.getNameIndex( c , product.ID , storage.REVISION , DBEnumParamEntityType.PRODUCT );
-		else
-			DBNames.updateName( c , product.ID , storage.REVISION , storage.ID , DBEnumParamEntityType.PRODUCT );
+			storage.ID = c.getNextSequenceValue();
 		
 		storage.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
@@ -78,7 +79,7 @@ public class DBMeta {
 		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_NAME1 , new String[] { EngineDB.getString( ep.productName ) } );
 		try {
 			while( rs.next() ) {
-				ProductMeta meta = new ProductMeta( ep );
+				ProductMeta meta = new ProductMeta( loader.engine , ep );
 				meta.ID = entity.loaddbId( rs );
 				meta.PV = entity.loaddbVersion( rs );
 				meta.create(
@@ -118,6 +119,77 @@ public class DBMeta {
 		
 		storage.setDraft( false );
 		modifyMeta( c , product , storage , false );
+	}
+
+	public static boolean checkReleaseExists( DBConnection c , ProductMeta storage , Boolean released , Boolean completed ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		return( DBEngineEntities.existAppObjects( c , entities.entityAppReleaseSchedule , DBQueries.FILTER_REL_SCHEDULEMETA3 , new String[] { 
+				EngineDB.getInteger( storage.ID ) ,
+				EngineDB.getBoolean( released ) ,
+				EngineDB.getBoolean( completed )
+				} ) );
+	}
+	
+	public static void reopenRevision( EngineTransaction transaction , ProductMeta storage ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		AppProduct product = storage.getProduct();
+		
+		if( storage.isDraft() )
+			Common.exitUnexpected();
+		
+		// verify there are no finalized releases assigned to revision
+		if( checkReleaseExists( c , storage , true , null ) )
+			Common.exit0( _Error.ActiveReleaseExists0 , "Unable to turn revision to draft as there is finalized release assigned to revision" );
+		
+		// verify there are no online production environments assigned to revision
+		ProductEnvs envs = storage.getEnviroments();
+		for( MetaEnv env : envs.getEnvs() ) {
+			if( env.isProd() && env.isOnline() )
+				Common.exit0( _Error.ActiveEnvExists0 , "Unable to turn revision to draft as there is online production environment assigned to revision" );
+		}
+		
+		storage.setDraft( true );
+		modifyMeta( c , product , storage , false );
+	}
+
+	public static Meta createRevision( EngineTransaction transaction , AppProduct product , String name , Integer revSrc ) throws Exception {
+		EngineProduct ep = product.getEngineProduct();
+		EngineProductRevisions revisions = ep.getRevisions();
+		ProductMeta src = ( revSrc == null )? null : revisions.getRevision( revSrc );
+		
+		if( revisions.findRevision( name ) != null )
+			Common.exitUnexpected();
+		
+		Engine engine = transaction.engine;
+		EngineLoader loader = engine.createLoader( transaction );
+		
+		ProductMeta storage = null;
+		if( src == null )
+			storage = loader.createProductRevision( product , name , false );
+		else
+			storage = loader.copyProductRevision( product , name , src );
+		
+		if( storage == null )
+			Common.exitUnexpected();
+		
+		transaction.createProductMetadata( storage );
+		
+		return( storage.meta );
+	}
+
+	public static void deleteRevision( EngineTransaction transaction , ProductMeta storage ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		// verify there are no releases assigned to revision
+		if( checkReleaseExists( c , storage , true , null ) )
+			Common.exit0( _Error.ReleaseExists0 , "Unable to delete revision because there is a release assigned to revision" );
+		
+		// verify there are no online production environments assigned to revision
+		ProductEnvs envs = storage.getEnviroments();
+		if( !envs.isEmpty() )
+			Common.exit0( _Error.EnvExists0 , "Unable to delete revision because there is an environment assigned to revision" );
+
+		DBProductData.dropProductData( c , storage );
 	}
 	
 }

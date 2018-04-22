@@ -1306,6 +1306,11 @@ public class EngineTransaction extends TransactionBase {
 	// ################################################################################
 	// REVISIONS
 	
+	public Meta createRevision( EngineDirectory directory , AppProduct product , String name , Integer revSrc ) throws Exception {
+		super.checkTransactionDirectory( directory );
+		return( DBMeta.createRevision( this , product , name , revSrc ) );
+	}
+
 	public void renameRevision( Meta meta , String name ) throws Exception {
 		ProductMeta storage = meta.getStorage();
 		super.checkTransactionMetadata( storage );
@@ -1318,6 +1323,20 @@ public class EngineTransaction extends TransactionBase {
 		super.checkTransactionMetadata( storage );
 		
 		DBMeta.saveRevision( this , storage );
+	}
+	
+	public void reopenRevision( Meta meta ) throws Exception {
+		ProductMeta storage = meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		
+		DBMeta.reopenRevision( this , storage );
+	}
+	
+	public void deleteRevision( Meta meta ) throws Exception {
+		ProductMeta storage = meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		
+		DBMeta.deleteRevision( this , storage );
 	}
 	
 }

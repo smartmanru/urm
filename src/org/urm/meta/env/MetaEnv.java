@@ -112,6 +112,9 @@ public class MetaEnv extends EngineObject {
 		r.EV = EV;
 		r.MATCHED = MATCHED;
 		
+		if( rmeta.isDraft() && r.isProd() )
+			r.OFFLINE = true;
+		
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvSegment rsg = sg.copy( rmeta , r );
 			r.addSegment( rsg );
@@ -190,8 +193,15 @@ public class MetaEnv extends EngineObject {
 		DISTR_REMOTE = distRemote;
 		DISTR_ACCOUNT = MatchItem.copy( distAccountMatchItem );
 		DISTR_PATH = distPath;
+		
+		if( meta.isDraft() && isProd() )
+			OFFLINE = true;
 	}
 
+	public boolean isOnline() {
+		return( !OFFLINE );
+	}
+	
 	public void refreshProperties() throws Exception {
 		refreshPrimaryProperties();
 		for( MetaEnvSegment sg : sgMap.values() )

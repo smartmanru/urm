@@ -52,8 +52,7 @@ public class EngineProductSessions {
 	
 	public synchronized Meta createSessionProductMetadata( ActionBase action , ProductMeta storage ) {
 		EngineSession session = action.session;
-		Meta meta = new Meta( ep , storage , session );
-		engine.trace( "new run session meta object, id=" + meta.objectId + ", session=" + session.objectId );
+		Meta meta = new Meta( engine , ep , storage , session );
 		addSessionMeta( meta );
 		session.addProductMeta( meta );
 		return( meta );
@@ -97,8 +96,7 @@ public class EngineProductSessions {
 		if( !storage.isPrimary() )
 			return( null );
 		
-		meta = new Meta( ep , storage , session );
-		engine.trace( "new conf session meta object, id=" + meta.objectId + ", session=" + session.objectId );
+		meta = new Meta( engine , ep , storage , session );
 		
 		addSessionMeta( meta );
 		session.addProductMeta( meta );

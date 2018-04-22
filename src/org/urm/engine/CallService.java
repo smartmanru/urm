@@ -208,6 +208,9 @@ public class CallService {
 	}		
 	
 	public void addProduct( AppProduct product ) throws Exception {
+		if( productObjects.get( product.ID ) != null )
+			return;
+		
 		action.trace( "register jmx connector, product=" + product.NAME + " ..." );
 		List<String> objects = new LinkedList<String>();
 		productObjects.put( product.ID , objects );

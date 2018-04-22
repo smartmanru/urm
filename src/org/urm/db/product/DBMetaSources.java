@@ -61,12 +61,12 @@ public class DBMetaSources {
 			for( MetaSourceProject projectSrc : setSrc.getProjects() ) {
 				MetaSourceProject project = projectSrc.copy( dst.meta , set , false );
 				modifyProject( c , dst , project , true , EnumModifyType.ORIGINAL );
-				set.addProject( project );
+				sources.addProject( set , project );
 				
 				for( MetaSourceProjectItem itemSrc : projectSrc.getItems() ) {
 					MetaSourceProjectItem item = itemSrc.copy( dst.meta , project );
 					modifyProjectItem( c , dst , item , true , EnumModifyType.ORIGINAL );
-					project.addItem( item );
+					sources.addProjectItem( project , item );
 				}
 			}
 		}

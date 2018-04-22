@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.db.core.DBEnums.*;
@@ -74,17 +73,8 @@ public abstract class CommandExecutor {
 				return( true );
 		}
 		catch( Throwable e ) {
+			action.log( "method exception" , e );
 			action.fail1( _Error.ActionException1 , "Exception in method=" + method.method.name + ": " + e.toString() , method.method.name );
-			String trace = System.getenv( "TRACE" );
-			if( trace != null && trace.equals( "yes" ) )
-				e.printStackTrace();
-			else {
-				RunError ex = Common.getExitException( e );
-				if( ex == null || action.context.CTX_SHOWALL )
-					action.handle( e );
-				else
-					action.error( "exception: " + ex.getMessage() );
-			}
 		}
 		
 		return( false );

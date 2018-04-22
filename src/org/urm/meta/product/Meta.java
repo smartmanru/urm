@@ -47,13 +47,18 @@ public class Meta extends EngineObject {
 
 	public static String PROPERTY_NAME = "name";
 	
-	public Meta( EngineProduct ep , ProductMeta storage , EngineSession session ) {
+	public Meta( Engine engine , EngineProduct ep , ProductMeta storage , EngineSession session ) {
 		super( null );
 		this.ep = ep;
 		this.storage = storage;
 		this.session = session;
 		this.engine = ep.engine;
 		name = storage.NAME;
+		
+		if( session != null )
+			engine.trace( "new run session meta object, id=" + super.objectId + ", session=" + session.objectId );
+		else
+			engine.trace( "new run revision meta object, id=" + super.objectId );
 	}
 	
 	@Override

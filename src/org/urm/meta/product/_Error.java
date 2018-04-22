@@ -46,5 +46,6 @@ public class _Error {
 	public static final int UnknownUnit1 = ErrorBase + 86;
 	public static final int UnknownDoc1 = ErrorBase + 87;
 	public static final int UnknownDeliveryDoc1 = ErrorBase + 88;
+	public static final int UnableCopyMeta2 = ErrorBase + 89;
 
 }

@@ -2,6 +2,9 @@ package org.urm.meta.product;
 
 import java.util.Date;
 
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.engine.Engine;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.meta.engine.AppProduct;
@@ -36,18 +39,19 @@ public class ProductMeta extends EngineObject {
 
 	private boolean primary;
 	
-	public ProductMeta( EngineProduct ep ) {
+	public ProductMeta( Engine engine , EngineProduct ep ) {
 		super( null );
 		this.ep = ep;
 		this.NAME = ep.productName;
 		
-		meta = new Meta( ep , this , null );
+		meta = new Meta( engine , ep , this , null );
 		ID = null;
 		PV = -1;
 		MATCHED = false;
 		DRAFT = true;
 		
 		primary = false;
+		engine.trace( "new product revision object, id=" + super.objectId );
 	}
 
 	@Override
@@ -55,27 +59,34 @@ public class ProductMeta extends EngineObject {
 		return( NAME );
 	}
 	
-	public synchronized ProductMeta copy( ObjectProperties opsParent ) throws Exception {
-		ProductMeta r = new ProductMeta( ep );
-		
-		r.ID = ID;
-		r.NAME = NAME;
-		r.REVISION = REVISION;
-		r.DRAFT = DRAFT;
-		r.SAVEDATE = SAVEDATE;
-		r.PV = PV;
-		r.MATCHED = MATCHED;
-		
-		r.settings = settings.copy( r.meta , opsParent );
-		r.units = units.copy( r.meta );
-		r.database = database.copy( r.meta );
-		r.sources = sources.copy( r.meta );
-		r.docs = docs.copy( r.meta );
-		r.distr = distr.copy( r.meta );
-		
-		r.envs = envs.copy( r.meta );
-		r.envs.copyResolveExternals();
-		r.releases = releases.copy( r.meta );
+	public synchronized ProductMeta copy( ActionBase action , ObjectProperties opsParent ) throws Exception {
+		ProductMeta r = new ProductMeta( action.engine , ep );
+
+		try {
+			r.ID = ID;
+			r.NAME = NAME;
+			r.REVISION = REVISION;
+			r.DRAFT = DRAFT;
+			r.SAVEDATE = SAVEDATE;
+			r.PV = PV;
+			r.MATCHED = MATCHED;
+			
+			r.settings = settings.copy( r.meta , opsParent );
+			r.units = units.copy( r.meta );
+			r.database = database.copy( r.meta );
+			r.sources = sources.copy( r.meta );
+			r.docs = docs.copy( r.meta );
+			r.distr = distr.copy( r.meta );
+			
+			r.envs = envs.copy( r.meta );
+			r.envs.copyResolveExternals();
+			r.releases = releases.copy( r.meta );
+		}
+		catch( Throwable e ) {
+			action.log( "copy meta" , e );
+			r.deleteObject();
+			Common.exit2( _Error.UnableCopyMeta2 , "Unable to copy metadata, product=" + ep.productName + ", revision=" + REVISION , ep.productName , REVISION );
+		}
 		
 		return( r );
 	}
@@ -127,6 +138,10 @@ public class ProductMeta extends EngineObject {
 	
 	public void setDraft( boolean draft ) {
 		this.DRAFT = draft;
+		if( draft )
+			SAVEDATE = null;
+		else
+			SAVEDATE = new Date();
 	}
 	
 	public ReleaseRepository getReleaseRepository() {

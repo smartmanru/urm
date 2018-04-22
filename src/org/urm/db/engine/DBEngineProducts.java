@@ -29,21 +29,17 @@ public class DBEngineProducts {
 		EngineMirrors mirrors = transaction.getTransactionMirrors();
 		
 		AppProduct product = directory.findProduct( name );
-		boolean change = false;
+		ProductMeta storageOld = null;
 		if( product != null ) {
 			if( !forceClearMeta )
 				Common.exitUnexpected();
 
-			change = true;
 			EngineProduct ep = product.findEngineProduct();
-			ProductMeta storage = ep.findDraftRevision();
-			if( storage != null ) {
-				if( !transaction.recreateMetadata( storage.meta ) )
-					Common.exitUnexpected();
-				
-				if( storage.isExists() ) {
-					DBEnvData.dropEnvData( c , storage );
-					DBProductData.dropProductData( c , storage );
+			storageOld = ep.findDraftRevision();
+			if( storageOld != null ) {
+				if( storageOld.isExists() ) {
+					DBEnvData.dropEnvData( c , storageOld );
+					DBProductData.dropProductData( c , storageOld );
 				}
 			}
 			
@@ -59,10 +55,12 @@ public class DBEngineProducts {
 		if( storage == null )
 			Common.exit0( _Error.UnableCreateProduct0 , "Unable to create product" );
 		
-		if( change )
-			transaction.replaceProductMetadata( storage );
-		else
+		if( storageOld != null )
+			transaction.replaceProductMetadata( storage , storageOld );
+		else {
+			transaction.createProduct( product );
 			transaction.createProductMetadata( storage );
+		}
 		
 		return( product );
 	}
@@ -78,9 +76,11 @@ public class DBEngineProducts {
 
 		EngineProduct ep = product.getEngineProduct();
 		EngineProductRevisions revisions = ep.getRevisions();
+		
+		if( !transaction.requestDeleteProduct( product ) )
+			Common.exitUnexpected();
+		
 		for( ProductMeta storage : revisions.getRevisions() ) {
-			if( !transaction.deleteMetadata( storage.meta ) )
-				Common.exitUnexpected();
 			DBEnvData.dropEnvData( c , storage );
 			DBProductData.dropProductData( c , storage );
 		}

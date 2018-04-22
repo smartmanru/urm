@@ -946,7 +946,7 @@ public abstract class DBSettings {
 		else
 		if( versionType == DBEnumObjectVersionType.PRODUCT ) {
 			Meta meta = transaction.getTransactionMetadata( objectId );
-			ProductMeta storage = transaction.getTransactionProductMetadata( meta );
+			ProductMeta storage = meta.getStorage();
 			version = c.getNextProductVersion( storage );
 		}
 		else

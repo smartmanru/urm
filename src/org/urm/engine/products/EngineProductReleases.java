@@ -60,6 +60,9 @@ public class EngineProductReleases {
 		EngineProductRevisions revisions = ep.getRevisions();
 		for( ProductMeta storage : revisions.getRevisions() ) {
 			ReleaseRepository repo = storage.getReleaseRepository();
+			if( repo == null )
+				continue;
+			
 			versions = Common.addArrays( versions , repo.getActiveVersions() );
 		}
 		
@@ -92,6 +95,9 @@ public class EngineProductReleases {
 			EngineProductRevisions revisions = ep.getRevisions();
 			for( ProductMeta storage : revisions.getRevisions() ) {
 				ReleaseRepository repo = storage.getReleaseRepository();
+				if( repo == null )
+					continue;
+				
 				Release release = repo.findReleaseByFullVersion( version );
 				if( release != null )
 					return( release );
@@ -107,6 +113,9 @@ public class EngineProductReleases {
 		EngineProductRevisions revisions = ep.getRevisions();
 		for( ProductMeta storage : revisions.getRevisions() ) {
 			ReleaseRepository repo = storage.getReleaseRepository();
+			if( repo == null )
+				continue;
+			
 			Release release = repo.findRelease( id );
 			if( release != null )
 				return( release );
@@ -133,6 +142,9 @@ public class EngineProductReleases {
 			EngineProductRevisions revisions = ep.getRevisions();
 			for( ProductMeta storage : revisions.getRevisions() ) {
 				ReleaseRepository repo = storage.getReleaseRepository();
+				if( repo == null )
+					continue;
+				
 				release = repo.findRelease( dist.release.ID );
 				if( release != null )
 					break;
@@ -158,6 +170,9 @@ public class EngineProductReleases {
 		EngineProductRevisions revisions = ep.getRevisions();
 		for( ProductMeta storage : revisions.getRevisions() ) {
 			ReleaseRepository repo = storage.getReleaseRepository();
+			if( repo == null )
+				continue;
+			
 			Release release = repo.findReleaseByLabel( action , RELEASELABEL );
 			if( release != null )
 				return( release );
@@ -175,6 +190,9 @@ public class EngineProductReleases {
 		EngineProductRevisions revisions = ep.getRevisions();
 		for( ProductMeta storage : revisions.getRevisions() ) {
 			ReleaseRepository repo = storage.getReleaseRepository();
+			if( repo == null )
+				continue;
+			
 			Release release = repo.findRelease( id );
 			if( release != null )
 				return( release );

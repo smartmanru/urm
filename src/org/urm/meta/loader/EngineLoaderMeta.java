@@ -11,8 +11,6 @@ import org.urm.db.product.DBMetaDocs;
 import org.urm.db.product.DBMetaSettings;
 import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
-import org.urm.engine.data.EngineProducts;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.product.Meta;
@@ -133,20 +131,17 @@ public class EngineLoaderMeta {
 		importxmlDistr( ms );
 	}
 	
-	public ProductMeta copydbAll( EngineProducts products , ProductContext context ) throws Exception {
-		trace( "create product data, name=" + set.NAME + " ..." );
-		EngineProduct ep = context.product.findEngineProduct();
-		ProductMeta dst = new ProductMeta( ep );
+	public void copydbAll( ProductContext context , ProductMeta src ) throws Exception {
+		trace( "create product revision, name=" + set.NAME + " ..." );
 		TransactionBase transaction = loader.getTransaction();
 		
-		copydbMeta( transaction , dst , context );
-		copydbSettings( transaction , dst , context );
-		copydbUnits( transaction , dst );
-		copydbDatabase( transaction , dst );
-		copydbSources( transaction , dst );
-		copydbDocs( transaction , dst );
-		copydbDistr( transaction , dst );
-		return( dst );
+		copydbMeta( transaction , src , context );
+		copydbSettings( transaction , src , context );
+		copydbUnits( transaction , src );
+		copydbDatabase( transaction , src );
+		copydbSources( transaction , src );
+		copydbDocs( transaction , src );
+		copydbDistr( transaction , src );
 	}
 
 	private void createdbMeta( ProductContext context ) throws Exception {
@@ -381,39 +376,39 @@ public class EngineLoaderMeta {
 		loader.trace( s );
 	}
 
-	private void copydbMeta( TransactionBase transaction , ProductMeta dst , ProductContext context ) throws Exception {
-		trace( "copy product meta data ..." );
-		DBMeta.copydb( transaction , context.product , set , dst );
+	private void copydbMeta( TransactionBase transaction , ProductMeta src , ProductContext context ) throws Exception {
+		trace( "copy revision meta data ..." );
+		DBMeta.copydb( transaction , context.product , src , set );
 	}
 
-	private void copydbSettings( TransactionBase transaction , ProductMeta dst , ProductContext context ) throws Exception {
-		trace( "create product settings data ..." );
-		DBMetaSettings.copydb( transaction , set , context , dst );
+	private void copydbSettings( TransactionBase transaction , ProductMeta src , ProductContext context ) throws Exception {
+		trace( "create revision settings data ..." );
+		DBMetaSettings.copydb( transaction , src , context , set );
 	}
 	
-	private void copydbUnits( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product units data ..." );
-		DBMetaUnits.copydb( transaction , set , dst );
+	private void copydbUnits( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision units data ..." );
+		DBMetaUnits.copydb( transaction , src , set );
 	}
 
-	private void copydbDatabase( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product database data ..." );
-		DBMetaDatabase.copydb( transaction , set , dst );
+	private void copydbDatabase( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision database data ..." );
+		DBMetaDatabase.copydb( transaction , src , set );
 	}
 
-	private void copydbSources( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product sources ..." );
-		DBMetaSources.copydb( transaction , set , dst );
+	private void copydbSources( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision sources ..." );
+		DBMetaSources.copydb( transaction , src , set );
 	}
 
-	private void copydbDocs( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product docs ..." );
-		DBMetaDocs.copydb( transaction , set , dst );
+	private void copydbDocs( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision docs ..." );
+		DBMetaDocs.copydb( transaction , src , set );
 	}
 
-	private void copydbDistr( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product distributive ..." );
-		DBMetaDistr.copydb( transaction , set , dst );
+	private void copydbDistr( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision distributive ..." );
+		DBMetaDistr.copydb( transaction , src , set );
 	}
 
 }

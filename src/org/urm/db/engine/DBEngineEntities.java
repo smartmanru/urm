@@ -227,6 +227,23 @@ public abstract class DBEngineEntities {
 		return( rs );
 	}
 
+	public static boolean existAppObjects( DBConnection c , PropertyEntity entity , String filter , String[] args ) throws Exception {
+		String query = "select 1 from " + entity.APP_TABLE + " where " + filter; 
+		ResultSet rs = c.query( query , args );
+		if( rs == null )
+			Common.exitUnexpected();
+
+		boolean next = false;
+		try {
+			next = rs.next();
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		return( next );
+	}
+	
 	public static void deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version ) throws Exception {
 		if( entity.CHANGEABLE )
 			Common.exitUnexpected();

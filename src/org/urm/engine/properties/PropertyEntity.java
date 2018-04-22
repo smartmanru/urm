@@ -397,8 +397,10 @@ public class PropertyEntity {
 	}
 	
 	public DBEnumChangeType loaddbChangeType( ResultSet rs ) throws Exception {
-		if( CHANGEABLE )
-			return( DBEnumChangeType.getValue( rs.getInt( dblist.size() + 3 ) , true ) );
+		if( CHANGEABLE ) {
+			int add = ( ID_FIELD.isEmpty() )? 2 : 3; 
+			return( DBEnumChangeType.getValue( rs.getInt( dblist.size() + add ) , true ) );
+		}
 		return( null );
 	}
 	
