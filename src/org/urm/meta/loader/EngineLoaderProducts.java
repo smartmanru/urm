@@ -155,9 +155,6 @@ public class EngineLoaderProducts {
 		if( !matchProductMirrors( product ) )
 			Common.exit1( _Error.InvalidProductMirros1 , "Invalid product mirror repositories, product=" + product.NAME , product.NAME );
 
-		AuthService auth = engine.getAuth();
-		DBEngineAuth.deleteProductAccess( c , auth , product );
-		
 		EngineProduct ep = products.getEngineProduct( product );
 		EngineProductRevisions epr = ep.getRevisions();
 		ProductMeta storage = epr.getDraftRevision();

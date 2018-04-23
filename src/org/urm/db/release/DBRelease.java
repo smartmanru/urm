@@ -63,6 +63,7 @@ public class DBRelease {
 		VersionInfo info = VersionInfo.getReleaseDirInfo( release.RELEASEVER );
 		DBEngineEntities.modifyAppObject( c , entities.entityAppReleaseMain , release.ID , release.RV , new String[] {
 				EngineDB.getObject( repo.ID ) ,
+				EngineDB.getObject( release.TRANSITION_REPO_ID ) ,
 				EngineDB.getString( release.NAME ) ,
 				EngineDB.getString( release.DESC ) ,
 				EngineDB.getBoolean( release.MASTER ) ,
@@ -99,6 +100,8 @@ public class DBRelease {
 				entity.loaddbBoolean( rs , Release.PROPERTY_ARCHIVED ) ,
 				entity.loaddbBoolean( rs , Release.PROPERTY_CANCELLED )
 				);
+		
+		release.setTransition( entity.loaddbObject( rs , DBReleaseData.FIELD_MAIN_TRANSITION_REPO_ID ) );
 		return( release );
 	}
 	

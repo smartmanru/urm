@@ -1,6 +1,5 @@
 package org.urm.db.product;
 
-import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
@@ -502,9 +501,6 @@ public class DBProductData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSchema , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSourceSet , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDoc , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		
-		if( !c.modify( DBQueries.MODIFY_REL_REPO_UNMATCHRELEASES1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMeta , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 	}
 

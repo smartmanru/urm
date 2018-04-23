@@ -51,6 +51,7 @@ public class MetaEnv extends EngineObject {
 	// table data
 	private ObjectProperties ops;
 	public int ID;
+	public Integer TRANSITION_META_ID;
 	public boolean MATCHED;
 	public String NAME;
 	public String DESC;
@@ -100,6 +101,7 @@ public class MetaEnv extends EngineObject {
 		r.ops = ops.copy( rparent );
 		
 		r.ID = ID;
+		r.TRANSITION_META_ID = TRANSITION_META_ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.ENV_TYPE = ENV_TYPE;
@@ -198,6 +200,10 @@ public class MetaEnv extends EngineObject {
 			OFFLINE = true;
 	}
 
+	public void setTransition( Integer id ) {
+		this.TRANSITION_META_ID = id;
+	}
+	
 	public boolean isOnline() {
 		return( !OFFLINE );
 	}

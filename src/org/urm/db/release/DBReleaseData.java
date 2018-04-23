@@ -42,11 +42,10 @@ public class DBReleaseData {
 	public static String FIELD_REPOSITORY_ID = "repo_id";
 	public static String FIELD_REPOSITORY_NAME = "name";
 	public static String FIELD_REPOSITORY_DESC = "xdesc";
-	public static String FIELD_REPOSITORY_META_ID = "meta_fkid";
-	public static String FIELD_REPOSITORY_META_NAME = "meta_fkname";
-	public static String FIELD_REPOSITORY_META_REVISION = "meta_fkrevision";
+	public static String FIELD_REPOSITORY_META_ID = "meta_id";
 	public static String FIELD_MAIN_ID = "release_id";
 	public static String FIELD_MAIN_REPO_ID = "repo_id";
+	public static String FIELD_MAIN_TRANSITION_REPO_ID = "transition_repo_id";
 	public static String FIELD_MAIN_DESC = "xdesc";
 	public static String FIELD_MAIN_LIFECYCLETYPE = "lifecycle_type";
 	public static String FIELD_MAIN_V1 = "v1";
@@ -136,9 +135,7 @@ public class DBReleaseData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( FIELD_REPOSITORY_NAME , "repository name" , true , null ) ,
 				EntityVar.metaString( FIELD_REPOSITORY_DESC , "repository description" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_REPOSITORY_META_ID , "product id" , DBEnumObjectType.APPPRODUCT , false ) ,
-				EntityVar.metaStringDatabaseOnly( FIELD_REPOSITORY_META_NAME , "product name" , false , null ) ,
-				EntityVar.metaString( FIELD_REPOSITORY_META_REVISION , "product revision" , false , null )
+				EntityVar.metaObjectDatabaseOnly( FIELD_REPOSITORY_META_ID , "meta id" , DBEnumObjectType.META , false )
 		} ) );
 	}
 
@@ -151,6 +148,7 @@ public class DBReleaseData {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_MAIN_REPO_ID , "repo id" , DBEnumObjectType.RELEASE_REPOSITORY , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_MAIN_TRANSITION_REPO_ID , "transition repo id" , DBEnumObjectType.RELEASE_REPOSITORY , false ) ,
 				EntityVar.metaString( Release.PROPERTY_NAME , "release name" , true , null ) ,
 				EntityVar.metaStringVar( Release.PROPERTY_DESC , FIELD_MAIN_DESC , Release.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_MASTER , "master" , true , false ) ,

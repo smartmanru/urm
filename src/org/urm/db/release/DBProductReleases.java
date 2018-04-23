@@ -13,14 +13,11 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.ReleaseRepository;
 
 public class DBProductReleases {
 
 	public static ReleaseRepository createdb( EngineLoader loader , Meta meta , boolean forceClearMeta ) throws Exception {
-		matchRepositories( loader , meta );
-		
 		ReleaseRepository repo = null;
 		if( forceClearMeta )
 			DBReleaseData.dropAllMeta( loader , meta );
@@ -33,9 +30,6 @@ public class DBProductReleases {
 	}
 	
 	public static ReleaseRepository loaddb( EngineLoader loader , Meta meta , boolean importxml ) throws Exception {
-		if( importxml )
-			matchRepositories( loader , meta );
-		
 		ReleaseRepository repo = loaddbRepository( loader , meta );
 		if( repo == null ) {
 			if( !importxml )
@@ -85,16 +79,6 @@ public class DBProductReleases {
 		return( repo );
 	}
 	
-	private static void matchRepositories( EngineLoader loader , Meta meta ) throws Exception {
-		DBConnection c = loader.getConnection();
-		ProductMeta storage = meta.getStorage();
-		if( !c.modify( DBQueries.MODIFY_REL_REPO_MATCHMETA3 , new String[] { 
-				EngineDB.getInteger( meta.getId() ) , 
-				EngineDB.getString( storage.NAME ) ,
-				EngineDB.getString( storage.REVISION ) } ) )
-			Common.exitUnexpected();
-	}
-
 	private static void modifyRepository( DBConnection c , ReleaseRepository repo , boolean insert ) throws Exception {
 		if( insert )
 			repo.ID = DBNames.getNameIndex( c , repo.meta.getId() , repo.NAME , DBEnumParamEntityType.RELEASE_REPOSITORY );
@@ -105,9 +89,7 @@ public class DBProductReleases {
 		DBEngineEntities.modifyAppObject( c , entities.entityAppReleaseRepository , repo.ID , EngineDB.APP_VERSION , new String[] {
 				EngineDB.getString( repo.NAME ) ,
 				EngineDB.getString( repo.DESC ) ,
-				EngineDB.getObject( repo.meta.getId() ) ,
-				EngineDB.getString( null ) ,
-				EngineDB.getString( null )
+				EngineDB.getObject( repo.meta.getId() )
 		} , insert );
 	}
 

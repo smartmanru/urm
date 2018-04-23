@@ -3,9 +3,7 @@ CREATE TABLE main.urm_rel_repository (
                 repo_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
-                meta_fkid INTEGER,
-                meta_fkname VARCHAR(30),
-                meta_fkrevision VARCHAR(30),
+                meta_id INTEGER NOT NULL,
                 av INTEGER NOT NULL,
                 CONSTRAINT urm_rel_repository_pk PRIMARY KEY (repo_id)
 );
@@ -15,6 +13,7 @@ COMMENT ON TABLE main.urm_rel_repository IS 'Release repository';
 CREATE TABLE main.urm_rel_main (
                 release_id INTEGER NOT NULL,
                 repo_id INTEGER NOT NULL,
+                transition_repo_id INTEGER,
                 name VARCHAR(64) NOT NULL,
                 xdesc VARCHAR,
                 master BOOLEAN NOT NULL,
@@ -117,6 +116,13 @@ COMMENT ON TABLE main.urm_rel_distitem IS 'Distributive item';
 
 ALTER TABLE main.urm_rel_main ADD CONSTRAINT urm_rel_repository_release_fk
 FOREIGN KEY (repo_id)
+REFERENCES main.urm_rel_repository (repo_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE main.urm_rel_main ADD CONSTRAINT urm_rel_repository_urm_rel_main_fk
+FOREIGN KEY (transition_repo_id)
 REFERENCES main.urm_rel_repository (repo_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION

@@ -223,8 +223,8 @@ public class DBMetaEnv {
 		env.EV = c.getNextEnvironmentVersion( env );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppEnvPrimary , env.ID , env.EV , new String[] {
-				EngineDB.getInteger( storage.ID ) ,
-				EngineDB.getString( null ) ,
+				EngineDB.getObject( storage.ID ) ,
+				EngineDB.getObject( env.TRANSITION_META_ID ) ,
 				EngineDB.getBoolean( env.MATCHED ) ,
 				EngineDB.getString( env.NAME ) ,
 				EngineDB.getString( env.DESC ) ,
@@ -251,9 +251,8 @@ public class DBMetaEnv {
 		MetaProductSettings settings = storage.getSettings();
 
 		List<MetaEnv> list = new LinkedList<MetaEnv>();
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_FK2 , new String[] { 
-				EngineDB.getInteger( storage.ID ) ,
-				EngineDB.getString( storage.NAME ) 
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { 
+				EngineDB.getInteger( storage.ID ) 
 				} );
 		try {
 			while( rs.next() ) {
@@ -287,6 +286,8 @@ public class DBMetaEnv {
 						DISTACCOUNT ,
 						entity.loaddbString( rs , MetaEnv.PROPERTY_DISTR_PATH )
 						);
+				
+				env.setTransition( entity.loaddbObject( rs , DBEnvData.FIELD_ENV_TRANSITION_META_ID ) );
 				
 				list.add( env );
 			}

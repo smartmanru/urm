@@ -54,6 +54,7 @@ public class Release {
 	public ReleaseRepository repo;
 
 	public int ID;
+	public Integer TRANSITION_REPO_ID;
 	public String NAME;
 	public String DESC;
 	public boolean MASTER;
@@ -130,6 +131,10 @@ public class Release {
 				Common.exitUnexpected();
 			modifyState = false;
 		}
+	}
+	
+	public void setTransition( Integer transitionRepoId ) {
+		this.TRANSITION_REPO_ID = transitionRepoId;
 	}
 	
 	public void setRepository( ReleaseRepository repo ) throws Exception {

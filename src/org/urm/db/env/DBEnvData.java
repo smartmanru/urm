@@ -33,8 +33,8 @@ public class DBEnvData {
 	public static String TABLE_MONITEM = "urm_env_monitem";
 	public static String TABLE_SERVERDEP = "urm_env_server_deps";
 	public static String FIELD_ENV_ID = "env_id";
-	public static String FIELD_ENV_META_ID = "meta_fkid";
-	public static String FIELD_ENV_META_NAME = "meta_fkname";
+	public static String FIELD_ENV_META_ID = "meta_id";
+	public static String FIELD_ENV_TRANSITION_META_ID = "transition_meta_id";
 	public static String FIELD_ENV_MATCHED = "matched";
 	public static String FIELD_ENV_DESC = "xdesc";
 	public static String FIELD_ENV_ENVTYPE = "env_type";
@@ -112,8 +112,8 @@ public class DBEnvData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_META_ID , "product meta id" , DBEnumObjectType.META , false ) ,
-				EntityVar.metaStringDatabaseOnly( FIELD_ENV_META_NAME , "product meta name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_META_ID , "product meta id" , DBEnumObjectType.META , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_TRANSITION_META_ID , "transition meta id" , DBEnumObjectType.META , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( FIELD_ENV_MATCHED , "environment match status" , false , false ) ,
 				EntityVar.metaString( MetaEnv.PROPERTY_NAME , "name" , true , null ) ,
 				EntityVar.metaStringVar( MetaEnv.PROPERTY_DESC , FIELD_ENV_DESC , MetaEnv.PROPERTY_DESC , "Description" , false , null ) ,

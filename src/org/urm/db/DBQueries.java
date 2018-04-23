@@ -4,15 +4,14 @@ package org.urm.db;
 public abstract class DBQueries {
 
 	public static String FILTER_META_ID1 = "meta_id = @1@";
-	public static String FILTER_META_FK2 = "meta_fkid = @1@ or meta_fkname = @2@";
 	public static String FILTER_META_NAME1 = "name = @1@";
 	public static String FILTER_DELIVERY_ID1 = "delivery_id = @1@";
 	public static String FILTER_ENV_ID1 = "env_id = @1@";
-	public static String FILTER_ENV_META1 = "env_id in ( select env_id from urm_env where meta_fkid = @1@ )";
-	public static String FILTER_REL_META1 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_fkid = @1@ )";
-	public static String FILTER_REL_MAINMETA1 = "repo_id in ( select repo_id from urm_rel_repository where meta_fkid = @1@ )";
-	public static String FILTER_REL_SCHEDULEMETA3 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_fkid = @1@ ) and ( @2@ is null or @2@ = released ) and ( @3@ is null or @3@ = completed )";
-	public static String FILTER_REL_REPOMETA1 = "meta_fkid = @1@";
+	public static String FILTER_ENV_META1 = "env_id in ( select env_id from urm_env where meta_id = @1@ )";
+	public static String FILTER_REL_META1 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_id = @1@ )";
+	public static String FILTER_REL_MAINMETA1 = "repo_id in ( select repo_id from urm_rel_repository where meta_id = @1@ )";
+	public static String FILTER_REL_SCHEDULEMETA3 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_id = @1@ ) and ( @2@ is null or @2@ = released ) and ( @3@ is null or @3@ = completed )";
+	public static String FILTER_REL_REPOMETA1 = "meta_id = @1@";
 	public static String FILTER_REL_REPO1 = "repo_id = @1@";
 	public static String FILTER_REL_REPOACTIVE1 = "repo_id = @1@ and archived = 'no'";
 	public static String FILTER_REL_REPORELEASEACTIVE1 = "release_id in ( select release_id from urm_rel_main where repo_id = @1@ and archived = 'no' )";
@@ -123,10 +122,10 @@ public abstract class DBQueries {
 	public static String MODIFY_DISTR_CASCADECOMP_ALLITEMS1 = "delete from urm_dist_compitem where comp_id = @1@";
 
 	public static String MODIFY_ENVALL_DELETEALL_PARAMVALUES1 = "delete from urm_object_param_value where object_id in ( " +
-			"select node_id from urm_env_node a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " +
-			"select server_id from urm_env_server a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " +
-			"select segment_id from urm_env_segment a , urm_env b where a.env_id = b.env_id and b.meta_fkid = @1@ union all " + 
-			"select env_id from urm_env where meta_fkid = @1@ )";
+			"select node_id from urm_env_node a , urm_env b where a.env_id = b.env_id and b.meta_id = @1@ union all " +
+			"select server_id from urm_env_server a , urm_env b where a.env_id = b.env_id and b.meta_id = @1@ union all " +
+			"select segment_id from urm_env_segment a , urm_env b where a.env_id = b.env_id and b.meta_id = @1@ union all " + 
+			"select env_id from urm_env where meta_id = @1@ )";
 	public static String MODIFY_ENV_DELETEALL_PARAMVALUES1 = "delete from urm_object_param_value where object_id in ( " +
 			"select node_id from urm_env_node where env_id = @1@ union all " +
 			"select server_id from urm_env_server where env_id = @1@ union all " +
@@ -141,8 +140,5 @@ public abstract class DBQueries {
 	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPITEMS1 = "delete from urm_env_startgroup_server where startgroup_id in ( select startgroup_id from urm_env_startgroup where segment_id = @1@ )";
 	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPS1 = "delete from urm_env_startgroup where segment_id = @1@";
 	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
-
-	public static String MODIFY_REL_REPO_MATCHMETA3 = "update urm_rel_repository set meta_fkid = @1@ , meta_fkname = null , meta_fkrevision = null where meta_fkid is null and meta_fkname = @2@ and meta_fkrevision = @3@";
-	public static String MODIFY_REL_REPO_UNMATCHRELEASES1 = "update urm_rel_repository set meta_fkid = null , meta_fkname = meta.name , meta_fkrevision = meta.revision from ( select meta_id , name , revision from urm_product_meta ) as meta where meta_fkid is not null and meta_fkid is not null and meta_fkid = meta.meta_id and meta_fkid = @1@";
 	
 }

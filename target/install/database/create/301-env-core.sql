@@ -1,8 +1,8 @@
 
 CREATE TABLE main.urm_env (
                 env_id INTEGER NOT NULL,
-                meta_fkid INTEGER,
-                meta_fkname VARCHAR(30),
+                meta_id INTEGER NOT NULL,
+                transition_meta_id INTEGER,
                 matched BOOLEAN NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
