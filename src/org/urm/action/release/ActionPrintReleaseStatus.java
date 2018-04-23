@@ -41,7 +41,7 @@ public class ActionPrintReleaseStatus extends ActionBase {
 		Meta meta = release.getMeta();
 		EngineProduct ep = meta.getEngineProduct();
 		DistRepository repo = ep.getDistRepository();
-		Dist dist = repo.findDefaultMasterDist();
+		Dist dist = repo.findDefaultDist( release );
 		FileSet files = dist.getFiles( this );
 		String hashStatus = dist.checkHash( this )? "OK" : "not matched";
 		
