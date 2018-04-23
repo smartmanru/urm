@@ -24,6 +24,7 @@ public class _Error {
 	public static final int TransactionMissingReleaseLifecyclesChanges0 = ErrorBase + 38;
 	public static final int TransactionMissingAuthChanges0 = ErrorBase + 39;
 	public static final int TransactionMissingImportChanges0 = ErrorBase + 40;
+	public static final int TransactionCannotChangeEnv1 = ErrorBase + 41;
 	
 	
 }

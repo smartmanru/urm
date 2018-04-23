@@ -158,6 +158,10 @@ public class EngineProduct {
 		sessions.releaseSessionProductMetadata( action , meta );
 	}
 
+	public Meta reloadSessionMeta( ActionBase action , ProductMeta storage ) throws Exception {
+		return( sessions.reloadSessionProductMetadata( action , storage ) );
+	}
+
 	public MetaEnv findEnv( String name ) throws Exception {
 		return( envs.findEnv( name ) );
 	}

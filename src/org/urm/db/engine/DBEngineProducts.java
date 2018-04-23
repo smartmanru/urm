@@ -56,7 +56,7 @@ public class DBEngineProducts {
 			Common.exit0( _Error.UnableCreateProduct0 , "Unable to create product" );
 		
 		if( storageOld != null )
-			transaction.replaceProductMetadata( storage , storageOld );
+			transaction.requestReplaceProductMetadata( storage , storageOld );
 		else {
 			transaction.createProduct( product );
 			transaction.createProductMetadata( storage );

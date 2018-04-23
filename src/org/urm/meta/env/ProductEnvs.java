@@ -6,12 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.storage.ProductStorage;
-import org.urm.engine.transaction.EngineTransaction;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.AccountReference;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
@@ -78,14 +75,9 @@ public class ProductEnvs {
 		return( mapEnvs.values().toArray( new MetaEnv[0] ) );
 	}
 	
-	public void deleteEnv( EngineTransaction transaction , MetaEnv env ) throws Exception {
-		String envFile = env.NAME + ".xml";
+	public void deleteEnv( TransactionBase transaction , MetaEnv env ) throws Exception {
 		mapEnvs.remove( env.NAME );
-		
-		ActionBase action = transaction.getAction();
-		AppProduct product = env.meta.findProduct();
-		ProductStorage storage = action.artefactory.getMetadataStorage( action , product );
-		storage.deleteEnvConfFile( action , envFile );
+		mapEnvsById.remove( env.ID );
 		env.deleteObject();
 	}
 

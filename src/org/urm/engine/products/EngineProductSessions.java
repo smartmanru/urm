@@ -79,6 +79,25 @@ public class EngineProductSessions {
 		return( meta );
 	}
 
+	public synchronized Meta reloadSessionProductMetadata( ActionBase action , ProductMeta storage ) {
+		if( storage.isPrimary() )
+			return( findSessionProductMetadata( action , storage , true ) );
+		
+		EngineProductRevisions revisions = ep.getRevisions();
+		ProductMeta storageNew = revisions.findRevision( storage.REVISION );
+		
+		EngineSession session = action.session;
+		EngineProductSessionsMeta sm = getSessionsMeta( session );
+		Meta meta = sm.findSessionMeta( storage );
+		
+		if( meta != null )
+			replaceStorage( action , meta , storageNew );
+		else
+			meta = findSessionProductMetadata( action , storageNew , true );
+		
+		return( meta );
+	}
+	
 	public synchronized Meta findSessionMeta( EngineSession session , ProductMeta storage ) {
 		EngineProductSessionsMeta sm = getSessionsMeta( session );
 		return( sm.findSessionMeta( storage ) );
@@ -103,7 +122,7 @@ public class EngineProductSessions {
 		return( meta );
 	}
 	
-	public synchronized void releaseSessionProductMetadata( ActionBase action , Meta meta ) throws Exception {
+	public synchronized void releaseSessionProductMetadata( ActionBase action , Meta meta ) {
 		EngineSession session = action.session;
 		session.releaseProductMeta( meta );
 		ProductMeta storage = meta.getStorage();
@@ -118,7 +137,7 @@ public class EngineProductSessions {
 		meta.deleteObject();
 	}
 	
-	public void replaceStorage( ActionBase action , Meta meta , ProductMeta storage ) throws Exception {
+	public void replaceStorage( ActionBase action , Meta meta , ProductMeta storage ) {
 		releaseSessionProductMetadata( action , meta );
 		
 		// clear old refs

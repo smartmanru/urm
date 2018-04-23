@@ -103,7 +103,7 @@ public class DBMetaEnv {
 		loader.trace( "import meta env object, object=" + env.objectId + ", id=" + env.ID + ", name=" + name + ", source version=" + version );
 
 		TransactionBase transaction = loader.getTransaction();
-		if( !transaction.importEnv( env ) )
+		if( !transaction.requestImportEnv( env ) )
 			Common.exitUnexpected();
 		
 		// create settings

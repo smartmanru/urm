@@ -152,7 +152,7 @@ public class EngineSession extends EngineObject {
 	public void reloadProductMetadata( ActionInit action , AppProduct product ) throws Exception {
 		for( Meta meta : productMetaById.values().toArray( new Meta[0] ) ) {
 			EngineProduct ep = meta.getEngineProduct();
-			ep.getSessionMeta( action , meta.getStorage() , true );
+			ep.reloadSessionMeta( action , meta.getStorage() );
 		}
 	}
 	

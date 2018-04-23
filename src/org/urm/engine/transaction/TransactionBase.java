@@ -863,7 +863,7 @@ public class TransactionBase extends EngineObject {
 		return( tm );
 	}
 	
-	public boolean importProduct( AppProduct product ) {
+	public boolean requestImportProduct( AppProduct product ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -887,7 +887,7 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean importEnv( MetaEnv env ) {
+	public boolean requestImportEnv( MetaEnv env ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -910,7 +910,7 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean recreateMetadata( Meta meta ) {
+	public boolean requestRecreateMetadata( Meta meta ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -936,7 +936,7 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean deleteMetadata( Meta meta ) {
+	public boolean requestDeleteMetadata( Meta meta ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -988,7 +988,7 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean changeMetadata( Meta meta , boolean draft ) {
+	public boolean requestChangeMetadata( Meta meta , boolean draft ) {
 		synchronized( engine ) {
 			try {
 				if( draft != meta.isDraft() )
@@ -1016,7 +1016,7 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean changeEnv( MetaEnv env ) {
+	public boolean requestChangeEnv( MetaEnv env ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -1547,7 +1547,7 @@ public class TransactionBase extends EngineObject {
 		products.deleteProductMetadata( this , metadata );
 	}
 	
-	public void replaceProductMetadata( ProductMeta storage , ProductMeta storageOld ) throws Exception {
+	public void requestReplaceProductMetadata( ProductMeta storage , ProductMeta storageOld ) throws Exception {
 		TransactionProduct tm = createProductTransaction( storage.ep );
 		tm.replaceProductMetadata( storage , storageOld );
 	}

@@ -3,6 +3,7 @@ package org.urm.engine.transaction;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.urm.common.Common;
 import org.urm.engine.StateService;
 import org.urm.engine._Error;
 import org.urm.engine.action.ActionInit;
@@ -191,7 +192,7 @@ public class TransactionMetadata {
 
 	public boolean checkChangeEnv( MetaEnv env ) throws Exception {
 		if( productType != null && productType != CHANGETYPE.NOTHING && productType != CHANGETYPE.CHANGE ) {
-			transaction.error( "Unable to change product environment when reconstruction" );
+			Common.exit1( _Error.TransactionCannotChangeEnv1 , "Unable to change product environment when reconstruction, name=" + env.NAME , env.NAME );
 			return( false );
 		}
 
@@ -240,7 +241,7 @@ public class TransactionMetadata {
 		}
 		else {
 			if( metadata == null )
-				return( false );
+				return( true );
 				
 			EngineDirectory directory = transaction.getDirectory();
 			AppProduct product = directory.getProduct( ep.productId );

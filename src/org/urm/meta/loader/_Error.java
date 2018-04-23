@@ -82,5 +82,7 @@ public class _Error {
 	public static final int InvalidVersion2 = ErrorBase + 126;
 	public static final int UnableLoadProductDistributives1 = ErrorBase + 127;
 	public static final int FinalRevisionExists1 = ErrorBase + 128;
+	public static final int NeedCompleteDraft1 = ErrorBase + 129;
+	public static final int ImportCompletedRevision1 = ErrorBase + 130;
 
 }

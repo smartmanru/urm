@@ -2,10 +2,13 @@ package org.urm.meta.loader;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.db.DBConnection;
+import org.urm.db.env.DBEnvData;
 import org.urm.db.env.DBMetaEnv;
 import org.urm.db.env.DBMetaMonitoring;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.storage.ProductStorage;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
@@ -135,6 +138,16 @@ public class EngineLoaderEnvs {
 		
 		DBMetaEnv.exportxml( loader , set , env , doc , root );
 		ProductStorage.saveDoc( doc , file );
+	}
+
+	public void dropEnvs() throws Exception {
+		DBConnection c = loader.getConnection();
+		DBEnvData.dropEnvData( c , set );
+		
+		ProductEnvs envs = set.getEnviroments();
+		TransactionBase transaction = loader.getTransaction();
+		for( MetaEnv env : envs.getEnvs() )
+			envs.deleteEnv( transaction , env );
 	}
 	
 }

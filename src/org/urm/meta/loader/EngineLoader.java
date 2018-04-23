@@ -23,6 +23,7 @@ import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
@@ -369,11 +370,11 @@ public class EngineLoader {
 		EngineDirectory directory = data.getDirectory();
 		AppProduct product = directory.getProduct( productId );
 		
-		if( !transaction.importProduct( product ) )
+		if( !transaction.requestImportProduct( product ) )
 			Common.exitUnexpected();
 		
 		trace( "import engine product=" + product.NAME + " data ..." );
-		ldp.importProduct( product , includingEnvironments );
+		ldp.importProduct( product , EngineProductRevisions.REVISION_INITIAL , includingEnvironments );
 	}
 	
 	public void loadProducts( boolean update ) throws Exception {

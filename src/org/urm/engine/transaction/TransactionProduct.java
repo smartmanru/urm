@@ -175,12 +175,11 @@ public class TransactionProduct {
 		TransactionMetadata tm = findTransactionMeta( env.meta );
 		if( tm == null ) {
 			tm = new TransactionMetadata( this , ep );
+			addTransactionMeta( tm );
 		}
 		
-		if( tm.checkChangeEnv( env ) ) {
-			addTransactionMeta( tm );
+		if( tm.checkChangeEnv( env ) )
 			return( true );
-		}
 		return( false );
 	}
 

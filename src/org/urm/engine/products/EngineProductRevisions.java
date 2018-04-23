@@ -11,6 +11,8 @@ import org.urm.meta.product.ProductMeta;
 
 public class EngineProductRevisions {
 
+	public static String REVISION_INITIAL = "initial";
+	
 	public Engine engine;
 	public EngineProduct ep;
 

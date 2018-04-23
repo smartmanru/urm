@@ -5,7 +5,6 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
 import org.urm.db.engine.DBEngineAuth;
-import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBMeta;
 import org.urm.db.product.DBProductData;
 import org.urm.engine.Engine;
@@ -26,8 +25,6 @@ import org.urm.meta.product.ProductMeta;
 
 public class EngineLoaderProducts {
 
-	public static String REVISION_INITIAL = "initial";
-	
 	private EngineLoader loader;
 	private DataService data;
 	public RunContext execrc;
@@ -149,7 +146,7 @@ public class EngineLoaderProducts {
 		}
 	}
 
-	public ProductMeta importProduct( AppProduct product , boolean includingEnvironments ) throws Exception {
+	public ProductMeta importProduct( AppProduct product , String revision , boolean includingEnvironments ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
 		EngineProducts products = data.getProducts();
@@ -164,16 +161,25 @@ public class EngineLoaderProducts {
 		EngineProduct ep = products.getEngineProduct( product );
 		EngineProductRevisions epr = ep.getRevisions();
 		ProductMeta storage = epr.getDraftRevision();
+		if( storage != null && !storage.REVISION.equals( revision ) )
+			Common.exit1( _Error.NeedCompleteDraft1 , "Please complete draft before import, revision=" + storage.REVISION , storage.REVISION );
+		
+		storage = epr.findRevision( revision );
 		if( storage != null ) {
-			if( includingEnvironments )
-				DBEnvData.dropEnvData( c , storage );
+			if( !storage.isDraft() )
+				Common.exit1( _Error.ImportCompletedRevision1 , "Cannot import over completed revision=" + revision , revision );
+			
+			if( includingEnvironments ) {
+				EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , storage );
+				lde.dropEnvs();
+			}
 				
 			if( storage.isExists() )
 				DBProductData.dropProductData( c , storage );
 		}
 		
 		synchronized( products ) {
-			ProductMeta storageNew = importProduct( product , true , includingEnvironments , storage );
+			ProductMeta storageNew = importProduct( product , true , revision , includingEnvironments , storage );
 			if( storageNew == null )
 				Common.exit1( _Error.UnusableProductMetadata1 , "Unable to load product metadata, product=" + product.NAME , product.NAME );
 
@@ -217,24 +223,24 @@ public class EngineLoaderProducts {
 		return( true );
 	}
 	
-	private ProductMeta importProduct( AppProduct product , boolean update , boolean includingEnvironments , ProductMeta setOld ) {
+	private ProductMeta importProduct( AppProduct product , boolean update , String revision , boolean includingEnvironments , ProductMeta setOld ) {
 		EngineProducts products = data.getProducts();
 		EngineProduct ep = products.findEngineProduct( product );
 		
 		ProductMeta set = new ProductMeta( engine , ep );
 		set.setMatched( true );
-		set.setRevision( REVISION_INITIAL );
+		set.setRevision( revision );
 		
 		ActionBase action = loader.getAction();
 		try {
-			if( setOld == null && ep.findRevision( REVISION_INITIAL ) != null )
-				Common.exit1( _Error.FinalRevisionExists1 , "Cannot replace finalized revision=" + REVISION_INITIAL , REVISION_INITIAL );
+			if( setOld == null && ep.findRevision( revision ) != null )
+				Common.exit1( _Error.FinalRevisionExists1 , "Cannot replace finalized revision=" + revision , revision );
 			
 			TransactionBase transaction = loader.getTransaction();
 			if( setOld == null )
 				transaction.createProductMetadata( set );
 			else
-				transaction.replaceProductMetadata( set , setOld );
+				transaction.requestReplaceProductMetadata( set , setOld );
 			
 			UrmStorage urm = action.artefactory.getUrmStorage();
 			LocalFolder meta = urm.getProductCoreMetadataFolder( action , product );
