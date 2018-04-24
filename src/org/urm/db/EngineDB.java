@@ -27,7 +27,7 @@ public class EngineDB {
 	private Engine engine;
 	
 	private PGConnectionPoolDataSource pool;
-	public static int APP_VERSION = 1020306;
+	public static int APP_VERSION = 1020307;
 	
 	public EngineDB( Engine engine ) {
 		this.engine = engine;
