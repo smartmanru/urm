@@ -7,6 +7,7 @@ CREATE TABLE main.urm_rel_schedule (
                 complete_date_actual DATE,
                 released BOOLEAN NOT NULL,
                 completed BOOLEAN NOT NULL,
+                schedule_name VARCHAR(64),
                 phase_current INTEGER NOT NULL,
                 rv INTEGER NOT NULL,
                 CONSTRAINT urm_rel_schedule_pk PRIMARY KEY (release_id)

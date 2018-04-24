@@ -117,8 +117,6 @@ public class EngineMethodProduct {
 	}
 
 	public synchronized void deleteRelease( Release release ) throws Exception {
-		checkUpdateReleaseRepository( release.repo );
-		
 		EngineMethodProductRelease emmr = mapReleases.get( release.RELEASEVER );
 		if( emmr != null )
 			Common.exitUnexpected();

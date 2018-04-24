@@ -1,5 +1,8 @@
 package org.urm.meta.engine;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
@@ -205,6 +208,60 @@ public class AppProductPolicy {
 		}
 		
 		return( null );
+	}
+
+	public String[] getAvailableLifecycles( EngineLifecycles lifecycles , DBEnumLifecycleType type ) {
+		List<String> names = new LinkedList<String>();
+		for( String name : lifecycles.getLifecycleNames() ) {
+			ReleaseLifecycle lc = lifecycles.findLifecycle( name );
+			if( !lc.ENABLED )
+				continue;
+			
+			if( lc.isMajor() ) {
+				if( type == null || type == DBEnumLifecycleType.MAJOR ) {
+					Integer majorId = getMajorId();
+					if( majorId != null ) {
+						if( majorId != lc.ID )
+							continue;
+					}
+					names.add( name );
+				}
+			}
+			else
+			if( lc.isMinor() ) {
+				if( type == null || type == DBEnumLifecycleType.MINOR ) {
+					// all or policy
+					Integer minorId = getMinorId();
+					if( minorId != null ) {
+						if( minorId != lc.ID )
+							continue;
+					}
+					names.add( name );
+				}
+			}
+			else
+			if( lc.isUrgent() ) {
+				if( type == null || type == DBEnumLifecycleType.URGENT ) {
+					// all or policy
+					if( !checkUrgentIncluded( lc ) )
+						continue;
+					
+					names.add( name );
+				}
+			}
+		}
+		
+		return( names.toArray( new String[0] ) );
+	}
+
+	public boolean checkLifecycleRequired( DBEnumLifecycleType type ) {
+		if( type == DBEnumLifecycleType.MAJOR && LC_MAJOR != null )
+			return( true );
+		if( type == DBEnumLifecycleType.MINOR && LC_MINOR != null )
+			return( true );
+		if( type == DBEnumLifecycleType.URGENT && !LCUrgentAll )
+			return( true );
+		return( false );
 	}
 	
 }

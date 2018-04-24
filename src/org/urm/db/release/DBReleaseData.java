@@ -88,6 +88,7 @@ public class DBReleaseData {
 	public static String FIELD_SCHEDULE_RELEASEDATEACTUAL = "release_date_actual";
 	public static String FIELD_SCHEDULE_COMPLETEDATEACTUAL = "complete_date_actual";
 	public static String FIELD_SCHEDULE_PHASE = "phase_current";
+	public static String FIELD_SCHEDULE_NAME = "schedule_name";
 	public static String FIELD_PHASE_ID = "phase_id";
 	public static String FIELD_PHASE_LCSTAGETYPE = "lifecyclestage_type";
 	public static String FIELD_PHASE_STAGEPOS = "stage_pos";
@@ -263,7 +264,8 @@ public class DBReleaseData {
  				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL , FIELD_SCHEDULE_COMPLETEDATEACTUAL , ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL , "complete date actual" , false ) ,
 				EntityVar.metaBoolean( ReleaseSchedule.PROPERTY_RELEASEDSTATUS , "released status" , true , false ) ,
 				EntityVar.metaBoolean( ReleaseSchedule.PROPERTY_COMPLETEDSTATUS , "completed status" , true , false ) ,
-				EntityVar.metaIntegerVar( ReleaseSchedule.PROPERTY_PHASE , FIELD_SCHEDULE_PHASE , ReleaseSchedule.PROPERTY_PHASE , "current phase" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseSchedule.PROPERTY_SCHEDULE , FIELD_SCHEDULE_NAME , ReleaseSchedule.PROPERTY_SCHEDULE , "current phase" , false , null ) ,
+				EntityVar.metaIntegerVar( ReleaseSchedule.PROPERTY_PHASE , FIELD_SCHEDULE_PHASE , ReleaseSchedule.PROPERTY_PHASE , "current phase" , false , null )
 		} ) );
 	}
 
