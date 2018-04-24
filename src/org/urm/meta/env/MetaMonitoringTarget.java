@@ -12,6 +12,8 @@ import org.urm.engine.schedule.ScheduleProperties;
 public class MetaMonitoringTarget {
 
 	public static String PROPERTY_NAME = "name";
+	public static String PROPERTY_ENV = "env";
+	public static String PROPERTY_SEGMENT = "segment";
 	public static String PROPERTY_MAJOR_ENABLED = "major.enabled";
 	public static String PROPERTY_MAJOR_SCHEDULE = "major.schedule";
 	public static String PROPERTY_MAJOR_MAXTIME = "major.maxtime";
@@ -77,6 +79,14 @@ public class MetaMonitoringTarget {
 		return( r );
 	}
 	
+	public void addItem( MetaMonitoringItem item ) {
+		if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKURL )
+			addUrl( item );
+		else
+		if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKWS )
+			addWS( item );
+	}
+	
 	public void addUrl( MetaMonitoringItem item ) {
 		listUrls.add( item );
 		mapItems.put( item.ID , item );
@@ -110,7 +120,7 @@ public class MetaMonitoringTarget {
 			listWS.remove( item );
 		mapItems.remove( item.ID );
 	}
-	
+
 	public void modifyTarget( boolean major , boolean enabled , ScheduleProperties schedule , int maxTime ) throws Exception {
 		if( major ) {
 			this.MAJOR_ENABLED = enabled;

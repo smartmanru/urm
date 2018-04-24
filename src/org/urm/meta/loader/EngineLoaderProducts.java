@@ -328,6 +328,10 @@ public class EngineLoaderProducts {
 		try {
 			EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
 			ldm.importxmlAll( ms , context );
+			
+			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , ep );
+			ldr.loadReleasesByImport( set , setOld );
+			ldr.loadDistributives( true );
 		
 			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
 			if( includingEnvironments )
@@ -336,10 +340,6 @@ public class EngineLoaderProducts {
  				lde.loaddbAll();
 				
 			ldm.loadDesignDocs( ms );
-			
-			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , ep );
-			ldr.loadReleasesByImport( set , setOld );
-			ldr.loadDistributives( true );
 		}
 		catch( Throwable e ) {
 			loader.setLoadFailed( action , _Error.UnableLoadProductMeta1 , e , "unable to load metadata, product=" + set.NAME , set.NAME );
@@ -352,12 +352,12 @@ public class EngineLoaderProducts {
 		try {
 			EngineLoaderMeta ldm = new EngineLoaderMeta( loader , set );
 			ldm.loaddbAll( context );
-
-			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
-			lde.loaddbAll();
 			
 			EngineLoaderReleases ldr = new EngineLoaderReleases( loader , ep );
 			ldr.loadReleases( set );
+
+			EngineLoaderEnvs lde = new EngineLoaderEnvs( loader , set );
+			lde.loaddbAll();
 		}
 		catch( Throwable e ) {
 			loader.setLoadFailed( action , _Error.UnableLoadProductMeta1 , e , "unable to load metadata, product=" + set.NAME , set.NAME );

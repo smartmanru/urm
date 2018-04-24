@@ -328,7 +328,9 @@ public class DBEnvData {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_SEGMENT_ID , "environment segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
+				EntityVar.metaStringXmlOnly( MetaMonitoringTarget.PROPERTY_ENV , "environment name" , true , null ) ,
+				EntityVar.metaStringXmlOnly( MetaMonitoringTarget.PROPERTY_SEGMENT , "segment name" , true , null ) ,
 				EntityVar.metaBooleanVar( MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED , FIELD_MONTARGET_MAJOR_ENABLED , MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED , "Enabled major monitoring" , true , false ) ,
 				EntityVar.metaStringVar( MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE , FIELD_MONTARGET_MAJOR_SCHEDULE , MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE , "major schedule" , false , null ) ,
 				EntityVar.metaIntegerVar( MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME , FIELD_MONTARGET_MAJOR_MAXTIME , MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME , "major max time" , true , 300000 ) ,
