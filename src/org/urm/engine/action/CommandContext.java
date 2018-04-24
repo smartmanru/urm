@@ -283,32 +283,32 @@ public class CommandContext {
 	
 	public void setOptions( ActionBase action , Meta meta , CommandOptions options ) throws Exception {
 		this.options = options;
-		update( action , meta );
+		update( action , meta.getProduct() , meta );
 	}
 	
 	public void update( ActionBase action , MetaEnv env , MetaEnvSegment sg ) throws Exception {
 		this.env = env;  
 		this.sg = sg;
-		update( action , env.meta );
+		update( action , env.meta.getProduct() , env.meta );
 	}
 
 	public void update( ActionInit action ) throws Exception {
-		Meta meta = ( session != null && session.product )? action.getContextMeta() : null;
-		update( action , meta );
+		AppProduct product = ( session != null && session.product )? action.getContextProduct() : null;
+		update( action , product , null );
 	}
 	
-	public void update( ActionBase action , Meta meta ) throws Exception {
+	public void update( ActionBase action , AppProduct product , Meta meta ) throws Exception {
+		this.product = product;
 		this.meta = meta;
-		this.product = ( meta == null )? null : meta.getProduct();
 		
-		boolean isproduct = ( meta != null )? true : false; 
+		boolean ismeta = ( meta != null )? true : false; 
 		boolean isenv = ( env == null )? false : true; 
 		boolean def = ( isenv && env.isProd() )? true : false;
 		String value;
 		
 		// generic
-		MetaProductSettings settings = ( isproduct )? meta.getProductSettings() : null;
-		MetaProductCoreSettings core = ( isproduct )? settings.getCoreSettings() : null;
+		MetaProductSettings settings = ( ismeta )? meta.getProductSettings() : null;
+		MetaProductCoreSettings core = ( ismeta )? settings.getCoreSettings() : null;
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
 		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( ( isenv )? env.SHOWONLY : null ) , def );
@@ -329,10 +329,10 @@ public class CommandContext {
 		}
 		
 		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , "" );
-		CTX_REDISTWIN_PATH = ( isproduct )? core.CONFIG_REDISTWIN_PATH : null;
+		CTX_REDISTWIN_PATH = ( ismeta )? core.CONFIG_REDISTWIN_PATH : null;
 		if( isenv && !env.REDISTWIN_PATH.isEmpty() )
 			CTX_REDISTWIN_PATH = env.REDISTWIN_PATH;
-		CTX_REDISTLINUX_PATH = ( isproduct )? core.CONFIG_REDISTLINUX_PATH : null;
+		CTX_REDISTLINUX_PATH = ( ismeta )? core.CONFIG_REDISTLINUX_PATH : null;
 		if( isenv && !env.REDISTLINUX_PATH.isEmpty() )
 			CTX_REDISTLINUX_PATH = env.REDISTLINUX_PATH;
 		CTX_HIDDENPATH = getParamPathValue( "OPT_HIDDENPATH" );

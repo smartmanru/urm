@@ -954,8 +954,14 @@ abstract public class ActionBase extends ActionCore {
 		
 		AppProduct product = getContextProduct();
 		EngineProduct ep = product.getEngineProduct();
+		if( ep == null )
+			return( null );
+		
 		EngineProductRevisions revisions = ep.getRevisions();
 		ProductMeta storage = revisions.getDraftRevision();
+		if( storage == null )
+			return( null );
+		
 		return( ep.getSessionMeta( this , storage , false ) );
 	}
 
