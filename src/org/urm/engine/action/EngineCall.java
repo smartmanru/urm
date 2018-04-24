@@ -58,8 +58,10 @@ public abstract class EngineCall implements Runnable {
         	return( false );
     	}
     	
-    	if( action == null )
+    	if( action == null ) {
+    		notifyLog( "unknown action=" + actionName );
     		return( false );
+    	}
     	
         Thread thread = new Thread( null , this , getClass().getSimpleName() );
         sessionController.threadStarted( engine.serverAction , this );

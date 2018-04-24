@@ -98,15 +98,19 @@ public class SessionService {
 		options.setAction( method , data );
 		
 		CommandMeta commandInfo = builder.createMeta( options.command );
-		if( commandInfo == null )
+		if( commandInfo == null ) {
+			engine.error( "unable to create root action, method=" + options.command );
 			return( null );
+		}
 		
 		EngineSession session = call.sessionContext;
 		session.setServerRemoteProductLayout( engine.serverAction );
 		
 		ActionInit action = engine.createRootAction( RootActionType.Command , options , session , "call-" + data.clientrc.product , call , false , "Run remote command=" + commandInfo.name + "::" + options.method );
-		if( action == null )
+		if( action == null ) {
+			engine.error( "unable to create root action, method=" + options.method );
 			return( null );
+		}
 
 		action.context.loadEnv( action , false );
 		return( action );
