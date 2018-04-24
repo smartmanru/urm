@@ -163,7 +163,7 @@ public class EngineLoaderProducts {
 				
 			// rename revision to allow create new one with the same name
 			TransactionBase transaction = loader.getTransaction();
-			DBMeta.renameRevision( transaction , storageOld , "" + storageOld.ID );
+			DBMeta.hideRevision( transaction , storageOld );
 		}
 		
 		ProductMeta storageNew = importProduct( product , true , revision , includingEnvironments , storageOld );

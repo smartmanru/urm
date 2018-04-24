@@ -107,6 +107,7 @@ public abstract class DBQueries {
 	public static String QUERY_AUTH_GROUPUSERS0 = "select group_id , user_id , uv from urm_auth_groupuser";
 
 	public static String MODIFY_META_SETSTATUS2 = "update urm_product_meta set matched = @2@ where meta_id = @1@";
+	public static String MODIFY_META_HIDEREVISION2 = "update urm_product_meta set revision = @2@ where meta_id = @1@";
 	
 	public static String MODIFY_SOURCE_SHIFTPOS_ONDELETEPROJECT3 = "update urm_source_project set project_pos = project_pos - 1 where meta_id = @1@ and srcset_id = @2@ and project_pos > @3@";
 	public static String MODIFY_SOURCE_SHIFTPOS_ONDELETESET2 = "update urm_source_set set set_pos = set_pos - 1 where meta_id = @1@ and set_pos > @2@";

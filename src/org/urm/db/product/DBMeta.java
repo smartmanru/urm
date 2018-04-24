@@ -110,6 +110,15 @@ public class DBMeta {
 		modifyMeta( c , product , storage , false );
 	}
 
+	public static void hideRevision( TransactionBase transaction , ProductMeta storage ) throws Exception {	
+		DBConnection c = transaction.getConnection();
+		if( !c.modify( DBQueries.MODIFY_META_HIDEREVISION2 , new String[] { 
+				EngineDB.getObject( storage.ID ) ,
+				EngineDB.getString( "" + storage.ID )
+				} ) )
+			Common.exitUnexpected();
+	}
+	
 	public static void saveRevision( TransactionBase transaction , ProductMeta storage ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		AppProduct product = storage.getProduct();
