@@ -162,14 +162,14 @@ public class DBMetaMonitoring {
 				MetaEnvSegment sg = env.getSegment( segmentId );
 				target.createTarget( sg );
 
-				target.majorSchedule.setScheduleData( action , entity.loaddbString( rs , DBEnvData.FIELD_MONTARGET_MAJOR_SCHEDULE ) );
+				target.majorSchedule.setScheduleData( action , entity.loaddbString( rs , MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE ) );
 				target.modifyTarget( true ,  
 						entity.loaddbBoolean( rs , MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED ) ,
 						target.majorSchedule ,
 						entity.loaddbInt( rs , MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME )
 						);
 				
-				target.minorSchedule.setScheduleData( action , entity.loaddbString( rs , DBEnvData.FIELD_MONTARGET_MINOR_SCHEDULE ) );
+				target.minorSchedule.setScheduleData( action , entity.loaddbString( rs , MetaMonitoringTarget.PROPERTY_MINOR_SCHEDULE ) );
 				target.modifyTarget( false ,  
 						entity.loaddbBoolean( rs , MetaMonitoringTarget.PROPERTY_MINOR_ENABLED ) ,
 						target.minorSchedule ,
