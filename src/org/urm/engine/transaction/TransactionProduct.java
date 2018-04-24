@@ -180,7 +180,7 @@ public class TransactionProduct {
 			addTransactionMeta( tm );
 		}
 		
-		if( tm.checkChangeEnv( env ) )
+		if( tm.changeEnv( env ) )
 			return( true );
 		return( false );
 	}
