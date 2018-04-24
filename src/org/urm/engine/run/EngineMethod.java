@@ -26,7 +26,9 @@ import org.urm.meta.release.ReleaseRepository;
 
 public class EngineMethod extends EngineExecutorTask {
 	
-	private ActionBase action;
+	public Engine engine;
+	public ActionBase action;
+	
 	private CommandExecutor executor;
 	private CommandMethod command;
 	private ScopeState parentState;
@@ -38,6 +40,7 @@ public class EngineMethod extends EngineExecutorTask {
 	
 	public EngineMethod( ActionBase action , CommandExecutor executor , CommandMethod command , ScopeState parentState ) {
 		super( executor.commandInfo.name + "::" + command.method.name );
+		this.engine = action.engine;
 		this.action = action;
 		this.executor = executor;
 		this.command = command;
@@ -240,6 +243,10 @@ public class EngineMethod extends EngineExecutorTask {
 	private void notifyEvents() {
 		for( EngineMethodNotify event : notify )
 			event.source.notifyCustomEvent( event.eventOwner , event.eventType , event.data );
+	}
+
+	public CommandMethod getMethod() {
+		return( command );
 	}
 	
 }

@@ -236,7 +236,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 	}
 
 	
-	public synchronized EngineBlotterReleaseItem affectReleaseItem( ActionBase action , boolean success , ReleaseOperation op , Release release ) {
+	public synchronized EngineBlotterReleaseItem affectReleaseItem( ActionBase action , ReleaseOperation op , Release release ) {
 		String key = getReleaseKey( release );
 		
 		EngineBlotterReleaseItem item = null;
@@ -251,7 +251,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 			if( item == null )
 				return( null );
 			
-			if( success && ( op == ReleaseOperation.DROP || op == ReleaseOperation.ARCHIVE ) ) {
+			if( op == ReleaseOperation.DROP || op == ReleaseOperation.ARCHIVE ) {
 				items.remove( item.ID );
 				notifyItem( action , item , BlotterEvent.BLOTTER_STOP );
 			}

@@ -10,7 +10,6 @@ import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
-import org.urm.engine.BlotterService;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
@@ -421,11 +420,6 @@ public class DBRelease {
 		DBReleaseSchedule.complete( method , action , release , schedule );
 	}
 	
-	public static void finishStatus( EngineMethod method , ActionBase action , Release release ) throws Exception {
-		BlotterService blotter = action.getServerBlotter();
-		blotter.runReleaseStatus( action , release );
-	}
-
 	private static void createFileRecords( EngineMethod method , ActionBase action , Release release , Dist dist ) throws Exception {
 		ReleaseScope scope = release.getScope();
 		ReleaseDist releaseDist = dist.releaseDist;

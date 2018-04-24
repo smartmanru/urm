@@ -211,6 +211,10 @@ public class Engine {
 		return( running );
 	}
 	
+	public BlotterService getBlotterService() {
+		return( blotter );
+	}
+	
 	public boolean prepareWeb() throws Exception {
 		// server run options
 		CommandOptions options = serverExecutor.createOptionsStartServerByWeb( this );

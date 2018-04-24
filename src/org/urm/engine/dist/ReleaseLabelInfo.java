@@ -89,7 +89,7 @@ public class ReleaseLabelInfo {
 	}
 	
 	public DBEnumLifecycleType getLifecycleType() {
-		return( VersionInfo.getLifecycleTypeByShortVersion( RELEASEVER ) );
+		return( VersionInfo.getLifecycleTypeByFullVersion( RELEASEVER ) );
 	}
 	
 	private String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
