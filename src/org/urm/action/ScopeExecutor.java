@@ -141,7 +141,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 		
-		if( updateContext() )
+		if( !updateContext() )
 			return( false );
 		
 		if( async ) {
@@ -159,7 +159,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 		
-		if( updateContext() )
+		if( !updateContext() )
 			return( false );
 		
 		if( async ) {
@@ -182,6 +182,9 @@ public class ScopeExecutor implements EngineEventsListener {
 			accessDenied( "access denied (user=" + action.getUserName() + ", build operation)" );
 			return( false );
 		}
+		
+		if( !updateContext() )
+			return( false );
 		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSIMPLE;
@@ -222,6 +225,9 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 
+		if( !updateContext() )
+			return( false );
+		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNCATEGORIES;
 			asyncScope = scope;
@@ -247,6 +253,9 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 		}
 		
+		if( !updateContext() )
+			return( false );
+		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSCOPESET;
 			asyncScopeSet = set;
@@ -271,6 +280,9 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 		}
 
+		if( !updateContext() )
+			return( false );
+		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSCOPESETTARGETS;
 			asyncScopeSet = set;
@@ -296,6 +308,9 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 		}
 		
+		if( !updateContext() )
+			return( false );
+		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSCOPETARGET;
 			asyncScopeTarget = item;
@@ -312,6 +327,9 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 			
+		if( !updateContext() )
+			return( false );
+		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNUNIQUEHOSTS;
 			asyncScope = scope;
@@ -333,6 +351,9 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 			
+		if( !updateContext() )
+			return( false );
+		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNUNIQUEACCOUNTS;
 			asyncScope = scope;

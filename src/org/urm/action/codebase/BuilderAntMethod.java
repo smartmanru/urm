@@ -27,7 +27,7 @@ public class BuilderAntMethod extends Builder {
 	@Override 
 	public boolean runBuild( ActionBase action ) throws Exception {
 		// ant params
-		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using ant " + builder.VERSION + " ..." );
+		action.info( "build PATCHPATH=" + CODEPATH.getLocalPath( action ) + " using ant " + builder.VERSION + " ..." );
 		PropertySet props = super.createProperties( action , project );
 
 		// set environment
