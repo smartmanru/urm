@@ -329,10 +329,10 @@ public class CommandContext {
 		}
 		
 		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , "" );
-		CTX_REDISTWIN_PATH = ( ismeta )? core.CONFIG_REDISTWIN_PATH : null;
+		CTX_REDISTWIN_PATH = ( ismeta )? core.CONFIG_REDISTWIN_PATH : "";
 		if( isenv && !env.REDISTWIN_PATH.isEmpty() )
 			CTX_REDISTWIN_PATH = env.REDISTWIN_PATH;
-		CTX_REDISTLINUX_PATH = ( ismeta )? core.CONFIG_REDISTLINUX_PATH : null;
+		CTX_REDISTLINUX_PATH = ( ismeta )? core.CONFIG_REDISTLINUX_PATH : "";
 		if( isenv && !env.REDISTLINUX_PATH.isEmpty() )
 			CTX_REDISTLINUX_PATH = env.REDISTLINUX_PATH;
 		CTX_HIDDENPATH = getParamPathValue( "OPT_HIDDENPATH" );

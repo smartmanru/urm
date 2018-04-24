@@ -101,7 +101,7 @@ public class CodebaseCommand {
 		
 		if( dist != null && scope.hasManual( action ) ) {
 			ActionGetManual cam = new ActionGetManual( action , null , scope.meta , copyDist , dist , downloadFolder );
-			if( !cam.runProductBuild( parentState , scope.meta.name , SecurityAction.ACTION_CODEBASE , action.context.buildMode , false ) )
+			if( !cam.runProductBuild( parentState , scope.meta , SecurityAction.ACTION_CODEBASE , action.context.buildMode , false ) )
 				res = false;
 		}
 		

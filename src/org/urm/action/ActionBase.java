@@ -331,112 +331,112 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public boolean runSimpleServer( ScopeState parentState , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , null );
 		return( executor.runSimpleServer( sa , readOnly ) );
 	}
 
 	public boolean runSimpleServerAsync( ScopeState parentState , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , null );
 		return( executor.runSimpleServer( sa , readOnly ) );
 	}
 
-	public boolean runSimpleProduct( ScopeState parentState , String productName , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
-		return( executor.runSimpleProduct( productName , sa , readOnly ) );
+	public boolean runSimpleProduct( ScopeState parentState , Meta meta , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , meta );
+		return( executor.runSimpleProduct( sa , readOnly ) );
 	}
 
-	public boolean runSimpleProductAsync( ScopeState parentState , String productName , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
-		return( executor.runSimpleProduct( productName , sa , readOnly ) );
+	public boolean runSimpleProductAsync( ScopeState parentState , Meta meta , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , meta );
+		return( executor.runSimpleProduct( sa , readOnly ) );
 	}
 
-	public boolean runProductBuild( ScopeState parentState , String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
-		return( executor.runProductBuild( productName , sa , mode , readOnly ) );
+	public boolean runProductBuild( ScopeState parentState , Meta meta , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , meta );
+		return( executor.runProductBuild( sa , mode , readOnly ) );
 	}
 	
-	public boolean runProductBuildAsync( ScopeState parentState , String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
-		return( executor.runProductBuild( productName , sa , mode , readOnly ) );
+	public boolean runProductBuildAsync( ScopeState parentState , Meta meta , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , meta );
+		return( executor.runProductBuild( sa , mode , readOnly ) );
 	}
 	
 	public boolean runSimpleEnv( ScopeState parentState , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , env.meta );
 		return( executor.runSimpleEnv( env , sa , readOnly ) );
 	}
 
 	public boolean runSimpleEnvAsync( ScopeState parentState , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , env.meta );
 		return( executor.runSimpleEnv( env , sa , readOnly ) );
 	}
 
 	public boolean runAll( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , scope.meta );
 		return( executor.runAll( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runAllAsync( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , scope.meta );
 		return( executor.runAll( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runAll( ScopeState parentState , ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , set.meta );
 		return( executor.runAll( set , env , sa , readOnly ) );
 	}
 	
 	public boolean runAllAsync( ScopeState parentState , ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , set.meta );
 		return( executor.runAll( set , env , sa , readOnly ) );
 	}
 	
 	public boolean runSingleTarget( ScopeState parentState , ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , item.meta );
 		return( executor.runSingleTarget( item , env , sa , readOnly ) );
 	}
 	
 	public boolean runSingleTargetAsync( ScopeState parentState , ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , item.meta );
 		return( executor.runSingleTarget( item , env , sa , readOnly ) );
 	}
 	
 	public boolean runTargetList( ScopeState parentState , ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , set.meta );
 		return( executor.runTargetList( set , items , env , sa , readOnly ) );
 	}
 	
 	public boolean runTargetListAsync( ScopeState parentState , ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , set.meta );
 		return( executor.runTargetList( set , items , env , sa , readOnly ) );
 	}
 	
 	public boolean runCategories( ScopeState parentState , ActionScope scope , DBEnumScopeCategoryType[] categories , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , scope.meta );
 		return( executor.runCategories( scope , categories , sa , readOnly ) );
 	}
 	
 	public boolean runCategoriesAsync( ScopeState parentState , ActionScope scope , DBEnumScopeCategoryType[] categories , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , scope.meta );
 		return( executor.runCategories( scope , categories , sa , readOnly ) );
 	}
 	
 	public boolean runEnvUniqueHosts( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , scope.meta );
 		return( executor.runEnvUniqueHosts( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runEnvUniqueHostsAsync( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , scope.meta );
 		return( executor.runEnvUniqueHosts( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runEnvUniqueAccounts( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , scope.meta );
 		return( executor.runEnvUniqueAccounts( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runEnvUniqueAccountsAsync( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , scope.meta );
 		return( executor.runEnvUniqueAccounts( scope , env , sa , readOnly ) );
 	}
 	
@@ -1068,6 +1068,10 @@ abstract public class ActionBase extends ActionCore {
 			if( env.isProd() )
 				options.setFlag( OptionsMeta.OPT_BACKUP , true );
 		}
+	}
+
+	public void updateContext( AppProduct product , Meta meta ) throws Exception {
+		context.update( this , product , meta );
 	}
 	
 }

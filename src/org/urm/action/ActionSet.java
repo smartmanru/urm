@@ -6,6 +6,7 @@ import java.util.List;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.product.Meta;
 
 public class ActionSet {
 
@@ -60,10 +61,10 @@ public class ActionSet {
 		return( ok );
 	}
 	
-	public void runSimpleProduct( ActionBase action , String productName , SecurityAction sa , boolean readOnly ) throws Exception {
+	public void runSimpleProduct( ActionBase action , Meta meta , SecurityAction sa , boolean readOnly ) throws Exception {
 		String threadName = "AT." + actions.size();
 		ActionSetItem item = new ActionSetItem( this , threadName );
-		item.createSimpleProduct( parentState , action , productName , sa , readOnly );
+		item.createSimpleProduct( parentState , action , meta , sa , readOnly );
 		startItem( item );
 	}
 
