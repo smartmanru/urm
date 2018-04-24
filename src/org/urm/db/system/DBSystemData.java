@@ -22,6 +22,7 @@ public class DBSystemData {
 	public static String TABLE_POLICYCYCLE = "urm_product_lifecycle";
 	public static String FIELD_SYSTEM_ID = "system_id";
 	public static String FIELD_SYSTEM_DESC = "xdesc";
+	public static String FIELD_SYSTEM_MATCHED = "matched";
 	public static String FIELD_PRODUCT_SYSTEM_ID = "system_id";
 	public static String FIELD_PRODUCT_ID = "product_id";
 	public static String FIELD_PRODUCT_DESC = "xdesc";
@@ -50,7 +51,7 @@ public class DBSystemData {
 				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( AppSystem.PROPERTY_DESC , FIELD_SYSTEM_DESC , AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true ) ,
-				EntityVar.metaBoolean( AppSystem.PROPERTY_MATCHED , "State of matched to core" , false , true )
+				EntityVar.metaBooleanDatabaseOnly( FIELD_SYSTEM_MATCHED , "State of matched to core" , false , true )
 		} ) );
 	}
 

@@ -13,7 +13,6 @@ public class AppSystem extends EngineObject {
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
 	public static String PROPERTY_OFFLINE = "offline";
-	public static String PROPERTY_MATCHED = "matched";
 	
 	public EngineDirectory directory;
 	private Map<String,AppProduct> mapProducts;
@@ -63,7 +62,6 @@ public class AppSystem extends EngineObject {
 	
 	public void setMatched( boolean matched ) throws Exception {
 		this.MATCHED = matched;
-		parameters.setBooleanProperty( PROPERTY_MATCHED , MATCHED );
 	}
 	
 	public AppSystem copy( EngineDirectory nd , ObjectProperties rparameters ) {

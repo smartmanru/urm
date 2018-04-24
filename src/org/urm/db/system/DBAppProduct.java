@@ -36,9 +36,9 @@ public abstract class DBAppProduct {
 		
 		AppProduct product = new AppProduct( directory , system );
 		product.createProduct(
-				entity.importxmlStringAttr( root , AppProduct.PROPERTY_NAME ) , 
-				entity.importxmlStringAttr( root , AppProduct.PROPERTY_DESC ) , 
-				entity.importxmlStringAttr( root , AppProduct.PROPERTY_PATH )
+				entity.importxmlStringProperty( root , AppProduct.PROPERTY_NAME ) , 
+				entity.importxmlStringProperty( root , AppProduct.PROPERTY_DESC ) , 
+				entity.importxmlStringProperty( root , AppProduct.PROPERTY_PATH )
 				);
 		product.setOffline( entity.importxmlBooleanAttr( root , AppProduct.PROPERTY_OFFLINE , true ) );
 		product.setMonitoringEnabled( entity.importxmlBooleanAttr( root , AppProduct.PROPERTY_MONITORING_ENABLED , false ) );
@@ -62,6 +62,8 @@ public abstract class DBAppProduct {
 	public static void exportxmlProduct( EngineLoader loader , AppProduct product , Document doc , Element root ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppDirectoryProduct;
+		
+		Common.xmlSetNameAttr( doc , root , product.NAME );
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
 				entity.exportxmlString( product.NAME ) ,
 				entity.exportxmlString( product.DESC ) ,
@@ -76,7 +78,7 @@ public abstract class DBAppProduct {
 				entity.exportxmlInt( product.NEXT_MAJOR2 ) , 
 				entity.exportxmlInt( product.NEXT_MINOR1 ) , 
 				entity.exportxmlInt( product.NEXT_MINOR2 ) 
-		} , true );
+		} , false );
 	}
 
 	public static AppProduct[] loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
