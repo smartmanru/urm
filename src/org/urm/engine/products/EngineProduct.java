@@ -99,7 +99,7 @@ public class EngineProduct {
 	}
 
 	public void addProductMeta( ProductMeta storage ) throws Exception {
-		revisions.addProductMeta( storage );
+		revisions.updateRevision( storage , null );
 	}
 	
 	public void setSkipped() {

@@ -141,4 +141,6 @@ public abstract class DBQueries {
 	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPS1 = "delete from urm_env_startgroup where segment_id = @1@";
 	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
 	
+	public static String MODIFY_REL_CHANGEREPOREVISION2 = "update urm_rel_repository set meta_id = @2@ where repo_id = @1@";
+	
 }

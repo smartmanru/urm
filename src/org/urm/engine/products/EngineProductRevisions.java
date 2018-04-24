@@ -36,7 +36,7 @@ public class EngineProductRevisions {
 		return( storage );
 	}
 	
-	public synchronized void addProductMeta( ProductMeta storage ) throws Exception {
+	private synchronized void addProductMeta( ProductMeta storage ) throws Exception {
 		if( storage.DRAFT ) {
 			if( draft != null )
 				Common.exitUnexpected();
@@ -83,7 +83,8 @@ public class EngineProductRevisions {
 			storageOld.setPrimary( false );
 		}
 
-		addProductMeta( storage );
+		if( productMetaById.get( storage.ID ) != storage )
+			addProductMeta( storage );
 	}
 	
 }

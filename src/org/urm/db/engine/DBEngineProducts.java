@@ -4,6 +4,7 @@ import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBProductData;
+import org.urm.db.release.DBReleaseData;
 import org.urm.engine.Engine;
 import org.urm.engine.AuthService;
 import org.urm.engine.action.ActionInit;
@@ -19,7 +20,7 @@ import org.urm.meta.product.ProductMeta;
 
 public class DBEngineProducts {
 
-	public static AppProduct createProduct( EngineTransaction transaction , AppSystem system , String name , String desc , String path , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
+	public static AppProduct createProduct( EngineTransaction transaction , AppSystem system , String name , String desc , String path ) throws Exception {
 		Engine engine = transaction.engine;
 		DBConnection c = transaction.getConnection();
 		ActionInit action = transaction.getAction();
@@ -29,14 +30,13 @@ public class DBEngineProducts {
 		EngineMirrors mirrors = transaction.getTransactionMirrors();
 		
 		AppProduct product = directory.findProduct( name );
+		boolean forceClearMeta = false; 
 		ProductMeta storageOld = null;
 		if( product != null ) {
-			if( !forceClearMeta )
-				Common.exitUnexpected();
-
 			EngineProduct ep = product.findEngineProduct();
 			storageOld = ep.findDraftRevision();
 			if( storageOld != null ) {
+				forceClearMeta = true;
 				if( storageOld.isExists() ) {
 					DBEnvData.dropEnvData( c , storageOld );
 					DBProductData.dropProductData( c , storageOld );
@@ -51,7 +51,7 @@ public class DBEngineProducts {
 		DBEngineMirrors.createProductMirrors( transaction , mirrors , product );
 		
 		EngineLoader loader = engine.createLoader( transaction );
-		ProductMeta storage = loader.createProduct( product , forceClearMeta , forceClearDist );
+		ProductMeta storage = loader.createProduct( product , forceClearMeta , false );
 		if( storage == null )
 			Common.exit0( _Error.UnableCreateProduct0 , "Unable to create product" );
 		
@@ -59,7 +59,7 @@ public class DBEngineProducts {
 			transaction.requestReplaceProductMetadata( storage , storageOld );
 		else {
 			transaction.createProduct( product );
-			transaction.createProductMetadata( storage );
+			transaction.createProductMetadata( product , storage );
 		}
 		
 		return( product );
@@ -71,9 +71,6 @@ public class DBEngineProducts {
 		AuthService auth = action.getServerAuth();
 		EngineMirrors mirrors = action.getActiveMirrors();
 		
-		if( !transaction.changeMirrors( mirrors ) )
-			Common.exitUnexpected();
-
 		EngineProduct ep = product.getEngineProduct();
 		EngineProductRevisions revisions = ep.getRevisions();
 		
@@ -82,6 +79,7 @@ public class DBEngineProducts {
 		
 		for( ProductMeta storage : revisions.getRevisions() ) {
 			DBEnvData.dropEnvData( c , storage );
+			DBReleaseData.dropAllMeta( c , storage );
 			DBProductData.dropProductData( c , storage );
 		}
 		

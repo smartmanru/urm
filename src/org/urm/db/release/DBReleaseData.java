@@ -9,8 +9,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseDist;
@@ -353,16 +352,15 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static void dropAllMeta( EngineLoader loader , Meta meta ) throws Exception {
-		int metaId = meta.getId();
-		dropReleaseTickets( loader , metaId );
-		dropReleaseSchedule( loader , metaId );
-		dropReleaseCore( loader , metaId );
+	public static void dropAllMeta( DBConnection c , ProductMeta storage ) throws Exception {
+		int metaId = storage.ID;
+		dropReleaseTickets( c , metaId );
+		dropReleaseSchedule( c , metaId );
+		dropReleaseCore( c , metaId );
 	}
 
-	private static void dropReleaseCore( EngineLoader loader , int metaId ) throws Exception {
-		DBConnection c = loader.getConnection();
-		EngineEntities entities = loader.getEntities();
+	private static void dropReleaseCore( DBConnection c , int metaId ) throws Exception {
+		EngineEntities entities = c.getEntities();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistItem , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseBuildTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
@@ -371,16 +369,14 @@ public class DBReleaseData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseRepository , DBQueries.FILTER_REL_REPOMETA1 , new String[] { EngineDB.getInteger( metaId ) } );
 	}
 	
-	private static void dropReleaseSchedule( EngineLoader loader , int metaId ) throws Exception {
-		DBConnection c = loader.getConnection();
-		EngineEntities entities = loader.getEntities();
+	private static void dropReleaseSchedule( DBConnection c , int metaId ) throws Exception {
+		EngineEntities entities = c.getEntities();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleasePhase , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseSchedule , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 	}
 	
-	private static void dropReleaseTickets( EngineLoader loader , int metaId ) throws Exception {
-		DBConnection c = loader.getConnection();
-		EngineEntities entities = loader.getEntities();
+	private static void dropReleaseTickets( DBConnection c , int metaId ) throws Exception {
+		EngineEntities entities = c.getEntities();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTicketTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTicket , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTicketSet , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );

@@ -30,7 +30,7 @@ public class EngineLoaderReleases {
 	}
 
 	public void createReleases( ProductMeta set , boolean forceClearMeta ) throws Exception {
-		ReleaseRepository repo = DBProductReleases.createdb( loader , set.meta , forceClearMeta );
+		ReleaseRepository repo = DBProductReleases.createdb( loader , set , forceClearMeta );
 		set.setReleaseRepository( repo );
 	}
 
@@ -42,8 +42,13 @@ public class EngineLoaderReleases {
 		releases.setDistRepository( distrepo );
 	}
 	
-	public void loadReleases( ProductMeta set , boolean importxml ) throws Exception {
-		ReleaseRepository repo = DBProductReleases.loaddb( loader , set.meta , importxml );
+	public void loadReleases( ProductMeta set ) throws Exception {
+		ReleaseRepository repo = DBProductReleases.loaddb( loader , set );
+		set.setReleaseRepository( repo );
+	}
+	
+	public void loadReleasesByImport( ProductMeta set , ProductMeta setOld ) throws Exception {
+		ReleaseRepository repo = DBProductReleases.loaddbByImport( loader , set , setOld );
 		set.setReleaseRepository( repo );
 	}
 	

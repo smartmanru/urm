@@ -19,6 +19,7 @@ import org.urm.meta.product.ProductMeta;
 public class TransactionProduct {
 
 	TransactionBase transaction;
+	AppProduct product;
 	EngineProduct ep;
 
 	protected boolean deleteProduct;
@@ -26,8 +27,9 @@ public class TransactionProduct {
 	protected boolean importProduct;
 	private List<TransactionMetadata> productMeta;
 	
-	public TransactionProduct( TransactionBase transaction , EngineProduct ep ) {
+	public TransactionProduct( TransactionBase transaction , AppProduct product , EngineProduct ep ) {
 		this.transaction = transaction;
+		this.product = product;
 		this.ep = ep;
 		
 		productMeta = new LinkedList<TransactionMetadata>();
@@ -91,7 +93,7 @@ public class TransactionProduct {
 	
 	public boolean importProduct() {
 		TransactionMetadata tm = new TransactionMetadata( this , ep );
-		if( !tm.importProduct( ep.findProduct() ) )
+		if( !tm.importProduct( product ) )
 			return( false );
 		
 		importProduct = true;
@@ -237,7 +239,6 @@ public class TransactionProduct {
 	}
 	
 	public boolean commitTransaction() throws Exception {
-		AppProduct product = ep.getProduct();
 		if( createProduct )
 			createProductFinish( product );
 		else

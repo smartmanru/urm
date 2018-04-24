@@ -470,14 +470,14 @@ public class EngineTransaction extends TransactionBase {
 		DBAppSystem.updateCustomProperties( this , system );
 	}
 	
-	public AppProduct createProduct( AppSystem system , String name , String desc , String path , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
+	public AppProduct createProduct( AppSystem system , String name , String desc , String path ) throws Exception {
 		EngineDirectory directory = system.directory;
 		super.checkTransactionDirectory( directory );
 		
 		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 			action.exitUnexpectedState();
 
-		return( DBEngineProducts.createProduct( this , system , name , desc , path , forceClearMeta , forceClearDist ) );
+		return( DBEngineProducts.createProduct( this , system , name , desc , path ) );
 	}
 	
 	public void modifyProduct( AppProduct product , String name , String desc , String path ) throws Exception {
@@ -492,6 +492,7 @@ public class EngineTransaction extends TransactionBase {
 
 	public void deleteProduct( AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		super.checkTransactionDirectory( product.directory );
+		super.checkTransactionMirrors( super.getMirrors() );
 		
 		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 			action.exitUnexpectedState();

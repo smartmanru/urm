@@ -15,7 +15,6 @@ import org.urm.engine.dist._Error;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
@@ -98,7 +97,7 @@ public class DBMeta {
 		return( products.toArray( new ProductMeta[0] ) );
 	}
 
-	public static void renameRevision( EngineTransaction transaction , ProductMeta storage , String name ) throws Exception {
+	public static void renameRevision( TransactionBase transaction , ProductMeta storage , String name ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		AppProduct product = storage.getProduct();
 		EngineProductRevisions revisions = product.findRevisions();
@@ -111,7 +110,7 @@ public class DBMeta {
 		modifyMeta( c , product , storage , false );
 	}
 
-	public static void saveRevision( EngineTransaction transaction , ProductMeta storage ) throws Exception {
+	public static void saveRevision( TransactionBase transaction , ProductMeta storage ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		AppProduct product = storage.getProduct();
 		if( !storage.isDraft() )
@@ -130,7 +129,7 @@ public class DBMeta {
 				} ) );
 	}
 	
-	public static void reopenRevision( EngineTransaction transaction , ProductMeta storage ) throws Exception {
+	public static void reopenRevision( TransactionBase transaction , ProductMeta storage ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		AppProduct product = storage.getProduct();
 		
@@ -152,7 +151,7 @@ public class DBMeta {
 		modifyMeta( c , product , storage , false );
 	}
 
-	public static Meta createRevision( EngineTransaction transaction , AppProduct product , String name , Integer revSrc ) throws Exception {
+	public static Meta createRevision( TransactionBase transaction , AppProduct product , String name , Integer revSrc ) throws Exception {
 		EngineProduct ep = product.getEngineProduct();
 		EngineProductRevisions revisions = ep.getRevisions();
 		ProductMeta src = ( revSrc == null )? null : revisions.getRevision( revSrc );
@@ -172,12 +171,12 @@ public class DBMeta {
 		if( storage == null )
 			Common.exitUnexpected();
 		
-		transaction.createProductMetadata( storage );
+		transaction.createProductMetadata( product , storage );
 		
 		return( storage.meta );
 	}
 
-	public static void deleteRevision( EngineTransaction transaction , ProductMeta storage ) throws Exception {
+	public static void deleteRevision( TransactionBase transaction , ProductMeta storage ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		// verify there are no releases assigned to revision

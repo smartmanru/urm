@@ -19,6 +19,7 @@ import org.urm.meta.engine.AppProductPolicy;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseDist;
@@ -347,6 +348,14 @@ public class DBReleaseRepository {
 		repo.removeRelease( release );
 	}
 
+	public static void changeRevision( DBConnection c , int repoId , ProductMeta storage ) throws Exception {
+		if( !c.modify( DBQueries.MODIFY_REL_CHANGEREPOREVISION2 , new String[] {
+				EngineDB.getObject( repoId ) ,
+				EngineDB.getObject( storage.ID )
+				}))
+			Common.exitUnexpected();
+	}
+	
 	public static void archiveRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , Release release ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		method.checkUpdateRelease( release );

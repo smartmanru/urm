@@ -844,20 +844,20 @@ public class TransactionBase extends EngineObject {
 
 	public void createProduct( AppProduct product ) throws Exception {
 		EngineProduct ep = product.getEngineProduct();
-		TransactionProduct tm = createProductTransaction( ep );
+		TransactionProduct tm = createProductTransaction( product , ep );
 		tm.createProduct();
 	}
 	
-	public Meta createProductMetadata( ProductMeta storage ) throws Exception {
+	public Meta createProductMetadata( AppProduct product , ProductMeta storage ) throws Exception {
 		EngineProduct ep = storage.getEngineProduct();
-		TransactionProduct tm = createProductTransaction( ep );
+		TransactionProduct tm = createProductTransaction( product , ep );
 		return( tm.createProductMetadata( storage ) );
 	}
 
-	private TransactionProduct createProductTransaction( EngineProduct ep ) {
+	private TransactionProduct createProductTransaction( AppProduct product , EngineProduct ep ) {
 		TransactionProduct tm = findProductTransaction( ep.productName );
 		if( tm == null ) {
-			tm = new TransactionProduct( this , ep );
+			tm = new TransactionProduct( this , product , ep );
 			productChanges.put( tm.ep.productName , tm );
 		}
 		return( tm );
@@ -872,7 +872,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityProductChange( product , null ) )
 					return( false );
 				
-				TransactionProduct tm = createProductTransaction( product.findEngineProduct() );
+				TransactionProduct tm = createProductTransaction( product , product.findEngineProduct() );
 				if( tm.importProduct() ) {
 					useDatabase();
 					return( true );
@@ -897,7 +897,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityProductChange( ep.getProduct() , env ) )
 					return( false );
 				
-				TransactionProduct tm = createProductTransaction( ep );
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
 				if( tm.importEnv( env ) )
 					return( true );
 			}
@@ -920,7 +920,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityProductChange( ep.getProduct() , null ) )
 					return( false );
 				
-				TransactionProduct tm = createProductTransaction( ep );
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
 				if( !tm.recreateMetadata( meta ) ) {
 					useDatabase();
 					return( true );
@@ -946,7 +946,7 @@ public class TransactionBase extends EngineObject {
 					return( false );
 				
 				EngineProduct ep = meta.getEngineProduct();
-				TransactionProduct tm = createProductTransaction( ep );
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
 				
 				if( tm.deleteMetadata( meta ) ) {
 					useDatabase();
@@ -972,7 +972,7 @@ public class TransactionBase extends EngineObject {
 					return( false );
 				
 				EngineProduct ep = product.getEngineProduct();
-				TransactionProduct tm = createProductTransaction( ep );
+				TransactionProduct tm = createProductTransaction( product , ep );
 				
 				if( tm.deleteProduct() ) {
 					useDatabase();
@@ -1001,7 +1001,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityProductChange( ep.getProduct() , null ) )
 					return( false );
 				
-				TransactionProduct tm = createProductTransaction( ep ); 
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep ); 
 				if( tm.changeMetadata( meta ) ) {
 					useDatabase();
 					return( true );
@@ -1026,7 +1026,7 @@ public class TransactionBase extends EngineObject {
 				if( !checkSecurityProductChange( ep.getProduct() , env ) )
 					return( false );
 				
-				TransactionProduct tm = createProductTransaction( ep );
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
 				if( tm.checkChangeEnv( env ) )
 					return( true );
 				
@@ -1548,7 +1548,7 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public void requestReplaceProductMetadata( ProductMeta storage , ProductMeta storageOld ) throws Exception {
-		TransactionProduct tm = createProductTransaction( storage.ep );
+		TransactionProduct tm = createProductTransaction( storage.getProduct() , storage.ep );
 		tm.replaceProductMetadata( storage , storageOld );
 	}
 
