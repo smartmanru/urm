@@ -22,14 +22,14 @@ public class AppProductPolicy {
 	
 	private Integer LC_MAJOR;
 	private Integer LC_MINOR;
-	public boolean LCUrgentAll;
+	public boolean LC_URGENT_All;
 	private Integer[] LC_URGENT_LIST;
 	public int SV;
 	
 	public AppProductPolicy( EngineDirectory directory , AppProduct product ) {
 		this.directory = directory;
 		this.product = product;
-		LCUrgentAll = false;
+		LC_URGENT_All = false;
 		LC_URGENT_LIST = new Integer[0];
 	}
 
@@ -39,7 +39,7 @@ public class AppProductPolicy {
 		// stored
 		r.LC_MAJOR = LC_MAJOR;
 		r.LC_MINOR = LC_MINOR;
-		r.LCUrgentAll = LCUrgentAll;
+		r.LC_URGENT_All = LC_URGENT_All;
 		r.LC_URGENT_LIST = LC_URGENT_LIST.clone();
 		r.SV = SV;
 		
@@ -47,7 +47,7 @@ public class AppProductPolicy {
 	}
 
 	public void setAttrs( boolean urgentsAll ) {
-		LCUrgentAll = urgentsAll;
+		LC_URGENT_All = urgentsAll;
 	}
 	
 	public void setLifecycles( ReleaseLifecycle major , ReleaseLifecycle minor , ReleaseLifecycle[] urgents ) throws Exception {
@@ -107,7 +107,7 @@ public class AppProductPolicy {
 	}
 	
 	public boolean checkUrgentIncluded( ReleaseLifecycle lc ) {
-		if( lc.isUrgent() && LCUrgentAll )
+		if( lc.isUrgent() && LC_URGENT_All )
 			return( true );
 		for( Integer item : LC_URGENT_LIST ) {
 			if( item == lc.ID )
@@ -191,6 +191,9 @@ public class AppProductPolicy {
 		if( type == DBEnumLifecycleType.URGENT ) {
 			Integer[] expected = LC_URGENT_LIST;
 			if( expected.length == 0 ) {
+				if( !LC_URGENT_All )
+					action.exit0( _Error.UrgentReleasesDenied0 , "Product policy prevents from creating urgent releases" );
+					
 				if( lc != null )
 					return( lc );
 			}
@@ -259,7 +262,7 @@ public class AppProductPolicy {
 			return( true );
 		if( type == DBEnumLifecycleType.MINOR && LC_MINOR != null )
 			return( true );
-		if( type == DBEnumLifecycleType.URGENT && !LCUrgentAll )
+		if( type == DBEnumLifecycleType.URGENT && !LC_URGENT_All )
 			return( true );
 		return( false );
 	}

@@ -175,7 +175,7 @@ public abstract class DBAppProduct {
 		policy.SV = c.getNextSystemVersion( product.system );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppProductPolicy , product.ID , policy.SV , new String[] {
-				EngineDB.getBoolean( policy.LCUrgentAll )
+				EngineDB.getBoolean( policy.LC_URGENT_All )
 				} , insert );
 	}
 	
@@ -249,8 +249,8 @@ public abstract class DBAppProduct {
 			Common.xmlCreatePropertyElement( doc , root , AppProductPolicy.PROPERTY_RELEASELC_MINOR , lc.NAME );
 		}
 		
-		Common.xmlCreateBooleanPropertyElement( doc , root , AppProductPolicy.PROPERTY_RELEASELC_URGENTANY , policy.LCUrgentAll );
-		if( !policy.LCUrgentAll ) {
+		Common.xmlCreateBooleanPropertyElement( doc , root , AppProductPolicy.PROPERTY_RELEASELC_URGENTANY , policy.LC_URGENT_All );
+		if( !policy.LC_URGENT_All ) {
 			String[] names = policy.getUrgentNames();
 			Common.xmlCreatePropertyElement( doc , root , AppProductPolicy.PROPERTY_RELEASELC_URGENTS , Common.getList( names ) );
 		}

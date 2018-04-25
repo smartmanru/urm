@@ -46,5 +46,6 @@ public class _Error {
 	public static final int NotExpectedReleasecycleType1 = ErrorBase + 66;
 	public static final int MissingReleasecycleType0 = ErrorBase + 67;
 	public static final int InconsistentVersionAttributes0 = ErrorBase + 68;
+	public static final int UrgentReleasesDenied0 = ErrorBase + 69;
 	
 }
