@@ -106,9 +106,6 @@ public class DBReleaseTicketTarget {
 		DBConnection c = method.getMethodConnection( action );
 		method.checkUpdateRelease( release );
 		
-		if( ticketSet.findTarget( projectSet ) != null )
-			Common.exitUnexpected();
-		
 		// create build target
 		ReleaseBuildTarget buildTarget = new ReleaseBuildTarget( changes );
 		buildTarget.create( projectSet , false );
@@ -128,9 +125,6 @@ public class DBReleaseTicketTarget {
 	public static void createProjectTarget( EngineMethod method , ActionBase action , Release release , ReleaseChanges changes , ReleaseTicketSet ticketSet , MetaSourceProject project , boolean all ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		method.checkUpdateRelease( release );
-		
-		if( ticketSet.findTarget( project ) != null )
-			Common.exitUnexpected();
 		
 		// create build target
 		ReleaseBuildTarget buildTarget = new ReleaseBuildTarget( changes );

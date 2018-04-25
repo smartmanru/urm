@@ -100,12 +100,15 @@ public class EngineMethodProduct {
 		mapReleases.put( release.RELEASEVER , emmr );
 	}
 
-	public synchronized Release updateRelease( Release release ) throws Exception {
+	public synchronized Release updateRelease( ReleaseRepository repo , Release release ) throws Exception {
 		ReleaseRepository updateReleaseRepository = changeReleaseRepository( release.getMeta() );
 		Release releaseUpdated = updateReleaseRepository.getRelease( release.ID );
 		
 		EngineMethodProductRelease emmr = mapReleases.get( release.RELEASEVER );
 		if( emmr == null ) {
+			if( release.repo.ID != repo.ID || release.repo == repo )
+				Common.exitUnexpected();
+			
 			emmr = new EngineMethodProductRelease( this , release );
 			emmr.setUpdated( releaseUpdated );
 			mapReleases.put( release.RELEASEVER , emmr );

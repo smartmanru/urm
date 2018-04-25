@@ -195,9 +195,7 @@ public class EngineMethod extends EngineExecutorTask {
 	
 	public Release changeRelease( ReleaseRepository repo , Release release ) throws Exception {
 		EngineMethodProduct emm = checkUpdateReleaseRepository( repo );
-		if( release.repo.ID != repo.ID || release.repo == repo )
-			Common.exitUnexpected();
-		return( emm.updateRelease( release ) );
+		return( emm.updateRelease( repo , release ) );
 	}
 	
 	public Release deleteRelease( ReleaseRepository repo , Release release ) throws Exception {

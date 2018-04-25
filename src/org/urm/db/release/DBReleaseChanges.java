@@ -265,7 +265,7 @@ public class DBReleaseChanges {
 		method.checkUpdateRelease( release );
 		DBConnection c = method.getMethodConnection( action );
 		
-		ReleaseTicket ticketOld = ticket = set.findTicket( code );
+		ReleaseTicket ticketOld = set.findTicket( code );
 		if( ticketOld != null && ticketOld.ID != ticket.ID )
 			Common.exitUnexpected();
 		
