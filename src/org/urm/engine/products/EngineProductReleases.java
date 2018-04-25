@@ -42,6 +42,11 @@ public class EngineProductReleases {
 	
 	public String getNextRelease( DBEnumLifecycleType type ) {
 		AppProduct product = findProduct();
+		
+		Release release = findLastRelease( type );
+		if( release != null )
+			return( VersionInfo.getNextVersion( release.RELEASEVER ) );
+			
 		if( type == DBEnumLifecycleType.MAJOR )
 			return( product.NEXT_MAJOR1 + "." + product.NEXT_MAJOR2 );
 		if( type == DBEnumLifecycleType.MINOR )
