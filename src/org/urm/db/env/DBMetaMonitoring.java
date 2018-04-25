@@ -328,7 +328,7 @@ public class DBMetaMonitoring {
 			target.addUrl( item );
 		else
 		if( type == DBEnumMonItemType.CHECKWS )
-			target.addUrl( item );
+			target.addWS( item );
 		else
 			Common.exitUnexpected();
 			
