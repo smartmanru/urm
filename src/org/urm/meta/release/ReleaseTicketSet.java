@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
+import org.urm.db.core.DBEnums.DBEnumDistTargetType;
+import org.urm.db.core.DBEnums.DBEnumTicketSetStatusType;
 import org.urm.engine.dist._Error;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -210,7 +211,6 @@ public class ReleaseTicketSet {
 		
 		ReleaseTicket ticketNew = ticket.copyNew( release , this );
 		int lastPos = getLastTicketPos();
-		addTicket( ticketNew );
 		ticketNew.setNew();
 		ticketNew.setPos( lastPos + 1 );
 		return( ticketNew );

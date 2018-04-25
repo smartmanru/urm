@@ -39,12 +39,12 @@ public class EngineMethodProductRelease {
 		this.releaseNew = release;
 	}
 	
-	public void setUpdated() throws Exception {
+	public void setUpdated( Release releaseUpdated ) throws Exception {
 		update = true;
 		if( releaseNew != null )
 			return;
 
-		releaseNew = release;
+		releaseNew = releaseUpdated;
 		release.modify( false );
 		releaseOld = release;
 	}

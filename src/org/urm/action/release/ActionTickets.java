@@ -487,8 +487,9 @@ public class ActionTickets extends ActionBase {
 		EngineProduct ep = meta.getEngineProduct();
 		synchronized( ep ) {
 			// update repositories
+			ReleaseRepository repo = meta.getReleases();
+			releaseNew = repo.findReleaseByLabel( this , newRelease );
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
-			releaseNew = repoUpdated.findReleaseByLabel( this , newRelease );
 			Release releaseNewUpdated = method.changeRelease( repoUpdated , releaseNew );
 			
 			ReleaseChanges changes = release.getChanges();

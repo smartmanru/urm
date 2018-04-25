@@ -32,12 +32,12 @@ public class EngineMethodProductDist {
 		this.itemNew = item;
 	}
 	
-	public void setUpdated() throws Exception {
+	public void setUpdated( DistRepositoryItem itemUpdated ) throws Exception {
 		update = true;
 		if( itemNew != null )
 			return;
 
-		itemNew = item;
+		itemNew = itemUpdated;
 		item.modify( false );
 		itemOld = item;
 	}

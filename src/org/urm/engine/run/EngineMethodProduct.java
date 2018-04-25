@@ -102,12 +102,12 @@ public class EngineMethodProduct {
 
 	public synchronized Release updateRelease( Release release ) throws Exception {
 		ReleaseRepository updateReleaseRepository = changeReleaseRepository( release.getMeta() );
-		release = updateReleaseRepository.getRelease( release.ID );
+		Release releaseUpdated = updateReleaseRepository.getRelease( release.ID );
 		
 		EngineMethodProductRelease emmr = mapReleases.get( release.RELEASEVER );
 		if( emmr == null ) {
 			emmr = new EngineMethodProductRelease( this , release );
-			emmr.setUpdated();
+			emmr.setUpdated( releaseUpdated );
 			mapReleases.put( release.RELEASEVER , emmr );
 		}
 		
@@ -153,12 +153,12 @@ public class EngineMethodProduct {
 	
 	public synchronized DistRepositoryItem updateDistItem( DistRepositoryItem item ) throws Exception {
 		changeDistRepository();
-		item = updateDistRepository.findNormalItem( item.RELEASEDIR );
+		DistRepositoryItem itemUpdated = updateDistRepository.findNormalItem( item.RELEASEDIR );
 		
 		EngineMethodProductDist emmd = mapDist.get( item.RELEASEDIR );
 		if( emmd == null ) {
 			emmd = new EngineMethodProductDist( this , item );
-			emmd.setUpdated();
+			emmd.setUpdated( itemUpdated );
 			mapDist.put( item.RELEASEDIR , emmd );
 		}
 		
