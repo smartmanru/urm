@@ -1489,7 +1489,7 @@ public class TransactionBase extends EngineObject {
 		MetaMonitoringTarget targetUpdated = mon.getTarget( target.ID );
 		if( targetUpdated == null )
 			Common.exitUnexpected();
-		return( target );
+		return( targetUpdated );
 	}
 
 	public MetaMonitoringItem getMonitoringItem( MetaMonitoringItem item ) throws Exception {

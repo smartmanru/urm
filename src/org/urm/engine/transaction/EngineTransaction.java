@@ -1277,28 +1277,32 @@ public class EngineTransaction extends TransactionBase {
 
 	public MetaMonitoringTarget modifyMonitoringTarget( MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
 		MetaEnv env = sg.env;
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		Meta meta = env.meta;
+		ProductMeta storage = meta.getStorage();
 		super.checkTransactionMetadata( storage );
 		return( DBMetaMonitoring.modifyTarget( this , storage , env , sg , major , enabled , maxTime , schedule ) );
 	}
 
 	public MetaMonitoringItem createMonitoringItem( MetaMonitoringTarget target , DBEnumMonItemType type , String url , String desc , String WSDATA , String WSCHECK ) throws Exception {
 		MetaEnv env = target.getEnv();
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		Meta meta = env.meta;
+		ProductMeta storage = meta.getStorage();
 		super.checkTransactionMetadata( storage );
 		return( DBMetaMonitoring.createTargetItem( this , storage , env , target , type , url , desc , WSDATA , WSCHECK ) );
 	}
 	
 	public void modifyMonitoringItem( MetaMonitoringItem item , String url , String desc , String WSDATA , String WSCHECK ) throws Exception {
 		MetaEnv env = item.target.getEnv();
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		Meta meta = env.meta;
+		ProductMeta storage = meta.getStorage();
 		super.checkTransactionMetadata( storage );
 		DBMetaMonitoring.modifyTargetItem( this , storage , env , item.target , item , url , desc , WSDATA , WSCHECK );
 	}
 	
 	public void deleteMonitoringItem( MetaMonitoringItem item ) throws Exception {
 		MetaEnv env = item.target.getEnv();
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		Meta meta = env.meta;
+		ProductMeta storage = meta.getStorage();
 		super.checkTransactionMetadata( storage );
 		DBMetaMonitoring.deleteTargetItem( this , storage , env , item.target , item );
 	}
