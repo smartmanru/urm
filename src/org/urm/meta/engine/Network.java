@@ -28,11 +28,13 @@ public class Network extends EngineObject {
 	public int CV;
 	
 	private Map<String,NetworkHost> hostMap;
+	private Map<Integer,NetworkHost> hostMapById;
 	
 	public Network( Datacenter datacenter ) {
 		super( datacenter );
 		this.datacenter = datacenter;
 		hostMap = new HashMap<String,NetworkHost>();
+		hostMapById = new HashMap<Integer,NetworkHost>();
 		ID = -1;
 		CV = 0;
 	}
@@ -59,10 +61,15 @@ public class Network extends EngineObject {
 	
 	public void addHost( NetworkHost host ) {
 		hostMap.put( host.NAME , host );
+		hostMapById.put( host.ID , host );
 	}
 	
-	public NetworkHost findHost( String id ) {
-		return( hostMap.get( id ) );
+	public NetworkHost findHost( String name ) {
+		return( hostMap.get( name ) );
+	}
+	
+	public NetworkHost findHost( int id ) {
+		return( hostMapById.get( id ) );
 	}
 	
 	public NetworkHost findHost( Account account ) {
@@ -168,6 +175,7 @@ public class Network extends EngineObject {
 	
 	public void removeHost( NetworkHost host ) {
 		hostMap.remove( host.NAME );
+		hostMapById.remove( host.ID );
 	}
 	
 	public void updateHost( NetworkHost host ) throws Exception {

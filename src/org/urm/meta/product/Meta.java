@@ -259,6 +259,11 @@ public class Meta extends EngineObject {
     	return( envs.findMetaEnv( name ) );
     }
 
+    public MetaEnv findEnv( int id ) {
+    	ProductEnvs envs = storage.getEnviroments();
+    	return( envs.findMetaEnv( id ) );
+    }
+
 	public static Integer getObject( MetaDistrBinaryItem item ) {
 		if( item == null )
 			return( null );

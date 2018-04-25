@@ -103,6 +103,10 @@ public class EngineInfrastructure extends EngineObject {
 		return( mapDatacenters.get( name ) );
 	}
 
+	public Datacenter findDatacenter( int id ) {
+		return( mapDatacentersById.get( id ) );
+	}
+
 	public Network findNetwork( String name ) {
 		return( mapNetworks.get( name ) );
 	}
