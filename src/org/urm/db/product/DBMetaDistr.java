@@ -1368,6 +1368,7 @@ public class DBMetaDistr {
 		for( MetaDatabaseSchema schema : set ) {
 			DBEnumChangeType type = delivery.getSchemaChangeType( schema );
 			type = EngineDB.getChangeAssociative( type , true );
+			delivery.addSchema( schema , type );
 		}
 		
 		for( int id : delivery.getSchemaIds() ) {
@@ -1397,6 +1398,7 @@ public class DBMetaDistr {
 		for( MetaProductDoc doc : set ) {
 			DBEnumChangeType type = delivery.getDocChangeType( doc );
 			type = EngineDB.getChangeAssociative( type , true );
+			delivery.addDocument( doc , type );
 		}
 		
 		for( int id : delivery.getDocIds() ) {
