@@ -46,6 +46,16 @@ public class AppProductPolicy {
 		return( r );
 	}
 
+	public boolean isAnyUrgent() {
+		return( LC_URGENT_All );
+	}
+	
+	public boolean isNoUrgents() {
+		if( LC_URGENT_All || LC_URGENT_LIST.length > 0 )
+			return( false );
+		return( true );
+	}
+	
 	public void setAttrs( boolean urgentsAll ) {
 		LC_URGENT_All = urgentsAll;
 	}
@@ -192,7 +202,7 @@ public class AppProductPolicy {
 			Integer[] expected = LC_URGENT_LIST;
 			if( expected.length == 0 ) {
 				if( !LC_URGENT_All )
-					action.exit0( _Error.UrgentReleasesDenied0 , "Product policy prevents from creating urgent releases" );
+					return( null );
 					
 				if( lc != null )
 					return( lc );
