@@ -89,6 +89,12 @@ public class ReleaseSchedule {
 		phases.add( phase );
 	}
 	
+	public boolean isDefined() {
+		if( phases.isEmpty() )
+			return( false );
+		return( true );
+	}
+	
 	public void sortPhases() throws Exception {
 		updatePhaseCounts();
 		
