@@ -49,10 +49,13 @@ public class ActionBuild extends ActionBase {
 				
 			debug( "build project=" + project.NAME );
 			if( !super.runCustomTarget( state , target ) ) {
-				if( !super.continueRun() ) {
-					error( "cancel build due to errors" );
-					return( SCOPESTATE.RunFail );
-				}
+				if( !super.isFailed() )
+					return( SCOPESTATE.RunSuccess );
+				if( context.CTX_FORCE || context.CTX_SKIPERRORS )
+					return( SCOPESTATE.RunSuccess );
+				
+				error( "cancel build due to errors" );
+				return( SCOPESTATE.RunFail );
 			}
 		}
 

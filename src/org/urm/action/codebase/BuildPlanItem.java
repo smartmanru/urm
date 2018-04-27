@@ -26,6 +26,7 @@ public class BuildPlanItem {
 	public boolean failedGet;
 	public boolean executeBuild;
 	public boolean executeGet;
+	public boolean executeGetAllowed;
 	public boolean noBuild;
 	public boolean noGet;
 	
@@ -37,6 +38,7 @@ public class BuildPlanItem {
 		execute = true;
 		executeBuild = false;
 		executeGet = false;
+		executeGetAllowed = true;
 		
 		startBuild = false;
 		startGet = false;
@@ -74,9 +76,17 @@ public class BuildPlanItem {
 		boolean canGet = false;
 		if( buildTarget != null && !buildTarget.isEmpty() )
 			canGet = true;
-		executeGet = ( canGet && execute )? true : false;
+		executeGet = ( canGet && execute && executeGetAllowed )? true : false;
 	}
 
+	public void setGet( boolean get ) {
+		executeGetAllowed = get;
+		boolean canGet = false;
+		if( buildTarget != null && !buildTarget.isEmpty() )
+			canGet = true;
+		executeGet = ( canGet && execute && executeGetAllowed )? true : false;
+	}
+	
 	public void setTagStart() {
 		startTag = true;
 	}
