@@ -347,11 +347,11 @@ public class DBRelease {
 		return( release );
 	}
 
-	public static Release createMasterRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER ) throws Exception {
+	public static Release createMasterRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String masterName , String desc , String RELEASEVER ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		
 		Release release = new Release( repo );
-		release.createMaster( action , RELEASEVER );
+		release.createMaster( action , masterName , desc , RELEASEVER );
 
 		modifyRelease( c , repo , release , true );
 		

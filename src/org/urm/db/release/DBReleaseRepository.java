@@ -73,7 +73,7 @@ public class DBReleaseRepository {
 		action.debug( "create master release: version=" + RELEASEVER + " ..." );
 		
 		// create meta item
-		release = DBRelease.createMasterRelease( method , action , repo , RELEASEVER );
+		release = DBRelease.createMasterRelease( method , action , repo , ReleaseRepository.MASTER_NAME_PRIMARY , "" , RELEASEVER );
 		repo.addRelease( release );
 		return( release );
 	}

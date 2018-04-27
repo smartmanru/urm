@@ -42,7 +42,6 @@ public class ActionCreateMaster extends ActionBase {
 			// update repositories
 			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
-			Dist src = distrepoUpdated.getDistByLabel( this , meta , RELEASEVER );
 			
 			// create release
 			Release releaseNew = DBReleaseRepository.createReleaseMaster( method , this , repoUpdated , RELEASEVER );
@@ -50,11 +49,13 @@ public class ActionCreateMaster extends ActionBase {
 			
 			// create distributive
 			if( copy ) {
-				dist = distrepoUpdated.createMasterCopy( method , this , src , release , releaseDist );
+				Dist src = distrepoUpdated.getDistByLabel( this , meta , RELEASEVER );
+				dist = distrepoUpdated.createMasterCopy( method , this , src , releaseNew , releaseDist );
 				createMasterFiles( dist , src );
 			}
-			else
-				dist = distrepoUpdated.createMasterInitial( this , release , releaseDist );
+			else {
+				dist = distrepoUpdated.createMasterInitial( this , releaseNew , releaseDist );
+			}
 			this.release = releaseNew;
 		}
 		

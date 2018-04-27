@@ -197,8 +197,11 @@ public class Release {
 		setProperties( action );
 	}
 
-	public void createMaster( ActionBase action , String RELEASEVER ) throws Exception {
+	public void createMaster( ActionBase action , String NAME , String DESC , String RELEASEVER ) throws Exception {
+		this.NAME = NAME;
+		this.DESC = DESC;
 		this.RELEASEVER = RELEASEVER;
+		this.TYPE = DBEnumLifecycleType.MAJOR;
 
 		schedule.createMaster(); 
 		
