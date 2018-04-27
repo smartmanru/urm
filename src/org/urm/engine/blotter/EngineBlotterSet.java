@@ -144,7 +144,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 	public synchronized void finishItem( EngineBlotterActionItem item ) {
 		EngineBlotterMemo memo = item.memo;
 		if( memo != null && item.success ) {
-			long elapsed = item.stopTime - item.startTime;
+			long elapsed = item.stopTime.getTime() - item.startTime.getTime();
 			memo.addEvent( elapsed );
 		}
 		

@@ -73,17 +73,22 @@ public class BuildPlanItem {
 	public void setExecute( boolean execute ) {
 		this.execute = execute;
 		executeBuild = ( execute && buildTarget != null && buildTarget.project.isBuildable() )? true : false;
-		boolean canGet = false;
-		if( buildTarget != null && !buildTarget.isEmpty() )
-			canGet = true;
+		boolean canGet = true;
+		if( buildTarget != null ) {
+			if( buildTarget.isEmpty() )
+				canGet = false;
+		}
+			
 		executeGet = ( canGet && execute && executeGetAllowed )? true : false;
 	}
 
 	public void setGet( boolean get ) {
 		executeGetAllowed = get;
-		boolean canGet = false;
-		if( buildTarget != null && !buildTarget.isEmpty() )
-			canGet = true;
+		boolean canGet = true;
+		if( buildTarget != null ) {
+			if( buildTarget.isEmpty() )
+				canGet = false;
+		}
 		executeGet = ( canGet && execute && executeGetAllowed )? true : false;
 	}
 	

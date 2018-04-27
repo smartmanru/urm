@@ -163,6 +163,11 @@ public class MetaSources {
 		return( set );
 	}
 	
+	public MetaSourceProjectSet findProjectSet( int id ) {
+		MetaSourceProjectSet set = setMapById.get( id );
+		return( set );
+	}
+	
 	public MetaSourceProjectSet findProjectSet( MatchItem item ) {
 		if( item == null )
 			return( null );

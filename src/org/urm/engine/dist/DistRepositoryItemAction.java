@@ -51,7 +51,7 @@ public class DistRepositoryItemAction {
 	
 	public void create( ActionBase action , boolean success , ReleaseOperation op , String msg ) throws Exception {
 		ACTION_NAME = action.getClass().getSimpleName();
-		actionStarted = action.blotterTreeItem.startTime;
+		actionStarted = action.blotterTreeItem.startTime.getTime();
 		actionSuccess = success;
 		actionOp = op;
 		ACTION_INFO = msg;

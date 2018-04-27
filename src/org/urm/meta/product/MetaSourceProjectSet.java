@@ -169,5 +169,13 @@ public class MetaSourceProjectSet {
 		this.SET_POS = POS;
 	}
 
+	public int getLastProjectPos() {
+		int pos = 0;
+		for( MetaSourceProject p : orderedList ) {
+			if( p.PROJECT_POS > pos )
+				pos = p.PROJECT_POS;
+		}
+		return( pos );
+	}
 	
 }
