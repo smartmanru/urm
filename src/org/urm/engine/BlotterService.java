@@ -109,6 +109,10 @@ public class BlotterService {
 			return( null );
 		return( set.getStatistics() ); 
 	}
+
+	public EngineBlotterSet getBuildBlotter() {
+		return( getBlotterSet( BlotterType.BLOTTER_BUILD ) );
+	}
 	
 	public EngineBlotterSet getBlotterSet( BlotterType type ) {
 		for( EngineBlotterSet set : blotters ) {

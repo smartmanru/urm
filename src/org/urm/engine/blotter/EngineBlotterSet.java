@@ -235,6 +235,15 @@ public class EngineBlotterSet extends EngineEventsSource {
 		stat.statAddItem( item );
 	}
 
+	public EngineBlotterActionItem findActionItem( ActionBase action ) {
+		String ID = "action-" + action.ID;
+		EngineBlotterItem item = items.get( ID );
+		if( item == null )
+			return( null );
+		if( item instanceof EngineBlotterActionItem )
+			return( ( EngineBlotterActionItem )item );
+		return( null );
+	}
 	
 	public synchronized EngineBlotterReleaseItem affectReleaseItem( ActionBase action , ReleaseOperation op , Release release ) {
 		String key = getReleaseKey( release );
