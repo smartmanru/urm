@@ -127,6 +127,13 @@ public class DBMetaEnvStartInfo {
 		return( group );
 	}
 	
+	public static void modifyStartGroup( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvStartGroup startGroup , String name , String desc ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		startGroup.modifyGroup( name , desc );
+		modifyStartGroup( c , storage , env , startGroup , false );
+	}
+	
 	public static void deleteStartGroup( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvStartInfo startInfo , MetaEnvStartGroup group ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();

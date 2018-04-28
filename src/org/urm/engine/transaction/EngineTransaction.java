@@ -1069,6 +1069,13 @@ public class EngineTransaction extends TransactionBase {
 		return( DBMetaEnvStartInfo.createStartGroup( this , storage , env , startInfo , name , desc ) );
 	}
 
+	public void modifyStartGroup( MetaEnvStartGroup startGroup , String name , String desc ) throws Exception {
+		MetaEnv env = startGroup.startInfo.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvStartInfo.modifyStartGroup( this , storage , env , startGroup , name , desc );
+	}
+
 	public void addStartGroupServer( MetaEnvStartGroup startGroup , MetaEnvServer server ) throws Exception {
 		MetaEnv env = startGroup.startInfo.sg.env;
 		super.checkTransactionEnv( env );
