@@ -18,5 +18,7 @@ public class _Error {
 	public static final int RootpathEmptyRequiredForGeneric1 = ErrorBase + 9;
 	public static final int UnknownServer1 = ErrorBase + 10;
 	public static final int MissingProxyNode0 = ErrorBase + 11;
+	public static final int MissingRootPath1 = ErrorBase + 12;
+	public static final int MissingBinPath1 = ErrorBase + 13;
 	
 }

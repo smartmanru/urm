@@ -449,9 +449,9 @@ public class MetaEnvServer extends EngineObject {
 	
 	public String getFullBinPath() throws Exception {
 		if( ROOTPATH.isEmpty() )
-			Common.exitUnexpected();
+			Common.exit1( _Error.MissingRootPath1 , "missing root path server=" + NAME , NAME );
 		if( BINPATH.isEmpty() )
-			Common.exitUnexpected();
+			Common.exit1( _Error.MissingBinPath1 , "missing bin path server=" + NAME , NAME );
 		return( Common.getPath( ROOTPATH , BINPATH ) );
 	}
 	
