@@ -348,6 +348,14 @@ public class DBReleaseRepository {
 		repo.removeRelease( release );
 	}
 
+	public static void dropRevisionRepository( DBConnection c , ProductMeta storage ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		
+		ReleaseRepository repo = storage.getReleaseRepository();
+		int version = c.getNextProductVersion( storage );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseRepository , repo.ID , version );
+	}
+	
 	public static void changeRevision( DBConnection c , int repoId , ProductMeta storage ) throws Exception {
 		if( !c.modify( DBQueries.MODIFY_REL_CHANGEREPOREVISION2 , new String[] {
 				EngineDB.getObject( repoId ) ,
@@ -365,7 +373,7 @@ public class DBReleaseRepository {
 		
 		repo.archiveRelease( release );
 	}
-	
+
 	public static void addDistAction( EngineMethod method , Release release , ReleaseDist releaseDist , boolean success , ReleaseOperation op , String msg ) throws Exception {
 	}
 	

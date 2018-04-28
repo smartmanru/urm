@@ -1,5 +1,6 @@
 package org.urm.db.release;
 
+import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
@@ -9,6 +10,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
@@ -17,6 +19,7 @@ import org.urm.meta.release.ReleaseDistItem;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
 import org.urm.meta.release.ReleaseDistTarget;
+import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseTicket;
 import org.urm.meta.release.ReleaseTicketSet;
 import org.urm.meta.release.ReleaseTicketTarget;
@@ -382,6 +385,47 @@ public class DBReleaseData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTicketTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTicket , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTicketSet , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
+	}
+
+	public static void rematchReleases( EngineLoader loader , ReleaseRepository repo , ProductMeta storage , ProductMeta storageOld ) throws Exception {
+		DBConnection c = loader.getConnection();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHBUILDTARGETSRCSET2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHBUILDTARGETPROJECT2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETDELIVERY2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETBINARY2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETCONF2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETSCHEMA2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETDOC2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		
+		DBReleaseRepository.changeRevision( c , repo.ID , storage );
 	}
 	
 }

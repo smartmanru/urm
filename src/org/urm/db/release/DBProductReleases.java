@@ -39,14 +39,13 @@ public class DBProductReleases {
 	} 
 
 	public static ReleaseRepository loaddbByImport( EngineLoader loader , ProductMeta storage , ProductMeta storageOld ) throws Exception {
-		DBConnection c = loader.getConnection();
-		
 		ReleaseRepository repo = null;
 		if( storageOld == null )
 			repo = createdbRepository( loader , storage );
 		else {
 			repo = storageOld.getReleaseRepository();
-			DBReleaseRepository.changeRevision( c , repo.ID , storage );
+			DBReleaseData.rematchReleases( loader , repo , storage , storageOld );
+			
 			repo = loaddbRepository( loader , storage );
 		}
 		return( repo );

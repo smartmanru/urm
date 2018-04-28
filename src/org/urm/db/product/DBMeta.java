@@ -9,6 +9,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.engine.DBEngineEntities;
+import org.urm.db.release.DBReleaseRepository;
 import org.urm.engine.Engine;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist._Error;
@@ -197,6 +198,7 @@ public class DBMeta {
 		if( !envs.isEmpty() )
 			Common.exit0( _Error.EnvExists0 , "Unable to delete revision because there is an environment assigned to revision" );
 
+		DBReleaseRepository.dropRevisionRepository( c , storage );
 		DBProductData.dropProductData( c , storage );
 	}
 	

@@ -79,10 +79,18 @@ public abstract class DBQueries {
 	public static String MODIFY_APP_UNMATCHPRODUCTS0 = "update urm_product_meta set product_fkid = null , matched = 'no' where product_fkid is not null";
 
 	public static String MODIFY_CORE_DROP_ENTITY1 = "delete from urm_object_entity where param_object_id = @1@";
-	public static String MODIFY_CORE_UNMATCHPROJECTBUILDERS0 = "update urm_source_project set builder_fkid = null , builder_fkname = builder.name from ( select builder_id , name from urm_project_builder ) as builder where builder_fkid is not null and urm_source_project.builder_fkid = builder.builder_id";
-	public static String MODIFY_CORE_UNMATCHPROJECTMIRRORS0 = "update urm_source_project set mirror_fkid = null , mirror_fkresource = mirror.resource_name , mirror_fkrepository = mirror.resource_repo , mirror_fkrepopath = mirror.resource_root , mirror_fkcodepath = mirror.resource_data from ( select mirror_id , urm_resource.name as resource_name , resource_repo , resource_root , resource_data from urm_mirror , urm_resource where urm_mirror.resource_id = urm_resource.resource_id ) as mirror where mirror_fkid is not null and urm_source_project.mirror_fkid = mirror.mirror_id";
-	public static String MODIFY_CORE_UNMATCHDATACENTERS0 = "update urm_env_segment set datacenter_fkid = null , datacenter_fkname = datacenter.name from ( select datacenter_id , name from urm_datacenter ) as datacenter where datacenter_fkid is not null and urm_env_segment.datacenter_fkid = datacenter.datacenter_id";
-	public static String MODIFY_CORE_UNMATCHACCOUNTS0 = "update urm_env_node set account_fkid = null , account_fkname = account.name from ( select account_id , urm_account.name || '@' || urm_host.name as name from urm_host , urm_account where urm_host.host_id = urm_account.host_id ) as account where account_fkid is not null and urm_env_node.account_fkid = account.account_id";
+	public static String MODIFY_CORE_UNMATCHPROJECTBUILDERS0 = "update urm_source_project set " + 
+			"builder_fkid = null , builder_fkname = builder.name " +
+			"from ( select builder_id , name from urm_project_builder ) as builder where builder_fkid is not null and urm_source_project.builder_fkid = builder.builder_id";
+	public static String MODIFY_CORE_UNMATCHPROJECTMIRRORS0 = "update urm_source_project set " + 
+			"mirror_fkid = null , mirror_fkresource = mirror.resource_name , mirror_fkrepository = mirror.resource_repo , mirror_fkrepopath = mirror.resource_root , mirror_fkcodepath = mirror.resource_data " + 
+			"from ( select mirror_id , urm_resource.name as resource_name , resource_repo , resource_root , resource_data from urm_mirror , urm_resource where urm_mirror.resource_id = urm_resource.resource_id ) as mirror where mirror_fkid is not null and urm_source_project.mirror_fkid = mirror.mirror_id";
+	public static String MODIFY_CORE_UNMATCHDATACENTERS0 = "update urm_env_segment set " +
+			"datacenter_fkid = null , datacenter_fkname = datacenter.name " + 
+			"from ( select datacenter_id , name from urm_datacenter ) as datacenter where datacenter_fkid is not null and urm_env_segment.datacenter_fkid = datacenter.datacenter_id";
+	public static String MODIFY_CORE_UNMATCHACCOUNTS0 = "update urm_env_node set " + 
+			"account_fkid = null , account_fkname = account.name " +
+			"from ( select account_id , urm_account.name || '@' || urm_host.name as name from urm_host , urm_account where urm_host.host_id = urm_account.host_id ) as account where account_fkid is not null and urm_env_node.account_fkid = account.account_id";
 	
 	public static String MODIFY_AUTH_DROP_DATACENTERACCESS1 = "delete from urm_auth_access_network where network_id in ( select network_id from urm_network where datacenter_id = @1@ )";
 	public static String MODIFY_AUTH_DROP_RESOURCEACCESS1 = "delete from urm_auth_access_resource where resource_id = @1@";
@@ -138,10 +146,52 @@ public abstract class DBQueries {
 	public static String MODIFY_ENVSG_MATCHBASELINE2 = "update urm_env_segment set baseline_segment_fkid = @2@ , baseline_segment_fkname = null where segment_id = @1@";
 	public static String MODIFY_ENVSERVER_MATCHBASELINE2 = "update urm_env_server set baseline_server_fkid = @2@ , baseline_server_fkname = null where server_id = @1@";
 
-	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPITEMS1 = "delete from urm_env_startgroup_server where startgroup_id in ( select startgroup_id from urm_env_startgroup where segment_id = @1@ )";
+	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPITEMS1 = "delete from urm_env_startgroup_server where startgroup_id in " + 
+			"( select startgroup_id from urm_env_startgroup where segment_id = @1@ )";
 	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPS1 = "delete from urm_env_startgroup where segment_id = @1@";
 	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
 	
 	public static String MODIFY_REL_CHANGEREPOREVISION2 = "update urm_rel_repository set meta_id = @2@ where repo_id = @1@";
+	public static String MODIFY_REL_REMATCHBUILDTARGETSRCSET2 = "update urm_rel_buildtarget set " +
+			"srcset_fkid = dst.srcset_id " +
+			"from ( select srcset_id , name from urm_source_set ) as src , ( select meta_id , srcset_id , name from urm_source_set ) as dst " +
+			"where urm_rel_buildtarget.srcset_fkid is not null and urm_rel_buildtarget.srcset_fkid = src.srcset_id and src.name = dst.name and dst.meta_id = @2@ and " +
+			"release_id in ( select release_id from urm_rel_main as r , urm_rel_repository as p where r.repo_id = p.repo_id and p.meta_id = @1@ )";
+	public static String MODIFY_REL_REMATCHBUILDTARGETPROJECT2 = "update urm_rel_buildtarget set " +
+			"project_fkid = dst.project_id " +
+			"from ( select project_id , name from urm_source_project ) as src , ( select meta_id , project_id , name from urm_source_project ) as dst " +
+			"where urm_rel_buildtarget.project_fkid is not null and urm_rel_buildtarget.project_fkid = src.project_id and src.name = dst.name and dst.meta_id = @2@ and " +
+			"release_id in ( select release_id from urm_rel_main as r , urm_rel_repository as p where r.repo_id = p.repo_id and p.meta_id = @1@ )";
+	public static String MODIFY_REL_REMATCHDISTTARGETDELIVERY2 = "update urm_rel_disttarget set " +
+			"delivery_fkid = dst.delivery_id " +
+			"from ( select delivery_id , name from urm_dist_delivery ) as src , ( select meta_id , delivery_id , name from urm_dist_delivery ) as dst " +
+			"where urm_rel_disttarget.delivery_fkid is not null and urm_rel_disttarget.delivery_fkid = src.delivery_id and src.name = dst.name and dst.meta_id = @2@ and " +
+			"release_id in ( select release_id from urm_rel_main as r , urm_rel_repository as p where r.repo_id = p.repo_id and p.meta_id = @1@ )";
+	public static String MODIFY_REL_REMATCHDISTTARGETBINARY2 = "update urm_rel_disttarget set " +
+			"binary_fkid = dst.binary_id " +
+			"from ( select binary_id , name from urm_dist_binaryitem ) as src , ( select meta_id , binary_id , name from urm_dist_binaryitem ) as dst " +
+			"where urm_rel_disttarget.binary_fkid is not null and urm_rel_disttarget.binary_fkid = src.binary_id and src.name = dst.name and dst.meta_id = @2@ and " +
+			"release_id in ( select release_id from urm_rel_main as r , urm_rel_repository as p where r.repo_id = p.repo_id and p.meta_id = @1@ )";
+	public static String MODIFY_REL_REMATCHDISTTARGETCONF2 = "update urm_rel_disttarget set " +
+			"confitem_fkid = dst.confitem_id " +
+			"from ( select confitem_id , name from urm_dist_confitem ) as src , ( select meta_id , confitem_id , name from urm_dist_confitem ) as dst " +
+			"where urm_rel_disttarget.confitem_fkid is not null and urm_rel_disttarget.confitem_fkid = src.confitem_id and src.name = dst.name and dst.meta_id = @2@ and " +
+			"release_id in ( select release_id from urm_rel_main as r , urm_rel_repository as p where r.repo_id = p.repo_id and p.meta_id = @1@ )";
+	public static String MODIFY_REL_REMATCHDISTTARGETSCHEMA2 = "update urm_rel_disttarget set " +
+			"schema_fkid = dst.schema_id " +
+			"from ( select schema_id , name from urm_product_schema ) as src , " +
+			"( select meta_id , schema_id , name from urm_product_schema ) as dst , " +
+			"( select delivery_id , schema_id from urm_dist_schemaitem ) as dd " +
+			"where urm_rel_disttarget.schema_fkid is not null and urm_rel_disttarget.schema_fkid = src.schema_id and src.name = dst.name and dst.meta_id = @2@ and " +
+			"urm_rel_disttarget.delivery_fkid = dd.delivery_id and dst.schema_id = dd.schema_id and " +
+			"release_id in ( select release_id from urm_rel_main as r , urm_rel_repository as p where r.repo_id = p.repo_id and p.meta_id = @1@ )";
+	public static String MODIFY_REL_REMATCHDISTTARGETDOC2 = "update urm_rel_disttarget set " +
+			"doc_fkid = dst.doc_id " +
+			"from ( select doc_id , name from urm_product_doc ) as src , " +
+			"( select meta_id , doc_id , name from urm_product_doc ) as dst , " +
+			"( select delivery_id , doc_id from urm_dist_docitem ) as dd " +
+			"where urm_rel_disttarget.doc_fkid is not null and urm_rel_disttarget.doc_fkid = src.doc_id and src.name = dst.name and dst.meta_id = @2@ and " +
+			"urm_rel_disttarget.delivery_fkid = dd.delivery_id and dst.doc_id = dd.doc_id and " +
+			"release_id in ( select release_id from urm_rel_main as r , urm_rel_repository as p where r.repo_id = p.repo_id and p.meta_id = @1@ )";
 	
 }
