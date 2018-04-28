@@ -1,5 +1,6 @@
 @echo off
 
+setlocal
 cd %~dp0
 cd ..
 set C_URM_INSTALLPATH=%CD%
