@@ -1083,7 +1083,7 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnvStartInfo.deleteStartGroupServer( this , storage , env , startGroup.startInfo , startGroup , server );
 	}
 
-	public void createStartGroup( MetaEnvStartGroup startGroup , String name , String desc ) throws Exception {
+	public void deleteStartGroup( MetaEnvStartGroup startGroup ) throws Exception {
 		MetaEnv env = startGroup.startInfo.sg.env;
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
