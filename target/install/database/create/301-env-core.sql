@@ -121,6 +121,7 @@ CREATE TABLE main.urm_env_startgroup (
                 segment_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
+                pos INTEGER NOT NULL,
                 ev INTEGER NOT NULL,
                 CONSTRAINT urm_env_startgroup_pk PRIMARY KEY (startgroup_id)
 );

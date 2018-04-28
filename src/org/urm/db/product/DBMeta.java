@@ -104,7 +104,7 @@ public class DBMeta {
 		EngineProductRevisions revisions = product.findRevisions();
 		
 		ProductMeta metaOther = revisions.findRevision( name );
-		if( metaOther != null && metaOther != storage )
+		if( metaOther != null && metaOther.ID != storage.ID )
 			Common.exitUnexpected();
 		
 		storage.setRevision( name );

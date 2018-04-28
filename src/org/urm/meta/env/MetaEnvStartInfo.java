@@ -12,21 +12,17 @@ public class MetaEnvStartInfo {
 	protected Meta meta;
 	public MetaEnvSegment sg;
 	
-	Map<String,MetaEnvStartGroup> groupMap;
 	Map<Integer,MetaEnvStartGroup> groupMapById;
-	List<MetaEnvStartGroup> groups;
 	
 	public MetaEnvStartInfo( Meta meta , MetaEnvSegment sg ) {
 		this.meta = meta;
 		this.sg = sg;
-		groups = new LinkedList<MetaEnvStartGroup>();
-		groupMap = new HashMap<String,MetaEnvStartGroup>();
 		groupMapById = new HashMap<Integer,MetaEnvStartGroup>();
 	}
 	
 	public MetaEnvStartInfo copy( Meta rmeta , MetaEnvSegment rsg ) throws Exception {
 		MetaEnvStartInfo r = new MetaEnvStartInfo( rmeta , rsg );
-		for( MetaEnvStartGroup group : groups ) {
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
 			MetaEnvStartGroup rg = group.copy( rmeta , r );
 			r.addGroup( rg );
 		}
@@ -34,20 +30,33 @@ public class MetaEnvStartInfo {
 	}
 	
 	public void addGroup( MetaEnvStartGroup sg ) {
-		groupMap.put( sg.NAME , sg );
 		groupMapById.put( sg.ID , sg );
-		groups.add( sg );
 	}
 	
 	public MetaEnvStartGroup[] getForwardGroupList() {
-		return( groups.toArray( new MetaEnvStartGroup[0] ) );
+		MetaEnvStartGroup[] list = new MetaEnvStartGroup[ groupMapById.size() ];
+		int pos = -1;
+		for( int k = 0; k < list.length; k++ ) {
+			MetaEnvStartGroup next = null;
+			int posmin = -1;
+			for( MetaEnvStartGroup group : groupMapById.values() ) {
+				if( group.POS > pos && ( posmin < 0 || group.POS < posmin ) ) {
+					posmin = group.POS;
+					next = group;
+				}
+			}
+			list[ k ] = next;
+			pos = next.POS;
+		}
+		return( list );
 	}
 
 	public MetaEnvStartGroup[] getReverseGroupList() {
-		List<MetaEnvStartGroup> revs = new LinkedList<MetaEnvStartGroup>();
-		for( int k = groups.size() - 1; k >= 0; k-- )
-			revs.add( groups.get( k ) );
-		return( revs.toArray( new MetaEnvStartGroup[0] ) );
+		MetaEnvStartGroup[] list = getForwardGroupList();
+		MetaEnvStartGroup[] revlist = new MetaEnvStartGroup[ list.length ];
+		for( int k = 0; k < list.length; k++ )
+			revlist[ k ] = list[ list.length - k - 1 ];
+		return( revlist );
 	}
 
 	public void removeServer( MetaEnvServer server ) {
@@ -57,7 +66,7 @@ public class MetaEnvStartInfo {
 	}
 
 	public MetaEnvStartGroup findServerGroup( String serverName ) {
-		for( MetaEnvStartGroup group : groups ) {
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
 			MetaEnvServer server = group.findServer( serverName );
 			if( server != null )
 				return( group );
@@ -82,4 +91,22 @@ public class MetaEnvStartInfo {
 		return( groupMapById.get( id ) );
 	}
 
+	public int getLastStartGroupPos() {
+		int pos = 0;
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
+			if( pos == 0 || pos < group.POS )
+				pos = group.POS;
+		}
+		return( pos );
+	}
+
+	public void removeGroup( MetaEnvStartGroup groupDelete ) {
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
+			if( group.POS > groupDelete.POS )
+				group.setPos( group.POS - 1 );
+		}
+		
+		groupMapById.remove( groupDelete.ID );
+	}
+	
 }

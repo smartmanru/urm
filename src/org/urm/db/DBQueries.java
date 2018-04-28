@@ -8,6 +8,7 @@ public abstract class DBQueries {
 	public static String FILTER_DELIVERY_ID1 = "delivery_id = @1@";
 	public static String FILTER_ENV_ID1 = "env_id = @1@";
 	public static String FILTER_ENV_META1 = "env_id in ( select env_id from urm_env where meta_id = @1@ )";
+	public static String FILTER_ENV_STARTGROUP1 = "startgroup_id = @1@";
 	public static String FILTER_REL_META1 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_id = @1@ )";
 	public static String FILTER_REL_MAINMETA1 = "repo_id in ( select repo_id from urm_rel_repository where meta_id = @1@ )";
 	public static String FILTER_REL_SCHEDULEMETA3 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_id = @1@ ) and ( @2@ is null or @2@ = released ) and ( @3@ is null or @3@ = completed )";
@@ -140,15 +141,14 @@ public abstract class DBQueries {
 			"select server_id from urm_env_server where env_id = @1@ union all " +
 			"select segment_id from urm_env_segment where env_id = @1@ union all " + 
 			"select env_id from urm_env where env_id = @1@ )";
+	
+	public static String MODIFY_ENV_SHIFTSTARTGROUPS2 = "update urm_env_startgroup set pos = pos - 1 where segment_id = @1@ and pos > @2@";
 
 	public static String MODIFY_ENV_SETSTATUS2 = "update urm_env set matched = @2@ where env_id = @1@";
 	public static String MODIFY_ENV_MATCHBASELINE2 = "update urm_env set baseline_env_fkid = @2@ , baseline_env_fkname = null where env_id = @1@";
 	public static String MODIFY_ENVSG_MATCHBASELINE2 = "update urm_env_segment set baseline_segment_fkid = @2@ , baseline_segment_fkname = null where segment_id = @1@";
 	public static String MODIFY_ENVSERVER_MATCHBASELINE2 = "update urm_env_server set baseline_server_fkid = @2@ , baseline_server_fkname = null where server_id = @1@";
 
-	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPITEMS1 = "delete from urm_env_startgroup_server where startgroup_id in " + 
-			"( select startgroup_id from urm_env_startgroup where segment_id = @1@ )";
-	public static String MODIFY_ENV_CASCADESEGMENT_ALLSTARTGROUPS1 = "delete from urm_env_startgroup where segment_id = @1@";
 	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
 	
 	public static String MODIFY_REL_CHANGEREPOREVISION2 = "update urm_rel_repository set meta_id = @2@ where repo_id = @1@";

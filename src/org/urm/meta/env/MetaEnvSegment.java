@@ -316,17 +316,6 @@ public class MetaEnvSegment extends EngineObject {
 			server.getApplicationReferences( account , refs );
 	}
 
-	public void setStartInfo( MetaEnvStartInfo startInfo ) throws Exception {
-		this.startInfo = startInfo;
-		for( MetaEnvServer server : serverMap.values() )
-			server.setStartGroup( null );
-		
-		for( MetaEnvStartGroup group : startInfo.getForwardGroupList() ) {
-			for( MetaEnvServer server : group.getServers() )
-				server.setStartGroup( group );
-		}
-	}
-
 	public boolean isConfUsed( MetaDistrConfItem item ) throws Exception {
 		for( MetaEnvServer server : serverMap.values() ) {
 			if( server.hasConfItemDeployment( item ) )

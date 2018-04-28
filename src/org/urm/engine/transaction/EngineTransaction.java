@@ -8,6 +8,7 @@ import org.urm.db.env.DBMetaEnv;
 import org.urm.db.env.DBMetaEnvSegment;
 import org.urm.db.env.DBMetaEnvServer;
 import org.urm.db.env.DBMetaEnvServerNode;
+import org.urm.db.env.DBMetaEnvStartInfo;
 import org.urm.db.env.DBMetaMonitoring;
 import org.urm.db.product.*;
 import org.urm.db.system.DBAppProduct;
@@ -40,6 +41,7 @@ import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.env.MetaEnvStartInfo;
 import org.urm.meta.env.MetaMonitoringItem;
 import org.urm.meta.env.MetaMonitoringTarget;
@@ -1060,11 +1062,18 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnvSegment.deleteSegment( this , storage , env , sg );
 	}
 
-	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
-		MetaEnv env = sg.env;
+	public MetaEnvStartGroup createStartGroup( MetaEnvStartInfo startInfo , String name , String desc ) throws Exception {
+		MetaEnv env = startInfo.sg.env;
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvSegment.setStartInfo( this , storage , env , sg , startInfo );
+		return( DBMetaEnvStartInfo.createStartGroup( this , storage , env , startInfo , name , desc ) );
+	}
+
+	public void createStartGroup( MetaEnvStartGroup startGroup , String name , String desc ) throws Exception {
+		MetaEnv env = startGroup.startInfo.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvStartInfo.deleteStartGroup( this , storage , env , startGroup.startInfo , startGroup );
 	}
 
 	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {

@@ -73,6 +73,7 @@ public class DBEnvData {
 	public static String FIELD_STARTGROUP_ID = "startgroup_id";
 	public static String FIELD_STARTGROUP_SEGMENT_ID = "segment_id";
 	public static String FIELD_STARTGROUP_DESC = "xdesc";
+	public static String FIELD_STARTGROUP_POS = "pos";
 	public static String FIELD_STARTGROUPSERVER_GROUP_ID = "startgroup_id";
 	public static String FIELD_STARTGROUPSERVER_SERVER_ID = "server_id";
 	public static String FIELD_DEPLOYMENT_ID = "deployment_id";
@@ -258,7 +259,8 @@ public class DBEnvData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
 				EntityVar.metaString( MetaEnvStartGroup.PROPERTY_NAME , "name" , true , null ) ,
-				EntityVar.metaStringVar( MetaEnvStartGroup.PROPERTY_DESC , FIELD_SERVER_DESC , MetaEnvStartGroup.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( MetaEnvStartGroup.PROPERTY_DESC , FIELD_STARTGROUP_DESC , MetaEnvStartGroup.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_STARTGROUP_POS , "group order" , true , 0 ) ,
 				EntityVar.metaStringXmlOnly( MetaEnvStartGroup.PROPERTY_SERVERS , "spece-delimited list of servers" , false , null ) ,
 		} ) );
 	}
