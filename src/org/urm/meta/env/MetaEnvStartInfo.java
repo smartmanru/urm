@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.meta.product.Meta;
 
 public class MetaEnvStartInfo {
@@ -31,6 +32,10 @@ public class MetaEnvStartInfo {
 	
 	public void addGroup( MetaEnvStartGroup sg ) {
 		groupMapById.put( sg.ID , sg );
+	}
+	
+	public MetaEnvStartGroup[] getGroups() {
+		return( groupMapById.values().toArray( new MetaEnvStartGroup[0] ) );
 	}
 	
 	public MetaEnvStartGroup[] getForwardGroupList() {
@@ -65,7 +70,7 @@ public class MetaEnvStartInfo {
 			startGroup.removeServer( server );
 	}
 
-	public MetaEnvStartGroup findServerGroup( String serverName ) {
+	public MetaEnvStartGroup findServerStartGroup( String serverName ) {
 		for( MetaEnvStartGroup group : groupMapById.values() ) {
 			MetaEnvServer server = group.findServer( serverName );
 			if( server != null )
@@ -74,6 +79,13 @@ public class MetaEnvStartInfo {
 		return( null );
 	}
 
+	public MetaEnvStartGroup getStartGroup( int id ) throws Exception {
+		MetaEnvStartGroup group = groupMapById.get( id );
+		if( group == null )
+			Common.exitUnexpected();
+		return( group );
+	}
+	
 	public String[] getMissingServerNames() {
 		List<String> missing = new LinkedList<String>();
 		for( String serverName : sg.getServerNames() ) {
@@ -107,6 +119,21 @@ public class MetaEnvStartInfo {
 		}
 		
 		groupMapById.remove( groupDelete.ID );
+	}
+	
+	public void moveGroup( MetaEnvStartGroup groupMove , int pos ) {
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
+			if( pos > groupMove.POS ) {
+				if( group.POS > groupMove.POS && group.POS < pos )
+					group.setPos( group.POS - 1 );
+			}
+			else {
+				if( group.POS >= pos && group.POS < groupMove.POS )
+					group.setPos( group.POS + 1 );
+			}
+		}
+		
+		groupMove.setPos( pos );
 	}
 	
 }

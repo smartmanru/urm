@@ -50,6 +50,8 @@ import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvStartGroup;
+import org.urm.meta.env.MetaEnvStartInfo;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.MetaMonitoringItem;
 import org.urm.meta.env.MetaMonitoringTarget;
@@ -1319,6 +1321,16 @@ public class TransactionBase extends EngineObject {
 		return( env.findSegment( sg.NAME ) );
 	}
 
+	public MetaEnvStartInfo getStartInfo( MetaEnvStartInfo startInfo ) throws Exception {
+		MetaEnvSegment sg = getMetaEnvSegment( startInfo.sg );
+		return( sg.getStartInfo() );
+	}
+	
+	public MetaEnvStartGroup getStartGroup( MetaEnvStartGroup startGroup ) throws Exception {
+		MetaEnvStartInfo startInfo = getStartInfo( startGroup.startInfo );
+		return( startInfo.getStartGroup( startGroup.ID ) );
+	}
+	
 	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {
 		MetaEnvSegment sg = getMetaEnvSegment( server.sg );
 		return( sg.findServer( server.NAME ) );

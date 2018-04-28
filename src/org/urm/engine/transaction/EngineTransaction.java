@@ -1069,11 +1069,32 @@ public class EngineTransaction extends TransactionBase {
 		return( DBMetaEnvStartInfo.createStartGroup( this , storage , env , startInfo , name , desc ) );
 	}
 
+	public void addStartGroupServer( MetaEnvStartGroup startGroup , MetaEnvServer server ) throws Exception {
+		MetaEnv env = startGroup.startInfo.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvStartInfo.addStartGroupServer( this , storage , env , startGroup.startInfo , startGroup , server );
+	}
+
+	public void deleteStartGroupServer( MetaEnvStartGroup startGroup , MetaEnvServer server ) throws Exception {
+		MetaEnv env = startGroup.startInfo.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvStartInfo.deleteStartGroupServer( this , storage , env , startGroup.startInfo , startGroup , server );
+	}
+
 	public void createStartGroup( MetaEnvStartGroup startGroup , String name , String desc ) throws Exception {
 		MetaEnv env = startGroup.startInfo.sg.env;
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
 		DBMetaEnvStartInfo.deleteStartGroup( this , storage , env , startGroup.startInfo , startGroup );
+	}
+
+	public void moveStartGroup( MetaEnvStartGroup startGroup , int pos ) throws Exception {
+		MetaEnv env = startGroup.startInfo.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvStartInfo.moveStartGroup( this , storage , env , startGroup.startInfo , startGroup , pos );
 	}
 
 	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
