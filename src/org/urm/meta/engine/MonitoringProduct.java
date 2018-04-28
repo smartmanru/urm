@@ -96,16 +96,14 @@ public class MonitoringProduct {
 	private void stopTarget( ActionBase action , ActionMonitorTarget targetAction ) throws Exception {
 		targetAction.stop();
 		
-		MetaEnvSegment sg = targetAction.target.getSegment();
 		ScheduleService scheduler = action.getEngineScheduler();
-		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
-		String codeMajor = sgName + "-major";
+		String codeMajor = targetAction.name + "-major";
 		ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMajor );
 		if( task != null )
 			scheduler.deleteTask( action , ScheduleTaskCategory.MONITORING , task );
 		
-		String codeMinor = sgName + "-minor";
+		String codeMinor = targetAction.name + "-minor";
 		task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMinor );
 		if( task != null )
 			scheduler.deleteTask( action , ScheduleTaskCategory.MONITORING , task );
@@ -124,17 +122,17 @@ public class MonitoringProduct {
 		if( targetAction == null ) {
 			MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , target.envs.meta );
 			MonitorTargetInfo info = new MonitorTargetInfo( target , storage );
-			targetAction = new ActionMonitorTarget( action , null , info );
+			String targetName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
+			targetAction = new ActionMonitorTarget( action , null , info , targetName );
 			addTarget( target , targetAction );
 		}
 		
 		targetAction.start();
 		
 		ScheduleService scheduler = action.getEngineScheduler();
-		String sgName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 		
 		if( target.MAJOR_ENABLED ) {
-			String codeMajor = sgName + "-major";
+			String codeMajor = targetAction.name + "-major";
 			ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMajor );
 			if( task == null ) {
 				task = new ScheduleTaskSegmentMonitoringMajor( codeMajor , targetAction ); 
@@ -143,7 +141,7 @@ public class MonitoringProduct {
 		}
 		
 		if( target.MINOR_ENABLED ) {
-			String codeMinor = sgName + "-minor";
+			String codeMinor = targetAction.name + "-minor";
 			ScheduleTask task = scheduler.findTask( ScheduleTaskCategory.MONITORING , codeMinor );
 			if( task == null ) {
 				task = new ScheduleTaskSegmentMonitoringMinor( codeMinor , targetAction ); 

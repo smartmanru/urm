@@ -18,15 +18,17 @@ import org.urm.meta.env.MetaMonitoringTarget;
 public class ActionMonitorTarget extends ActionBase {
 	
 	public MonitorTargetInfo info;
+	public String name;
 	public MetaMonitoringTarget target;
 	
 	volatile boolean running;
 	volatile ActionBase currentAction;
 	
-	public ActionMonitorTarget( ActionBase action , String stream , MonitorTargetInfo info ) {
+	public ActionMonitorTarget( ActionBase action , String stream , MonitorTargetInfo info , String name ) {
 		super( action , stream , "monitoring, check target" );
 		this.info = info;
 		this.target = info.target;
+		this.name = name;
 		running = false;
 	}
 
