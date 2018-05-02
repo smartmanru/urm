@@ -18,6 +18,7 @@ public class MetaEnvStartGroup {
 	public int ID;
 	public String NAME;
 	public String DESC;
+	public int POS;
 	public int EV;
 	
 	public List<MetaEnvServer> servers;
@@ -33,6 +34,7 @@ public class MetaEnvStartGroup {
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
+		r.POS = POS;
 		r.EV = EV;
 		
 		for( MetaEnvServer server : servers ) {
@@ -43,8 +45,13 @@ public class MetaEnvStartGroup {
 		return( r );
 	}
 	
-	public void createGroup( String name , String desc ) {
+	public void createGroup( String name , String desc , int pos ) {
 		modifyGroup( name , desc );
+		setPos( pos );
+	}
+
+	public void setPos( int pos ) {
+		this.POS = pos;
 	}
 	
 	public void modifyGroup( String name , String desc ) {
@@ -73,6 +80,14 @@ public class MetaEnvStartGroup {
 		server.setStartGroup( null );
 	}
 
+	public MetaEnvServer findServer( MetaEnvServer server ) {
+		for( MetaEnvServer serverCheck : servers ) {
+			if( server.ID == serverCheck.ID )
+				return( server );
+		}
+		return( null );
+	}
+	
 	public MetaEnvServer findServer( String serverName ) {
 		for( MetaEnvServer server : servers ) {
 			if( server.NAME.equals( serverName ) )

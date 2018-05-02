@@ -2,21 +2,20 @@
 CREATE TABLE main.urm_product_meta (
                 meta_id INTEGER NOT NULL,
                 product_fkid INTEGER,
-                product_fkname VARCHAR(30),
+                name VARCHAR(30) NOT NULL,
+                revision VARCHAR(30) NOT NULL,
+                draft BOOLEAN NOT NULL,
+                savedate DATE,
                 matched BOOLEAN NOT NULL,
-                last_major1 INTEGER NOT NULL,
-                last_major2 INTEGER NOT NULL,
-                last_minor1 INTEGER NOT NULL,
-                last_minor2 INTEGER NOT NULL,
-                next_major1 INTEGER NOT NULL,
-                next_major2 INTEGER NOT NULL,
-                next_minor1 INTEGER NOT NULL,
-                next_minor2 INTEGER NOT NULL,
                 pv INTEGER NOT NULL,
                 CONSTRAINT urm_product_meta_pk PRIMARY KEY (meta_id)
 );
 COMMENT ON TABLE main.urm_product_meta IS 'Product';
 
+
+CREATE UNIQUE INDEX urm_product_meta_idx
+ ON main.urm_product_meta
+ ( name, revision );
 
 CREATE TABLE main.urm_product_doc (
                 doc_id INTEGER NOT NULL,
@@ -33,33 +32,13 @@ CREATE TABLE main.urm_product_doc (
 COMMENT ON TABLE main.urm_product_doc IS 'Product document type';
 
 
-CREATE TABLE main.urm_product_policy (
-                meta_id INTEGER NOT NULL,
-                lcurgent_any BOOLEAN NOT NULL,
-                pv INTEGER NOT NULL,
-                change_type INTEGER NOT NULL,
-                CONSTRAINT urm_product_policy_pk PRIMARY KEY (meta_id)
-);
-COMMENT ON TABLE main.urm_product_policy IS 'Product policy';
-
-
-CREATE TABLE main.urm_product_lifecycle (
-                meta_id INTEGER NOT NULL,
-                lc_index INTEGER NOT NULL,
-                lifecycle_fkid INTEGER,
-                lifecycle_fkname VARCHAR(64),
-                pv INTEGER NOT NULL,
-                change_type INTEGER NOT NULL,
-                CONSTRAINT urm_product_lifecycle_pk PRIMARY KEY (meta_id, lc_index)
-);
-COMMENT ON TABLE main.urm_product_lifecycle IS 'Product lifecycle';
-
-
 CREATE TABLE main.urm_source_set (
                 srcset_id INTEGER NOT NULL,
                 meta_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
+                set_pos INTEGER NOT NULL,
+                parallel BOOLEAN NOT NULL,
                 pv INTEGER NOT NULL,
                 change_type INTEGER NOT NULL,
                 CONSTRAINT urm_source_set_pk PRIMARY KEY (srcset_id)
@@ -164,23 +143,9 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE main.urm_product_policy ADD CONSTRAINT urm_product_meta_urm_product_policy_fk
-FOREIGN KEY (meta_id)
-REFERENCES main.urm_product_meta (meta_id)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
 ALTER TABLE main.urm_product_doc ADD CONSTRAINT urm_product_meta_urm_product_doc_fk
 FOREIGN KEY (meta_id)
 REFERENCES main.urm_product_meta (meta_id)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
-ALTER TABLE main.urm_product_lifecycle ADD CONSTRAINT urm_product_policy_urm_product_lifecycle_fk
-FOREIGN KEY (meta_id)
-REFERENCES main.urm_product_policy (meta_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;

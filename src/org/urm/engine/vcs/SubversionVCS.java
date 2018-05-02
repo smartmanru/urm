@@ -10,6 +10,7 @@ import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -21,8 +22,8 @@ public class SubversionVCS extends GenericVCS {
 	String SVNPATH;
 	String SVNAUTH;
 	
-	public SubversionVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell ) {
-		super( action , meta , res , shell );
+	public SubversionVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell , ProjectBuilder builder ) {
+		super( action , meta , res , shell , builder );
 		this.SVNPATH = res.BASEURL;
 		if( res.ac != null )
 			this.SVNAUTH = res.ac.getSvnAuth( action );
@@ -566,6 +567,7 @@ public class SubversionVCS extends GenericVCS {
 	public void checkoutMasterRootFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , masterFolder );
 		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		action.setTimeoutUnlimited();
 		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath );
 	}
 	

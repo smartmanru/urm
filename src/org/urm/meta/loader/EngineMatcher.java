@@ -1,8 +1,7 @@
-package org.urm.meta;
+package org.urm.meta.loader;
 
 import org.urm.common.RunContext;
 import org.urm.db.DBConnection;
-import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.engine.DBEngineMirrors;
 import org.urm.db.env.DBMetaEnv;
 import org.urm.db.product.DBMeta;
@@ -18,6 +17,7 @@ import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.loader.Types.EnumModifyType;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.ProductMeta;
@@ -76,7 +76,7 @@ public class EngineMatcher {
 		if( repo != null )
 			repo.setProduct( product.ID );
 		else {
-			loader.trace( "missing mirror product meta repository" );
+			loader.trace( "missing mirror product meta repository, product=" + product.NAME );
 			ok = false;
 		}
 		
@@ -84,7 +84,7 @@ public class EngineMatcher {
 		if( repo != null )
 			repo.setProduct( product.ID );
 		else {
-			loader.trace( "missing mirror product data repository" );
+			loader.trace( "missing mirror product data repository, product=" + product.NAME );
 			ok = false;
 		}
 		
@@ -136,9 +136,6 @@ public class EngineMatcher {
 	}
 	
 	private void doneProduct( AppProduct product , ProductMeta set ) throws Exception {
-		EngineDirectory directory = loader.getDirectory();
-		directory.addProduct( product );
-		product.setStorage( set );
 	}
 
 	private boolean matchProjectMirrors( AppProduct product , MetaSources sources , boolean update ) throws Exception {
@@ -170,7 +167,7 @@ public class EngineMatcher {
 					DBEngineMirrors.modifyRepository( c , repo , false );
 					
 					ProductMeta storage = sources.meta.getStorage();
-					DBMetaSources.modifyProject( c , storage , project , false , DBEnumChangeType.UPDATED );
+					DBMetaSources.modifyProject( c , storage , project , false , EnumModifyType.MATCH );
 				}
 				else {
 					repo.setProductProject( product.ID , project.ID );

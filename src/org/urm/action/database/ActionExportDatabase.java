@@ -8,6 +8,7 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -16,6 +17,7 @@ import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaDump;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
@@ -106,7 +108,8 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void prepareDestination() throws Exception {
-		repository = server.meta.getDistRepository();
+		EngineProduct ep = server.meta.getEngineProduct();
+		repository = ep.getDistRepository();
 		distDataFolder = repository.getDataNewFolder( this , DATASET );
 		distDataFolder.ensureExists( this );
 		distLogFolder = repository.getExportLogFolder( this , DATASET );
@@ -171,7 +174,8 @@ public class ActionExportDatabase extends ActionBase {
 		Common.createFileFromStringList( execrc , confFile , conf );
 		exportScriptsFolder.copyFileFromLocal( this , confFile );
 		
-		ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
+		AppProduct product = server.meta.findProduct();
+		ProductStorage ms = artefactory.getMetadataStorage( this , product );
 		String tablesFilePath = work.getFilePath( this , UrmStorage.TABLES_FILE_NAME );
 		ms.saveDatapumpSet( this , tableSet , server , tablesFilePath );
 		exportScriptsFolder.copyFileFromLocal( this , tablesFilePath );
@@ -179,7 +183,8 @@ public class ActionExportDatabase extends ActionBase {
 
 	private void runAll() throws Exception {
 		if( !STANDBY ) {
-			ProductStorage ms = artefactory.getMetadataStorage( this , server.meta );
+			AppProduct product = server.meta.findProduct();
+			ProductStorage ms = artefactory.getMetadataStorage( this , product );
 			ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
 		}
 		

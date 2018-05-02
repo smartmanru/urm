@@ -13,6 +13,8 @@ public class MetaSourceProjectSet {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
+	public static String PROPERTY_POS = "pos";
+	public static String PROPERTY_PARALLEL = "parallel";
 	
 	public Meta meta;
 	public MetaSources sources;
@@ -20,6 +22,8 @@ public class MetaSourceProjectSet {
 	public int ID;
 	public String NAME;
 	public String DESC;
+	public int SET_POS;
+	public boolean PARALLEL;
 	public int PV;
 	public DBEnumChangeType CHANGETYPE;
 
@@ -34,30 +38,36 @@ public class MetaSourceProjectSet {
 		map = new HashMap<String, MetaSourceProject>();
 	}
 	
-	public MetaSourceProjectSet copy( Meta rmeta , MetaSources rsources ) throws Exception {
+	public MetaSourceProjectSet copy( Meta rmeta , MetaSources rsources , boolean all ) throws Exception {
 		MetaSourceProjectSet r = new MetaSourceProjectSet( rmeta , rsources );
 		
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
+		r.SET_POS = SET_POS;
+		r.PARALLEL = PARALLEL;
 		r.PV = PV;
 		r.CHANGETYPE = CHANGETYPE;
 		
-		for( MetaSourceProject project : orderedList ) {
-			MetaSourceProject rproject = project.copy( rmeta , r );
-			r.addProject( rproject );
+		if( all ) {
+			for( MetaSourceProject project : orderedList ) {
+				MetaSourceProject rproject = project.copy( rmeta , r , true );
+				r.addProject( rproject );
+			}
 		}
 		
 		return( r );
 	}
 	
-	public void createProjectSet( String name , String desc ) {
-		modifyProjectSet( name , desc );
+	public void createProjectSet( String name , String desc , int pos , boolean parallel ) {
+		modifyProjectSet( name , desc , pos , parallel );
 	}
 	
-	public void modifyProjectSet( String name , String desc ) {
+	public void modifyProjectSet( String name , String desc , int pos , boolean parallel ) {
 		this.NAME = name;
 		this.DESC = desc;
+		this.SET_POS = pos;
+		this.PARALLEL = parallel;
 	}
 	
 	public MetaSourceProject findProject( String name ) {
@@ -100,23 +110,33 @@ public class MetaSourceProjectSet {
 		map.put( project.NAME , project );
 		reorderProjects();
 	}
+
+	private void addProjectOnly( MetaSourceProject project ) throws Exception {
+		map.put( project.NAME , project );
+	}
 	
 	public void updateProject( MetaSourceProject project ) throws Exception {
 		Common.changeMapKey( map , project , project.NAME );
 	}
 	
 	public void removeProject( MetaSourceProject project ) throws Exception {
-		map.remove( project.NAME );
+		removeProjectOnly( project );
 		reorderProjects();
+	}
+
+	private void removeProjectOnly( MetaSourceProject project ) throws Exception {
+		map.remove( project.NAME );
 	}
 	
 	public void changeProjectOrder( MetaSourceProject project , int POS ) throws Exception {
+		removeProjectOnly( project );
 		for( MetaSourceProject p : orderedList ) {
 			if( p.PROJECT_POS >= POS )
 				p.changeOrder( p.PROJECT_POS + 1 );
 		}
 			
 		project.changeOrder( POS );
+		addProjectOnly( project );
 		reorderProjects();
 	}
 
@@ -134,7 +154,7 @@ public class MetaSourceProjectSet {
 		for( String key : order ) {
 			String projectName = Common.getPartAfterFirst( key , "#" );
 			MetaSourceProject project = map.get( projectName );
-			project.PROJECT_POS = POS++;
+			project.changeOrder( POS++ );
 			orderedList.add( project );
 		}
 	}
@@ -143,6 +163,19 @@ public class MetaSourceProjectSet {
 		if( map.size() == 0 )
 			return( true );
 		return( false );
+	}
+
+	public void changeOrder( int POS ) {
+		this.SET_POS = POS;
+	}
+
+	public int getLastProjectPos() {
+		int pos = 0;
+		for( MetaSourceProject p : orderedList ) {
+			if( p.PROJECT_POS > pos )
+				pos = p.PROJECT_POS;
+		}
+		return( pos );
 	}
 	
 }

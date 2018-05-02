@@ -9,7 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.schedule.ScheduleProperties;
-import org.urm.meta.Types.*;
+import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.w3c.dom.Document;
@@ -129,6 +129,16 @@ public class MetaDump {
 		return( ONLINE );
 	}
 
+	public boolean isExport() {
+		return( EXPORT );
+	}
+	
+	public boolean isImport() {
+		if( EXPORT )
+			return( false );
+		return( true );
+	}
+	
 	public void create( String name , String desc , boolean export ) {
 		this.EXPORT = export;
 		this.NAME = name;

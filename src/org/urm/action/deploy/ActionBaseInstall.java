@@ -21,7 +21,7 @@ import org.urm.engine.storage.VersionInfoStorage;
 import org.urm.meta.engine.BaseItem;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.Types.*;
+import org.urm.meta.loader.Types.*;
 
 public class ActionBaseInstall extends ActionBase {
 
@@ -65,7 +65,7 @@ public class ActionBaseInstall extends ActionBase {
 		}
 		
 		// install dependencies
-		EngineBase base = super.getServerBase();
+		EngineBase base = super.getEngineBase();
 		for( String name : baseItem.getDepItemNames() ) {
 			BaseItem depItem = base.getItem( name );
 			executeNodeInstall( server , node , state , repo , depItem );

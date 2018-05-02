@@ -4,10 +4,10 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.DataService;
 import org.urm.engine.data.EngineDirectory;
+import org.urm.engine.products.EngineProductReleases;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseRepository;
 
 public class EngineBlotterReleaseItem extends EngineBlotterItem {
 
@@ -27,7 +27,7 @@ public class EngineBlotterReleaseItem extends EngineBlotterItem {
 		this.repoId = release.repo.ID;
 		Meta meta = release.getMeta();
 		this.metaId = meta.getId();
-		AppProduct product = meta.getProduct();
+		AppProduct product = meta.findProduct();
 		this.productId = product.ID;
 		SORTKEY = getSortKey( release );
 	}
@@ -48,9 +48,8 @@ public class EngineBlotterReleaseItem extends EngineBlotterItem {
 			DataService data = super.blotterSet.blotter.engine.getData();
 			EngineDirectory directory = data.getDirectory();
 			AppProduct product = directory.findProduct( productId );
-			Meta meta = product.getMeta( action );
-			ReleaseRepository repo = meta.getReleaseRepository();
-			Release release = repo.getRelease( releaseId );
+			EngineProductReleases releases = product.findReleases();
+			Release release = releases.getRelease( releaseId );
 			return( release );
 		}
 		catch( Throwable e ) {

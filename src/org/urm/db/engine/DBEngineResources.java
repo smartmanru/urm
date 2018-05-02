@@ -20,9 +20,9 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine._Error;
+import org.urm.meta.loader.EngineLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -205,7 +205,7 @@ public class DBEngineResources {
 			return;
 		
 		ActionBase action = transaction.getAction();
-		EngineMirrors mirrors = action.getServerMirrors();
+		EngineMirrors mirrors = action.getEngineMirrors();
 		DBEngineMirrors.dropResourceMirrors( transaction , mirrors , rc );
 	}
 	

@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.MatchItem;
+import org.urm.db.core.DBEnums.DBEnumChangeType;
+import org.urm.meta.loader.MatchItem;
 
 public class MetaDistr {
 
@@ -39,24 +40,18 @@ public class MetaDistr {
 		MetaDocs rdocs = rmeta.getDocs();
 		
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			MetaDistrDelivery rd = delivery.copy( rmeta , r , rdb , rdocs );
+			MetaDistrDelivery rd = delivery.copy( rmeta , r , rdb , rdocs , true );
 			r.addDelivery( rd );
-		}
 		
-		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
-			MetaDistrDelivery rd = r.getDelivery( item.delivery.ID );
-			MetaDistrBinaryItem ritem = item.copy( rmeta , rd );
-			r.addBinaryItem( ritem );
-		}
-		
-		for( MetaDistrConfItem item : mapConfItems.values() ) {
-			MetaDistrDelivery rd = r.getDelivery( item.delivery.ID );
-			MetaDistrConfItem ritem = item.copy( rmeta , rd );
-			r.addConfItem( ritem );
+			for( MetaDistrBinaryItem ritem : rd.getBinaryItems() )
+				r.addBinaryItem( ritem );
+			
+			for( MetaDistrConfItem ritem : rd.getConfItems() )
+				r.addConfItem( ritem );
 		}
 		
 		for( MetaDistrComponent item : mapComps.values() ) {
-			MetaDistrComponent ritem = item.copy( rmeta , r );
+			MetaDistrComponent ritem = item.copy( rmeta , r , true );
 			r.addComponent( ritem );
 		}
 		
@@ -360,12 +355,12 @@ public class MetaDistr {
 		addConfItem( item );
 	}
 
-	public void addDeliverySchema( MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
-		delivery.addSchema( schema );
+	public void addDeliverySchema( MetaDistrDelivery delivery , MetaDatabaseSchema schema , DBEnumChangeType changeType ) throws Exception {
+		delivery.addSchema( schema , changeType );
 	}
 
-	public void addDeliveryDoc( MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
-		delivery.addDocument( doc );
+	public void addDeliveryDoc( MetaDistrDelivery delivery , MetaProductDoc doc , DBEnumChangeType changeType ) throws Exception {
+		delivery.addDocument( doc , changeType );
 	}
 
 	public void addBinaryItem( MetaDistrBinaryItem item ) throws Exception {

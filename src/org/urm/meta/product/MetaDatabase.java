@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.MatchItem;
 import org.urm.meta.env.MetaDump;
+import org.urm.meta.loader.MatchItem;
 
 public class MetaDatabase {
 
@@ -64,6 +64,10 @@ public class MetaDatabase {
 
 	public MetaDatabaseSchema findSchema( String name ) {
 		return( mapSchema.get( name ) );
+	}
+
+	public MetaDatabaseSchema findSchema( int id ) {
+		return( mapSchemaById.get( id ) );
 	}
 
 	public MetaDatabaseSchema findSchema( MatchItem item ) {

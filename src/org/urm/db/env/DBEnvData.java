@@ -6,6 +6,8 @@ import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
+import org.urm.db.engine.DBEngineEntities;
+import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.env.MetaEnv;
@@ -25,12 +27,14 @@ public class DBEnvData {
 	public static String TABLE_SERVER = "urm_env_server";
 	public static String TABLE_NODE = "urm_env_node";
 	public static String TABLE_STARTGROUP = "urm_env_startgroup";
+	public static String TABLE_STARTGROUPSERVER = "urm_env_startgroup_server";
 	public static String TABLE_DEPLOYMENT = "urm_env_deployment";
 	public static String TABLE_MONTARGET = "urm_env_montarget";
 	public static String TABLE_MONITEM = "urm_env_monitem";
+	public static String TABLE_SERVERDEP = "urm_env_server_deps";
 	public static String FIELD_ENV_ID = "env_id";
-	public static String FIELD_ENV_META_ID = "meta_fkid";
-	public static String FIELD_ENV_META_NAME = "meta_fkname";
+	public static String FIELD_ENV_META_ID = "meta_id";
+	public static String FIELD_ENV_TRANSITION_META_ID = "transition_meta_id";
 	public static String FIELD_ENV_MATCHED = "matched";
 	public static String FIELD_ENV_DESC = "xdesc";
 	public static String FIELD_ENV_ENVTYPE = "env_type";
@@ -43,14 +47,12 @@ public class DBEnvData {
 	public static String FIELD_ENV_REMOTE_ACCOUNT_NAME = "distr_account_fkname";
 	public static String FIELD_ENV_REMOTE_PATH = "distr_path";
 	public static String FIELD_SEGMENT_ID = "segment_id";
-	public static String FIELD_SEGMENT_ENV_ID = "env_id";
 	public static String FIELD_SEGMENT_DESC = "xdesc";
 	public static String FIELD_SEGMENT_BASELINE_ID = "baseline_segment_fkid";
 	public static String FIELD_SEGMENT_BASELINE_NAME = "baseline_segment_fkname";
 	public static String FIELD_SEGMENT_DATACENTER_ID = "datacenter_fkid";
 	public static String FIELD_SEGMENT_DATACENTER_NAME = "datacenter_fkname";
 	public static String FIELD_SERVER_ID = "server_id";
-	public static String FIELD_SERVER_ENV_ID = "env_id";
 	public static String FIELD_SERVER_SEGMENT_ID = "segment_id";
 	public static String FIELD_SERVER_DESC = "xdesc";
 	public static String FIELD_SERVER_RUNTYPE = "serverrun_type";
@@ -64,17 +66,17 @@ public class DBEnvData {
 	public static String FIELD_SERVER_BASEITEM_ID = "baseitem_fkid";
 	public static String FIELD_SERVER_BASEITEM_NAME = "baseitem_fkname";
 	public static String FIELD_NODE_ID = "node_id";
-	public static String FIELD_NODE_ENV_ID = "env_id";
 	public static String FIELD_NODE_SERVER_ID = "server_id";
 	public static String FIELD_NODE_TYPE = "node_type";
 	public static String FIELD_NODE_ACCOUNT_ID = "account_fkid";
 	public static String FIELD_NODE_ACCOUNT_NAME = "account_fkname";
 	public static String FIELD_STARTGROUP_ID = "startgroup_id";
-	public static String FIELD_STARTGROUP_ENV_ID = "env_id";
 	public static String FIELD_STARTGROUP_SEGMENT_ID = "segment_id";
 	public static String FIELD_STARTGROUP_DESC = "xdesc";
+	public static String FIELD_STARTGROUP_POS = "pos";
+	public static String FIELD_STARTGROUPSERVER_GROUP_ID = "startgroup_id";
+	public static String FIELD_STARTGROUPSERVER_SERVER_ID = "server_id";
 	public static String FIELD_DEPLOYMENT_ID = "deployment_id";
-	public static String FIELD_DEPLOYMENT_ENV_ID = "env_id";
 	public static String FIELD_DEPLOYMENT_SERVER_ID = "server_id";
 	public static String FIELD_DEPLOYMENT_TYPE = "serverdeployment_type";
 	public static String FIELD_DEPLOYMENT_COMP_ID = "comp_fkid";
@@ -87,8 +89,10 @@ public class DBEnvData {
 	public static String FIELD_DEPLOYMENT_SCHEMA_NAME = "schema_fkname";
 	public static String FIELD_DEPLOYMENT_DEPLOYMODE = "deploymode_type";
 	public static String FIELD_DEPLOYMENT_NODETYPE = "node_type";
+	public static String FIELD_SERVERDEP_SERVER_ID = "server_id";
+	public static String FIELD_SERVERDEP_SERVER_DEP_ID = "dep_server_id";
+	public static String FIELD_SERVERDEP_TYPE = "serverdependency_type";
 	public static String FIELD_MONTARGET_ID = "montarget_id";
-	public static String FIELD_MONTARGET_ENV_ID = "env_id";
 	public static String FIELD_MONTARGET_SEGMENT_ID = "segment_id";
 	public static String FIELD_MONTARGET_MAJOR_ENABLED = "major_enabled";
 	public static String FIELD_MONTARGET_MAJOR_SCHEDULE = "major_schedule";
@@ -97,9 +101,9 @@ public class DBEnvData {
 	public static String FIELD_MONTARGET_MINOR_SCHEDULE = "minor_schedule";
 	public static String FIELD_MONTARGET_MINOR_MAXTIME = "minor_maxtime";
 	public static String FIELD_MONITEM_ID = "monitem_id";
-	public static String FIELD_MONITEM_ENV_ID = "env_id";
-	public static String FIELD_MONITEM_TARGET_ID = "monitem_id";
+	public static String FIELD_MONITEM_TARGET_ID = "montarget_id";
 	public static String FIELD_MONITEM_TYPE = "monitem_type";
+	public static String FIELD_MONITEM_DESC = "xdesc";
 
 	public static PropertyEntity makeEntityEnvPrimary( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID , false );
@@ -109,8 +113,8 @@ public class DBEnvData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_META_ID , "product meta id" , DBEnumObjectType.META , false ) ,
-				EntityVar.metaStringDatabaseOnly( FIELD_ENV_META_NAME , "product meta name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_META_ID , "product meta id" , DBEnumObjectType.META , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_TRANSITION_META_ID , "transition meta id" , DBEnumObjectType.META , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( FIELD_ENV_MATCHED , "environment match status" , false , false ) ,
 				EntityVar.metaString( MetaEnv.PROPERTY_NAME , "name" , true , null ) ,
 				EntityVar.metaStringVar( MetaEnv.PROPERTY_DESC , FIELD_ENV_DESC , MetaEnv.PROPERTY_DESC , "Description" , false , null ) ,
@@ -155,7 +159,7 @@ public class DBEnvData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_SEGMENT_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
 				EntityVar.metaString( MetaEnvSegment.PROPERTY_NAME , "name" , true , null ) ,
 				EntityVar.metaStringVar( MetaEnvSegment.PROPERTY_DESC , FIELD_SEGMENT_DESC , MetaEnvSegment.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SEGMENT_BASELINE_ID , "baseline segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , false ) ,
@@ -174,7 +178,7 @@ public class DBEnvData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , false ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SERVER_SEGMENT_ID , "environment segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , false ) ,
 				EntityVar.metaString( MetaEnvServer.PROPERTY_NAME , "name" , true , null ) ,
 				EntityVar.metaStringVar( MetaEnvServer.PROPERTY_DESC , FIELD_SERVER_DESC , MetaEnvServer.PROPERTY_DESC , "Description" , false , null ) ,
@@ -231,7 +235,7 @@ public class DBEnvData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_SERVER_ID , "environment server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
 				EntityVar.metaInteger( MetaEnvServerNode.PROPERTY_POS , "position" , true , null ) ,
 				EntityVar.metaEnumVar( MetaEnvServerNode.PROPERTY_NODETYPE , FIELD_NODE_TYPE , MetaEnvServerNode.PROPERTY_NODETYPE , "Node type" , true , DBEnumNodeType.UNKNOWN ) ,
@@ -252,11 +256,26 @@ public class DBEnvData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUP_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
 				EntityVar.metaString( MetaEnvStartGroup.PROPERTY_NAME , "name" , true , null ) ,
-				EntityVar.metaStringVar( MetaEnvStartGroup.PROPERTY_DESC , FIELD_SERVER_DESC , MetaEnvStartGroup.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( MetaEnvStartGroup.PROPERTY_DESC , FIELD_STARTGROUP_DESC , MetaEnvStartGroup.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaIntegerDatabaseOnly( FIELD_STARTGROUP_POS , "group order" , true , 0 ) ,
 				EntityVar.metaStringXmlOnly( MetaEnvStartGroup.PROPERTY_SERVERS , "spece-delimited list of servers" , false , null ) ,
+		} ) );
+	}
+
+	public static PropertyEntity makeEntityStartGroupServer( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.ENVIRONMENT_STARTGROUP , DBEnumParamEntityType.ENV_SEGMENT_STARTGROUPSERVER , DBEnumObjectVersionType.ENVIRONMENT , TABLE_STARTGROUPSERVER , false , 2 );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUPSERVER_GROUP_ID , "start group id" , DBEnumObjectType.ENVIRONMENT_STARTGROUP , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_STARTGROUPSERVER_SERVER_ID , "start group server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true )
 		} ) );
 	}
 
@@ -268,9 +287,9 @@ public class DBEnvData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_SERVER_ID , "environment server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
-				EntityVar.metaEnumDatabaseOnly( FIELD_DEPLOYMENT_TYPE , "deployment type" , true , DBEnumObjectType.ENVIRONMENT_DEPLOYMENT ) ,
+				EntityVar.metaEnumDatabaseOnly( FIELD_DEPLOYMENT_TYPE , "deployment type" , true , DBEnumServerDeploymentType.UNKNOWN ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_COMP_ID , "component id" , DBEnumObjectType.META_DIST_COMPONENT , false ) ,
 				EntityVar.metaStringVar( MetaEnvServerDeployment.PROPERTY_COMPONENT , FIELD_DEPLOYMENT_COMP_NAME , MetaEnvServerDeployment.PROPERTY_COMPONENT , "component name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DEPLOYMENT_BINARY_ID , "binary item id" , DBEnumObjectType.META_DIST_BINARYITEM , false ) ,
@@ -287,6 +306,21 @@ public class DBEnvData {
 		} ) );
 	}
 
+	public static PropertyEntity makeEntityServerDependency( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.ENVIRONMENT_SERVERDEP , DBEnumParamEntityType.ENV_SERVER_DEPENDENCY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_SERVERDEP , false , 2 );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_SERVERDEP_SERVER_ID , "environment server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_SERVERDEP_SERVER_DEP_ID , "environment dependency server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaEnumDatabaseOnly( FIELD_SERVERDEP_TYPE , "server dependency type" , true , DBEnumServerDependencyType.UNKNOWN )
+		} ) );
+	}
+
 	public static PropertyEntity makeEntityMonitoringTarget( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONTARGET , DBEnumParamEntityType.ENV_SEGMENT_MONTARGET , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONTARGET , FIELD_MONTARGET_ID , false );
 		if( !upgrade ) {
@@ -295,8 +329,10 @@ public class DBEnvData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_SEGMENT_ID , "environment segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
+				EntityVar.metaStringXmlOnly( MetaMonitoringTarget.PROPERTY_ENV , "environment name" , true , null ) ,
+				EntityVar.metaStringXmlOnly( MetaMonitoringTarget.PROPERTY_SEGMENT , "segment name" , true , null ) ,
 				EntityVar.metaBooleanVar( MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED , FIELD_MONTARGET_MAJOR_ENABLED , MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED , "Enabled major monitoring" , true , false ) ,
 				EntityVar.metaStringVar( MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE , FIELD_MONTARGET_MAJOR_SCHEDULE , MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE , "major schedule" , false , null ) ,
 				EntityVar.metaIntegerVar( MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME , FIELD_MONTARGET_MAJOR_MAXTIME , MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME , "major max time" , true , 300000 ) ,
@@ -314,8 +350,9 @@ public class DBEnvData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_MONITEM_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_MONITEM_TARGET_ID , "monitoring target id" , DBEnumObjectType.ENVIRONMENT_MONTARGET , true ) ,
+				EntityVar.metaStringVar( MetaMonitoringItem.PROPERTY_DESC , FIELD_MONITEM_DESC , MetaMonitoringItem.PROPERTY_DESC , "description" , false , null ) ,
 				EntityVar.metaEnumVar( MetaMonitoringItem.PROPERTY_TYPE , FIELD_MONITEM_TYPE , MetaMonitoringItem.PROPERTY_TYPE , "monitoring item type" , true , DBEnumMonItemType.UNKNOWN ) ,
 				EntityVar.metaString( MetaMonitoringItem.PROPERTY_URL , "check url" , false , null ) ,
 				EntityVar.metaString( MetaMonitoringItem.PROPERTY_WSDATA , "check request" , false , null ) ,
@@ -324,44 +361,45 @@ public class DBEnvData {
 	}
 
 	public static void dropEnvData( DBConnection c , ProductMeta storage ) throws Exception {
-		dropEnvDumpData( c , storage );
-		dropEnvDesignData( c , storage );
-		dropEnvMonData( c , storage );
-		dropEnvCoreData( c , storage );
-	}
-
-	public static void dropEnvDumpData( DBConnection c , ProductMeta storage ) throws Exception {
-	}
-	
-	public static void dropEnvDesignData( DBConnection c , ProductMeta storage ) throws Exception {
-	}
-	
-	public static void dropEnvMonData( DBConnection c , ProductMeta storage ) throws Exception {
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_MONITEM1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_MONTARGET1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-	}
-	
-	public static void dropEnvCoreData( DBConnection c , ProductMeta storage ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		
+		// dump data
+		// design data
+		// mon data
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonItem , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonTarget , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		// core data
 		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_PARAMVALUES1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_NODES1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_DEPLOYMENTS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_SERVERDEPS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_STARTGROUPSERVERS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_STARTGROUPS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_SERVERS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_SEGMENTS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
-		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_ENVS1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
-			Common.exitUnexpected();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppNodePrimary , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppServerDeployment , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppServerDependency , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentStartGroupServer , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentStartGroup , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppServerPrimary , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentPrimary , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppEnvPrimary , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 	}
-	
+
+	public static void dropEnvData( DBConnection c , MetaEnv env ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		
+		// dump data
+		// design data
+		// mon data
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonItem , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonTarget , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		// core data
+		if( !c.modify( DBQueries.MODIFY_ENV_DELETEALL_PARAMVALUES1 , new String[] { EngineDB.getInteger( env.ID ) } ) )
+			Common.exitUnexpected();
+		DBEngineEntities.dropAppObjects( c , entities.entityAppNodePrimary , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppServerDeployment , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppServerDependency , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentStartGroupServer , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentStartGroup , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppServerPrimary , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentPrimary , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppEnvPrimary , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+	}
+
 }

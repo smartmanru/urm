@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.Engine;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.MonitoringProduct;
@@ -17,7 +17,7 @@ import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.MetaMonitoringTarget;
-import org.urm.meta.product.Meta;
+import org.urm.meta.loader.EngineObject;
 
 public class EngineMonitoring extends EngineObject {
 
@@ -58,7 +58,7 @@ public class EngineMonitoring extends EngineObject {
 	public void start( ActionBase action ) throws Exception {
 		running = true;
 		
-		EngineDirectory directory = action.getServerDirectory();
+		EngineDirectory directory = action.getEngineDirectory();
 		for( String systemName : directory.getSystemNames() ) {
 			AppSystem system = directory.findSystem( systemName );
 			createSystem( action , system );
@@ -117,7 +117,7 @@ public class EngineMonitoring extends EngineObject {
 	
 	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
 		EngineDirectory directory = transaction.getDirectory();
-		AppProduct product = directory.getProduct( target.meta.name );
+		AppProduct product = directory.getProduct( target.envs.meta.name );
 		ActionBase action = transaction.getAction();
 		stopProduct( action , product );
 	}
@@ -135,9 +135,8 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	private synchronized void createProduct( ActionBase action , AppProduct product ) throws Exception {
-		Meta meta = product.storage.meta;
-		MetaMonitoring mon = meta.getMonitoring();
-		MonitoringProduct monp = new MonitoringProduct( this , product , mon );
+		EngineProduct ep = product.getEngineProduct();
+		MonitoringProduct monp = new MonitoringProduct( this , ep );
 		addProduct( product , monp );
 		startProduct( action , product );
 	}
@@ -191,13 +190,13 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public boolean isRunning( MetaEnv env ) {
-		EngineDirectory directory = engine.serverAction.getServerDirectory();
+		EngineDirectory directory = engine.serverAction.getEngineDirectory();
 		AppProduct product = directory.findProduct( env.meta.name );
 		return( product != null && isRunning( product ) && env.OFFLINE == false );
 	}
 
 	public boolean isRunning( MetaEnvSegment sg ) {
-		EngineDirectory directory = engine.serverAction.getServerDirectory();
+		EngineDirectory directory = engine.serverAction.getEngineDirectory();
 		AppProduct product = directory.findProduct( sg.meta.name );
 		if( product == null )
 			return( false );
@@ -206,7 +205,8 @@ public class EngineMonitoring extends EngineObject {
 		if( mon == null )
 			return( false );
 		
-		MetaMonitoringTarget target = mon.meta.findMonitoringTarget( sg );
+		MetaMonitoring metamon = sg.meta.getMonitoring();
+		MetaMonitoringTarget target = metamon.findTarget( sg );
 		return( target != null && isRunning( sg.env ) && sg.OFFLINE == false && ( target.MAJOR_ENABLED || target.MINOR_ENABLED ) );
 	}	
 	

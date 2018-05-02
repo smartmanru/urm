@@ -21,45 +21,45 @@ public class ReleaseCommand {
 
 	public static void createMasterInitial( ScopeState parentState , ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
 		ActionCreateMaster ma = new ActionCreateMaster( action , null , meta , RELEASEVER , false );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void createMasterCopy( ScopeState parentState , ActionBase action , Meta meta , String RELEASEVER ) throws Exception {
 		ActionCreateMaster ma = new ActionCreateMaster( action , null , meta , RELEASEVER , true );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void deleteMaster( ScopeState parentState , ActionBase action , Meta meta ) throws Exception {
-		ReleaseRepository repo = meta.getReleaseRepository();
+		ReleaseRepository repo = meta.getReleases();
 		Release release = repo.findDefaultMaster();
 		if( release == null )
 			Common.exitUnexpected();
 		
-		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , meta , release , true );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , release , true );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void masterStatus( ScopeState parentState , ActionBase action , Meta meta ) throws Exception {
-		ReleaseRepository repo = meta.getReleaseRepository();
+		ReleaseRepository repo = meta.getReleases();
 		Release release = repo.findDefaultMaster();
 		ActionPrintReleaseStatus ma = new ActionPrintReleaseStatus( action , null , release );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , true );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , true );
 	}
 	
 	public static void createRelease( ScopeState parentState , ActionBase action , Meta meta , String RELEASELABEL , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		ActionCreateRelease ma = new ActionCreateRelease( action , null , meta , RELEASELABEL , releaseDate , lc );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 
 	public static void importRelease( ScopeState parentState , ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		ActionImportRelease ma = new ActionImportRelease( action , null , meta , RELEASELABEL );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 
 	public static void modifyRelease( ScopeState parentState , ActionBase action , Release release , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionModifyRelease ma = new ActionModifyRelease( action , null , meta , release , releaseDate , lc );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 
 	public static void deleteRelease( ScopeState parentState , ActionBase action , Release release , boolean force ) throws Exception {
@@ -67,49 +67,49 @@ public class ReleaseCommand {
 			action.exit0( _Error.CannotDropProd0 , "Cannot drop full master release, use master command" );
 		
 		Meta meta = release.getMeta();
-		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , meta , release , force );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ActionDeleteRelease ma = new ActionDeleteRelease( action , null , release , force );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void cleanupDist( ScopeState parentState , ActionBase action , Dist dist ) throws Exception {
 		ActionForceCloseDist ma = new ActionForceCloseDist( action , null , dist );
-		ma.runSimpleProduct( parentState , dist.meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , dist.meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void copyRelease( ScopeState parentState , ActionBase action , Release releaseSrc , String RELEASEDST , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		Meta meta = releaseSrc.getMeta();
-		ActionCopyRelease ma = new ActionCopyRelease( action , null , meta , releaseSrc , RELEASEDST , releaseDate , lc );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ActionCopyRelease ma = new ActionCopyRelease( action , null , releaseSrc , RELEASEDST , releaseDate , lc );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void finishRelease( ScopeState parentState , ActionBase action , Release release ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionFinishRelease ma = new ActionFinishRelease( action , null , release );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void completeRelease( ScopeState parentState , ActionBase action , Release release ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionCompleteRelease ma = new ActionCompleteRelease( action , null , release );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void reopenRelease( ScopeState parentState , ActionBase action , Release release ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionReopenRelease ma = new ActionReopenRelease( action , null , release );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void statusRelease( ScopeState parentState , ActionBase action , Release release ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionPrintReleaseStatus ma = new ActionPrintReleaseStatus( action , null , release );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 
 	public static void appendMaster( ScopeState parentState , ActionBase action , Release release ) throws Exception {
 		ActionAppendMaster ma = new ActionAppendMaster( action , null , release );
 		Meta meta = release.getMeta();
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	private static void addReleaseScope( ScopeState parentState , ActionBase action , Release release , ActionScope scope ) throws Exception {
@@ -131,7 +131,7 @@ public class ReleaseCommand {
 	private static void setReleaseScope( ScopeState parentState , ActionBase action , Release release , boolean source , String[] pathItems ) throws Exception {
 		ActionSetScope ma = new ActionSetScope( action , null , release , source , pathItems );
 		Meta meta = release.getMeta();
-		if( !ma.runSimpleProduct( null , meta.name , SecurityAction.ACTION_RELEASE , false ) )
+		if( !ma.runSimpleProduct( null , meta , SecurityAction.ACTION_RELEASE , false ) )
 			action.exit0( _Error.ReleaseSetChangeErrors0 , "release set is not changed because of errors" );
 		
 		action.info( "release scope has been changed" );
@@ -218,8 +218,8 @@ public class ReleaseCommand {
 			action.exit0( _Error.NotCumulativeRelease0 , "should be cumulative release" );
 		
 		Meta meta = release.getMeta();
-		ActionGetCumulative ca = new ActionGetCumulative( action , null , meta , release );
-		ca.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ActionGetCumulative ca = new ActionGetCumulative( action , null , release );
+		ca.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 
 	private static void descope( ScopeState parentState , ActionBase action , Release release , ActionScope scope ) throws Exception {
@@ -294,42 +294,42 @@ public class ReleaseCommand {
 	public static void nextPhase( ScopeState parentState , ActionBase action , Release release ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionSchedulePhase ma = new ActionSchedulePhase( action , null , release );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void setPhaseDeadline( ScopeState parentState , ActionBase action , Release release , String PHASE , Date deadlineDate ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionSchedulePhase ma = new ActionSchedulePhase( action , null , release , PHASE , deadlineDate );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void setPhaseDuration( ScopeState parentState , ActionBase action , Release release , String PHASE , int duration ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionSchedulePhase ma = new ActionSchedulePhase( action , null , release , PHASE , duration );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void archiveRelease( ScopeState parentState , ActionBase action , Release release ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionArchiveRelease ma = new ActionArchiveRelease( action , null , release );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void touchRelease( ScopeState parentState , ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
 		ActionTouchRelease ma = new ActionTouchRelease( action , null , meta , RELEASELABEL );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void setSchedule( ScopeState parentState , ActionBase action , Release release , Date[] dates ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionSchedulePhase ma = new ActionSchedulePhase( action , null , release , dates );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 	public static void executeTickets( ScopeState parentState , ActionBase action , Release release , String method , String[] args ) throws Exception {
 		Meta meta = release.getMeta();
 		ActionTickets ma = new ActionTickets( action , null , release , method , args );
-		ma.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_RELEASE , false );
+		ma.runSimpleProduct( parentState , meta , SecurityAction.ACTION_RELEASE , false );
 	}
 	
 }

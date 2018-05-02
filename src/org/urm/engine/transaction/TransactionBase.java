@@ -1,6 +1,8 @@
 package org.urm.engine.transaction;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
@@ -27,11 +29,10 @@ import org.urm.engine.data.EngineProducts;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.transaction.TransactionMetadata.TransactionMetadataEnv;
-import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AuthResource;
@@ -49,7 +50,13 @@ import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.env.MetaEnvStartGroup;
+import org.urm.meta.env.MetaEnvStartInfo;
+import org.urm.meta.env.MetaMonitoring;
+import org.urm.meta.env.MetaMonitoringItem;
+import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -103,8 +110,7 @@ public class TransactionBase extends EngineObject {
 	private EngineDirectory directoryOld;
 	private EngineMirrors mirrorsOld;
 	
-	private Map<String,TransactionMetadata> productMeta;
-	private Map<Integer,TransactionMetadata> productMetaById;
+	private Map<String,TransactionProduct> productChanges;
 	
 	public TransactionBase( Engine engine , DataService data , ActionInit action ) {
 		super( null );
@@ -117,8 +123,7 @@ public class TransactionBase extends EngineObject {
 		CHANGEDATABASECORE = false;
 		CHANGEDATABASEAUTH = false;
 		
-		productMeta = new HashMap<String,TransactionMetadata>();
-		productMetaById = new HashMap<Integer,TransactionMetadata>();
+		productChanges = new HashMap<String,TransactionProduct>();
 		engine.trace( "transaction created id=" + objectId );
 	}
 	
@@ -262,10 +267,9 @@ public class TransactionBase extends EngineObject {
 
 	private void abortProducts( boolean save ) {
 		try {
-			for( TransactionMetadata meta : productMeta.values() )
+			for( TransactionProduct meta : productChanges.values() )
 				meta.abortTransaction( save );
-			productMeta.clear();
-			productMetaById.clear();
+			productChanges.clear();
 		}
 		catch( Throwable e ) {
 			handle( e , "unable to restore metadata" );
@@ -836,41 +840,43 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 
-	public Meta createProductMetadata( ProductMeta storage ) throws Exception {
-		TransactionMetadata tm = productMeta.get( storage.name );
-		
-		// should be first product transaction operation
-		if( tm != null )
-			action.exitUnexpectedState();
-		
-		Meta meta = data.createSessionProductMetadata( this , storage );
-		tm = new TransactionMetadata( this );
-		if( !tm.createProduct( meta ) )
-			Common.exitUnexpected();
-			
-		addTransactionMeta( meta.getId() , meta.name , tm );
-		return( meta );
+	public TransactionProduct findProductTransaction( String productName ) {
+		return( productChanges.get( productName ) );
 	}
 
-	public boolean importProduct( AppProduct product ) {
+	public void createProduct( AppProduct product ) throws Exception {
+		EngineProduct ep = product.getEngineProduct();
+		TransactionProduct tm = createProductTransaction( product , ep );
+		tm.createProduct();
+	}
+	
+	public Meta createProductMetadata( AppProduct product , ProductMeta storage ) throws Exception {
+		EngineProduct ep = storage.getEngineProduct();
+		TransactionProduct tm = createProductTransaction( product , ep );
+		return( tm.createProductMetadata( storage ) );
+	}
+
+	private TransactionProduct createProductTransaction( AppProduct product , EngineProduct ep ) {
+		TransactionProduct tm = findProductTransaction( ep.productName );
+		if( tm == null ) {
+			tm = new TransactionProduct( this , product , ep );
+			productChanges.put( tm.ep.productName , tm );
+		}
+		return( tm );
+	}
+	
+	public boolean requestImportProduct( AppProduct product ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 
-				TransactionMetadata tm = productMeta.get( product.NAME );
-				
-				// should be first product transaction operation
-				if( tm != null )
-					action.exitUnexpectedState();
-				
-				if( !checkSecurityProductChange( product.storage.meta , null ) )
+				if( !checkSecurityProductChange( product , null ) )
 					return( false );
 				
-				tm = new TransactionMetadata( this );
-				if( tm.importProduct( product ) ) {
+				TransactionProduct tm = createProductTransaction( product , product.findEngineProduct() );
+				if( tm.importProduct() ) {
 					useDatabase();
-					addTransactionMeta( product.storage.ID , product.NAME , tm );
 					return( true );
 				}
 			}
@@ -883,21 +889,17 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean importEnv( MetaEnv env ) {
+	public boolean requestImportEnv( MetaEnv env ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 
-				TransactionMetadata tm = productMeta.get( env.meta.name );
-				
-				// should exist product transaction operation
-				if( tm == null )
-					action.exitUnexpectedState();
-				
-				if( !checkSecurityProductChange( env.meta , env ) )
+				EngineProduct ep = env.getEngineProduct();
+				if( !checkSecurityProductChange( ep.getProduct() , env ) )
 					return( false );
 				
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
 				if( tm.importEnv( env ) )
 					return( true );
 			}
@@ -910,27 +912,22 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean recreateMetadata( Meta meta ) {
+	public boolean requestRecreateMetadata( Meta meta ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 
-				TransactionMetadata tm = productMeta.get( meta.name );
-				
-				// should be first product transaction operation
-				if( tm != null )
-					action.exitUnexpectedState();
-				
-				if( !checkSecurityProductChange( meta , null ) )
+				EngineProduct ep = meta.getEngineProduct();
+				if( !checkSecurityProductChange( ep.getProduct() , null ) )
 					return( false );
 				
-				tm = new TransactionMetadata( this );
-				if( tm.recreateProduct( meta ) ) {
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
+				if( !tm.recreateMetadata( meta ) ) {
 					useDatabase();
-					addTransactionMeta( meta.getId() , meta.name , tm );
 					return( true );
 				}
+				
 			}
 			catch( Throwable e ) {
 				handle( e , "unable to recreate metadata" );
@@ -941,30 +938,25 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean deleteMetadata( Meta meta ) {
+	public boolean requestDeleteMetadata( Meta meta ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 					
-				TransactionMetadata tm = productMeta.get( meta.name );
-				
-				// should be first product transaction operation
-				if( tm != null )
-					action.exitUnexpectedState();
-				
 				if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 					return( false );
 				
-				tm = new TransactionMetadata( this );
-				if( tm.deleteProduct( meta ) ) {
+				EngineProduct ep = meta.getEngineProduct();
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
+				
+				if( tm.deleteMetadata( meta ) ) {
 					useDatabase();
-					addTransactionMeta( meta.getId() , meta.name , tm );
 					return( true );
 				}
 			}
 			catch( Throwable e ) {
-				handle( e , "unable to save metadata" );
+				handle( e , "unable to delete metadata" );
 			}
 			
 			abortTransaction( false );
@@ -972,27 +964,19 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean changeMetadata( Meta meta ) {
+	public boolean requestDeleteProduct( AppProduct product ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 
-				TransactionMetadata tm = productMeta.get( meta.name ); 
-				if( tm != null ) {
-					if( tm.checkChangeProduct() )
-						return( true );
-				}
-				
-				if( !checkSecurityProductChange( meta , null ) )
+				if( !checkSecurityProductChange( product , null ) )
 					return( false );
 				
-				if( tm == null ) {
-					tm = new TransactionMetadata( this );
-					addTransactionMeta( meta.getId() , meta.name , tm );
-				}
+				EngineProduct ep = product.getEngineProduct();
+				TransactionProduct tm = createProductTransaction( product , ep );
 				
-				if( tm.changeProduct( meta ) ) {
+				if( tm.deleteProduct() ) {
 					useDatabase();
 					return( true );
 				}
@@ -1006,26 +990,47 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean changeEnv( MetaEnv env ) {
+	public boolean requestChangeMetadata( Meta meta , boolean draft ) {
+		synchronized( engine ) {
+			try {
+				if( draft != meta.isDraft() )
+					Common.exitUnexpected();
+					
+				if( !continueTransaction() )
+					return( false );
+
+				EngineProduct ep = meta.getEngineProduct();
+				if( !checkSecurityProductChange( ep.getProduct() , null ) )
+					return( false );
+				
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep ); 
+				if( tm.changeMetadata( meta ) ) {
+					useDatabase();
+					return( true );
+				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change metadata" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+	
+	public boolean requestChangeEnv( MetaEnv env ) {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
 					return( false );
 
-				Meta meta = env.meta;
-				TransactionMetadata tm = productMeta.get( meta.name ); 
-				if( tm != null ) {
-					if( tm.checkChangeEnv( env ) )
-						return( true );
-				}
-				
-				if( !checkSecurityProductChange( env.meta , env ) )
+				EngineProduct ep = env.getEngineProduct();
+				if( !checkSecurityProductChange( ep.getProduct() , env ) )
 					return( false );
 				
-				if( tm == null ) {
-					tm = new TransactionMetadata( this );
-					addTransactionMeta( meta.getId() , meta.name , tm );
-				}
+				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
+				if( tm.checkChangeEnv( env ) )
+					return( true );
 				
 				if( tm.changeEnv( env ) ) {
 					useDatabase();
@@ -1047,7 +1052,7 @@ public class TransactionBase extends EngineObject {
 
 		try {
 			boolean failed = false;
-			for( TransactionMetadata tm : productMeta.values() ) {
+			for( TransactionProduct tm : productChanges.values() ) {
 				if( !tm.commitTransaction() ) {
 					failed = true;
 					break;
@@ -1137,24 +1142,15 @@ public class TransactionBase extends EngineObject {
 
 	protected void checkTransactionMetadata( ProductMeta sourceMeta ) throws Exception {
 		checkTransaction();
-		TransactionMetadata meta = productMeta.get( sourceMeta.name );
-		if( meta == null )
+		TransactionProduct tm = findProductTransaction( sourceMeta.ep.productName );
+		if( tm == null || !tm.checkTransactionMetadata( sourceMeta ) )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
-		
-		meta.checkTransactionMetadata( sourceMeta );
 	}
 
 	protected void checkTransactionEnv( MetaEnv env ) throws Exception {
 		checkTransaction();
-		TransactionMetadata meta = productMeta.get( env.meta.name );
-		if( meta == null )
-			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
-		
-		meta.checkTransactionEnv( env );
-	}
-
-	protected void checkTransactionMetadata( String productName ) throws Exception {
-		if( productMeta.get( productName ) == null )
+		TransactionProduct tm = findProductTransaction( env.meta.name );
+		if( tm == null || !tm.checkTransactionEnv( env ) )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 	}
 
@@ -1286,28 +1282,6 @@ public class TransactionBase extends EngineObject {
 		return( data.getInfrastructure() );
 	}
 
-	public Meta findTransactionSessionProductMetadata( String productName ) {
-		TransactionMetadata tm = productMeta.get( productName );
-		if( tm == null )
-			return( null );
-		
-		return( tm.sessionMeta );
-	}
-	
-	public Meta findTransactionSessionProductMetadata( int metaId ) {
-		TransactionMetadata tm = productMetaById.get( metaId );
-		if( tm == null )
-			return( null );
-		
-		return( tm.sessionMeta );
-	}
-	
-	private void addTransactionMeta( Integer metaId , String name , TransactionMetadata tm ) {
-		productMeta.put( name , tm );
-		if( metaId != null )
-			productMetaById.put( metaId , tm );
-	}
-
 	// helpers
 	public AuthResource getResource( AuthResource resource ) throws Exception {
 		return( resourcesNew.getResource( resource.ID ) );
@@ -1332,16 +1306,13 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public Meta getMeta( Meta meta ) throws Exception {
-		return( action.getActiveProductMetadata( meta.name ) );
-	}
-
-	public Meta getMeta( AppProduct product ) throws Exception {
-		return( action.getActiveProductMetadata( product.NAME ) );
+		EngineProduct ep = meta.getEngineProduct();
+		return( ep.findSessionMeta( action , meta.getStorage() , true ) );
 	}
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
-		ProductMeta metadata = getTransactionProductMetadata( env.meta );
-		ProductEnvs envs = metadata.getEnviroments();
+		Meta meta = getTransactionMetadata( env.meta );
+		ProductEnvs envs = meta.getEnviroments();
 		return( envs.findMetaEnv( env.NAME ) );
 	}
 
@@ -1350,6 +1321,16 @@ public class TransactionBase extends EngineObject {
 		return( env.findSegment( sg.NAME ) );
 	}
 
+	public MetaEnvStartInfo getStartInfo( MetaEnvStartInfo startInfo ) throws Exception {
+		MetaEnvSegment sg = getMetaEnvSegment( startInfo.sg );
+		return( sg.getStartInfo() );
+	}
+	
+	public MetaEnvStartGroup getStartGroup( MetaEnvStartGroup startGroup ) throws Exception {
+		MetaEnvStartInfo startInfo = getStartInfo( startGroup.startInfo );
+		return( startInfo.getStartGroup( startGroup.ID ) );
+	}
+	
 	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {
 		MetaEnvSegment sg = getMetaEnvSegment( server.sg );
 		return( sg.findServer( server.NAME ) );
@@ -1366,48 +1347,45 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public Meta[] getTransactionProductMetadataList() {
-		TransactionMetadata[] tm = productMeta.values().toArray( new TransactionMetadata[0] );
-		Meta[] meta = new Meta[ tm.length ];
-		for( int k = 0; k < tm.length; k++ )
-			meta[ k ] = tm[k].sessionMeta;
-		return( meta );
+		List<Meta> list = new LinkedList<Meta>();
+		for( TransactionProduct tm : productChanges.values() ) {
+			Meta[] tmlist = tm.getTransactionProductMetadataList();
+			for( Meta meta : tmlist )
+				list.add( meta );
+		}
+		return( list.toArray( new Meta[0] ) );
 	}
 
+	public Meta getTransactionMetadata( Meta meta ) throws Exception {
+		ProductMeta storage = getTransactionProductMetadata( meta );
+		return( storage.meta );
+	}
+		
 	public ProductMeta getTransactionProductMetadata( Meta meta ) throws Exception {
-		TransactionMetadata tm = productMeta.get( meta.name );
-		if( tm == null )
+		ProductMeta storage = null;
+		TransactionProduct tm = findProductTransaction( meta.name );
+		if( tm != null )
+			storage = tm.findTransactionProductMetadata( meta );
+		if( storage == null )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
-		return( tm.metadata );
+		return( storage );
 	}
 	
-	public Meta getTransactionMetadata( Meta meta ) throws Exception {
-		return( getTransactionMetadata( meta.name ) );
-	}
-
-	public Meta getTransactionMetadata( AppProduct product ) throws Exception {
-		return( getTransactionMetadata( product.NAME ) );
-	}
-
-	public Meta getTransactionMetadata( String productName ) throws Exception {
-		TransactionMetadata tm = productMeta.get( productName );
-		if( tm == null )
-			action.exitUnexpectedState();
-		return( tm.metadata.meta );
-	}
-
 	public Meta getTransactionMetadata( int metaId ) throws Exception {
-		TransactionMetadata tm = productMetaById.get( metaId );
-		if( tm == null )
-			action.exitUnexpectedState();
-		return( tm.metadata.meta );
+		for( TransactionProduct tm : productChanges.values() ) {
+			Meta meta = tm.findTransactionMeta( metaId );
+			if( meta != null )
+				return( meta );
+		}
+		action.exitUnexpectedState();
+		return( null );
 	}
 
 	public MetaEnv getTransactionEnv( int envId ) throws Exception {
-		for( TransactionMetadata tm : productMeta.values() ) {
-			for( TransactionMetadataEnv tme : tm.getTransactionEnvs() ) {
-				if( tme.env.ID == envId )
-					return( tme.env );
-			}
+		for( TransactionProduct tm : productChanges.values() ) {
+			MetaEnv env = tm.findTransactionEnv( envId );
+			if( env != null )
+				return( env );
 		}
 		
 		action.exitUnexpectedState();
@@ -1415,7 +1393,7 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public MetaDistrDelivery getDistrDelivery( MetaDistrDelivery delivery ) throws Exception {
-		Meta meta = getTransactionMetadata( delivery.meta.name );
+		Meta meta = getTransactionMetadata( delivery.meta );
 		MetaDistr distr = meta.getDistr();
 		return( distr.getDelivery( delivery.ID ) );
 	}
@@ -1431,25 +1409,25 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public MetaDatabaseSchema getDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
-		Meta meta = getTransactionMetadata( schema.meta.name );
+		Meta meta = getTransactionMetadata( schema.meta );
 		MetaDatabase database = meta.getDatabase();
 		return( database.getSchema( schema.ID ) );
 	}
 
 	public MetaProductUnit getProductUnit( MetaProductUnit unit ) throws Exception {
-		Meta meta = getTransactionMetadata( unit.meta.name );
+		Meta meta = getTransactionMetadata( unit.meta );
 		MetaUnits units = meta.getUnits();
 		return( units.getUnit( unit.ID ) );
 	}
 
 	public MetaProductDoc getProductDoc( MetaProductDoc doc ) throws Exception {
-		Meta meta = getTransactionMetadata( doc.meta.name );
+		Meta meta = getTransactionMetadata( doc.meta );
 		MetaDocs docs = meta.getDocs();
 		return( docs.getDoc( doc.ID ) );
 	}
 
 	public MetaDistrComponent getDistrComponent( MetaDistrComponent comp ) throws Exception {
-		Meta meta = getTransactionMetadata( comp.meta.name );
+		Meta meta = getTransactionMetadata( comp.meta );
 		MetaDistr distr = meta.getDistr();
 		return( distr.getComponent( comp.ID ) );
 	}
@@ -1474,13 +1452,13 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public MetaSourceProject getSourceProject( MetaSourceProject project ) throws Exception {
-		Meta metaNew = getTransactionMetadata( project.meta.name );
+		Meta metaNew = getTransactionMetadata( project.meta );
 		MetaSources sourceNew = metaNew.getSources();
 		return( sourceNew.getProject( project.ID ) );
 	}
 	
 	public MetaSourceProjectSet getSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
-		Meta metaNew = getTransactionMetadata( set.meta.name );
+		Meta metaNew = getTransactionMetadata( set.meta );
 		MetaSources sourceNew = metaNew.getSources();
 		return( sourceNew.getProjectSet( set.ID ) );
 	}
@@ -1517,6 +1495,20 @@ public class TransactionBase extends EngineObject {
 		return( db.findImportDump( dump.NAME ) );
 	}
 	
+	public MetaMonitoringTarget getMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
+		Meta meta = getMeta( target.envs.meta );
+		MetaMonitoring mon = meta.getMonitoring();
+		MetaMonitoringTarget targetUpdated = mon.getTarget( target.ID );
+		if( targetUpdated == null )
+			Common.exitUnexpected();
+		return( targetUpdated );
+	}
+
+	public MetaMonitoringItem getMonitoringItem( MetaMonitoringItem item ) throws Exception {
+		MetaMonitoringTarget targetUpdated = getMonitoringTarget( item.target );
+		return( targetUpdated.getItem( item.ID ) );
+	}
+	
 	public void checkSecurityFailed() {
 		fail0( _Error.SecurityCheckFailed0 , "Operation is not permitted" );
 	}
@@ -1548,29 +1540,28 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean checkSecurityProductChange( Meta meta , MetaEnv env ) {
+	public boolean checkSecurityProductChange( AppProduct product , MetaEnv env ) {
 		AuthService auth = engine.getAuth();
-		if( auth.checkAccessProductAction( action , SecurityAction.ACTION_CONFIGURE , meta , env , false ) )
+		if( auth.checkAccessProductAction( action , SecurityAction.ACTION_CONFIGURE , product , env , false ) )
 			return( true );
 		
 		checkSecurityFailed();
 		return( false );
 	}
 
-	public void setProductMetadata( ProductMeta metadata ) throws Exception {
-		data.setProductMetadata( this , metadata );
+	protected void updateRevision( AppProduct product , ProductMeta metadata , ProductMeta metadataOld ) throws Exception {
+		EngineProducts products = data.getProducts();
+		products.updateRevision( product , metadata , metadataOld );
 	}
 	
 	public void deleteProductMetadata( ProductMeta metadata ) throws Exception {
-		data.deleteProductMetadata( this , metadata );
+		EngineProducts products = data.getProducts();
+		products.deleteProductMetadata( this , metadata );
 	}
 	
-	public void replaceProductMetadata( ProductMeta storage ) throws Exception {
-		TransactionMetadata tm = productMeta.get( storage.name );
-		if( tm == null )
-			action.exitUnexpectedState();
-		
-		tm.replaceProduct( storage );
+	public void requestReplaceProductMetadata( ProductMeta storage , ProductMeta storageOld ) throws Exception {
+		TransactionProduct tm = createProductTransaction( storage.getProduct() , storage.ep );
+		tm.replaceProductMetadata( storage , storageOld );
 	}
 
 }

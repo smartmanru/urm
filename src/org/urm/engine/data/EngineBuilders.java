@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.engine.Engine;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine._Error;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.MatchItem;
 
 public class EngineBuilders extends EngineObject {
 

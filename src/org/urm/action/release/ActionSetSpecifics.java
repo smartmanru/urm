@@ -5,6 +5,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.db.release.DBReleaseBuildTarget;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -12,7 +13,6 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.MetaSources;
-import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseRepository;
@@ -32,10 +32,10 @@ public class ActionSetSpecifics extends ActionBase {
 		EngineMethod method = super.method;
 		
 		Meta meta = release.getMeta();
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repository
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			
 			if( scope.isFull() )

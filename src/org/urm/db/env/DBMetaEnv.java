@@ -17,18 +17,22 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.EngineLoader;
-import org.urm.meta.EngineMatcher;
-import org.urm.meta.MatchItem;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.loader.EngineMatcher;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
@@ -41,11 +45,20 @@ public class DBMetaEnv {
 	public static String ELEMENT_SEGMENT = "segment";
 	public static String ATTR_VERSION = "envversion";
 	
-	public static MetaEnv importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
+	public static MetaEnv importxml( EngineLoader loader , EngineProduct ep , ProductMeta storage , Node root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppEnvPrimary;
+		String name = entity.importxmlStringAttr( root , MetaEnv.PROPERTY_NAME );
+		
+		if( ep.findEnv( name ) != null ) {
+			loader.trace( "skip import existing environment, name=" + name );
+			return( null );
+		}
+		
 		ProductEnvs envs = storage.getEnviroments();
 		MetaEnv env = new MetaEnv( storage , storage.meta , envs );
 		
-		importxmlMain( loader , storage , env , root );
+		importxmlMain( loader , storage , name , env , root );
 		importxmlSegments( loader , storage , env , root );
 		
 		envs.addEnv( env );
@@ -75,7 +88,7 @@ public class DBMetaEnv {
 		}
 	}
 	
-	private static void importxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
+	private static void importxmlMain( EngineLoader loader , ProductMeta storage , String name , MetaEnv env , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		EngineMatcher matcher = loader.getMatcher();
@@ -85,13 +98,12 @@ public class DBMetaEnv {
 		// identify
 		String version = ConfReader.getAttrValue( root , ATTR_VERSION );
 		PropertyEntity entity = entities.entityAppEnvPrimary;
-		String NAME = entity.importxmlStringAttr( root , MetaEnv.PROPERTY_NAME );
-		env.ID = DBNames.getNameIndex( c , storage.ID , NAME , DBEnumParamEntityType.ENV_PRIMARY );
+		env.ID = DBNames.getNameIndex( c , storage.ID , name , DBEnumParamEntityType.ENV_PRIMARY );
 
-		loader.trace( "import meta env object, object=" + env.objectId + ", id=" + env.ID + ", name=" + NAME + ", source version=" + version );
+		loader.trace( "import meta env object, object=" + env.objectId + ", id=" + env.ID + ", name=" + name + ", source version=" + version );
 
 		TransactionBase transaction = loader.getTransaction();
-		if( !transaction.importEnv( env ) )
+		if( !transaction.requestImportEnv( env ) )
 			Common.exitUnexpected();
 		
 		// create settings
@@ -121,7 +133,7 @@ public class DBMetaEnv {
 		
 		// primary
 		env.setEnvPrimary(
-				NAME ,
+				name ,
 				entity.importxmlStringAttr( root , MetaEnv.PROPERTY_DESC ) ,
 				DBEnumEnvType.getValue( entity.importxmlEnumAttr( root , MetaEnv.PROPERTY_ENVTYPE ) , true ) ,
 				BASELINE ,
@@ -211,8 +223,8 @@ public class DBMetaEnv {
 		env.EV = c.getNextEnvironmentVersion( env );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppEnvPrimary , env.ID , env.EV , new String[] {
-				EngineDB.getInteger( storage.ID ) ,
-				EngineDB.getString( null ) ,
+				EngineDB.getObject( storage.ID ) ,
+				EngineDB.getObject( env.TRANSITION_META_ID ) ,
 				EngineDB.getBoolean( env.MATCHED ) ,
 				EngineDB.getString( env.NAME ) ,
 				EngineDB.getString( env.DESC ) ,
@@ -239,9 +251,8 @@ public class DBMetaEnv {
 		MetaProductSettings settings = storage.getSettings();
 
 		List<MetaEnv> list = new LinkedList<MetaEnv>();
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_FK2 , new String[] { 
-				EngineDB.getInteger( storage.ID ) ,
-				EngineDB.getString( storage.name ) 
+		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_ID1 , new String[] { 
+				EngineDB.getInteger( storage.ID ) 
 				} );
 		try {
 			while( rs.next() ) {
@@ -275,6 +286,8 @@ public class DBMetaEnv {
 						DISTACCOUNT ,
 						entity.loaddbString( rs , MetaEnv.PROPERTY_DISTR_PATH )
 						);
+				
+				env.setTransition( entity.loaddbObject( rs , DBEnvData.FIELD_ENV_TRANSITION_META_ID ) );
 				
 				list.add( env );
 			}
@@ -332,22 +345,56 @@ public class DBMetaEnv {
 
 	public static void deleteDatabaseSchema( EngineTransaction transaction , ProductMeta storage , MetaDatabaseSchema schema ) throws Exception {
 		ProductEnvs envs = storage.getEnviroments();
-		envs.removeDatabaseSchemaFromEnvironments( schema );
-		Common.exitUnexpected();
+		for( MetaEnv env : envs.getEnvs() ) {
+			for( MetaEnvSegment sg : env.getSegments() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					MetaEnvServerDeployment deployment = server.findDatabaseSchemaDeployment( schema );
+					if( deployment != null )
+						DBMetaEnvServerDeployment.deleteDeployment( transaction , storage , env , server , deployment );
+				}
+			}
+		}
 	}
 
 	public static void deleteBinaryItem( EngineTransaction transaction , ProductMeta storage , MetaDistrBinaryItem item ) throws Exception {
 		ProductEnvs envs = storage.getEnviroments();
-		envs.removeBinaryItemFromEnvironments( item );
-		Common.exitUnexpected();
+		for( MetaEnv env : envs.getEnvs() ) {
+			for( MetaEnvSegment sg : env.getSegments() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					MetaEnvServerDeployment deployment = server.findBinaryItemDeployment( item );
+					if( deployment != null )
+						DBMetaEnvServerDeployment.deleteDeployment( transaction , storage , env , server , deployment );
+				}
+			}
+		}
 	}
 	
 	public static void deleteConfItem( EngineTransaction transaction , ProductMeta storage , MetaDistrConfItem item ) throws Exception {
 		ProductEnvs envs = storage.getEnviroments();
-		envs.removeConfItemFromEnvironments( item );
-		Common.exitUnexpected();
+		for( MetaEnv env : envs.getEnvs() ) {
+			for( MetaEnvSegment sg : env.getSegments() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					MetaEnvServerDeployment deployment = server.findConfItemDeployment( item );
+					if( deployment != null )
+						DBMetaEnvServerDeployment.deleteDeployment( transaction , storage , env , server , deployment );
+				}
+			}
+		}
 	}
 
+	public static void deleteComponent( EngineTransaction transaction , ProductMeta storage , MetaDistrComponent comp ) throws Exception {
+		ProductEnvs envs = storage.getEnviroments();
+		for( MetaEnv env : envs.getEnvs() ) {
+			for( MetaEnvSegment sg : env.getSegments() ) {
+				for( MetaEnvServer server : sg.getServers() ) {
+					MetaEnvServerDeployment deployment = server.findComponentDeployment( comp );
+					if( deployment != null )
+						DBMetaEnvServerDeployment.deleteDeployment( transaction , storage , env , server , deployment );
+				}
+			}
+		}
+	}
+	
 	public static MetaEnv createEnv( EngineTransaction transaction , ProductMeta storage , String name , String desc , DBEnumEnvType envType ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = transaction.getEntities();
@@ -376,7 +423,11 @@ public class DBMetaEnv {
 	}
 
 	public static void deleteEnv( EngineTransaction transaction , ProductMeta storage , MetaEnv env ) throws Exception {
-		Common.exitUnexpected();
+		DBConnection c = transaction.getConnection();
+		ProductEnvs envs = storage.getEnviroments();
+		
+		DBEnvData.dropEnvData( c , env );
+		envs.deleteEnv( transaction , env );
 	}
 
 	public static void setEnvOffline( EngineTransaction transaction , ProductMeta storage , MetaEnv env , boolean offline ) throws Exception {

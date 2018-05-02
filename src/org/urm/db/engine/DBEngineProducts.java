@@ -4,42 +4,43 @@ import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBProductData;
+import org.urm.db.release.DBReleaseData;
 import org.urm.engine.Engine;
 import org.urm.engine.AuthService;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.transaction.EngineTransaction;
-import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
+import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.ProductMeta;
 
 public class DBEngineProducts {
 
-	public static AppProduct createProduct( EngineTransaction transaction , AppSystem system , String name , String desc , String path , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
+	public static AppProduct createProduct( EngineTransaction transaction , AppSystem system , String name , String desc , String path ) throws Exception {
 		Engine engine = transaction.engine;
 		DBConnection c = transaction.getConnection();
 		ActionInit action = transaction.getAction();
 		EngineDirectory directory = system.directory;
 		
-		transaction.changeMirrors( action.getServerMirrors() );
+		transaction.changeMirrors( action.getEngineMirrors() );
 		EngineMirrors mirrors = transaction.getTransactionMirrors();
 		
 		AppProduct product = directory.findProduct( name );
-		boolean change = false;
+		boolean forceClearMeta = false; 
+		ProductMeta storageOld = null;
 		if( product != null ) {
-			if( !forceClearMeta )
-				Common.exitUnexpected();
-
-			change = true;
-			ProductMeta storage = product.storage;
-			if( !transaction.recreateMetadata( storage.meta ) )
-				Common.exitUnexpected();
-			
-			if( storage.isExists() ) {
-				DBEnvData.dropEnvData( c , storage );
-				DBProductData.dropProductData( c , storage );
+			EngineProduct ep = product.findEngineProduct();
+			storageOld = ep.findDraftRevision();
+			if( storageOld != null ) {
+				forceClearMeta = true;
+				if( storageOld.isExists() ) {
+					DBEnvData.dropEnvData( c , storageOld );
+					DBProductData.dropProductData( c , storageOld );
+				}
 			}
 			
 			DBEngineDirectory.deleteProduct( transaction , directory , product , true , false , false );
@@ -50,14 +51,16 @@ public class DBEngineProducts {
 		DBEngineMirrors.createProductMirrors( transaction , mirrors , product );
 		
 		EngineLoader loader = engine.createLoader( transaction );
-		ProductMeta storage = loader.createProduct( product , forceClearMeta , forceClearDist );
+		ProductMeta storage = loader.createProduct( product , forceClearMeta , false );
 		if( storage == null )
 			Common.exit0( _Error.UnableCreateProduct0 , "Unable to create product" );
 		
-		if( change )
-			transaction.replaceProductMetadata( storage );
-		else
-			transaction.createProductMetadata( storage );
+		if( storageOld != null )
+			transaction.requestReplaceProductMetadata( storage , storageOld );
+		else {
+			transaction.createProduct( product );
+			transaction.createProductMetadata( product , storage );
+		}
 		
 		return( product );
 	}
@@ -67,16 +70,20 @@ public class DBEngineProducts {
 		ActionInit action = transaction.getAction();
 		AuthService auth = action.getServerAuth();
 		EngineMirrors mirrors = action.getActiveMirrors();
-		ProductMeta storage = product.storage;
-
-		if( !transaction.deleteMetadata( storage.meta ) )
+		
+		EngineProduct ep = product.getEngineProduct();
+		EngineProductRevisions revisions = ep.getRevisions();
+		
+		if( !transaction.requestDeleteProduct( product ) )
 			Common.exitUnexpected();
-		if( !transaction.changeMirrors( mirrors ) )
-			Common.exitUnexpected();
-
-		DBEnvData.dropEnvData( c , storage );
+		
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			DBEnvData.dropEnvData( c , storage );
+			DBReleaseData.dropAllMeta( c , storage );
+			DBProductData.dropProductData( c , storage );
+		}
+		
 		DBEngineAuth.deleteProductAccess( c , auth , product );
-		DBProductData.dropProductData( c , storage );
 		DBEngineMirrors.deleteProductResources( transaction , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		DBEngineDirectory.deleteProduct( transaction , product.directory , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 	}

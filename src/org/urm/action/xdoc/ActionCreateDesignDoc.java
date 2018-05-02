@@ -10,6 +10,7 @@ import org.urm.common.Common;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.ProductStorage;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -37,7 +38,8 @@ public class ActionCreateDesignDoc extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		getProdServers();
 		
-		ProductStorage ms = artefactory.getMetadataStorage( this , meta );
+		AppProduct product = meta.findProduct();
+		ProductStorage ms = artefactory.getMetadataStorage( this , product );
 		MetaDocs docs = meta.getDocs();
 		for( String designFile : ms.getDesignFiles( this ) ) {
 			MetaDesignDiagram design = docs.findDiagram( designFile );

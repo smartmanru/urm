@@ -16,25 +16,33 @@ CREATE TABLE main.urm_base_item (
                 group_id INTEGER NOT NULL,
                 name VARCHAR(64) NOT NULL,
                 xdesc VARCHAR,
-                admin BOOLEAN NOT NULL,
-                basesrc_type INTEGER NOT NULL,
-                basesrcformat_type INTEGER NOT NULL,
-                os_type INTEGER NOT NULL,
-                serveraccess_type INTEGER NOT NULL,
-                basename VARCHAR(64),
-                baseversion VARCHAR(64),
-                srcdir VARCHAR,
-                srcfile VARCHAR,
-                srcfiledir VARCHAR,
-                installscript VARCHAR(64),
-                installpath VARCHAR,
-                installlink VARCHAR,
-                charset VARCHAR(30),
                 offline BOOLEAN NOT NULL,
                 cv INTEGER NOT NULL,
                 CONSTRAINT urm_base_item_pk PRIMARY KEY (baseitem_id)
 );
 COMMENT ON TABLE main.urm_base_item IS 'Base software installable item';
+
+
+CREATE TABLE main.urm_base_data (
+                baseitem_id INTEGER NOT NULL,
+                srcdir VARCHAR,
+                serveraccess_type INTEGER NOT NULL,
+                os_type INTEGER NOT NULL,
+                installlink VARCHAR,
+                baseversion VARCHAR(64),
+                srcfiledir VARCHAR,
+                srcfile VARCHAR,
+                installscript VARCHAR(64),
+                charset VARCHAR(30),
+                basename VARCHAR(64),
+                basesrcformat_type INTEGER NOT NULL,
+                admin BOOLEAN NOT NULL,
+                basesrc_type INTEGER NOT NULL,
+                installpath VARCHAR,
+                cv INTEGER NOT NULL,
+                CONSTRAINT urm_base_data_pk PRIMARY KEY (baseitem_id)
+);
+COMMENT ON TABLE main.urm_base_data IS 'Base item implementation';
 
 
 CREATE TABLE main.urm_base_item_deps (
@@ -62,6 +70,13 @@ NOT DEFERRABLE;
 
 ALTER TABLE main.urm_base_item_deps ADD CONSTRAINT urm_base_item_deps_depitem_fk
 FOREIGN KEY (dep_baseitem_id)
+REFERENCES main.urm_base_item (baseitem_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE main.urm_base_data ADD CONSTRAINT urm_base_item_urm_base_data_fk
+FOREIGN KEY (baseitem_id)
 REFERENCES main.urm_base_item (baseitem_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION

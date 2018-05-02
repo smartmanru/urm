@@ -12,13 +12,14 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.EngineLoader;
-import org.urm.meta.EngineMatcher;
-import org.urm.meta.MatchItem;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
+import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.loader.EngineMatcher;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.ProductMeta;
@@ -38,7 +39,7 @@ public class DBMetaEnvServerDeployment {
 		MetaEnvServerDeployment deployment = new MetaEnvServerDeployment( storage.meta , server );
 		importxmlData( loader , storage , env , deployment , root );
 		
-		modifyDeployment( c , storage , env , deployment , true );
+		modifyDeployment( c , storage , env , server , deployment , true );
 		
 		return( deployment );
 	}
@@ -100,7 +101,7 @@ public class DBMetaEnvServerDeployment {
 		Common.exitUnexpected();
 	}
 	
-	public static void modifyDeployment( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvServerDeployment deployment , boolean insert ) throws Exception {
+	public static void modifyDeployment( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment deployment , boolean insert ) throws Exception {
 		if( insert )
 			deployment.ID = c.getNextSequenceValue();
 		
@@ -108,7 +109,7 @@ public class DBMetaEnvServerDeployment {
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppServerDeployment , deployment.ID , deployment.EV , new String[] {
 				EngineDB.getObject( env.ID ) ,
-				EngineDB.getObject( deployment.server.ID ) ,
+				EngineDB.getObject( server.ID ) ,
 				EngineDB.getEnum( deployment.SERVERDEPLOYMENT_TYPE ) ,
 				EngineDB.getMatchId( deployment.getCompMatchItem() ) ,
 				EngineDB.getMatchName( deployment.getCompMatchItem() ) ,
@@ -208,6 +209,15 @@ public class DBMetaEnvServerDeployment {
 				entity.exportxmlString( deployment.DBUSER ) ,
 				entity.exportxmlEnum( deployment.NODE_TYPE )
 		} , true );
+	}
+
+	public static void deleteDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment deployment ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppServerDeployment;
+		
+		DBEngineEntities.deleteAppObject( c , entity , deployment.ID , c.getNextEnvironmentVersion( env ) );
+		server.removeDeployment( deployment );
 	}
 	
 }

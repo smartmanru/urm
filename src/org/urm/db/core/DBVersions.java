@@ -8,7 +8,7 @@ import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumOwnerStatusType;
-import org.urm.meta.OwnerObjectVersion;
+import org.urm.meta.loader.OwnerObjectVersion;
 
 public abstract class DBVersions {
 

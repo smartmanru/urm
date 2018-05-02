@@ -8,6 +8,7 @@ import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaSourceProject;
@@ -16,8 +17,8 @@ public class GitVCS extends GenericVCS {
 
 	static String MASTERBRANCH = "master";
 
-	public GitVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell ) {
-		super( action , meta , res , shell );
+	public GitVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell , ProjectBuilder builder ) {
+		super( action , meta , res , shell , builder );
 	}
 
 	@Override
@@ -315,14 +316,13 @@ public class GitVCS extends GenericVCS {
 		if( !isValidRepositoryMasterPath( mirror , ITEMPATH ) )
 			return( false );
 			
-		if( !PATCHFOLDER.checkExists( action ) )
+		if( !shell.checkDirExists( action , PATCHFOLDER.folderPath ) )
 			action.exit1( _Error.MissingLocalDirectory1 , "local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
 
 		String baseName = Common.getBaseName( ITEMPATH );
-		if( PATCHFOLDER.checkPathExists( action , baseName ) ) {
-			String path = PATCHFOLDER.getFilePath( action , baseName );
+		String path = PATCHFOLDER.getFilePath( action , baseName );
+		if( shell.checkPathExists( action , path ) )
 			action.exit1( _Error.LocalDirectoryShouldNotExist1 , "local directory " + path + " should not exist" , path );
-		}
 		
 		MirrorCaseGit mc = getMasterMirrorCase( mirror );
 		mc.refreshRepository();
@@ -337,10 +337,13 @@ public class GitVCS extends GenericVCS {
 			shell.customCheckStatus( action , "git -C " + OSPATH + " archive " + ITEMPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
 		}
 		
-		if( name.isEmpty() == false && name.equals( baseName ) == false )
-			PATCHFOLDER.renameFile( action , baseName , name );
+		if( name.isEmpty() == false && name.equals( baseName ) == false ) {
+			String src = PATCHFOLDER.getFilePath( action , baseName );
+			String dst = PATCHFOLDER.getFilePath( action , name );
+			shell.move( action , src , dst );
+		}
 		
-		return( false );
+		return( true );
 	}
 
 	@Override 
@@ -485,7 +488,14 @@ public class GitVCS extends GenericVCS {
 		
 		String urlAuth = url;
 		String user = "";
-		if( !res.ac.isAnonymous() ) {
+		if( res.ac.isCurrentUser() ) {
+			user = res.ac.getUser( action );
+			String userEncoded = URLEncoder.encode( user , "UTF-8" );
+			String password = URLEncoder.encode( res.ac.getPassword( action ) , "UTF-8" );
+			urlAuth = Common.getPartBeforeFirst( url , "//" ) + "//" + userEncoded + ":" + password + "@" + Common.getPartAfterFirst( url , "//" );
+		}
+		else
+		if( res.ac.isCommon() ) {
 			user = res.ac.getUser( action );
 			String userEncoded = URLEncoder.encode( user , "UTF-8" );
 			String password = URLEncoder.encode( res.ac.getPassword( action ) , "UTF-8" );
@@ -521,6 +531,5 @@ public class GitVCS extends GenericVCS {
 		
 		return( "tag-" + TAG );
 	}
-
 	
 }

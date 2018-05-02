@@ -14,6 +14,7 @@ import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 import org.urm.engine.dist.ReleaseDistScopeSet;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -25,7 +26,6 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSources;
-import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.product.MetaSourceProject;
@@ -57,11 +57,10 @@ public class ActionSetScope extends ActionBase {
 		EngineMethod method = super.method;
 
 		Meta meta = release.getMeta();
-		ProductReleases releases = meta.getReleases();
-		ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-		Release releaseUpdated = method.changeRelease( repoUpdated , release );
-		
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
+			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			if( sourcePath ) {
 				if( !executeBySource( method , releaseUpdated ) )
 					return( SCOPESTATE.RunFail );

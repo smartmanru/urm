@@ -3,10 +3,14 @@ package org.urm.engine.transaction;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.engine.CallService;
+import org.urm.common.Common;
 import org.urm.engine.StateService;
 import org.urm.engine._Error;
+import org.urm.engine.action.ActionInit;
+import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMonitoring;
+import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductSessions;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
@@ -16,11 +20,6 @@ import org.urm.meta.product.ProductMeta;
 
 public class TransactionMetadata {
 
-	public class TransactionMetadataEnv {
-		public MetaEnv env;
-		CHANGETYPE envType;
-	};
-	
 	enum CHANGETYPE {
 		NOTHING ,
 		CREATE ,
@@ -31,6 +30,8 @@ public class TransactionMetadata {
 	};
 	
 	TransactionBase transaction;
+	TransactionProduct transactionProduct;
+	EngineProduct ep;
 	
 	CHANGETYPE productType;
 	
@@ -39,14 +40,12 @@ public class TransactionMetadata {
 	public ProductMeta metadata;
 	protected ProductMeta metadataOld;
 
-	private boolean matchedBeforeImport; 
-	
 	private List<TransactionMetadataEnv> transactionEnvs;
 	
-	public TransactionMetadata( TransactionBase transaction ) {
-		this.transaction = transaction;
-		
-		matchedBeforeImport = false;
+	public TransactionMetadata( TransactionProduct transaction , EngineProduct ep ) {
+		this.transactionProduct = transaction;
+		this.transaction = transaction.transaction;
+		this.ep = ep;
 		
 		transactionEnvs = new LinkedList<TransactionMetadataEnv>();
 	}
@@ -67,14 +66,15 @@ public class TransactionMetadata {
 		return( true );
 	}
 
-	public boolean importProduct( AppProduct product ) throws Exception {
+	public boolean importProduct( AppProduct product ) {
 		if( productType != null )
 			return( false );
 		
 		productType = CHANGETYPE.IMPORT;
 		this.product = product;
-		matchedBeforeImport = product.isMatched();
-		metadata = product.storage;
+		
+		EngineProduct ep = product.findEngineProduct();
+		metadata = ep.findDraftRevision();
 		return( true );
 	}
 
@@ -139,11 +139,16 @@ public class TransactionMetadata {
 		
 		productType = ( env )? CHANGETYPE.NOTHING : CHANGETYPE.CHANGE;
 		metadataOld = storage;
-		AppSystem system = storage.product.system;
-		metadata = storage.copy( transaction.getProducts() , storage.product , system.getParameters() );
 		
-		sessionMeta = transaction.action.getProductMetadata( meta.name );
-		sessionMeta.replaceStorage( transaction.action , metadata );
+		AppProduct product = storage.getProduct();
+		AppSystem system = product.system;
+		
+		ActionInit action = transaction.getAction();
+		metadata = storage.copy( action , system.getParameters() );
+		sessionMeta = ep.findSessionMeta( action , storage , true );
+		
+		EngineProductSessions sessions = ep.getSessions();
+		sessions.replaceStorage( transaction.action , sessionMeta , metadata );
 		transaction.trace( "transaction product storage meta: source=" + storage.objectId + ", copy=" + metadata.objectId );
 		return( true );
 	}
@@ -187,7 +192,7 @@ public class TransactionMetadata {
 
 	public boolean checkChangeEnv( MetaEnv env ) throws Exception {
 		if( productType != null && productType != CHANGETYPE.NOTHING && productType != CHANGETYPE.CHANGE ) {
-			transaction.error( "Unable to change product environment when reconstruction" );
+			Common.exit1( _Error.TransactionCannotChangeEnv1 , "Unable to change product environment when reconstruction, name=" + env.NAME , env.NAME );
 			return( false );
 		}
 
@@ -202,13 +207,18 @@ public class TransactionMetadata {
 		if( metadataOld == null )
 			return;
 
-		String name = metadataOld.name;
+		String name = metadataOld.NAME;
 		try {
-			if( save )
-				transaction.setProductMetadata( metadataOld );
+			if( save ) {
+				EngineDirectory directory = transaction.getDirectory();
+				AppProduct product = directory.getProduct( ep.productId );
+				transaction.updateRevision( product , metadataOld , null );
+			}
 			
-			if( productType != CHANGETYPE.DELETE && sessionMeta != null )
-				sessionMeta.replaceStorage( transaction.action , metadataOld );
+			if( productType != CHANGETYPE.DELETE && sessionMeta != null ) {
+				EngineProductSessions sessions = ep.getSessions();
+				sessions.replaceStorage( transaction.action , sessionMeta , metadataOld );
+			}
 			
 			productType = CHANGETYPE.NOTHING;
 			
@@ -226,29 +236,24 @@ public class TransactionMetadata {
 			if( metadataOld == null )
 				return( false );
 
-			AppProduct product = metadataOld.product;
-			deleteProductFinish( product , metadataOld );
 			transaction.deleteProductMetadata( metadataOld );
 			transaction.trace( "transaction product storage meta: delete=" + metadataOld.objectId );
 		}
-		else
-		if( productType == CHANGETYPE.IMPORT ) {
-			importProductFinish();
-		}
 		else {
 			if( metadata == null )
-				return( false );
+				return( true );
 				
-			AppProduct product = metadata.product;
-			transaction.setProductMetadata( metadata );
-			product.setStorage( metadata );
-			if( sessionMeta != null )
-				sessionMeta.replaceStorage( transaction.action , metadata );
+			EngineDirectory directory = transaction.getDirectory();
+			AppProduct product = directory.getProduct( ep.productId );
+			transaction.updateRevision( product , metadata , metadataOld );
+			
+			if( sessionMeta != null ) {
+				EngineProductSessions sessions = ep.getSessions();
+				sessions.replaceStorage( transaction.action , sessionMeta , metadata );
+			}
 			transaction.trace( "transaction product storage meta: save=" + metadata.objectId );
 			
-			if( productType == CHANGETYPE.CREATE )
-				createProductFinish( product );
-			else
+			if( productType != CHANGETYPE.CREATE )
 				modifyProductFinish( product , metadataOld , metadata );
 		}
 		
@@ -271,57 +276,17 @@ public class TransactionMetadata {
 		transaction.exit( _Error.TransactionMissingMetadataChanges0 , "Missing environment changes" , null );
 	}
 
-	private void createProductFinish( AppProduct product ) throws Exception {
-		StateService status = transaction.action.getServerStatus();
-		status.createProduct( transaction , product );
-		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.transactionCommitCreateProduct( transaction , product );
-		CallService jmx = transaction.engine.jmx;
-		jmx.addProduct( product );
-	}
-	
-	private void importProductFinish() throws Exception {
-		StateService status = transaction.action.getServerStatus();
-		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		CallService jmx = transaction.engine.jmx;
-
-		if( matchedBeforeImport ) {
-			status.deleteProduct( transaction , metadata );
-			mon.transactionCommitDeleteProduct( transaction , product );
-		}
-		
-		if( product.isMatched() ) {
-			status.createProduct( transaction , product );
-			mon.transactionCommitCreateProduct( transaction , product );
-			
-			if( !matchedBeforeImport )
-				jmx.addProduct( product );
-		}
-		else {
-			if( matchedBeforeImport )
-				jmx.deleteProduct( product );
-		}
-	}
-	
-	private void deleteProductFinish( AppProduct product , ProductMeta metadata ) throws Exception {
-		StateService status = transaction.action.getServerStatus();
-		status.deleteProduct( transaction , metadata );
-		EngineMonitoring mon = transaction.action.getServerMonitoring();
-		mon.transactionCommitDeleteProduct( transaction , product );
-		CallService jmx = transaction.engine.jmx;
-		jmx.deleteProduct( product );
-	}
-	
 	private void modifyProductFinish( AppProduct product , ProductMeta metadataOld , ProductMeta metadataNew ) throws Exception {
-		product.setStorage( metadataNew );
-		StateService status = transaction.action.getServerStatus();
+		StateService status = transaction.action.getEngineStatus();
 		status.modifyProduct( transaction , metadataOld , metadataNew );
-		EngineMonitoring mon = transaction.action.getServerMonitoring();
+		EngineMonitoring mon = transaction.action.getEngineMonitoring();
 		mon.transactionCommitModifyProduct( transaction , product );
 	}
 	
-	public boolean replaceProduct( ProductMeta storage ) throws Exception {
+	public boolean replaceProduct( ProductMeta storage , ProductMeta storageOld ) throws Exception {
 		metadata = storage;
+		metadataOld = storageOld;
+		productType = CHANGETYPE.RECREATE;
 		transaction.trace( "transaction recreate product storage meta=" + storage.objectId );
 		return( true );
 	}

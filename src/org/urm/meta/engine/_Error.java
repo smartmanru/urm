@@ -29,18 +29,13 @@ public class _Error {
 	public static final int LifecycleAlreadyExists1 = ErrorBase + 44;
 	public static final int UnknownLifecycle1 = ErrorBase + 45;
 	public static final int LifecycleWrongSettings1 = ErrorBase + 46;
-	public static final int InvalidVersion2 = ErrorBase + 47;
 	public static final int UnknownBaseGroup1 = ErrorBase + 48;
 	public static final int UnknownBaseItem1 = ErrorBase + 49;
 	public static final int UnknownDatacenter1 = ErrorBase + 50;
 	public static final int UnknownNetwork1 = ErrorBase + 51;
 	public static final int UnknownHost1 = ErrorBase + 52;
 	public static final int UnknownMirrorRepository1 = ErrorBase + 53;
-	public static final int DuplicateSystemNameUnmatched1 = ErrorBase + 54;
-	public static final int DuplicateProductNameUnmatched1 = ErrorBase + 55;
 	public static final int DuplicateEnvNameUnmatched2 = ErrorBase + 56;
-	public static final int UnknownSystem1 = ErrorBase + 57;
-	public static final int UnknownProduct1 = ErrorBase + 58;
 	public static final int MissingAdminUser0 = ErrorBase + 59;
 	public static final int UnknownLocalUser1 = ErrorBase + 60;
 	public static final int UnknownLdapUser1 = ErrorBase + 61;
@@ -48,5 +43,8 @@ public class _Error {
 	public static final int UnknownUser1 = ErrorBase + 63;
 	public static final int UnknownAccount1 = ErrorBase + 64;
 	public static final int UnknownDependencyBaseItem1 = ErrorBase + 65;
+	public static final int NotExpectedReleasecycleType1 = ErrorBase + 66;
+	public static final int MissingReleasecycleType0 = ErrorBase + 67;
+	public static final int InconsistentVersionAttributes0 = ErrorBase + 68;
 	
 }

@@ -1,5 +1,6 @@
 package org.urm.db.release;
 
+import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
@@ -9,16 +10,16 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.EngineLoader;
-import org.urm.meta.release.ProductReleases;
+import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseBuildTarget;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseDistItem;
-import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
 import org.urm.meta.release.ReleaseDistTarget;
+import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseTicket;
 import org.urm.meta.release.ReleaseTicketSet;
 import org.urm.meta.release.ReleaseTicketTarget;
@@ -41,10 +42,12 @@ public class DBReleaseData {
 	public static String TABLE_DISTITEM = "urm_rel_distitem";
 	public static String FIELD_RELEASE_ID = "release_id";
 	public static String FIELD_REPOSITORY_ID = "repo_id";
-	public static String FIELD_REPOSITORY_META_ID = "meta_fkid";
-	public static String FIELD_REPOSITORY_META_NAME = "meta_fkname";
+	public static String FIELD_REPOSITORY_NAME = "name";
+	public static String FIELD_REPOSITORY_DESC = "xdesc";
+	public static String FIELD_REPOSITORY_META_ID = "meta_id";
 	public static String FIELD_MAIN_ID = "release_id";
 	public static String FIELD_MAIN_REPO_ID = "repo_id";
+	public static String FIELD_MAIN_TRANSITION_REPO_ID = "transition_repo_id";
 	public static String FIELD_MAIN_DESC = "xdesc";
 	public static String FIELD_MAIN_LIFECYCLETYPE = "lifecycle_type";
 	public static String FIELD_MAIN_V1 = "v1";
@@ -88,6 +91,7 @@ public class DBReleaseData {
 	public static String FIELD_SCHEDULE_RELEASEDATEACTUAL = "release_date_actual";
 	public static String FIELD_SCHEDULE_COMPLETEDATEACTUAL = "complete_date_actual";
 	public static String FIELD_SCHEDULE_PHASE = "phase_current";
+	public static String FIELD_SCHEDULE_NAME = "schedule_name";
 	public static String FIELD_PHASE_ID = "phase_id";
 	public static String FIELD_PHASE_LCSTAGETYPE = "lifecyclestage_type";
 	public static String FIELD_PHASE_STAGEPOS = "stage_pos";
@@ -117,7 +121,7 @@ public class DBReleaseData {
 	public static String FIELD_DISTITEM_DISTTARGET_ID = "disttarget_id";
 	public static String FIELD_DISTITEM_DIST_ID = "dist_id";
 	public static String FIELD_DISTITEM_FILE = "targetfile";
-	public static String FIELD_DISTITEM_FILE_PATH = "targetfile_path";
+	public static String FIELD_DISTITEM_FILE_FOLDER = "targetfile_folder";
 	public static String FIELD_DISTITEM_FILE_HASH = "targetfile_hash";
 	public static String FIELD_DISTITEM_FILE_SIZE = "targetfile_size";
 	public static String FIELD_DISTITEM_FILE_TIME = "targetfile_time";
@@ -132,10 +136,9 @@ public class DBReleaseData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaString( ReleaseRepository.PROPERTY_NAME , "repository name" , true , null ) ,
-				EntityVar.metaStringVar( ReleaseRepository.PROPERTY_DESC , FIELD_MAIN_DESC , ReleaseRepository.PROPERTY_DESC , "repository description" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_REPOSITORY_META_ID , "product id" , DBEnumObjectType.APPPRODUCT , false ) ,
-				EntityVar.metaStringVar( ReleaseRepository.PROPERTY_PRODUCT , FIELD_REPOSITORY_META_NAME , ReleaseRepository.PROPERTY_PRODUCT , "product name" , false , null ) ,
+				EntityVar.metaString( FIELD_REPOSITORY_NAME , "repository name" , true , null ) ,
+				EntityVar.metaString( FIELD_REPOSITORY_DESC , "repository description" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_REPOSITORY_META_ID , "meta id" , DBEnumObjectType.META , false )
 		} ) );
 	}
 
@@ -148,6 +151,7 @@ public class DBReleaseData {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_MAIN_REPO_ID , "repo id" , DBEnumObjectType.RELEASE_REPOSITORY , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_MAIN_TRANSITION_REPO_ID , "transition repo id" , DBEnumObjectType.RELEASE_REPOSITORY , false ) ,
 				EntityVar.metaString( Release.PROPERTY_NAME , "release name" , true , null ) ,
 				EntityVar.metaStringVar( Release.PROPERTY_DESC , FIELD_MAIN_DESC , Release.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_MASTER , "master" , true , false ) ,
@@ -240,7 +244,7 @@ public class DBReleaseData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTITEM_DIST_ID , "release distributive id" , DBEnumObjectType.RELEASE_DIST , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTITEM_DISTTARGET_ID , "release target id" , DBEnumObjectType.RELEASE_DISTTARGET , true ) ,
 				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE , FIELD_DISTITEM_FILE , ReleaseDistItem.PROPERTY_FILE , "file name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_FOLDER , FIELD_DISTITEM_FILE_PATH , ReleaseDistItem.PROPERTY_FILE_FOLDER , "file path" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_FOLDER , FIELD_DISTITEM_FILE_FOLDER , ReleaseDistItem.PROPERTY_FILE_FOLDER , "file path" , false , null ) ,
 				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_HASH , FIELD_DISTITEM_FILE_HASH , ReleaseDistItem.PROPERTY_FILE_HASH , "file hash" , false , null ) ,
 				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_SIZE , FIELD_DISTITEM_FILE_SIZE , ReleaseDistItem.PROPERTY_FILE_SIZE , "file size" , false , null ) ,
 				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_TIME , FIELD_DISTITEM_FILE_TIME , ReleaseDistItem.PROPERTY_FILE_TIME , "file time" , false , null ) ,
@@ -263,7 +267,8 @@ public class DBReleaseData {
  				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL , FIELD_SCHEDULE_COMPLETEDATEACTUAL , ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL , "complete date actual" , false ) ,
 				EntityVar.metaBoolean( ReleaseSchedule.PROPERTY_RELEASEDSTATUS , "released status" , true , false ) ,
 				EntityVar.metaBoolean( ReleaseSchedule.PROPERTY_COMPLETEDSTATUS , "completed status" , true , false ) ,
-				EntityVar.metaIntegerVar( ReleaseSchedule.PROPERTY_PHASE , FIELD_SCHEDULE_PHASE , ReleaseSchedule.PROPERTY_PHASE , "current phase" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseSchedule.PROPERTY_SCHEDULE , FIELD_SCHEDULE_NAME , ReleaseSchedule.PROPERTY_SCHEDULE , "current phase" , false , null ) ,
+				EntityVar.metaIntegerVar( ReleaseSchedule.PROPERTY_PHASE , FIELD_SCHEDULE_PHASE , ReleaseSchedule.PROPERTY_PHASE , "current phase" , false , null )
 		} ) );
 	}
 
@@ -352,16 +357,15 @@ public class DBReleaseData {
 		} ) );
 	}
 
-	public static void dropAllMeta( EngineLoader loader , ProductReleases releases ) throws Exception {
-		int metaId = releases.meta.getId();
-		dropReleaseTickets( loader , metaId );
-		dropReleaseSchedule( loader , metaId );
-		dropReleaseCore( loader , metaId );
+	public static void dropAllMeta( DBConnection c , ProductMeta storage ) throws Exception {
+		int metaId = storage.ID;
+		dropReleaseTickets( c , metaId );
+		dropReleaseSchedule( c , metaId );
+		dropReleaseCore( c , metaId );
 	}
 
-	private static void dropReleaseCore( EngineLoader loader , int metaId ) throws Exception {
-		DBConnection c = loader.getConnection();
-		EngineEntities entities = loader.getEntities();
+	private static void dropReleaseCore( DBConnection c , int metaId ) throws Exception {
+		EngineEntities entities = c.getEntities();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistItem , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseBuildTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
@@ -370,19 +374,58 @@ public class DBReleaseData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseRepository , DBQueries.FILTER_REL_REPOMETA1 , new String[] { EngineDB.getInteger( metaId ) } );
 	}
 	
-	private static void dropReleaseSchedule( EngineLoader loader , int metaId ) throws Exception {
-		DBConnection c = loader.getConnection();
-		EngineEntities entities = loader.getEntities();
+	private static void dropReleaseSchedule( DBConnection c , int metaId ) throws Exception {
+		EngineEntities entities = c.getEntities();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleasePhase , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseSchedule , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 	}
 	
-	private static void dropReleaseTickets( EngineLoader loader , int metaId ) throws Exception {
-		DBConnection c = loader.getConnection();
-		EngineEntities entities = loader.getEntities();
+	private static void dropReleaseTickets( DBConnection c , int metaId ) throws Exception {
+		EngineEntities entities = c.getEntities();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTicketTarget , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTicket , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseTicketSet , DBQueries.FILTER_REL_META1 , new String[] { EngineDB.getInteger( metaId ) } );
+	}
+
+	public static void rematchReleases( EngineLoader loader , ReleaseRepository repo , ProductMeta storage , ProductMeta storageOld ) throws Exception {
+		DBConnection c = loader.getConnection();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHBUILDTARGETSRCSET2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHBUILDTARGETPROJECT2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETDELIVERY2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETBINARY2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETCONF2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETSCHEMA2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		if( !c.modify( DBQueries.MODIFY_REL_REMATCHDISTTARGETDOC2 , new String[] { 
+				EngineDB.getInteger( storageOld.ID ) ,
+				EngineDB.getInteger( storage.ID )
+				}) )
+			Common.exitUnexpected();
+		
+		DBReleaseRepository.changeRevision( c , repo.ID , storage );
 	}
 	
 }

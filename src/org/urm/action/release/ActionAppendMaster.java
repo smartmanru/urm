@@ -1,7 +1,7 @@
 package org.urm.action.release;
 
 import org.urm.action.ActionBase;
-import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
+import org.urm.db.core.DBEnums.*;
 import org.urm.db.release.DBRelease;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
@@ -11,11 +11,11 @@ import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 import org.urm.engine.dist.ReleaseDistScopeSet;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.dist.DistState.DISTSTATE;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
-import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
 
@@ -34,12 +34,12 @@ public class ActionAppendMaster extends ActionBase {
 		EngineMethod method = super.method;
 		
 		Meta meta = release.getMeta();
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repository
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
-			DistRepository distrepoUpdated = method.changeDistRepository( releases );
+			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
 			Dist dist = distrepoUpdated.findDefaultDist( releaseUpdated );
 			Dist master = distrepoUpdated.findDefaultMasterDist();
 

@@ -26,7 +26,7 @@ public class DistRepositoryItem {
 		DistRepositoryItem r = new DistRepositoryItem( rrepo );
 		r.RELEASEDIR = RELEASEDIR;
 		r.DISTPATH = DISTPATH;
-		r.dist = dist.copy( rrepo.meta , r , rreleaseDist );
+		r.dist = dist.copy( rreleaseDist.release.getMeta() , r , rreleaseDist );
 		return( r );
 	}
 	
@@ -54,7 +54,7 @@ public class DistRepositoryItem {
 			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
 		}
 		
-		dist = new Dist( repo.meta , this , releaseDist , distFolder );
+		dist = new Dist( releaseDist.release.getMeta() , this , releaseDist , distFolder );
 		dist.setFolder( distFolder );
 		dist.loadState( action );
 		return( dist );
@@ -94,7 +94,7 @@ public class DistRepositoryItem {
 		else
 			distFolder.ensureExists( action );
 		
-		Dist dist = new Dist( repo.meta , this , releaseDist , distFolder );
+		Dist dist = new Dist( releaseDist.release.getMeta() , this , releaseDist , distFolder );
 		dist.setFolder( distFolder );
 		dist.createMaster( action );
 		return( dist );

@@ -2,7 +2,6 @@ package org.urm.action.release;
 
 import org.urm.action.ActionBase;
 import org.urm.db.core.DBEnums.*;
-import org.urm.db.release.DBRelease;
 import org.urm.db.release.DBReleaseDist;
 import org.urm.db.release.DBReleaseRepository;
 import org.urm.engine.dist.Dist;
@@ -11,11 +10,11 @@ import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 import org.urm.engine.dist.ReleaseDistScopeSet;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
-import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
@@ -38,12 +37,11 @@ public class ActionCreateMaster extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			DistRepository distrepoUpdated = method.changeDistRepository( releases );
-			Dist src = distrepoUpdated.getDistByLabel( this , RELEASEVER );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
+			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
 			
 			// create release
 			Release releaseNew = DBReleaseRepository.createReleaseMaster( method , this , repoUpdated , RELEASEVER );
@@ -51,17 +49,13 @@ public class ActionCreateMaster extends ActionBase {
 			
 			// create distributive
 			if( copy ) {
-				dist = distrepoUpdated.createMasterCopy( method , this , src , release , releaseDist );
+				Dist src = distrepoUpdated.getDistByLabel( this , meta , RELEASEVER );
+				dist = distrepoUpdated.createMasterCopy( method , this , src , releaseNew , releaseDist );
 				createMasterFiles( dist , src );
-				if( !dist.finish( this ) )
-					return( SCOPESTATE.RunFail );
-				
-				// change meta
-				DBRelease.finish( method , this , releaseNew , dist );
-				dist.saveMetaFile( this );
 			}
-			else
-				dist = distrepoUpdated.createMasterInitial( this , release , releaseDist );
+			else {
+				dist = distrepoUpdated.createMasterInitial( this , releaseNew , releaseDist );
+			}
 			this.release = releaseNew;
 		}
 		

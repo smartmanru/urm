@@ -1,8 +1,8 @@
 
 CREATE TABLE main.urm_env (
                 env_id INTEGER NOT NULL,
-                meta_fkid INTEGER,
-                meta_fkname VARCHAR(30),
+                meta_id INTEGER NOT NULL,
+                transition_meta_id INTEGER,
                 matched BOOLEAN NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
@@ -121,6 +121,7 @@ CREATE TABLE main.urm_env_startgroup (
                 segment_id INTEGER NOT NULL,
                 name VARCHAR(30) NOT NULL,
                 xdesc VARCHAR,
+                pos INTEGER NOT NULL,
                 ev INTEGER NOT NULL,
                 CONSTRAINT urm_env_startgroup_pk PRIMARY KEY (startgroup_id)
 );

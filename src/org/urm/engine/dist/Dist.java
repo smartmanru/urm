@@ -11,9 +11,9 @@ import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.EngineLoader;
-import org.urm.meta.EngineLoaderReleases;
 import org.urm.meta.env.MetaEnvServerLocation;
+import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.loader.EngineLoaderReleases;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -147,6 +147,7 @@ public class Dist {
 		
 		state.checkDistDataChangeEnabled( action );
 		String parentFolder = getReleaseConfCompParentFolder( action , conf );
+		distFolder.ensureFolderExists( action , parentFolder );
 		distFolder.copyDirFromLocal( action , sourceFolder , parentFolder );
 	}
 	
@@ -157,6 +158,7 @@ public class Dist {
 		state.checkDistDataChangeEnabled( action );
 		String dstfolder = getReleaseBinaryFolder( action , distItem );
 		String dstname = DBASENAME + DEXT;
+		distFolder.ensureFolderExists( action , dstfolder );
 		distFolder.copyVFileFromLocal( action , sourceFolder , SNAME , dstfolder , dstname , DBASENAME , DEXT );
 	}
 
@@ -703,7 +705,7 @@ public class Dist {
 		// create empty release.xml
 		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
 		EngineLoader loader = action.engine.createLoader( action );
-		EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , meta.getStorage() );
+		EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , meta.getEngineProduct() );
 		loaderReleases.exportxmlReleaseDist( release , releaseDist , filePath );
 		distFolder.copyFileFromLocal( action , filePath );
 	}

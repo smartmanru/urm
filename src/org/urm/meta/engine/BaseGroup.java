@@ -6,7 +6,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.meta.EngineObject;
+import org.urm.meta.loader.EngineObject;
 
 public class BaseGroup extends EngineObject {
 
@@ -23,11 +23,13 @@ public class BaseGroup extends EngineObject {
 
 	public BaseCategory category;
 	Map<String,BaseItem> itemMap;
+	Map<Integer,BaseItem> itemMapById;
 
 	public BaseGroup( BaseCategory category ) {
 		super( category );
 		this.category = category;
 		itemMap = new HashMap<String,BaseItem>();
+		itemMapById = new HashMap<Integer,BaseItem>();
 		ID = -1;
 		CV = 0;
 		OFFLINE = false;
@@ -62,10 +64,12 @@ public class BaseGroup extends EngineObject {
 	
 	public void addItem( BaseItem item ) {
 		itemMap.put( item.NAME , item );
+		itemMapById.put( item.ID , item );
 	}
 
 	public void removeItem( BaseItem item ) {
 		itemMap.remove( item.NAME );
+		itemMapById.remove( item.ID );
 	}
 
 	public String[] getItemNames() {
@@ -80,6 +84,10 @@ public class BaseGroup extends EngineObject {
 		return( itemMap.get( name ) );
 	}
 	
+	public BaseItem findItem( int id ) {
+		return( itemMapById.get( id ) );
+	}
+	
 	public void createGroup( String name , String desc ) throws Exception {
 		OFFLINE = false;
 		modifyGroup( name , desc );
@@ -92,14 +100,6 @@ public class BaseGroup extends EngineObject {
 	
 	public void setOffline( boolean offline ) {
 		this.OFFLINE = offline;
-	}
-	
-	public void createItem( BaseItem item ) throws Exception {
-		addItem( item );
-	}
-	
-	public void deleteItem( BaseItem item ) throws Exception {
-		itemMap.remove( item.NAME );
 	}
 	
 	public void modifyItem( BaseItem item ) throws Exception {

@@ -11,7 +11,7 @@ import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.transaction.EngineTransaction;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.loader.EngineLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

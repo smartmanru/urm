@@ -54,12 +54,16 @@ public abstract class EngineCall implements Runnable {
     		action = sessionController.createRemoteAction( engine.serverAction , this , method , data );
     	}
     	catch( Throwable e ) {
+    		engine.serverAction.log( "call" , e );
     		notifyLog( e );
         	return( false );
     	}
     	
-    	if( action == null )
+    	if( action == null ) {
+    		engine.serverAction.error( "unknown action=" + actionName );
+    		notifyLog( "unknown action=" + actionName );
     		return( false );
+    	}
     	
         Thread thread = new Thread( null , this , getClass().getSimpleName() );
         sessionController.threadStarted( engine.serverAction , this );

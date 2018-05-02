@@ -4,7 +4,6 @@ import org.urm.action.ActionBase;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
-import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.AuthResource;
@@ -58,7 +57,7 @@ public class BuilderWinbuildMethod extends Builder {
 		// upload package
 		String nugetId = project.meta.name + ".project." + project.NAME; 
 		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -Properties id=" + nugetId;
-		LocalFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
+		RemoteFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
 		timeout = action.setTimeoutUnlimited();
 		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetPackCmd );
 		action.setTimeout( timeout );

@@ -302,9 +302,12 @@ public class DistState {
 
 		if( state != DISTSTATE.DIRTY ) {
 			String dataHashCurrent = getDataHashValue( action );
+			if( dataHashCurrent.equals( dataHash ) == false )
+				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, data hash value differs from declared (" + dataHash + " / " + dataHashCurrent + ")" );
+			
 			String metaHashCurrent = getMetaHashValue( action );
-			if( dataHashCurrent.equals( dataHash ) == false || metaHashCurrent.equals( metaHash ) == false )
-				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, hash value differs from declared" );
+			if( metaHashCurrent.equals( metaHash ) == false )
+				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, meta hash value differs from declared (" + metaHash + " / " + metaHashCurrent + ")" );
 		}
 	}
 

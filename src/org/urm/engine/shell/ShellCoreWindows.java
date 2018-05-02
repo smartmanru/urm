@@ -12,8 +12,8 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
-import org.urm.meta.Types.*;
 import org.urm.meta.engine.AuthResource;
+import org.urm.meta.loader.Types.*;
 
 public class ShellCoreWindows extends ShellCore {
 

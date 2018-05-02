@@ -2,13 +2,12 @@ package org.urm.meta.engine;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.urm.common.Common;
 import org.urm.engine.data.EngineBase;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.meta.EngineObject;
+import org.urm.meta.loader.EngineObject;
 import org.urm.db.core.DBEnums.*;
 
 public class BaseCategory extends EngineObject {
@@ -21,6 +20,7 @@ public class BaseCategory extends EngineObject {
 
 	public EngineBase base;
 	Map<String,BaseGroup> groupMap;
+	Map<Integer,BaseGroup> groupMapById;
 
 	public BaseCategory( EngineBase base ) {
 		super( null );
@@ -35,6 +35,7 @@ public class BaseCategory extends EngineObject {
 		this.NAME = NAME;
 		this.LABEL = type.name().toLowerCase();
 		groupMap = new HashMap<String,BaseGroup>();
+		groupMapById = new HashMap<Integer,BaseGroup>();
 	}
 	
 	@Override
@@ -54,6 +55,7 @@ public class BaseCategory extends EngineObject {
 	
 	public void addGroup( BaseGroup group ) {
 		groupMap.put( group.NAME , group );
+		groupMapById.put( group.ID , group );
 	}
 
 	public String[] getGroupNames() {
@@ -68,22 +70,21 @@ public class BaseCategory extends EngineObject {
 		return( groupMap.get( name ) );
 	}
 	
+	public BaseGroup findGroup( int id ) {
+		return( groupMapById.get( id ) );
+	}
+	
 	public void createGroup( BaseGroup group ) {
 		addGroup( group );
 	}
 	
 	public void removeGroup( BaseGroup group ) {
 		groupMap.remove( group.NAME );
+		groupMapById.remove( group.ID );
 	}
 	
-	public void modifyGroup( BaseGroup group ) {
-		String oldId = null;
-		for( Entry<String,BaseGroup> entry : groupMap.entrySet() ) {
-			if( entry.getValue() == group )
-				oldId = entry.getKey();
-		}
-		groupMap.remove( oldId );
-		addGroup( group );
+	public void modifyGroup( BaseGroup group ) throws Exception {
+		Common.changeMapKey( groupMap , group , group.NAME );
 	}
 
 }

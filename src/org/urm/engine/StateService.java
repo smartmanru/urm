@@ -20,13 +20,13 @@ import org.urm.engine.status.StatusSource;
 import org.urm.engine.status.SystemStatus;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 
@@ -205,22 +205,22 @@ public class StateService extends EngineObject {
 	}
 
 	public void modifyProduct( TransactionBase transaction , ProductMeta storageOld , ProductMeta storageNew ) throws Exception {
-		EngineStatusProduct productStatus = products.get( storageOld.name );
+		EngineStatusProduct productStatus = products.get( storageOld.NAME );
 		if( productStatus == null )
 			return;
 		
 		productStatus.modifyProduct( transaction , storageOld , storageNew );
 	}
 	
-	public synchronized void deleteProduct( TransactionBase transaction , ProductMeta storage ) {
-		EngineStatusProduct productStatus = products.get( storage.name );
+	public synchronized void deleteProduct( TransactionBase transaction , AppProduct product ) {
+		EngineStatusProduct productStatus = products.get( product.NAME );
 		if( productStatus == null )
 			return;
 		
 		productStatus.stop( transaction.getAction() );
-		products.remove( storage.name );
+		products.remove( product.NAME );
 		
-		deleteGlobalSource( StatusType.PRODUCT , storage.name );
+		deleteGlobalSource( StatusType.PRODUCT , product.NAME );
 	}
 
 	private EngineStatusProduct getProductStatus( Meta meta ) {
@@ -255,9 +255,8 @@ public class StateService extends EngineObject {
 	}
 	
 	private void startProduct( ActionBase action , AppProduct product ) {
-		ProductMeta storage = product.storage;
-		if( storage == null ) {
-			action.trace( "ignore status for non-healthy product=" + product.NAME );
+		if( product.isOffline() ) {
+			action.trace( "ignore status for offline product=" + product.NAME );
 			return;
 		}
 		
@@ -265,9 +264,8 @@ public class StateService extends EngineObject {
 		action.trace( "start status tracking for product=" + product.NAME + " ..." );
 		createGlobalSource( StatusType.PRODUCT , product , product.NAME , new ProductStatus( product ) );
 		
-		Meta meta = storage.meta;
-		EngineStatusProduct productStatus = new EngineStatusProduct( this , product , meta );
-		products.put( meta.name , productStatus );
+		EngineStatusProduct productStatus = new EngineStatusProduct( this , product );
+		products.put( product.NAME , productStatus );
 		
 		productStatus.start( action );
 	}

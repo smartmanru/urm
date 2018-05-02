@@ -1,4 +1,4 @@
-package org.urm.meta;
+package org.urm.meta.loader;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -23,14 +23,13 @@ import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
+import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine._Error;
-import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 
 public class EngineLoader {
@@ -204,14 +203,8 @@ public class EngineLoader {
 	}
 
 	public LocalFolder getProductHomeFolder( String productName ) throws Exception {
-		Meta meta = action.actionInit.findActiveProductMetadata( productName );
-		if( meta == null ) {
-			String path = Common.getPath( execrc.installPath , "products/" + productName );
-			LocalFolder folder = new LocalFolder( path , execrc.isWindows() );
-			return( folder );
-		}
-		
-		ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , meta );
+		AppProduct product = action.findProduct( productName );
+		ProductStorage storageMeta = action.artefactory.getMetadataStorage( action , product );
 		LocalFolder folder = storageMeta.getHomeFolder( action );
 		return( folder );
 	}
@@ -355,6 +348,16 @@ public class EngineLoader {
 		return( ldp.createProductMetadata( product , forceClearMeta , forceClearDist ) );
 	}
 	
+	public ProductMeta createProductRevision( AppProduct product , String name , boolean forceClearMeta ) throws Exception {
+		trace( "create engine product=" + product.NAME + " revision=" + name + " ..." );
+		return( ldp.createProductRevision( product , name , forceClearMeta ) );
+	}
+	
+	public ProductMeta copyProductRevision( AppProduct product , String name , ProductMeta src ) throws Exception {
+		trace( "copy engine product=" + product.NAME + " revision=" + src.NAME + " to revision=" + name + " ..." );
+		return( ldp.copyProductRevision( product , name , src ) );
+	}
+	
 	private void exportProduct( Integer productId ) throws Exception {
 		EngineDirectory directory = data.getDirectory();
 		AppProduct product = directory.getProduct( productId );
@@ -367,11 +370,11 @@ public class EngineLoader {
 		EngineDirectory directory = data.getDirectory();
 		AppProduct product = directory.getProduct( productId );
 		
-		if( !transaction.importProduct( product ) )
+		if( !transaction.requestImportProduct( product ) )
 			Common.exitUnexpected();
 		
 		trace( "import engine product=" + product.NAME + " data ..." );
-		ldp.importProduct( product , includingEnvironments );
+		ldp.importProduct( product , EngineProductRevisions.REVISION_INITIAL , includingEnvironments );
 	}
 	
 	public void loadProducts( boolean update ) throws Exception {

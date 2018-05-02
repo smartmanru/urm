@@ -47,6 +47,7 @@ CREATE TABLE main.urm_project_builder (
                 target_platform VARCHAR(64),
                 builder_remote BOOLEAN NOT NULL,
                 remote_account_id INTEGER,
+                remote_mirrorpath VARCHAR,
                 cv INTEGER NOT NULL,
                 CONSTRAINT urm_project_builder_pk PRIMARY KEY (builder_id)
 );

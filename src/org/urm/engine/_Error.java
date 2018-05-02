@@ -15,7 +15,6 @@ public class _Error {
 	public static final int TransactionMissingDirectoryChanges0 = ErrorBase + 25;
 	public static final int TransactionMissingSettingsChanges0 = ErrorBase + 26;
 	public static final int TransactionMissingMetadataChanges0 = ErrorBase + 27;
-	public static final int MasterpathEmpty0 = ErrorBase + 28;
 	public static final int UnknownCallSession1 = ErrorBase + 31;
 	public static final int InternalTransactionError1 = ErrorBase + 32;
 	public static final int TransactionMissingInfrastructureChanges0 = ErrorBase + 33;
@@ -25,6 +24,7 @@ public class _Error {
 	public static final int TransactionMissingReleaseLifecyclesChanges0 = ErrorBase + 38;
 	public static final int TransactionMissingAuthChanges0 = ErrorBase + 39;
 	public static final int TransactionMissingImportChanges0 = ErrorBase + 40;
+	public static final int TransactionCannotChangeEnv1 = ErrorBase + 41;
 	
 	
 }

@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaSourceProject;
 
 public class ProjectVersionControl {
@@ -15,10 +16,14 @@ public class ProjectVersionControl {
 		this.action = action;
 		this.artefactory = action.artefactory;
 	}
-	
+
 	private GenericVCS getVCS( MetaSourceProject project ) throws Exception {
+		return( getVCS( project , null ) );
+	}
+	
+	private GenericVCS getVCS( MetaSourceProject project , ProjectBuilder builder ) throws Exception {
 		MirrorRepository repo = project.getMirror( action );
-		return( GenericVCS.getVCS( action , project.meta , repo.RESOURCE_ID ) );
+		return( GenericVCS.getVCS( action , project.meta , repo.RESOURCE_ID , false , builder ) );
 	}
 
 	public String checkDefaultBranch( GenericVCS vcs , String BRANCH ) {
@@ -157,12 +162,12 @@ public class ProjectVersionControl {
 		return( false );
 	}
 
-	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE ) {
+	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE , ProjectBuilder builder ) {
 		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
 			action.info( "export PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
-			GenericVCS vcs = getVCS( project );
+			GenericVCS vcs = getVCS( project , builder );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			res = vcs.export( project , PATCHFOLDER , BRANCH , TAG , SINGLEFILE );
 		}

@@ -8,10 +8,12 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandOptions;
 import org.urm.engine.SessionService;
-import org.urm.engine._Error;
 import org.urm.engine.action.ActionInit;
-import org.urm.meta.EngineObject;
+import org.urm.engine.products.EngineProduct;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthContext;
+import org.urm.meta.engine.AuthUser;
+import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
 
 public class EngineSession extends EngineObject {
@@ -37,7 +39,6 @@ public class EngineSession extends EngineObject {
 	
 	private boolean closed;
 	
-	private Map<String,Meta> productMeta;
 	private Map<Integer,Meta> productMetaById;
 	private SessionSecurity security;
 	
@@ -54,7 +55,6 @@ public class EngineSession extends EngineObject {
 		this.SG = clientrc.sgName;
 		
 		timestamp = Common.getNameTimeStamp();
-		productMeta = new HashMap<String,Meta>();
 		productMetaById = new HashMap<Integer,Meta>();
 		closed = false;
 	}
@@ -75,31 +75,23 @@ public class EngineSession extends EngineObject {
 	}
 
 	public void releaseMeta( ActionInit action ) throws Exception {
-		for( String product : Common.getSortedKeys( productMeta ) ) {
-			Meta meta = productMeta.get( product );
+		for( Meta meta : productMetaById.values().toArray( new Meta[0] ) )
 			controller.releaseSessionProductMetadata( action , meta );
-		}
 	}
 	
 	public boolean isClosed() {
 		return( closed );
 	}
 	
-	public synchronized Meta findMeta( String productName ) {
-		return( productMeta.get( productName ) );
-	}
-
 	public synchronized Meta findMeta( int metaId ) {
 		return( productMetaById.get( metaId ) );
 	}
 
 	public synchronized void addProductMeta( Meta meta ) {
-		productMeta.put( meta.name , meta );
 		productMetaById.put( meta.getId() , meta );
 	}
 	
 	public synchronized void releaseProductMeta( Meta meta ) {
-		productMeta.remove( meta.name );
 		productMetaById.remove( meta.getId() );
 	}
 	
@@ -109,6 +101,10 @@ public class EngineSession extends EngineObject {
 	
 	public AuthContext getLoginAuth() {
 		return( security.getContext() );
+	}
+	
+	public AuthUser getUser() {
+		return( security.getUser() );
 	}
 	
 	public void setServerLayout( CommandOptions options ) throws Exception {
@@ -151,6 +147,13 @@ public class EngineSession extends EngineObject {
 
 	public SessionSecurity getSecurity() {
 		return( security );
+	}
+
+	public void reloadProductMetadata( ActionInit action , AppProduct product ) throws Exception {
+		for( Meta meta : productMetaById.values().toArray( new Meta[0] ) ) {
+			EngineProduct ep = meta.getEngineProduct();
+			ep.reloadSessionMeta( action , meta.getStorage() );
+		}
 	}
 	
 }

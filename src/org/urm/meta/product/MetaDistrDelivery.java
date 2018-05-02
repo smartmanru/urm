@@ -1,6 +1,8 @@
 package org.urm.meta.product;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
@@ -34,8 +36,8 @@ public class MetaDistrDelivery {
 	private Map<Integer,MetaDistrBinaryItem> mapBinaryItemsById;
 	private Map<String,MetaDistrConfItem> mapConfComps;
 	private Map<Integer,MetaDistrConfItem> mapConfCompsById;
-	private Map<Integer,MetaDatabaseSchema> mapDatabaseSchema;
-	private Map<Integer,MetaProductDoc> mapDocuments;
+	private Map<Integer,DBEnumChangeType> mapDatabaseSchema;
+	private Map<Integer,DBEnumChangeType> mapDocuments;
 	
 	public MetaDistrDelivery( Meta meta , MetaDistr dist , MetaDatabase db , MetaDocs docs ) {
 		this.meta = meta;
@@ -47,8 +49,8 @@ public class MetaDistrDelivery {
 		mapBinaryItemsById = new HashMap<Integer,MetaDistrBinaryItem>();
 		mapConfComps = new HashMap<String,MetaDistrConfItem>();
 		mapConfCompsById = new HashMap<Integer,MetaDistrConfItem>();
-		mapDatabaseSchema = new HashMap<Integer,MetaDatabaseSchema>();
-		mapDocuments = new HashMap<Integer,MetaProductDoc>();
+		mapDatabaseSchema = new HashMap<Integer,DBEnumChangeType>();
+		mapDocuments = new HashMap<Integer,DBEnumChangeType>();
 
 		ID = -1;
 		PV = -1;
@@ -56,7 +58,7 @@ public class MetaDistrDelivery {
 		DOC_ANY = false;
 	}
 
-	public MetaDistrDelivery copy( Meta meta , MetaDistr distr , MetaDatabase rdb , MetaDocs rdocs ) throws Exception {
+	public MetaDistrDelivery copy( Meta meta , MetaDistr distr , MetaDatabase rdb , MetaDocs rdocs , boolean all ) throws Exception {
 		MetaDistrDelivery r = new MetaDistrDelivery( meta , distr , rdb , rdocs );
 		r.ID = ID;
 		r.UNIT_ID = UNIT_ID; 
@@ -68,24 +70,28 @@ public class MetaDistrDelivery {
 		r.PV = PV;
 		r.CHANGETYPE = CHANGETYPE;
 		
-		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
-			MetaDistrBinaryItem ritem = item.copy( meta , r );
-			r.addBinaryItem( ritem );
-		}
-			
-		for( MetaDistrConfItem item : mapConfComps.values() ) {
-			MetaDistrConfItem ritem = item.copy( meta , r );
-			r.addConfItem( ritem );
-		}
-			
-		for( MetaDatabaseSchema item : mapDatabaseSchema.values() ) {
-			MetaDatabaseSchema ritem = rdb.getSchema( item.NAME );
-			r.addSchema( ritem );
-		}
-			
-		for( MetaProductDoc item : mapDocuments.values() ) {
-			MetaProductDoc ritem = rdocs.getDoc( item.NAME );
-			r.addDocument( ritem );
+		if( all ) {
+			for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
+				MetaDistrBinaryItem ritem = item.copy( meta , r );
+				r.addBinaryItem( ritem );
+			}
+				
+			for( MetaDistrConfItem item : mapConfComps.values() ) {
+				MetaDistrConfItem ritem = item.copy( meta , r );
+				r.addConfItem( ritem );
+			}
+				
+			for( int id : mapDatabaseSchema.keySet() ) {
+				MetaDatabaseSchema ritem = rdb.getSchema( id );
+				DBEnumChangeType changeType = mapDatabaseSchema.get( id );
+				r.addSchema( ritem , changeType );
+			}
+				
+			for( int id : mapDocuments.keySet() ) {
+				MetaProductDoc ritem = rdocs.getDoc( id );
+				DBEnumChangeType changeType = mapDocuments.get( id );
+				r.addDocument( ritem , changeType );
+			}
 		}
 			
 		return( r );
@@ -213,16 +219,28 @@ public class MetaDistrDelivery {
 			return( db.getSchemaNames() );
 		
 		Map<String,MetaDatabaseSchema> set = new HashMap<String,MetaDatabaseSchema>();
-		for( MetaDatabaseSchema schema : mapDatabaseSchema.values() )
+		for( int id : mapDatabaseSchema.keySet() ) {
+			MetaDatabaseSchema schema = db.findSchema( id );
 			set.put( schema.NAME , schema );
+		}
 		return( Common.getSortedKeys( set ) );
+	}
+
+	public Integer[] getSchemaIds() {
+		return( mapDatabaseSchema.keySet().toArray( new Integer[0] ) );
 	}
 	
 	public MetaDatabaseSchema[] getDatabaseSchemes() {
 		if( SCHEMA_ANY )
 			return( db.getSchemaList() );
 			
-		return( mapDatabaseSchema.values().toArray( new MetaDatabaseSchema[0] ) );
+		List<MetaDatabaseSchema> list = new LinkedList<MetaDatabaseSchema>();
+		for( String name : getDatabaseSchemaNames() ) {
+			MetaDatabaseSchema schema = db.findSchema( name );
+			list.add( schema );
+		}
+			
+		return( list.toArray( new MetaDatabaseSchema[0] ) );
 	}
 
 	public String[] getDocNames() {
@@ -230,8 +248,10 @@ public class MetaDistrDelivery {
 			return( docs.getDocNames() );
 		
 		Map<String,MetaProductDoc> set = new HashMap<String,MetaProductDoc>();
-		for( MetaProductDoc doc : mapDocuments.values() )
+		for( int id : mapDocuments.keySet() ) {
+			MetaProductDoc doc = docs.findDoc( id );
 			set.put( doc.NAME , doc );
+		}
 		return( Common.getSortedKeys( set ) );
 	}
 	
@@ -239,9 +259,19 @@ public class MetaDistrDelivery {
 		if( DOC_ANY )
 			return( docs.getDocList() );
 			
-		return( mapDocuments.values().toArray( new MetaProductDoc[0] ) );
+		List<MetaProductDoc> list = new LinkedList<MetaProductDoc>();
+		for( String name : getDocNames() ) {
+			MetaProductDoc doc = docs.findDoc( name );
+			list.add( doc );
+		}
+			
+		return( list.toArray( new MetaProductDoc[0] ) );
 	}
 
+	public Integer[] getDocIds() {
+		return( mapDocuments.keySet().toArray( new Integer[0] ) );
+	}
+	
 	public boolean hasBinaryItems() {
 		if( mapBinaryItems.isEmpty() )
 			return( false );
@@ -341,17 +371,17 @@ public class MetaDistrDelivery {
 			mapDatabaseSchema.clear();
 	}
 
-	public void addSchema( MetaDatabaseSchema schema ) throws Exception {
+	public void addSchema( MetaDatabaseSchema schema , DBEnumChangeType changeType ) throws Exception {
 		SCHEMA_ANY = false;
-		mapDatabaseSchema.put( schema.ID , schema );
+		mapDatabaseSchema.put( schema.ID , changeType );
 	}
 	
-	public void setDatabaseSet( MetaDatabaseSchema[] set ) throws Exception {
-		SCHEMA_ANY = false;
-			
-		mapDatabaseSchema.clear();
-		for( MetaDatabaseSchema schema : set )
-			addSchema( schema );
+	public DBEnumChangeType getSchemaChangeType( MetaDatabaseSchema schema ) {
+		return( mapDatabaseSchema.get( schema.ID ) );
+	}
+	
+	public DBEnumChangeType getSchemaChangeType( int id ) {
+		return( mapDatabaseSchema.get( id ) );
 	}
 	
 	public void removeDoc( MetaProductDoc doc ) throws Exception {
@@ -364,17 +394,17 @@ public class MetaDistrDelivery {
 			mapDocuments.clear();
 	}
 	
-	public void addDocument( MetaProductDoc doc ) throws Exception {
+	public void addDocument( MetaProductDoc doc , DBEnumChangeType changeType ) throws Exception {
 		DOC_ANY = false;
-		mapDocuments.put( doc.ID , doc );
+		mapDocuments.put( doc.ID , changeType );
 	}
 	
-	public void setDocSet( MetaProductDoc[] set ) throws Exception {
-		DOC_ANY = false;
-			
-		mapDocuments.clear();
-		for( MetaProductDoc doc : set )
-			addDocument( doc );
+	public DBEnumChangeType getDocChangeType( MetaProductDoc doc ) {
+		return( mapDocuments.get( doc.ID ) );
+	}
+	
+	public DBEnumChangeType getDocChangeType( int id ) {
+		return( mapDocuments.get( id ) );
 	}
 	
 	public void clearUnit() throws Exception {

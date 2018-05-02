@@ -7,14 +7,14 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.dist.ReleaseLabelInfo;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.EngineLoader;
-import org.urm.meta.EngineLoaderReleases;
+import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.loader.EngineLoaderReleases;
 import org.urm.meta.product.Meta;
-import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
@@ -34,11 +34,11 @@ public class ActionImportRelease extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
 		
-		ProductReleases releases = meta.getReleases();
-		synchronized( releases ) {
+		EngineProduct ep = meta.getEngineProduct();
+		synchronized( ep ) {
 			// update repositories
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
-			DistRepository distrepoUpdated = method.changeDistRepository( releases );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
+			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
 			
 			// create release
 			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( this , meta , RELEASELABEL );
@@ -56,7 +56,7 @@ public class ActionImportRelease extends ActionBase {
 			dist.copyDistToFolder( this , workFolder , fileName );
 			
 			EngineLoader loader = engine.createLoader( method , this );
-			EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , meta.getStorage() );
+			EngineLoaderReleases loaderReleases = new EngineLoaderReleases( loader , ep );
 			String filePath = workFolder.getFilePath( this ,  fileName );
 			DBReleaseDist.updateHash( method , this , release , releaseDist , dist );
 			loaderReleases.importxmlReleaseDist( release , releaseDist , dist , filePath );

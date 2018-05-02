@@ -7,10 +7,11 @@ import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.ReleaseLabelInfo;
+import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseRepository;
 
 abstract public class CommandMethod {
 
@@ -28,9 +29,10 @@ abstract public class CommandMethod {
 
 	public Release getRelease( ActionBase action , String RELEASELABEL ) throws Exception {
 		Meta meta = action.getContextMeta();
-		ReleaseRepository repo = meta.getReleaseRepository();
 		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , RELEASELABEL );
-		Release release = repo.findRelease( info.RELEASEVER );
+		EngineProduct ep = meta.getEngineProduct();
+		EngineProductReleases releases = ep.getReleases();
+		Release release = releases.findRelease( info.RELEASEVER );
 		if( release == null )
 			action.exit0( _Error.UnknownRelease1 , "unable to find release version=" + info.RELEASEVER );
 		return( release );
@@ -38,8 +40,9 @@ abstract public class CommandMethod {
 	
 	public Dist getDist( ActionBase action , String RELEASELABEL ) throws Exception {
 		Meta meta = action.getContextMeta();
-		DistRepository distrepo = meta.getDistRepository();
-		return( distrepo.getDistByLabel( action , RELEASELABEL ) );
+		EngineProduct ep = meta.getEngineProduct();
+		DistRepository distrepo = ep.getDistRepository();
+		return( distrepo.getDistByLabel( action , meta , RELEASELABEL ) );
 	}
 	
 	protected ActionScope getServerScope( ActionBase action , int posFrom ) throws Exception {

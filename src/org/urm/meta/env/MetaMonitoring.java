@@ -3,26 +3,25 @@ package org.urm.meta.env;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.urm.meta.product.Meta;
-import org.urm.meta.product.ProductMeta;
+import org.urm.common.Common;
 
 public class MetaMonitoring {
 
-	public Meta meta;
+	public ProductEnvs envs;
 	
 	private Map<Integer,MetaMonitoringTarget> mapTargets;
 
-	public MetaMonitoring( ProductMeta storage , Meta meta ) {
-		this.meta = meta;
+	public MetaMonitoring( ProductEnvs envs ) {
+		this.envs = envs;
 		
 		mapTargets = new HashMap<Integer,MetaMonitoringTarget>();
 	}
 	
-	public MetaMonitoring copy( Meta rmeta ) throws Exception {
-		MetaMonitoring r = new MetaMonitoring( rmeta.getStorage() , rmeta );
+	public MetaMonitoring copy( ProductEnvs renvs ) throws Exception {
+		MetaMonitoring r = new MetaMonitoring( renvs );
 		
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
-			MetaMonitoringTarget rtarget = target.copy( meta , r );
+			MetaMonitoringTarget rtarget = target.copy( renvs , r );
 			r.addTarget( rtarget );
 		}
 		
@@ -37,7 +36,7 @@ public class MetaMonitoring {
 		mapTargets.put( target.ID , target );
 	}
 
-	public MetaMonitoringTarget findMonitoringTarget( MetaEnvSegment sg ) {
+	public MetaMonitoringTarget findTarget( MetaEnvSegment sg ) {
 		for( MetaMonitoringTarget target : mapTargets.values() ) {
 			if( target.SEGMENT_ID == sg.ID )
 				return( target );
@@ -45,4 +44,11 @@ public class MetaMonitoring {
 		return( null );
 	}
 
+	public MetaMonitoringTarget getTarget( int id ) throws Exception {
+		MetaMonitoringTarget target = mapTargets.get( id );
+		if( target == null )
+			Common.exitUnexpected();
+		return( target );
+	}
+	
 }

@@ -11,11 +11,11 @@ import org.urm.engine.DataService;
 import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.shell.Account;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
 
@@ -314,17 +314,6 @@ public class MetaEnvSegment extends EngineObject {
 	public void getApplicationReferences( HostAccount account , List<AccountReference> refs ) {
 		for( MetaEnvServer server : serverMap.values() )
 			server.getApplicationReferences( account , refs );
-	}
-
-	public void setStartInfo( MetaEnvStartInfo startInfo ) throws Exception {
-		this.startInfo = startInfo;
-		for( MetaEnvServer server : serverMap.values() )
-			server.setStartGroup( null );
-		
-		for( MetaEnvStartGroup group : startInfo.getForwardGroupList() ) {
-			for( MetaEnvServer server : group.getServers() )
-				server.setStartGroup( group );
-		}
 	}
 
 	public boolean isConfUsed( MetaDistrConfItem item ) throws Exception {

@@ -14,9 +14,9 @@ import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.engine.Engine;
 import org.urm.engine.data.EngineEntities;
-import org.urm.meta.OwnerObjectVersion;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.loader.OwnerObjectVersion;
 import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.Release;
 
@@ -336,7 +336,7 @@ public class DBConnection {
 	public synchronized int getNextProductVersion( ProductMeta storage , boolean delete ) throws Exception {
 		OwnerObjectVersion version = getObjectVersion( storage.ID , DBEnumObjectVersionType.PRODUCT );
 		if( version.nextVersion < 0 ) {
-			version.LAST_NAME = storage.name;
+			version.LAST_NAME = storage.NAME;
 			version.OWNER_STATUS_TYPE = ( delete )? DBEnumOwnerStatusType.DELETED : DBEnumOwnerStatusType.ACTIVE;
 			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
 		}

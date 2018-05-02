@@ -26,7 +26,7 @@ public abstract class Builder {
 	public String TAG;
 	public String APPVERSION;
 	
-	public LocalFolder CODEPATH;
+	public RemoteFolder CODEPATH;
 	
 	abstract public boolean prepareSource( ActionBase action ) throws Exception;
 	abstract public boolean checkSourceCode( ActionBase action ) throws Exception;
@@ -90,7 +90,7 @@ public abstract class Builder {
 		// drop old
 		RedistStorage storage = action.artefactory.getRedistStorage( action , action.shell.account );
 		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "build-" + action.ID );
-		LocalFolder buildParent = action.getLocalFolder( buildFolder.folderPath );
+		RemoteFolder buildParent  = buildFolder.getParentFolder( action );
 		buildParent.ensureExists( action );
 		
 		CODEPATH = buildParent.getSubFolder( action , project.NAME );
@@ -99,7 +99,7 @@ public abstract class Builder {
 		// checkout
 		ProjectVersionControl vcs = new ProjectVersionControl( action );
 		LocalFolder path = action.getLocalFolder( CODEPATH.folderPath );
-		if( !vcs.export( path , project , "" , TAG , "" ) ) {
+		if( !vcs.export( path , project , "" , TAG , "" , builder ) ) {
 			action.error( "patchCheckout: having problem to export code" );
 			return( false );
 		}

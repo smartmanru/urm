@@ -4,10 +4,9 @@ import java.io.File;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumOSType;
-import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.DistRepository;
+import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
@@ -74,14 +73,6 @@ public class Artefactory {
 		return( folder );
 	}
 	
-	public Dist getDistStorageByLabel( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
-
-		DistRepository repo = meta.getDistRepository();
-		Dist storage = repo.getDistByLabel( action , RELEASELABEL );
-		return( storage );
-	}
-	
 	public BaseRepository getBaseRepository( ActionBase action ) throws Exception {
 		BaseRepository repo = BaseRepository.getBaseRepository( action , this );
 		return( repo );
@@ -134,8 +125,8 @@ public class Artefactory {
 		return( new SourceStorage( this , meta , downloadFolder ) );
 	}
 	
-	public ProductStorage getMetadataStorage( ActionBase action , Meta meta ) throws Exception {
-		return( new ProductStorage( this , meta ) );
+	public ProductStorage getMetadataStorage( ActionBase action , AppProduct product ) throws Exception {
+		return( new ProductStorage( this , product ) );
 	}
 
 	public LogStorage getReleaseBuildLogStorage( ActionBase action , Meta meta , String release ) throws Exception {

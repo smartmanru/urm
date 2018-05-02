@@ -21,6 +21,7 @@ public class ReleaseSchedule {
 	public static String PROPERTY_RELEASEDSTATUS = "released";
 	public static String PROPERTY_COMPLETEDSTATUS = "completed";
 	public static String PROPERTY_PHASE = "phase";
+	public static String PROPERTY_SCHEDULE = "schedule";
 	
 	public Release release;
 	
@@ -31,6 +32,7 @@ public class ReleaseSchedule {
 	public Date COMPLETE_DATE_ACTUAL;
 	public boolean RELEASED;
 	public boolean COMPLETED;
+	public String SCHEDULE_NAME;
 	public int CURRENT_PHASE;
 	public int RV;
 
@@ -59,6 +61,7 @@ public class ReleaseSchedule {
 		r.COMPLETE_DATE_ACTUAL = COMPLETE_DATE_ACTUAL;
 		r.RELEASED = RELEASED;
 		r.COMPLETED = COMPLETED;
+		r.SCHEDULE_NAME = SCHEDULE_NAME;
 		r.CURRENT_PHASE = CURRENT_PHASE;
 		r.RV = RV;
 		
@@ -66,16 +69,19 @@ public class ReleaseSchedule {
 			ReleaseSchedulePhase rphase = phase.copy( rrelease , r );
 			r.addPhase( rphase );
 		}
+		
+		r.updatePhaseCounts();
 	}
 
 	public void create( Date DATE_STARTED , Date RELEASE_DATE , Date RELEASE_DATE_ACTUAL , Date COMPLETE_DATE_ACTUAL ,
-			boolean RELEASED , boolean COMPLETED , int CURRENT_PHASE ) throws Exception {
+			boolean RELEASED , boolean COMPLETED , String SCHEDULE_NAME , int CURRENT_PHASE ) throws Exception {
 		this.DATE_STARTED = DATE_STARTED;
 		this.RELEASE_DATE = RELEASE_DATE;
 		this.RELEASE_DATE_ACTUAL = RELEASE_DATE_ACTUAL;
 		this.COMPLETE_DATE_ACTUAL = COMPLETE_DATE_ACTUAL;
 		this.RELEASED = RELEASED;
 		this.COMPLETED = COMPLETED;
+		this.SCHEDULE_NAME = SCHEDULE_NAME;
 		this.CURRENT_PHASE = CURRENT_PHASE;
 	}
 
@@ -83,8 +89,14 @@ public class ReleaseSchedule {
 		phases.add( phase );
 	}
 	
+	public boolean isDefined() {
+		if( phases.isEmpty() )
+			return( false );
+		return( true );
+	}
+	
 	public void sortPhases() throws Exception {
-		getPhaseCounts();
+		updatePhaseCounts();
 		
 		Map<String,ReleaseSchedulePhase> map = new HashMap<String,ReleaseSchedulePhase>();
 		for( ReleaseSchedulePhase phase : phases ) {
@@ -106,7 +118,7 @@ public class ReleaseSchedule {
 		}
 	}
 	
-	public void getPhaseCounts() {
+	private void updatePhaseCounts() {
 		releasePhaseCount = 0; 
 		deployPhaseCount = 0;
 		
@@ -125,6 +137,7 @@ public class ReleaseSchedule {
 		COMPLETE_DATE_ACTUAL = null;  
 		RELEASED = false;
 		COMPLETED = false;
+		SCHEDULE_NAME = "";
 		CURRENT_PHASE = -1;
 		
 		releasePhaseCount = 0;
@@ -133,16 +146,19 @@ public class ReleaseSchedule {
 
 	public void createNormal( Date date ) {
 		DATE_STARTED = new Date();
+		SCHEDULE_NAME = "";
 		CURRENT_PHASE = -1;
 		phases.clear();
 		RELEASE_DATE = date;
 	}
 	
 	public void createReleaseSchedule( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+		SCHEDULE_NAME = "";
 		CURRENT_PHASE = ( lc == null )? -1 : 0;
 		phases.clear();
 		
 		if( lc != null ) {
+			SCHEDULE_NAME = lc.NAME;
 			if( !lc.ENABLED )
 				Common.exit1( _Error.DisabledLifecycle1 , "Release lifecycle " + lc.NAME + " is currently disabled" , lc.NAME );
 			
@@ -153,7 +169,7 @@ public class ReleaseSchedule {
 				phases.add( phase );
 			}
 			
-			getPhaseCounts();
+			updatePhaseCounts();
 			if( releasePhaseCount > 0 ) {
 				ReleaseSchedulePhase phase = getPhase( 0 );
 				phase.startPhase( DATE_STARTED );
@@ -316,11 +332,13 @@ public class ReleaseSchedule {
 			}
 		}
 
-		CURRENT_PHASE = releasePhaseCount;
 		if( deployPhaseCount > 0 ) {
+			CURRENT_PHASE = releasePhaseCount;
 			ReleaseSchedulePhase phase = getPhase( releasePhaseCount );
 			phase.startPhase( date );
 		}
+		else
+			CURRENT_PHASE = -1;
 	}
 	
 	public void complete( ActionBase action ) throws Exception {

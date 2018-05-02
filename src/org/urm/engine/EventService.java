@@ -8,7 +8,7 @@ import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.events.EngineEventsTimer;
 import org.urm.engine.events.NotifyEvent;
 import org.urm.engine.events.SourceEvent;
-import org.urm.meta.EngineObject;
+import org.urm.meta.loader.EngineObject;
 
 public class EventService extends EngineObject {
 

@@ -1,4 +1,4 @@
-package org.urm.meta;
+package org.urm.meta.loader;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -9,16 +9,13 @@ import org.urm.db.product.DBMetaDatabase;
 import org.urm.db.product.DBMetaDistr;
 import org.urm.db.product.DBMetaDocs;
 import org.urm.db.product.DBMetaSettings;
-import org.urm.db.product.DBMetaPolicy;
 import org.urm.db.product.DBMetaSources;
 import org.urm.db.product.DBMetaUnits;
-import org.urm.engine.data.EngineProducts;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDocs;
-import org.urm.meta.product.MetaProductVersion;
 import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
@@ -41,8 +38,6 @@ public class EngineLoaderMeta {
 	public ProductMeta set;
 	public Meta meta;
 
-	public MetaProductVersion versionNew;
-	
 	public EngineLoaderMeta( EngineLoader loader , ProductMeta set ) {
 		this.loader = loader;
 		this.set = set;
@@ -70,7 +65,7 @@ public class EngineLoaderMeta {
 			docs.addDiagram( diagram );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductDiagram2 , e , "unable to load design metadata, product=" + set.name + ", diagram=" + diagramName , set.name , diagramName );
+			loader.setLoadFailed( action , _Error.UnableLoadProductDiagram2 , e , "unable to load design metadata, product=" + set.NAME + ", diagram=" + diagramName , set.NAME , diagramName );
 		}
 	}
 
@@ -93,10 +88,8 @@ public class EngineLoaderMeta {
 	public void exportxmlAll( ProductStorage ms ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
-		trace( "export product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
-		exportxmlMeta( ms );
+		trace( "export product data, name=" + set.NAME + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
 		exportxmlSettings( ms );
-		exportxmlPolicy( ms );
 		exportxmlUnits( ms );
 		exportxmlDatabase( ms );
 		exportxmlSources( ms );
@@ -107,10 +100,9 @@ public class EngineLoaderMeta {
 	}
 	
 	public void createdbAll( ProductContext context ) throws Exception {
-		trace( "create product data, name=" + set.name + " ..." );
-		createdbMeta();
+		trace( "create product data, name=" + set.NAME + " ..." );
+		createdbMeta( context );
 		createdbSettings( context );
-		createdbPolicy();
 		createdbUnits();
 		createdbDatabase();
 		createdbSources();
@@ -121,10 +113,8 @@ public class EngineLoaderMeta {
 	public void loaddbAll( ProductContext context ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
-		trace( "load engine product data, name=" + set.name + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
-		loaddbMeta();
+		trace( "load engine product data, name=" + set.NAME + ", version=" + c.getCurrentProductVersion( set ) + " ..." );
 		loaddbSettings( context );
-		loaddbPolicy();
 		loaddbUnits();
 		loaddbDatabase();
 		loaddbSources();
@@ -133,9 +123,7 @@ public class EngineLoaderMeta {
 	}
 
 	public void importxmlAll( ProductStorage ms , ProductContext context ) throws Exception {
-		importxmlMeta( ms );
 		importxmlSettings( ms , context );
-		importxmlPolicy( ms );
 		importxmlUnits( ms );
 		importxmlDatabase( ms );
 		importxmlSources( ms );
@@ -143,34 +131,27 @@ public class EngineLoaderMeta {
 		importxmlDistr( ms );
 	}
 	
-	public ProductMeta copydbAll( EngineProducts products , ProductContext context ) throws Exception {
-		trace( "create product data, name=" + set.name + " ..." );
-		ProductMeta dst = new ProductMeta( products , context.product );
+	public void copydbAll( ProductContext context , ProductMeta src ) throws Exception {
+		trace( "create product revision, name=" + set.NAME + " ..." );
 		TransactionBase transaction = loader.getTransaction();
-		copydbMeta( transaction , dst );
-		copydbSettings( transaction , dst , context );
-		copydbPolicy( transaction , dst );
-		copydbUnits( transaction , dst );
-		copydbDatabase( transaction , dst );
-		copydbSources( transaction , dst );
-		copydbDocs( transaction , dst );
-		copydbDistr( transaction , dst );
-		return( dst );
+		
+		copydbMeta( transaction , src , context );
+		copydbSettings( transaction , src , context );
+		copydbUnits( transaction , src );
+		copydbDatabase( transaction , src );
+		copydbSources( transaction , src );
+		copydbDocs( transaction , src );
+		copydbDistr( transaction , src );
 	}
 
-	private void createdbMeta() throws Exception {
+	private void createdbMeta( ProductContext context ) throws Exception {
 		trace( "create product meta data ..." );
-		DBMeta.createdb( loader , set );
+		DBMeta.createdb( loader , context.product , set );
 	}
 
 	private void createdbSettings( ProductContext context ) throws Exception {
 		trace( "create product settings data ..." );
-		DBMetaSettings.createdb( loader , set , context );
-	}
-	
-	private void createdbPolicy() throws Exception {
-		trace( "create product policy data ..." );
-		DBMetaPolicy.createdb( loader , set );
+		DBMetaSettings.createdb( loader , context.product , set , context );
 	}
 	
 	private void createdbUnits() throws Exception {
@@ -198,19 +179,9 @@ public class EngineLoaderMeta {
 		DBMetaDistr.createdb( loader , set );
 	}
 	
-	private void loaddbMeta() throws Exception {
-		trace( "load product meta data ..." );
-		DBMeta.loaddb( loader , set );
-	}
-
 	private void loaddbSettings( ProductContext context ) throws Exception {
 		trace( "load product settings data ..." );
 		DBMetaSettings.loaddb( loader , set , context );
-	}
-	
-	private void loaddbPolicy() throws Exception {
-		trace( "load product policy data ..." );
-		DBMetaPolicy.loaddb( loader , set );
 	}
 	
 	private void loaddbUnits() throws Exception {
@@ -238,33 +209,6 @@ public class EngineLoaderMeta {
 		DBMetaDistr.loaddb( loader , set );
 	}
 	
-	private void importxmlMeta( ProductStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		try {
-			// read
-			String file = ms.getVersionConfFile( action );
-			action.debug( "read product version file " + file + "..." );
-			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
-			Node root = doc.getDocumentElement();
-
-			DBMeta.importxml( loader , set , root );
-		}
-		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );
-		}
-	}
-
-	private void exportxmlMeta( ProductStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		String file = ms.getVersionConfFile( action );
-		action.debug( "export product version file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( XML_ROOT_VERSION );
-		Element root = doc.getDocumentElement();
-
-		DBMeta.exportxml( loader , set , doc , root );
-		ProductStorage.saveDoc( doc , file );
-	}
-
 	private void importxmlSettings( ProductStorage ms , ProductContext context ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
@@ -274,10 +218,11 @@ public class EngineLoaderMeta {
 			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
 			Node root = doc.getDocumentElement();
 
+			DBMeta.importxml( loader , context.product , set , root );
 			DBMetaSettings.importxml( loader , set , context , root );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductSettings1 , e , "unable to import settings metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductSettings1 , e , "unable to import settings metadata, product=" + set.NAME , set.NAME );
 		}
 	}
 	
@@ -292,33 +237,6 @@ public class EngineLoaderMeta {
 		ProductStorage.saveDoc( doc , file );
 	}
 	
-	private void importxmlPolicy( ProductStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		try {
-			// read
-			String file = ms.getPolicyConfFile( action );
-			action.debug( "read product policy file " + file + "..." );
-			Document doc = ConfReader.readXmlFile( action.session.execrc , file );
-			Node root = doc.getDocumentElement();
-			
-			DBMetaPolicy.importxml( loader , set , root );
-		}
-		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductVersion1 , e , "unable to import version metadata, product=" + set.name , set.name );
-		}
-	}
-
-	private void exportxmlPolicy( ProductStorage ms ) throws Exception {
-		ActionBase action = loader.getAction();
-		String file = ms.getPolicyConfFile( action );
-		action.debug( "export product policy file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( XML_ROOT_POLICY );
-		Element root = doc.getDocumentElement();
-		
-		DBMetaPolicy.exportxml( loader , set , doc , root );
-		ProductStorage.saveDoc( doc , file );
-	}
-
 	private void importxmlUnits( ProductStorage ms ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
@@ -331,7 +249,7 @@ public class EngineLoaderMeta {
 			DBMetaUnits.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductUnits1 , e , "unable to import units metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductUnits1 , e , "unable to import units metadata, product=" + set.NAME , set.NAME );
 		}
 	}
 	
@@ -358,7 +276,7 @@ public class EngineLoaderMeta {
 			DBMetaDatabase.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductDatabase1 , e , "unable to import database metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductDatabase1 , e , "unable to import database metadata, product=" + set.NAME , set.NAME );
 		}
 	}
 	
@@ -385,7 +303,7 @@ public class EngineLoaderMeta {
 			DBMetaSources.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductSources1 , e , "unable to import source metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductSources1 , e , "unable to import source metadata, product=" + set.NAME , set.NAME );
 		}
 	}
 	
@@ -412,7 +330,7 @@ public class EngineLoaderMeta {
 			DBMetaDocs.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductDocs1 , e , "unable to import documentation metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductDocs1 , e , "unable to import documentation metadata, product=" + set.NAME , set.NAME );
 		}
 	}
 	
@@ -439,7 +357,7 @@ public class EngineLoaderMeta {
 			DBMetaDistr.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductDistr1 , e , "unable to import distributive metadata, product=" + set.name , set.name );
+			loader.setLoadFailed( action , _Error.UnableLoadProductDistr1 , e , "unable to import distributive metadata, product=" + set.NAME , set.NAME );
 		}
 	}
 
@@ -458,40 +376,39 @@ public class EngineLoaderMeta {
 		loader.trace( s );
 	}
 
-	private void copydbMeta( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product meta data ..." );
-		DBMeta.copydb( transaction , set , dst );
+	private void copydbMeta( TransactionBase transaction , ProductMeta src , ProductContext context ) throws Exception {
+		trace( "copy revision meta data ..." );
+		DBMeta.copydb( transaction , context.product , src , set );
 	}
 
-	private void copydbSettings( TransactionBase transaction , ProductMeta dst , ProductContext context ) throws Exception {
-		trace( "create product settings data ..." );
-		DBMetaSettings.copydb( transaction , set , context , dst );
+	private void copydbSettings( TransactionBase transaction , ProductMeta src , ProductContext context ) throws Exception {
+		trace( "create revision settings data ..." );
+		DBMetaSettings.copydb( transaction , src , context , set );
 	}
 	
-	private void copydbPolicy( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product policy data ..." );
-		DBMetaPolicy.copydb( transaction , set , dst );
+	private void copydbUnits( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision units data ..." );
+		DBMetaUnits.copydb( transaction , src , set );
 	}
 
-	private void copydbUnits( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product units data ..." );
-		DBMetaUnits.copydb( transaction , set , dst );
+	private void copydbDatabase( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision database data ..." );
+		DBMetaDatabase.copydb( transaction , src , set );
 	}
 
-	private void copydbDatabase( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product database data ..." );
-		DBMetaDatabase.copydb( transaction , set , dst );
+	private void copydbSources( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision sources ..." );
+		DBMetaSources.copydb( transaction , src , set );
 	}
 
-	private void copydbSources( TransactionBase transaction , ProductMeta dst ) throws Exception {
-		trace( "copy product sources ..." );
-		DBMetaSources.copydb( transaction , set , dst );
+	private void copydbDocs( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision docs ..." );
+		DBMetaDocs.copydb( transaction , src , set );
 	}
 
-	private void copydbDocs( TransactionBase transaction , ProductMeta dst ) throws Exception {
-	}
-
-	private void copydbDistr( TransactionBase transaction , ProductMeta dst ) throws Exception {
+	private void copydbDistr( TransactionBase transaction , ProductMeta src ) throws Exception {
+		trace( "copy revision distributive ..." );
+		DBMetaDistr.copydb( transaction , src , set );
 	}
 
 }

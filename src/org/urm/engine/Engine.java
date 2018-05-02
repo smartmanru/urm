@@ -38,7 +38,7 @@ import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.EngineLoader;
+import org.urm.meta.loader.EngineLoader;
 
 public class Engine {
 
@@ -88,7 +88,7 @@ public class Engine {
 		auth = new AuthService( this );
 		events = new EventService( this );
 		scheduler = new ScheduleService( this ); 
-		sessions = new SessionService( this , data );
+		sessions = new SessionService( this );
 		status = new StateService( this );
 		blotter = new BlotterService( this );
 		
@@ -209,6 +209,10 @@ public class Engine {
 
 	public boolean isRunning() {
 		return( running );
+	}
+	
+	public BlotterService getBlotterService() {
+		return( blotter );
 	}
 	
 	public boolean prepareWeb() throws Exception {

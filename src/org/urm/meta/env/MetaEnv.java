@@ -10,12 +10,13 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.DataService;
 import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.data.EngineResources;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.HostAccount;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.ProductMeta;
@@ -50,6 +51,7 @@ public class MetaEnv extends EngineObject {
 	// table data
 	private ObjectProperties ops;
 	public int ID;
+	public Integer TRANSITION_META_ID;
 	public boolean MATCHED;
 	public String NAME;
 	public String DESC;
@@ -99,6 +101,7 @@ public class MetaEnv extends EngineObject {
 		r.ops = ops.copy( rparent );
 		
 		r.ID = ID;
+		r.TRANSITION_META_ID = TRANSITION_META_ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.ENV_TYPE = ENV_TYPE;
@@ -111,6 +114,9 @@ public class MetaEnv extends EngineObject {
 		r.EV = EV;
 		r.MATCHED = MATCHED;
 		
+		if( rmeta.isDraft() && r.isProd() )
+			r.OFFLINE = true;
+		
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvSegment rsg = sg.copy( rmeta , r );
 			r.addSegment( rsg );
@@ -120,6 +126,10 @@ public class MetaEnv extends EngineObject {
 		return( r );
 	}
 
+	public EngineProduct getEngineProduct() {
+		return( meta.ep );
+	}
+	
 	public void createSettings( ObjectProperties ops ) throws Exception {
 		this.ops = ops;
 	}
@@ -185,8 +195,19 @@ public class MetaEnv extends EngineObject {
 		DISTR_REMOTE = distRemote;
 		DISTR_ACCOUNT = MatchItem.copy( distAccountMatchItem );
 		DISTR_PATH = distPath;
+		
+		if( meta.isDraft() && isProd() )
+			OFFLINE = true;
 	}
 
+	public void setTransition( Integer id ) {
+		this.TRANSITION_META_ID = id;
+	}
+	
+	public boolean isOnline() {
+		return( !OFFLINE );
+	}
+	
 	public void refreshProperties() throws Exception {
 		refreshPrimaryProperties();
 		for( MetaEnvSegment sg : sgMap.values() )

@@ -15,6 +15,8 @@ import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.BaseItem;
 import org.urm.meta.engine.HostAccount;
+import org.urm.meta.loader.EngineObject;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -23,8 +25,6 @@ import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 
 public class MetaEnvServer extends EngineObject {
 
@@ -449,9 +449,9 @@ public class MetaEnvServer extends EngineObject {
 	
 	public String getFullBinPath() throws Exception {
 		if( ROOTPATH.isEmpty() )
-			Common.exitUnexpected();
+			Common.exit1( _Error.MissingRootPath1 , "missing root path server=" + NAME , NAME );
 		if( BINPATH.isEmpty() )
-			Common.exitUnexpected();
+			Common.exit1( _Error.MissingBinPath1 , "missing bin path server=" + NAME , NAME );
 		return( Common.getPath( ROOTPATH , BINPATH ) );
 	}
 	
@@ -1038,6 +1038,12 @@ public class MetaEnvServer extends EngineObject {
 		return( true );
 	}
 	
+	public boolean hasStartGroup() {
+		if( startGroup == null ) 
+			return( false );
+		return( true );
+	}
+	
 	public boolean hasDependencies() {
 		if( nlbServer != null )
 			return( true );
@@ -1048,6 +1054,38 @@ public class MetaEnvServer extends EngineObject {
 		if( !subordinateServers.isEmpty() )
 			return( true );
 		return( false );
+	}
+
+	public MetaEnvServerDeployment findBinaryItemDeployment( MetaDistrBinaryItem item ) {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isBinaryItem( item ) )
+				return( deployment );
+		}
+		return( null );
+	}
+	
+	public MetaEnvServerDeployment findConfItemDeployment( MetaDistrConfItem item ) {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isConfItem( item ) )
+				return( deployment );
+		}
+		return( null );
+	}
+	
+	public MetaEnvServerDeployment findDatabaseSchemaDeployment( MetaDatabaseSchema schema ) {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isSchema( schema ) )
+				return( deployment );
+		}
+		return( null );
+	}
+
+	public MetaEnvServerDeployment findComponentDeployment( MetaDistrComponent comp ) {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isComponent( comp ) )
+				return( deployment );
+		}
+		return( null );
 	}
 	
 }

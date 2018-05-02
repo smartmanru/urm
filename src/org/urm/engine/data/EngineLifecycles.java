@@ -8,11 +8,10 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
-import org.urm.meta.EngineObject;
-import org.urm.meta.MatchItem;
 import org.urm.meta.engine.LifecyclePhase;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.engine._Error;
+import org.urm.meta.loader.EngineObject;
 
 public class EngineLifecycles extends EngineObject {
 
@@ -46,20 +45,17 @@ public class EngineLifecycles extends EngineObject {
 		return( lcMap.get( name ) );
 	}
 
-	public ReleaseLifecycle findLifecycle( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( lcMapById.get( item.FKID ) );
-		return( lcMap.get( item.FKNAME ) );
+	public ReleaseLifecycle findLifecycle( int id ) {
+		return( lcMapById.get( id ) );
 	}
 
-	public ReleaseLifecycle getLifecycle( MatchItem item ) throws Exception {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( getLifecycle( item.FKID ) );
-		return( getLifecycle( item.FKNAME ) );
+	public String findLifecycleName( Integer id ) {
+		if( id != null ) {
+			ReleaseLifecycle lc = lcMapById.get( id );
+			if( lc != null )
+				return( lc.NAME );
+		}
+		return( "" );
 	}
 
 	public ReleaseLifecycle getLifecycle( String name ) throws Exception {
@@ -105,22 +101,4 @@ public class EngineLifecycles extends EngineObject {
 		lcMapById.remove( lc.ID );
 	}
 
-	public MatchItem matchLifecycle( String name ) throws Exception {
-		if( name == null || name.isEmpty() )
-			return( null );
-		
-		ReleaseLifecycle lc = findLifecycle( name );
-		if( lc == null )
-			return( new MatchItem( name ) );
-		return( new MatchItem( lc.ID ) );
-	}
-
-	public MatchItem matchLifecycle( Integer id , String name ) throws Exception {
-		if( id == null && name.isEmpty() )
-			return( null );
-		ReleaseLifecycle lc = ( id == null )? findLifecycle( name ) : getLifecycle( id );
-		MatchItem match = ( lc == null )? new MatchItem( name ) : new MatchItem( lc.ID );
-		return( match );
-	}
-	
 }

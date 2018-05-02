@@ -27,7 +27,7 @@ public class BuilderAntMethod extends Builder {
 	@Override 
 	public boolean runBuild( ActionBase action ) throws Exception {
 		// ant params
-		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using ant " + builder.VERSION + " ..." );
+		action.info( "build PATCHPATH=" + CODEPATH.getLocalPath( action ) + " using ant " + builder.VERSION + " ..." );
 		PropertySet props = super.createProperties( action , project );
 
 		// set environment
@@ -52,7 +52,7 @@ public class BuilderAntMethod extends Builder {
 		
 		action.info( "execute: " + ANT_CMD );
 		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusCheckErrors( action , CODEPATH.folderPath , ANT_CMD );
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , ANT_CMD );
 		action.setTimeout( timeout );
 
 		if( status != 0 ) {

@@ -9,7 +9,7 @@ import org.urm.engine.StateService.StatusType;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
-import org.urm.meta.EngineObject;
+import org.urm.meta.loader.EngineObject;
 
 public class StatusSource extends EngineEventsSource {
 

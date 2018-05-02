@@ -36,7 +36,7 @@ public class MetaDistrComponent {
 		mapWSByItemId = new HashMap<Integer,MetaDistrComponentItem>();
 	}
 
-	public MetaDistrComponent copy( Meta rmeta , MetaDistr rdistr ) throws Exception {
+	public MetaDistrComponent copy( Meta rmeta , MetaDistr rdistr , boolean all ) throws Exception {
 		MetaDistrComponent r = new MetaDistrComponent( rmeta , rdistr );
 		r.ID = ID;
 		r.NAME = NAME;
@@ -44,24 +44,26 @@ public class MetaDistrComponent {
 		r.PV = PV;
 		r.CHANGETYPE = CHANGETYPE;
 		
-		for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
-			MetaDistrComponentItem ritem = item.copy( rmeta , r );
-			r.addBinaryItem( ritem );
-		}
-		
-		for( MetaDistrComponentItem item : mapConfItemsById.values() ) {
-			MetaDistrComponentItem ritem = item.copy( rmeta , r );
-			r.addConfItem( ritem );
-		}
-		
-		for( MetaDistrComponentItem item : mapSchemaItemsById.values() ) {
-			MetaDistrComponentItem ritem = item.copy( rmeta , r );
-			r.addSchemaItem( ritem );
-		}
-
-		for( MetaDistrComponentItem item : mapWSByItemId.values() ) {
-			MetaDistrComponentItem ritem = item.copy( rmeta , r );
-			r.addWebService( ritem );
+		if( all ) {
+			for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
+				MetaDistrComponentItem ritem = item.copy( rmeta , r );
+				r.addBinaryItem( ritem );
+			}
+			
+			for( MetaDistrComponentItem item : mapConfItemsById.values() ) {
+				MetaDistrComponentItem ritem = item.copy( rmeta , r );
+				r.addConfItem( ritem );
+			}
+			
+			for( MetaDistrComponentItem item : mapSchemaItemsById.values() ) {
+				MetaDistrComponentItem ritem = item.copy( rmeta , r );
+				r.addSchemaItem( ritem );
+			}
+	
+			for( MetaDistrComponentItem item : mapWSByItemId.values() ) {
+				MetaDistrComponentItem ritem = item.copy( rmeta , r );
+				r.addWebService( ritem );
+			}
 		}
 		
 		return( r );

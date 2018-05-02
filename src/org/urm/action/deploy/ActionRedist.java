@@ -22,10 +22,10 @@ import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.Types.*;
 
 public class ActionRedist extends ActionBase {
 

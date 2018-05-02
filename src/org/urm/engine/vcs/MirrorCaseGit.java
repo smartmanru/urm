@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.AuthResource;
@@ -43,13 +44,13 @@ public class MirrorCaseGit extends MirrorCase {
 		useBranchMirror();
 		
 		LocalFolder comp = getComponentFolder();
-		if( comp.checkExists( action ) ) {
+		if( shell.checkDirExists( action , comp.folderPath ) ) {
 			if( !checkCompEmpty() )
 				action.exit1( _Error.MirrorDirectoryNotEmpty1 , "Target mirror folder is not empty - " + mirror.RESOURCE_DATA , mirror.RESOURCE_DATA );
 			return;
 		}
 		
-		comp.ensureExists( action );
+		shell.ensureDirExists( action , comp.folderPath );
 		LocalFolder branch = getBranchFolder();
 		vcs.addDirToCommit( mirror , branch , mirror.RESOURCE_DATA );
 		vcs.commitMasterFolder( mirror , branch , mirror.RESOURCE_DATA , "add mirror component" );
@@ -65,7 +66,7 @@ public class MirrorCaseGit extends MirrorCase {
 		useBranchMirror();
 		
 		LocalFolder compFolder = getComponentFolder();
-		if( !compFolder.checkExists( action ) ) {
+		if( !shell.checkDirExists( action , compFolder.folderPath ) ) {
 			String OSPATH = shell.getLocalPath( compFolder.folderPath );
 			action.exit2( _Error.MissingRepoMirrorDirectory1 , "Missing mirror repository directory: " , OSPATH , OSPATH );
 		}
@@ -229,17 +230,17 @@ public class MirrorCaseGit extends MirrorCase {
 		String BASENAME = exportFolder.getBaseName( action );
 		
 		if( FILENAME.isEmpty() ) {
-			if( !BASEDIR.checkExists( action ) )
-				action.exit1( _Error.MissingLocalDirectory1 , "Local directory " + BASEDIR.folderPath + " does not exist" , BASEDIR.folderPath );
-			if( exportFolder.checkExists( action ) )
-				action.exit1( _Error.LocalDirectoryShouldNotExist1 , "Local directory " + exportFolder.folderPath + " should not exist" , exportFolder.folderPath );
+			if( !shell.checkDirExists( action , BASEDIR.folderPath ) )
+				action.exit1( _Error.MissingLocalDirectory1 , "Local directory " + shell.getLocalPath( BASEDIR.folderPath ) + " does not exist" , shell.getLocalPath( BASEDIR.folderPath ) );
+			if( shell.checkDirExists( action , exportFolder.folderPath ) )
+				action.exit1( _Error.LocalDirectoryShouldNotExist1 , "Local directory " + shell.getLocalPath( exportFolder.folderPath ) + " should not exist" , shell.getLocalPath( exportFolder.folderPath ) );
 			
 			// export file or subdir
-			exportFolder.ensureExists( action );
-			if( SUBPATH.isEmpty() ) {
+			shell.ensureDirExists( action , exportFolder.folderPath );
+			if( SUBPATH.isEmpty() || SUBPATH.equals( "/" ) ) {
 				if( shell.isWindows() ) {
 					String WINPATH = getBareOSPath();
-					String WINPATHPROJECT = exportFolder.getLocalPath( action );
+					String WINPATHPROJECT = shell.getLocalPath( exportFolder.folderPath );
 					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + GITBRANCHTAG + " " + 
 							" . | ( cd /D " + WINPATHPROJECT + " & tar x --exclude pax_global_header)" );
 				}
@@ -254,7 +255,7 @@ public class MirrorCaseGit extends MirrorCase {
 				
 				if( shell.isWindows() ) {
 					String WINPATH = getBareOSPath();
-					String WINPATHPROJECT = exportFolder.getLocalPath( action );
+					String WINPATHPROJECT = shell.getLocalPath( exportFolder.folderPath );
 					String WINPATHSUB = Common.getWinPath( SUBPATH );
 					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + GITBRANCHTAG + " " + 
 							WINPATHSUB + " | ( cd /D " + WINPATHPROJECT + " & tar x " + WINPATHSUB + " " + STRIPOPTION + " )" );
@@ -266,16 +267,16 @@ public class MirrorCaseGit extends MirrorCase {
 			}
 		}
 		else {
-			if( !exportFolder.checkExists( action ) )
-				action.exit1( _Error.MissingLocalDirectory1 , "Local directory " + exportFolder.folderPath + " does not exist" , exportFolder.folderPath );
+			if( !shell.checkDirExists( action , exportFolder.folderPath ) )
+				action.exit1( _Error.MissingLocalDirectory1 , "Local directory " + shell.getLocalPath( exportFolder.folderPath ) + " does not exist" , shell.getLocalPath( exportFolder.folderPath ) );
 			
 			// export file or subdir
 			int COMPS = Common.getDirCount( SUBPATH );
 			String STRIPOPTION = "--strip-components=" + COMPS;
 
 			String srcFile = BASEDIR.getFilePath( action , FILENAME );
-			if( ( !FILENAME.equals( BASENAME ) ) && BASEDIR.checkFileExists( action , FILENAME ) )
-				action.exit1( _Error.LocalFileOrDirectoryShouldNotExist1 , "Local file or directory " + srcFile + " already exists" , srcFile );
+			if( ( !FILENAME.equals( BASENAME ) ) && shell.checkFileExists( action , BASEDIR.folderPath , FILENAME ) )
+				action.exit1( _Error.LocalFileOrDirectoryShouldNotExist1 , "Local file or directory " + shell.getLocalPath( srcFile ) + " already exists" , shell.getLocalPath( srcFile ) );
 
 			String FILEPATH = Common.getPath( SUBPATH , FILENAME );
 			
@@ -290,8 +291,11 @@ public class MirrorCaseGit extends MirrorCase {
 				shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + GITBRANCHTAG + " " + 
 						FILEPATH + " | ( cd " + BASEDIR.folderPath + "; tar x " + FILEPATH + " " + STRIPOPTION + " )" );
 			}
-			if( !FILENAME.equals( BASENAME ) )
-				BASEDIR.moveFileToFolder( action , FILENAME , BASENAME );
+			if( !FILENAME.equals( BASENAME ) ) {
+				String src = BASEDIR.getFilePath( action , FILENAME );
+				String dst = BASEDIR.getFilePath( action , BASENAME );
+				shell.move( action , src , dst );
+			}
 		}
 
 		return( true );
@@ -305,8 +309,10 @@ public class MirrorCaseGit extends MirrorCase {
 	}
 
 	private void useRepositoryMirror() throws Exception {
-		LocalFolder repo = getRepositoryFolder(); 
-		if( repo.checkExists( action ) ) {
+		LocalFolder repo = getRepositoryFolder();
+		
+		String OSPATH = shell.getOSPath( action , repo.folderPath );
+		if( shell.checkDirExists( action , OSPATH ) ) {
 			refreshRepositoryInternal();
 			return;
 		}
@@ -318,21 +324,37 @@ public class MirrorCaseGit extends MirrorCase {
 		int status = 0;
 		AuthResource res = vcs.res;
 		String url = res.BASEURL;
-		String OSPATH = "";
 		int timeout = action.setTimeoutUnlimited();
 		try {
 			String urlAuth = vcsGit.getRepositoryAuthUrl();
 			
-			repo.ensureExists( action );
+			shell.ensureDirExists( action , OSPATH );
 			
-			OSPATH = shell.getOSPath( action , repo.folderPath );
 			String urlAuthFull = Common.getPath( urlAuth , remotePath );
 			String cmd = "git clone -q " + urlAuthFull + " --mirror";
 			cmd += " " + OSPATH;
 			
 			status = shell.customGetStatus( action , cmd );
-			if( status == 0 )
+			if( status == 0 ) {
 				setAccess( OSPATH );
+				
+				// only for push
+				if( shell.isLocal() ) {
+					String file = Common.getPath( OSPATH , "packed-refs" );
+					List<String> lines = ConfReader.readFileLines( action.execrc , file );
+					List<String> nopulls = new LinkedList<String>();
+					for( String line : lines ) {
+						if( !line.contains( "refs/pull/" ) )
+							nopulls.add( line );
+					}
+					Common.createFileFromStringList( action.execrc , file , nopulls );
+					
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --unset-all remote.origin.fetch" );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/heads/*:refs/heads/*" );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/tags/*:refs/tags/*" );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/change/*:refs/change/*" );
+				}
+			}
 		}
 		catch( Throwable e ) {
 			action.log( "mirror repository" , e );
@@ -341,7 +363,7 @@ public class MirrorCaseGit extends MirrorCase {
 		
 		action.setTimeout( timeout );
 		if( status != 0 ) {
-			repo.removeThis( action );
+			shell.removeDir( action , repo.folderPath );
 			String urlShow = Common.getPath( url , remotePath );
 			action.exit2( _Error.UnableCloneRepository2 , "Unable to clone repository " + urlShow + " to " + OSPATH , urlShow , OSPATH );
 		}
@@ -349,7 +371,7 @@ public class MirrorCaseGit extends MirrorCase {
 
 	private void useBranchMirror() throws Exception {
 		LocalFolder branch = getBranchFolder();
-		if( branch.checkExists( action ) ) {
+		if( shell.checkDirExists( action , branch.folderPath ) ) {
 			refreshBranchInternal();
 			return;
 		}
@@ -360,11 +382,12 @@ public class MirrorCaseGit extends MirrorCase {
 		}
 		
 		try {
-			branch.getParentFolder( action ).ensureExists( action );
+			LocalFolder parent = branch.getParentFolder( action );
+			shell.ensureDirExists( action , parent.folderPath );
 			createLocalFromBranch( branch , getBranch() );
 		}
 		catch( Throwable e ) {
-			branch.removeThis( action );
+			shell.removeDir( action , branch.folderPath );
 			action.log( "mirror repository" , e );
 			throw e;
 		}

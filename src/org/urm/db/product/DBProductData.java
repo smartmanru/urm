@@ -1,6 +1,5 @@
 package org.urm.db.product;
 
-import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
@@ -10,6 +9,7 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrComponent;
@@ -19,7 +19,6 @@ import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductDoc;
-import org.urm.meta.product.MetaProductPolicy;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaProductUnit;
 import org.urm.meta.product.MetaSourceProject;
@@ -36,8 +35,6 @@ public class DBProductData {
 	public static String TABLE_SOURCEPROJECT = "urm_source_project";
 	public static String TABLE_SOURCEITEM = "urm_source_item";
 	public static String TABLE_DOC = "urm_product_doc";
-	public static String TABLE_POLICY = "urm_product_policy";
-	public static String TABLE_POLICYCYCLE = "urm_product_lifecycle";
 	public static String TABLE_DELIVERY = "urm_dist_delivery";
 	public static String TABLE_DELIVERYSCHEMA = "urm_dist_schemaitem";
 	public static String TABLE_DELIVERYDOC = "urm_dist_docitem";
@@ -47,16 +44,11 @@ public class DBProductData {
 	public static String TABLE_COMPITEM = "urm_dist_compitem";
 	public static String FIELD_META_ID = "meta_id";
 	public static String FIELD_META_PRODUCT_ID = "product_fkid";
-	public static String FIELD_META_PRODUCT_NAME = "product_fkname";
+	public static String FIELD_META_PRODUCT_NAME = "name";
+	public static String FIELD_META_PRODUCT_REVISION = "revision";
+	public static String FIELD_META_PRODUCT_DRAFT = "draft";
+	public static String FIELD_META_PRODUCT_SAVEDATE = "savedate";
 	public static String FIELD_META_PRODUCT_MATCHED = "matched";
-	public static String FIELD_META_LAST_MAJOR1 = "last_major1";
-	public static String FIELD_META_LAST_MAJOR2 = "last_major2";
-	public static String FIELD_META_LAST_MINOR1 = "last_minor1";
-	public static String FIELD_META_LAST_MINOR2 = "last_minor2";
-	public static String FIELD_META_NEXT_MAJOR1 = "next_major1";
-	public static String FIELD_META_NEXT_MAJOR2 = "next_major2";
-	public static String FIELD_META_NEXT_MINOR1 = "next_minor1";
-	public static String FIELD_META_NEXT_MINOR2 = "next_minor2";
 	public static String FIELD_UNIT_ID = "unit_id";
 	public static String FIELD_UNIT_DESC = "xdesc";
 	public static String FIELD_SCHEMA_ID = "schema_id";
@@ -64,6 +56,7 @@ public class DBProductData {
 	public static String FIELD_SCHEMA_DBTYPE = "dbms_type";
 	public static String FIELD_SOURCESET_ID = "srcset_id";
 	public static String FIELD_SOURCESET_DESC = "xdesc";
+	public static String FIELD_SOURCESET_POS = "set_pos";
 	public static String FIELD_SOURCEPROJECT_ID = "project_id";
 	public static String FIELD_SOURCEPROJECT_DESC = "xdesc";
 	public static String FIELD_SOURCEPROJECT_SET_ID = "srcset_id";
@@ -92,12 +85,6 @@ public class DBProductData {
 	public static String FIELD_DOC_DESC = "xdesc";
 	public static String FIELD_DOC_CATEGORY = "doccategory_type";
 	public static String FIELD_DOC_EXT = "ext";
-	public static String FIELD_POLICY_ID = "meta_id";
-	public static String FIELD_POLICY_LCURGENTALL = "lcurgent_any";
-	public static String FIELD_LIFECYCLE_META = "meta_id";
-	public static String FIELD_LIFECYCLE_LCINDEX = "lc_index";
-	public static String FIELD_LIFECYCLE_FKID = "lifecycle_fkid";
-	public static String FIELD_LIFECYCLE_FKNAME = "lifecycle_fkname";
 	public static String FIELD_DELIVERY_ID = "delivery_id";
 	public static String FIELD_DELIVERY_UNIT_ID = "unit_id";
 	public static String FIELD_DELIVERY_DESC = "xdesc";
@@ -193,14 +180,14 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MetaProductSettings.PROPERTY_PRODUCT_NAME , "Product Name" , true , "(product)" ) ,
 				EntityVar.metaPathAbsolute( MetaProductSettings.PROPERTY_PRODUCT_HOME , "Product Home" , true , "(home)" , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MAJOR_FIRST , "Version Major Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MAJOR_SECOND , "Version Minor Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MAJOR_FIRST , "Next Major Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MAJOR_SECOND , "Next Minor Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MINOR_FIRST , "Last Tag Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_LAST_MINOR_SECOND , "Last Urgent Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MINOR_FIRST , "Next Tag Number" , false , null ) ,
-				EntityVar.metaInteger( MetaProductSettings.PROPERTY_NEXT_MINOR_SECOND , "Next Urgent Number" , false , null )
+				EntityVar.metaInteger( AppProduct.PROPERTY_LAST_MAJOR_FIRST , "Version Major Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_LAST_MAJOR_SECOND , "Version Minor Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_NEXT_MAJOR_FIRST , "Next Major Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_NEXT_MAJOR_SECOND , "Next Minor Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_LAST_MINOR_FIRST , "Last Tag Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_LAST_MINOR_SECOND , "Last Urgent Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_NEXT_MINOR_FIRST , "Next Tag Number" , false , null ) ,
+				EntityVar.metaInteger( AppProduct.PROPERTY_NEXT_MINOR_SECOND , "Next Urgent Number" , false , null )
 		} ) );
 	}
 
@@ -213,35 +200,11 @@ public class DBProductData {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_PRODUCT_ID , "Application product id" , DBEnumObjectType.APPPRODUCT , false ) ,
-				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , false , null ) ,
-				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Product match status" , false , false ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR1 , "Major last version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MAJOR2 , "Major last version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MINOR1 , "Minor last version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_LAST_MINOR2 , "Minor last version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR1 , "Major next version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MAJOR2 , "Major next version, last number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MINOR1 , "Minor next version, first number" , true , null ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_META_NEXT_MINOR2 , "Minor next version, second number" , true , null ) ,
-		} ) );
-	}
-
-	public static PropertyEntity makeEntityMetaVersion( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.META , DBEnumParamEntityType.PRODUCT_VERSION , DBEnumObjectVersionType.PRODUCT );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MAJOR_FIRST , "Major last version, first number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MAJOR_SECOND , "Major last version, last number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MINOR_FIRST , "Minor last version, first number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_LAST_MINOR_SECOND , "Minor last version, last number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MAJOR_FIRST , "Major next version, first number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MAJOR_SECOND , "Major next version, last number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MINOR_FIRST , "Minor next version, first number" , true , null ) ,
-				EntityVar.metaIntegerXmlOnly( MetaProductSettings.PROPERTY_NEXT_MINOR_SECOND , "Minor next version, second number" , true , null ) ,
+				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_NAME , "Application product name" , true , null ) ,
+				EntityVar.metaStringDatabaseOnly( FIELD_META_PRODUCT_REVISION , "Product revision name" , true , null ) ,
+				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_DRAFT , "Revision draft status" , true , true ) ,
+				EntityVar.metaDateDatabaseOnly( FIELD_META_PRODUCT_SAVEDATE , "Revision save date" , true ) ,
+				EntityVar.metaBooleanDatabaseOnly( FIELD_META_PRODUCT_MATCHED , "Revision match status" , true , false )
 		} ) );
 	}
 
@@ -258,33 +221,6 @@ public class DBProductData {
 				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_DATA , "Monitoring Database Path" , true , null , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_REPORTS , "Monitoring Reports Path" , true , null , null ) ,
 				EntityVar.metaPathAbsolute( MetaProductCoreSettings.PROPERTY_MONITORING_DIR_LOGS , "Monitoring Logs" , true , null , null )
-		} ) );
-	}
-
-	public static PropertyEntity makeEntityMetaPolicy( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.META_POLICY , DBEnumParamEntityType.PRODUCT_POLICY , DBEnumObjectVersionType.PRODUCT , TABLE_POLICY , FIELD_POLICY_ID , true );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaBooleanVar( MetaProductPolicy.PROPERTY_RELEASELC_URGENTANY , FIELD_POLICY_LCURGENTALL , MetaProductPolicy.PROPERTY_RELEASELC_URGENTANY , "Any urgent lifecycle enabled" , true , false )
-		} ) );
-	}
-
-	public static PropertyEntity makeEntityMetaPolicyLifecycle( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppAssociativeEntity( DBEnumObjectType.META_POLICYCYCLE , DBEnumParamEntityType.PRODUCT_POLICYCYCLE , DBEnumObjectVersionType.PRODUCT , TABLE_POLICYCYCLE , true , 2 );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaObjectDatabaseOnly( FIELD_LIFECYCLE_META , "meta id" , DBEnumObjectType.META , true ) ,
-				EntityVar.metaIntegerDatabaseOnly( FIELD_LIFECYCLE_LCINDEX , "lifecycle index" , true , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_LIFECYCLE_FKID , "lifecycle id" , DBEnumObjectType.LIFECYCLE , false ) ,
-				EntityVar.metaStringDatabaseOnly( FIELD_LIFECYCLE_FKNAME , "lifecycle name" , false , null ) ,
 		} ) );
 	}
 
@@ -330,6 +266,8 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaSourceProjectSet.PROPERTY_NAME , "Name" , true , null ) ,
 				EntityVar.metaStringVar( MetaSourceProjectSet.PROPERTY_DESC , FIELD_SOURCESET_DESC , MetaSourceProjectSet.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaIntegerVar( MetaSourceProjectSet.PROPERTY_POS , FIELD_SOURCESET_POS , MetaSourceProjectSet.PROPERTY_POS , "Build order" , false , null ) ,
+				EntityVar.metaBoolean( MetaSourceProjectSet.PROPERTY_PARALLEL , "parallel build" , false , false )
 		} ) );
 	}
 
@@ -563,11 +501,6 @@ public class DBProductData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSchema , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaSourceSet , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaDoc , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaPolicyLifecycle , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppMetaPolicy , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		
-		if( !c.modify( DBQueries.MODIFY_CORE_UNMATCHRELEASES2 , new String[] { EngineDB.getInteger( storage.ID ) , EngineDB.getString( storage.name ) } ) )
-			Common.exitUnexpected();
 		DBEngineEntities.dropAppObjects( c , entities.entityAppMeta , DBQueries.FILTER_META_ID1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 	}
 

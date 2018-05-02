@@ -18,9 +18,9 @@ import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
-import org.urm.meta.Types.EnumSessionType;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.loader.Types.EnumSessionType;
 import org.urm.meta.product.Meta;
 
 public abstract class ShellExecutor extends Shell {

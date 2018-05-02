@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.urm.common.Common;
 import org.urm.meta.product.Meta;
 
 public class MetaEnvStartInfo {
@@ -12,21 +13,17 @@ public class MetaEnvStartInfo {
 	protected Meta meta;
 	public MetaEnvSegment sg;
 	
-	Map<String,MetaEnvStartGroup> groupMap;
 	Map<Integer,MetaEnvStartGroup> groupMapById;
-	List<MetaEnvStartGroup> groups;
 	
 	public MetaEnvStartInfo( Meta meta , MetaEnvSegment sg ) {
 		this.meta = meta;
 		this.sg = sg;
-		groups = new LinkedList<MetaEnvStartGroup>();
-		groupMap = new HashMap<String,MetaEnvStartGroup>();
 		groupMapById = new HashMap<Integer,MetaEnvStartGroup>();
 	}
 	
 	public MetaEnvStartInfo copy( Meta rmeta , MetaEnvSegment rsg ) throws Exception {
 		MetaEnvStartInfo r = new MetaEnvStartInfo( rmeta , rsg );
-		for( MetaEnvStartGroup group : groups ) {
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
 			MetaEnvStartGroup rg = group.copy( rmeta , r );
 			r.addGroup( rg );
 		}
@@ -34,20 +31,37 @@ public class MetaEnvStartInfo {
 	}
 	
 	public void addGroup( MetaEnvStartGroup sg ) {
-		groupMap.put( sg.NAME , sg );
 		groupMapById.put( sg.ID , sg );
-		groups.add( sg );
+	}
+	
+	public MetaEnvStartGroup[] getGroups() {
+		return( groupMapById.values().toArray( new MetaEnvStartGroup[0] ) );
 	}
 	
 	public MetaEnvStartGroup[] getForwardGroupList() {
-		return( groups.toArray( new MetaEnvStartGroup[0] ) );
+		MetaEnvStartGroup[] list = new MetaEnvStartGroup[ groupMapById.size() ];
+		int pos = -1;
+		for( int k = 0; k < list.length; k++ ) {
+			MetaEnvStartGroup next = null;
+			int posmin = -1;
+			for( MetaEnvStartGroup group : groupMapById.values() ) {
+				if( group.POS > pos && ( posmin < 0 || group.POS < posmin ) ) {
+					posmin = group.POS;
+					next = group;
+				}
+			}
+			list[ k ] = next;
+			pos = next.POS;
+		}
+		return( list );
 	}
 
 	public MetaEnvStartGroup[] getReverseGroupList() {
-		List<MetaEnvStartGroup> revs = new LinkedList<MetaEnvStartGroup>();
-		for( int k = groups.size() - 1; k >= 0; k-- )
-			revs.add( groups.get( k ) );
-		return( revs.toArray( new MetaEnvStartGroup[0] ) );
+		MetaEnvStartGroup[] list = getForwardGroupList();
+		MetaEnvStartGroup[] revlist = new MetaEnvStartGroup[ list.length ];
+		for( int k = 0; k < list.length; k++ )
+			revlist[ k ] = list[ list.length - k - 1 ];
+		return( revlist );
 	}
 
 	public void removeServer( MetaEnvServer server ) {
@@ -56,8 +70,8 @@ public class MetaEnvStartInfo {
 			startGroup.removeServer( server );
 	}
 
-	public MetaEnvStartGroup findServerGroup( String serverName ) {
-		for( MetaEnvStartGroup group : groups ) {
+	public MetaEnvStartGroup findServerStartGroup( String serverName ) {
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
 			MetaEnvServer server = group.findServer( serverName );
 			if( server != null )
 				return( group );
@@ -65,6 +79,13 @@ public class MetaEnvStartInfo {
 		return( null );
 	}
 
+	public MetaEnvStartGroup getStartGroup( int id ) throws Exception {
+		MetaEnvStartGroup group = groupMapById.get( id );
+		if( group == null )
+			Common.exitUnexpected();
+		return( group );
+	}
+	
 	public String[] getMissingServerNames() {
 		List<String> missing = new LinkedList<String>();
 		for( String serverName : sg.getServerNames() ) {
@@ -82,4 +103,37 @@ public class MetaEnvStartInfo {
 		return( groupMapById.get( id ) );
 	}
 
+	public int getLastStartGroupPos() {
+		int pos = 0;
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
+			if( pos == 0 || pos < group.POS )
+				pos = group.POS;
+		}
+		return( pos );
+	}
+
+	public void removeGroup( MetaEnvStartGroup groupDelete ) {
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
+			if( group.POS > groupDelete.POS )
+				group.setPos( group.POS - 1 );
+		}
+		
+		groupMapById.remove( groupDelete.ID );
+	}
+	
+	public void moveGroup( MetaEnvStartGroup groupMove , int pos ) {
+		for( MetaEnvStartGroup group : groupMapById.values() ) {
+			if( pos > groupMove.POS ) {
+				if( group.POS > groupMove.POS && group.POS < pos )
+					group.setPos( group.POS - 1 );
+			}
+			else {
+				if( group.POS >= pos && group.POS < groupMove.POS )
+					group.setPos( group.POS + 1 );
+			}
+		}
+		
+		groupMove.setPos( pos );
+	}
+	
 }

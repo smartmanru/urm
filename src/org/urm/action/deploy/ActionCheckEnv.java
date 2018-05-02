@@ -18,9 +18,9 @@ import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
-import org.urm.meta.Types.*;
 
 public class ActionCheckEnv extends ActionBase {
 
@@ -48,7 +48,7 @@ public class ActionCheckEnv extends ActionBase {
 	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
 		// check all processes
 		infoAction( "check environment=" + context.env.NAME + " ..." );
-		StateService status = super.getServerStatus();
+		StateService status = super.getEngineStatus();
 		status.updateRunTime( this , scope.env );
 	}
 
@@ -64,7 +64,7 @@ public class ActionCheckEnv extends ActionBase {
 		else {
 			infoAction( "total status is " + value );
 		}
-		StateService status = super.getServerStatus();
+		StateService status = super.getEngineStatus();
 		status.finishUpdate( this , scope.env );
 	}
 	
@@ -72,7 +72,7 @@ public class ActionCheckEnv extends ActionBase {
 		sgStatus = new SegmentStatus( set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
-		StateService status = super.getServerStatus();
+		StateService status = super.getEngineStatus();
 		status.updateRunTime( this , set.sg );
 	}
 
@@ -84,14 +84,14 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## sg " + F_STATUSOBJECT + " check OK" );
 		
 		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
-		StateService status = super.getServerStatus();
+		StateService status = super.getEngineStatus();
 		status.setSegmentStatus( this , set.sg , sgStatus );
 		status.finishUpdate( this , set.sg );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		ActionScopeSet set = target.set;
-		StateService status = super.getServerStatus();
+		StateService status = super.getEngineStatus();
 		status.updateRunTime( this , target.envServer );
 		
 		ServerStatus serverStatus = new ServerStatus( target.envServer );
@@ -174,7 +174,7 @@ public class ActionCheckEnv extends ActionBase {
 
 		if( main ) {
 			debug( "check nodes ..." );
-			StateService status = super.getServerStatus();
+			StateService status = super.getEngineStatus();
 			
 			boolean someNodeAvailable = false;
 			for( ActionScopeTargetItem node : target.getItems( this ) ) {
@@ -357,7 +357,7 @@ public class ActionCheckEnv extends ActionBase {
 		if( main ) {
 			String[] log = super.logFinishCapture( captureIndex );
 			nodeStatus.setLog( log );
-			StateService status = super.getServerStatus();
+			StateService status = super.getEngineStatus();
 			status.setServerNodeStatus( this , node , nodeStatus );
 			serverStatus.addNodeStatus( nodeStatus ); 
 		}
