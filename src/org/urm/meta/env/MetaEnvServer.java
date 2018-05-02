@@ -1038,6 +1038,12 @@ public class MetaEnvServer extends EngineObject {
 		return( true );
 	}
 	
+	public boolean hasStartGroup() {
+		if( startGroup == null ) 
+			return( false );
+		return( true );
+	}
+	
 	public boolean hasDependencies() {
 		if( nlbServer != null )
 			return( true );
