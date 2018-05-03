@@ -150,8 +150,6 @@ public abstract class DBQueries {
 	public static String MODIFY_ENVSG_MATCHBASELINE2 = "update urm_env_segment set baseline_segment_fkid = @2@ , baseline_segment_fkname = null where segment_id = @1@";
 	public static String MODIFY_ENVSERVER_MATCHBASELINE2 = "update urm_env_server set baseline_server_fkid = @2@ , baseline_server_fkname = null where server_id = @1@";
 
-	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
-	
 	public static String MODIFY_REL_CHANGEREPOREVISION2 = "update urm_rel_repository set meta_id = @2@ where repo_id = @1@";
 	public static String MODIFY_REL_REMATCHBUILDTARGETSRCSET2 = "update urm_rel_buildtarget set " +
 			"srcset_fkid = dst.srcset_id " +

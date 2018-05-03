@@ -1,6 +1,7 @@
 package org.urm.meta.env;
 
 import org.urm.action.ActionBase;
+import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
@@ -78,8 +79,14 @@ public class MetaEnvServerDeployment {
 			return( false );
 		return( true );
 	}
-	
+
 	public void create( DBEnumServerDeploymentType type , MatchItem comp , MatchItem binaryItem , MatchItem confItem ,
+			MatchItem schema , DBEnumDeployModeType deployMode , String deployPath , String dbName , String dbUser , DBEnumNodeType nodeType ) throws Exception {
+		modify( type , comp , binaryItem , confItem ,
+				schema , deployMode , deployPath , dbName , dbUser , nodeType );
+	}
+	
+	public void modify( DBEnumServerDeploymentType type , MatchItem comp , MatchItem binaryItem , MatchItem confItem ,
 			MatchItem schema , DBEnumDeployModeType deployMode , String deployPath , String dbName , String dbUser , DBEnumNodeType nodeType ) throws Exception {
 		this.SERVERDEPLOYMENT_TYPE = type;
 		this.COMP = comp;
@@ -95,33 +102,73 @@ public class MetaEnvServerDeployment {
 	
 	public void createComponent( MetaDistrComponent comp , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		if( server.hasComponentDeployment( comp ) )
+			Common.exit1( _Error.DuplicateComponent1 , "duplicate component=" + comp.NAME , comp.NAME );
 		create( DBEnumServerDeploymentType.COMP , new MatchItem( comp.ID ) , null , null ,
+				null , deployMode , deployPath , "" , "" , nodeType );
+	}
+	
+	public void modifyComponent( MetaDistrComponent comp , 
+			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		if( this.COMP.FKID != comp.ID && server.hasComponentDeployment( comp ) )
+			Common.exit1( _Error.DuplicateComponent1 , "duplicate component=" + comp.NAME , comp.NAME );
+		modify( DBEnumServerDeploymentType.COMP , new MatchItem( comp.ID ) , null , null ,
 				null , deployMode , deployPath , "" , "" , nodeType );
 	}
 	
 	public void createBinaryItem( MetaDistrBinaryItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		if( server.hasBinaryItemDeployment( item ) )
+			Common.exit1( _Error.DuplicateBinaryItem1 , "duplicate binary item=" + item.NAME , item.NAME );
 		create( DBEnumServerDeploymentType.BINARY , null , new MatchItem( item.ID ) , null ,
+				null , deployMode , deployPath , "" , "" , nodeType );
+	}
+	
+	public void modifyBinaryItem( MetaDistrBinaryItem item , 
+			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		if( this.BINARYITEM.FKID != item.ID && server.hasBinaryItemDeployment( item ) )
+			Common.exit1( _Error.DuplicateBinaryItem1 , "duplicate binary item=" + item.NAME , item.NAME );
+		modify( DBEnumServerDeploymentType.BINARY , null , new MatchItem( item.ID ) , null ,
 				null , deployMode , deployPath , "" , "" , nodeType );
 	}
 	
 	public void createConfItem( MetaDistrConfItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		if( server.hasConfItemDeployment( item ) )
+			Common.exit1( _Error.DuplicateConfItem1 , "duplicate configuration item=" + item.NAME , item.NAME );
 		create( DBEnumServerDeploymentType.CONF , null , null , new MatchItem( item.ID ) , 
+				null , deployMode , deployPath , "" , "" , nodeType );
+	}
+	
+	public void modifyConfItem( MetaDistrConfItem item , 
+			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
+		if( this.CONFITEM.FKID != item.ID && server.hasConfItemDeployment( item ) )
+			Common.exit1( _Error.DuplicateConfItem1 , "duplicate configuration item=" + item.NAME , item.NAME );
+		modify( DBEnumServerDeploymentType.CONF , null , null , new MatchItem( item.ID ) , 
 				null , deployMode , deployPath , "" , "" , nodeType );
 	}
 	
 	public void createSchema( MetaDatabaseSchema schema , 
 			DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
-		create( DBEnumServerDeploymentType.CONF , null , null , null ,
+		if( server.hasDatabaseItemDeployment( schema ) )
+			Common.exit1( _Error.DuplicateSchemaItem1 , "duplicate database schema=" + schema.NAME , schema.NAME );
+		create( DBEnumServerDeploymentType.SCHEMA, null , null , null ,
 				new MatchItem( schema.ID ) , deployMode , "" , dbName , dbUser , DBEnumNodeType.ADMIN );
 	}
 	
-	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) throws Exception {
+	public void modifySchema( MetaDatabaseSchema schema , 
+			DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
+		if( this.SCHEMA.FKID != schema.ID && server.hasDatabaseItemDeployment( schema ) )
+			Common.exit1( _Error.DuplicateSchemaItem1 , "duplicate database schema=" + schema.NAME , schema.NAME );
+		modify( DBEnumServerDeploymentType.SCHEMA , null , null , null ,
+				new MatchItem( schema.ID ) , deployMode , "" , dbName , dbUser , DBEnumNodeType.ADMIN );
+	}
+	
+	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) {
 		if( MatchItem.equals( CONFITEM , confItem.ID ) ) 
 			return( true );
 		
-		MetaDistrComponent comp = getComponent();
+		MetaDistrComponent comp = findComponent();
 		if( comp != null ) {
 			for( MetaDistrComponentItem item : comp.getConfItems() )
 				if( item.confItem == confItem )
@@ -130,11 +177,11 @@ public class MetaEnvServerDeployment {
 		return( false );
 	}
 	
-	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) throws Exception {
+	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) {
 		if( MatchItem.equals( BINARYITEM , binaryItem.ID ) ) 
 			return( true );
 		
-		MetaDistrComponent comp = getComponent();
+		MetaDistrComponent comp = findComponent();
 		if( comp != null ) {
 			for( MetaDistrComponentItem item : comp.getBinaryItems() )
 				if( item.binaryItem == binaryItem )
@@ -143,11 +190,11 @@ public class MetaEnvServerDeployment {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) throws Exception {
+	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) {
 		if( MatchItem.equals( SCHEMA , schema.ID ) ) 
 			return( true );
 		
-		MetaDistrComponent comp = getComponent();
+		MetaDistrComponent comp = findComponent();
 		if( comp != null ) {
 			for( MetaDistrComponentItem item : comp.getSchemaItems() )
 				if( item.schema == schema )
@@ -277,6 +324,11 @@ public class MetaEnvServerDeployment {
 	public MetaDistrComponent getComponent() throws Exception {
 		MetaDistr distr = meta.getDistr();
 		return( distr.getComponent( COMP ) );
+	}
+	
+	public MetaDistrComponent findComponent() {
+		MetaDistr distr = meta.getDistr();
+		return( distr.findComponent( COMP ) );
 	}
 	
 	public MetaDistrBinaryItem getBinaryItem() throws Exception {

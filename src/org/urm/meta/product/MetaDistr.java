@@ -108,6 +108,14 @@ public class MetaDistr {
 		return( comp.NAME );
 	}
 	
+	public MetaDistrComponent findComponent( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( mapCompsById.get( item.FKID ) );
+		return( mapComps.get( item.FKNAME ) );
+	}
+	
 	public MetaDistrBinaryItem findBinaryItem( String name ) {
 		return( mapBinaryItems.get( name ) );
 	}

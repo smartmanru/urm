@@ -498,13 +498,13 @@ public class MetaEnvServer extends EngineObject {
 		return( true );
 	}
 	
-	public boolean hasConfiguration() throws Exception {
+	public boolean hasConfiguration() {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isConfItem() )
 				return( true );
 			
 			if( deployment.isComponent() ) {
-				MetaDistrComponent comp = deployment.getComponent();
+				MetaDistrComponent comp = deployment.findComponent();
 				if( comp.hasConfItems() )
 					return( true );
 			}
@@ -512,7 +512,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) throws Exception {
+	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasConfItemDeployment( confItem ) )
 				return( true );
@@ -520,7 +520,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) throws Exception {
+	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasBinaryItemDeployment( binaryItem ) )
 				return( true );
@@ -528,7 +528,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( MetaDistrDelivery delivery ) throws Exception {
+	public boolean hasDatabaseItemDeployment( MetaDistrDelivery delivery ) {
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
 			if( hasDatabaseItemDeployment( schema ) )
 				return( true );
@@ -536,9 +536,17 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) throws Exception {
+	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasDatabaseItemDeployment( schema ) ) 
+				return( true );
+		}
+		return( false );
+	}
+	
+	public boolean hasComponentDeployment( MetaDistrComponent comp ) {
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			if( deployment.isComponent( comp ) )
 				return( true );
 		}
 		return( false );

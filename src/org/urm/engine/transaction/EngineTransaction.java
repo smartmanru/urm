@@ -7,6 +7,7 @@ import org.urm.db.engine.*;
 import org.urm.db.env.DBMetaEnv;
 import org.urm.db.env.DBMetaEnvSegment;
 import org.urm.db.env.DBMetaEnvServer;
+import org.urm.db.env.DBMetaEnvServerDeployment;
 import org.urm.db.env.DBMetaEnvServerNode;
 import org.urm.db.env.DBMetaEnvStartInfo;
 import org.urm.db.env.DBMetaMonitoring;
@@ -1146,13 +1147,6 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnvServer.setServerOffline( this , storage , env , server , offline );
 	}
 	
-	public void modifyServerDeployments( MetaEnvServer server , MetaEnvServerDeployment[] deployments ) throws Exception {
-		MetaEnv env = server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvServer.setDeployments( this , storage , env , server , deployments );
-	}
-
 	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
 		MetaEnv env = server.sg.env;
 		super.checkTransactionEnv( env );
@@ -1162,50 +1156,73 @@ public class EngineTransaction extends TransactionBase {
 	
 	public MetaEnvServerDeployment createMetaEnvServerBinaryDeployment( MetaEnvServer server , MetaDistrBinaryItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		action.exitNotImplemented();
-		return( null );
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		return( DBMetaEnvServerDeployment.createBinaryDeployment( this , storage , env , server , item , deployMode , deployPath , nodeType ) );
 	}
 	
 	public MetaEnvServerDeployment createMetaEnvServerConfDeployment( MetaEnvServer server , MetaDistrConfItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		action.exitNotImplemented();
-		return( null );
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		return( DBMetaEnvServerDeployment.createConfDeployment( this , storage , env , server , item , deployMode , deployPath , nodeType ) );
 	}
 	
 	public MetaEnvServerDeployment createMetaEnvServerDatabaseDeployment( MetaEnvServer server , MetaDatabaseSchema schema ,
 			DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
-		action.exitNotImplemented();
-		return( null );
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		return( DBMetaEnvServerDeployment.createDatabaseDeployment( this , storage , env , server , schema , deployMode , dbName , dbUser ) );
 	}
 	
 	public MetaEnvServerDeployment createMetaEnvServerComponentDeployment( MetaEnvServer server , MetaDistrComponent comp , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		action.exitNotImplemented();
-		return( null );
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		return( DBMetaEnvServerDeployment.createComponentDeployment( this , storage , env , server , comp , deployMode , deployPath , nodeType ) );
 	}
 	
 	public void modifyMetaEnvServerBinaryDeployment( MetaEnvServerDeployment deployment , MetaDistrBinaryItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		action.exitNotImplemented();
+		MetaEnv env = deployment.server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServerDeployment.modifyBinaryDeployment( this , storage , env , deployment.server , deployment , item , deployMode , deployPath , nodeType );
 	}
 	
 	public void modifyMetaEnvServerConfDeployment( MetaEnvServerDeployment deployment , MetaDistrConfItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		action.exitNotImplemented();
+		MetaEnv env = deployment.server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServerDeployment.modifyConfDeployment( this , storage , env , deployment.server , deployment , item , deployMode , deployPath , nodeType );
 	}
 	
 	public void modifyMetaEnvServerDatabaseDeployment( MetaEnvServerDeployment deployment , MetaDatabaseSchema schema ,
 			DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
-		action.exitNotImplemented();
+		MetaEnv env = deployment.server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServerDeployment.modifyDatabaseDeployment( this , storage , env , deployment.server , deployment , schema , deployMode , dbName , dbUser );
 	}
 	
 	public void modifyMetaEnvServerComponentDeployment( MetaEnvServerDeployment deployment , MetaDistrComponent comp , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		action.exitNotImplemented();
+		MetaEnv env = deployment.server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServerDeployment.modifyComponentDeployment( this , storage , env , deployment.server , deployment , comp , deployMode , deployPath , nodeType );
 	}
 	
 	public void deleteMetaEnvServerDeployment( MetaEnvServerDeployment deployment ) throws Exception {
-		action.exitNotImplemented();
+		MetaEnv env = deployment.server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServerDeployment.deleteDeployment( this , storage , env , deployment.server , deployment );
 	}
 	
 	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {

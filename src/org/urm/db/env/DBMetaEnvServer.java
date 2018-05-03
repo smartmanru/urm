@@ -465,20 +465,6 @@ public class DBMetaEnvServer {
 		modifyServer( c , storage , env , server , false );
 	}
 	
-	public static void setDeployments( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment[] deployments ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		if( !c.modify( DBQueries.MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 , new String[] { EngineDB.getInteger( server.ID ) } ) )
-			Common.exitUnexpected();
-		
-		server.clearDeployments();
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			deployment = deployment.copy( storage.meta , server );
-			server.addDeployment( deployment );
-			DBMetaEnvServerDeployment.modifyDeployment( c , storage , env , server , deployment , true );
-		}
-	}
-
 	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		ObjectProperties ops = server.getProperties();
