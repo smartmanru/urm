@@ -3,6 +3,7 @@ package org.urm.engine.action;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScope;
+import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
@@ -10,6 +11,7 @@ import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.status.ScopeState;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 
@@ -28,9 +30,13 @@ abstract public class CommandMethod {
 	}
 
 	public Release getRelease( ActionBase action , String RELEASELABEL ) throws Exception {
+		AppProduct product = action.getContextProduct();
+		if( product == null )
+			Common.exitUnexpected();
+		
+		EngineProduct ep = product.getEngineProduct();
 		Meta meta = action.getContextMeta();
 		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , RELEASELABEL );
-		EngineProduct ep = meta.getEngineProduct();
 		EngineProductReleases releases = ep.getReleases();
 		Release release = releases.findRelease( info.RELEASEVER );
 		if( release == null )
@@ -39,8 +45,12 @@ abstract public class CommandMethod {
 	}
 	
 	public Dist getDist( ActionBase action , String RELEASELABEL ) throws Exception {
+		AppProduct product = action.getContextProduct();
+		if( product == null )
+			Common.exitUnexpected();
+		
+		EngineProduct ep = product.getEngineProduct();
 		Meta meta = action.getContextMeta();
-		EngineProduct ep = meta.getEngineProduct();
 		DistRepository distrepo = ep.getDistRepository();
 		return( distrepo.getDistByLabel( action , meta , RELEASELABEL ) );
 	}
