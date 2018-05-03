@@ -167,12 +167,6 @@ abstract public class Shell {
 		this.rootPath = rootPath;
 	}
 	
-	public String getOSPath( ActionBase action , String path ) throws Exception {
-		if( account.isWindows() )
-			return( Common.getWinPath( path ) );
-		return( path );
-	}
-	
 	public boolean isWindows() {
 		return( account.isWindows() );
 	}

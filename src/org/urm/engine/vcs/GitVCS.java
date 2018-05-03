@@ -292,7 +292,7 @@ public class GitVCS extends GenericVCS {
 		
 		int status;
 		String OSPATH = mc.getBareOSPath();
-		String OSPATHDIR = shell.getOSPath( action , Common.getPath( mirror.RESOURCE_DATA , path ) );
+		String OSPATHDIR = shell.getLocalPath( Common.getPath( mirror.RESOURCE_DATA , path ) );
 		status = shell.customGetStatus( action , "git -C " + OSPATH + " cat-file -e master:" + OSPATHDIR );
 		
 		if( status == 0 )

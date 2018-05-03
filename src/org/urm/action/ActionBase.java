@@ -516,7 +516,7 @@ abstract public class ActionBase extends ActionCore {
 		if( file.startsWith( "~/" ) )
 			file = shell.getHomePath() + file.substring( 1 );
 		
-		String path = shell.getOSPath( this , file );
+		String path = shell.getLocalPath( file );
 		String msg = "logging started to " + path;
 		outputChannel = output.startRedirect( context , outputChannel , file , msg , title );
 	}
@@ -635,10 +635,6 @@ abstract public class ActionBase extends ActionCore {
 	
 	public int setTimeoutDefault() {
 		return( setTimeout( context.CTX_TIMEOUT ) );
-	}
-
-	public String getOSPath( String dirPath ) throws Exception {
-		return( shell.getOSPath( this , dirPath ) );	
 	}
 
 	public boolean isLocalWindows() {

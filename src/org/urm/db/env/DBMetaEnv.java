@@ -306,6 +306,7 @@ public class DBMetaEnv {
 			}
 			catch( Throwable e ) {
 				loader.log( "unable to load environment=" + env.NAME , e );
+				env.deleteObject();
 			}
 		}
 		

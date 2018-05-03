@@ -67,7 +67,7 @@ public class SubversionVCS extends GenericVCS {
 		CO_PATH = Common.getPath( projectPath , XBRANCH );
 
 		String REVISION;
-		if( action.isLocalLinux() ) {
+		if( shell.isLinux() ) {
 			REVISION = shell.customGetValue( action , "svn info " + SVNAUTH + " " + CO_PATH + " | grep Revision | tr -d " + Common.getQuoted( " " ) + 
 					" | cut -d " + Common.getQuoted( ":" ) + " -f2" );
 		}
@@ -78,11 +78,10 @@ public class SubversionVCS extends GenericVCS {
 		
 		REVISION = REVISION.trim();
 
-		action.info( "svn: checkout sources from " + CO_PATH + " (branch=" + BRANCH + ", revision=" + REVISION + ") to " + PATCHFOLDER.folderPath + "..." );
+		String ospath = shell.getLocalPath( PATCHFOLDER.folderPath );
+		action.info( "svn: checkout sources from " + CO_PATH + " (branch=" + BRANCH + ", revision=" + REVISION + ") to " + ospath + "..." );
 		
-		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
 		int status = shell.customGetStatus( action , "svn co " + SVNAUTH + " " + CO_PATH + " " + ospath );
-
 		if( status == 0 )
 			return( true );
 		
@@ -93,11 +92,11 @@ public class SubversionVCS extends GenericVCS {
 	@Override 
 	public boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHFOLDER , String COMMENT ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
-			action.error( "directory " + PATCHFOLDER.folderPath + " does not exist " );
+			action.error( "directory " + shell.getLocalPath( PATCHFOLDER.folderPath ) + " does not exist " );
 			return( false );
 		}
 		
-		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
+		String ospath = shell.getLocalPath( PATCHFOLDER.folderPath );
 		shell.customCheckStatus( action , "svn commit -m " + Common.getQuoted( COMMENT ) + " " + SVNAUTH + " " + ospath );
 		return( true );
 	}
@@ -306,20 +305,21 @@ public class SubversionVCS extends GenericVCS {
 		if( !FILENAME.isEmpty() )
 			CO_PATH = Common.getPath( CO_PATH , FILENAME );
 
+		String patchospath = shell.getLocalPath( PATCHFOLDER.folderPath );
 		if( FILENAME.isEmpty() ) {
 			Folder BASEDIR = PATCHFOLDER.getParentFolder( action );
-			if( !BASEDIR.checkExists( action ) )
-				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + BASEDIR.folderPath + " does not exist" , BASEDIR.folderPath );
-			if( PATCHFOLDER.checkExists( action ) )
-				action.exit1( _Error.LocalDirectoryShouldNotExist1 , "exportFromPath: local directory " + PATCHFOLDER.folderPath + " should not exist" , PATCHFOLDER.folderPath );
+			String baseospath = shell.getLocalPath( BASEDIR.folderPath );
+			if( !shell.checkDirExists( action , BASEDIR.folderPath ) )
+				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + baseospath + " does not exist" , baseospath );
+			if( shell.checkDirExists( action , PATCHFOLDER.folderPath ) )
+				action.exit1( _Error.LocalDirectoryShouldNotExist1 , "exportFromPath: local directory " + patchospath + " should not exist" , patchospath );
 		}
 		else {
-			if( !PATCHFOLDER.checkExists( action ) )
-				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
+			if( !shell.checkDirExists( action , PATCHFOLDER.folderPath ) )
+				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + patchospath + " does not exist" , patchospath );
 		}
 
-		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
-		shell.customCheckStatus( action , "svn export " + SVNAUTH + " " + CO_PATH + " " + ospath );
+		shell.customCheckStatus( action , "svn export " + SVNAUTH + " " + CO_PATH + " " + patchospath );
 		return( true );
 	}
 
@@ -371,8 +371,10 @@ public class SubversionVCS extends GenericVCS {
 		if( !isValidRepositoryMasterPath( mirror , ITEMPATH ) )
 			return( false );
 			
-		if( !PATCHFOLDER.checkExists( action ) )
-			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryMasterPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
+		if( !shell.checkDirExists( action , PATCHFOLDER.folderPath ) ) {
+			String patchospath = shell.getLocalPath( PATCHFOLDER.folderPath );
+			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryMasterPath: local directory " + patchospath + " does not exist" , patchospath );
+		}
 
 		String CO_PATH = getTrunkRepositoryPath( mirror , ITEMPATH );
 		if( name.isEmpty() )
@@ -387,8 +389,10 @@ public class SubversionVCS extends GenericVCS {
 		if( !isValidRepositoryTagPath( mirror , TAG , ITEMPATH ) )
 			return( false );
 		
-		if( !PATCHFOLDER.checkExists( action ) )
-			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryTagPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
+		if( !shell.checkDirExists( action , PATCHFOLDER.folderPath ) ) {
+			String patchospath = shell.getLocalPath( PATCHFOLDER.folderPath );
+			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryTagPath: local directory " + patchospath + " does not exist" , patchospath );
+		}
 
 		String CO_PATH = getTagRepositoryPath( mirror , TAG , ITEMPATH );
 		if( name.isEmpty() )
@@ -440,14 +444,14 @@ public class SubversionVCS extends GenericVCS {
 	@Override 
 	public void checkoutMasterFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
 		String fullPath = getTrunkRepositoryPath( mirror , masterFolder );
-		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		String ospath = shell.getLocalPath( PATCHPATH.folderPath );
 		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath );
 	}
 	
 	@Override 
 	public void importMasterFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = getTrunkRepositoryPath( mirror , masterFolder );
-		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		String ospath = shell.getLocalPath( PATCHPATH.folderPath );
 		shell.customCheckStatus( action , "svn import -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + ospath + " " + fullPath );
 	}
 	
@@ -471,25 +475,25 @@ public class SubversionVCS extends GenericVCS {
 	
 	@Override 
 	public void addFileToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
-		String ospath = action.getOSPath( Common.getPath( folder , file ) );
+		String ospath = shell.getLocalPath( PATCHPATH.getFilePath( action , Common.getPath( folder , file ) ) );
 		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath );
 	}
 	
 	@Override 
 	public void deleteFileToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
-		String ospath = action.getOSPath( Common.getPath( folder , file ) );
+		String ospath = shell.getLocalPath( PATCHPATH.getFilePath( action , Common.getPath( folder , file ) ) );
 		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath );
 	}
 	
 	@Override 
 	public void addDirToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
-		String ospath = action.getOSPath( folder );
+		String ospath = shell.getLocalPath( PATCHPATH.getFilePath( action , folder ) );
 		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath );
 	}
 	
 	@Override 
 	public void deleteDirToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
-		String ospath = action.getOSPath( folder );
+		String ospath = shell.getLocalPath( PATCHPATH.getFilePath( action , folder ) );
 		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath );
 	}
 
@@ -566,7 +570,7 @@ public class SubversionVCS extends GenericVCS {
 
 	public void checkoutMasterRootFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , masterFolder );
-		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		String ospath = shell.getLocalPath( PATCHPATH.folderPath );
 		action.setTimeoutUnlimited();
 		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath );
 	}

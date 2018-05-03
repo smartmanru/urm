@@ -184,7 +184,7 @@ public class MirrorCaseGit extends MirrorCase {
 	
 	public String getBareOSPath() throws Exception {
 		LocalFolder folder = getRepositoryFolder();
-		return( shell.getOSPath( action , folder.folderPath ) );
+		return( shell.getLocalPath( folder.folderPath ) );
 	}
 
 	public void createLocalFromBranch( LocalFolder checkoutFolder , String BRANCH ) throws Exception {
@@ -217,7 +217,7 @@ public class MirrorCaseGit extends MirrorCase {
 	}
 
 	public void pushOrigin( String path ) throws Exception {
-		String OSPATH = shell.getOSPath( action , path );
+		String OSPATH = shell.getLocalPath( path );
 		int status = shell.customGetStatus( action , "git -C " + OSPATH + " push origin" );
 		if( status != 0 )
 			action.exit1( _Error.UnablePushOrigin1 , "Unable to push origin, path=" + OSPATH , OSPATH );
@@ -311,7 +311,7 @@ public class MirrorCaseGit extends MirrorCase {
 	private void useRepositoryMirror() throws Exception {
 		LocalFolder repo = getRepositoryFolder();
 		
-		String OSPATH = shell.getOSPath( action , repo.folderPath );
+		String OSPATH = shell.getLocalPath( repo.folderPath );
 		if( shell.checkDirExists( action , OSPATH ) ) {
 			refreshRepositoryInternal();
 			return;
@@ -394,7 +394,7 @@ public class MirrorCaseGit extends MirrorCase {
 	}
 
 	private void fetchOrigin( String path ) throws Exception {
-		String OSPATH = shell.getOSPath( action , path );
+		String OSPATH = shell.getLocalPath( path );
 		int status = shell.customGetStatus( action , "git -C " + OSPATH + " fetch -q origin" );
 		if( status != 0 )
 			action.exit1( _Error.UnableFetchOrigin1 , "Unable to fetch origin, path=" + OSPATH , OSPATH );
