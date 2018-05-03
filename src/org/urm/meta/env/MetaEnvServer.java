@@ -952,20 +952,21 @@ public class MetaEnvServer extends EngineObject {
 		return( null );
 	}
 
-	public void createServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
+	public void createServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ,  
 			DBEnumOSType osType , MatchItem baselineMatch , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch , MatchItem baseItemMatch ) throws Exception {
 		this.BASELINE = MatchItem.copy( baselineMatch );
 		this.BASEITEM = MatchItem.copy( baseItemMatch );
 		this.OFFLINE = false;
-		modifyServer( name , desc , runType , accessType , osType , dbmsType , admSchemaMatch );
+		modifyServer( name , desc , runType , accessType , sysname , osType , dbmsType , admSchemaMatch );
 	}
 	
-	public void modifyServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
+	public void modifyServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , 
 			DBEnumOSType osType , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
 		this.SERVERRUN_TYPE = runType;
 		this.SERVERACCESS_TYPE = accessType;
+		this.SYSNAME = sysname;
 		this.OS_TYPE = osType;
 		this.DBMS_TYPE = dbmsType;
 		this.DATABASE_ADMSCHEMA = MatchItem.copy( admSchemaMatch );

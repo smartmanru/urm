@@ -431,7 +431,7 @@ public class DBMetaEnvServer {
 	public static void modifyServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		server.modifyServer( name , desc , runType , accessType , osType , dbmsType , MatchItem.create( admSchema ) );
+		server.modifyServer( name , desc , runType , accessType , sysname , osType , dbmsType , MatchItem.create( admSchema ) );
  		modifyServer( c , storage , env , server , false );
  		server.sg.updateServer( server );
 	}
