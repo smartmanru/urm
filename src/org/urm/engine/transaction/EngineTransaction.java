@@ -1288,14 +1288,19 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnv.updateExtraProperties( this , storage , env );
 	}
 	
-	public MetaDump createDump( MetaEnvServer server , boolean export , String name , String desc , boolean standby , String setdbenv , String dataset , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+	public MetaDump createDump( MetaEnvServer server , boolean export , String name , String desc , String dataset ) throws Exception {
 		super.checkTransactionEnv( server.sg.env );
-		return( DBMetaDump.createDump( this , server.sg.env , server , export , name , desc , standby , setdbenv , dataset , ownTables , dumpdir , datapumpdir , nfs , postRefresh ) );
+		return( DBMetaDump.createDump( this , server , export , name , desc , dataset ) );
 	}
 	
-	public void modifyDump( MetaDump dump , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+	public void modifyDumpPrimary( MetaDump dump , String name , String desc , MetaEnvServer server , String dataset ) throws Exception {
 		super.checkTransactionEnv( server.sg.env );
-		DBMetaDump.modifyDump( this , dump.env , dump , name , desc , server , standby , setdbenv , dataset , ownTables , dumpdir , datapumpdir , nfs , postRefresh );
+		DBMetaDump.modifyDumpPrimary( this , dump , name , desc , server , dataset );
+	}
+	
+	public void modifyDumpExecution( MetaDump dump , boolean standby , String setdbenv , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+		super.checkTransactionEnv( dump.env );
+		DBMetaDump.modifyDumpExecution( this , dump , standby , setdbenv , ownTables , dumpdir , datapumpdir , nfs , postRefresh );
 	}
 	
 	public void deleteDump( MetaDump dump ) throws Exception {

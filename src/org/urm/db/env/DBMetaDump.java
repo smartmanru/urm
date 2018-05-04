@@ -309,13 +309,15 @@ public class DBMetaDump {
 		}
 	}
 
-	public static MetaDump createDump( TransactionBase transaction , MetaEnv env , MetaEnvServer server , boolean export , String name , String desc , boolean standby , String setdbenv , String dataset , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+	public static MetaDump createDump( TransactionBase transaction , MetaEnvServer server , boolean export , String name , String desc , String dataset ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
+		MetaEnv env = server.sg.env;
 		MetaDump dump = new MetaDump( env.meta , env );
 		dump.create( name , desc , export );
-		dump.setTarget( server , standby , setdbenv );
-		dump.setFiles( dataset , ownTables , dumpdir , datapumpdir , nfs , postRefresh );
+		dump.setTarget( server , false , "" );
+		boolean owntables = ( export )? true : false;
+		dump.setFiles( dataset , owntables , "" , "" , false , "" );
 		dump.setOffline( true );
 		
 		modifyDump( c , env , dump , true );
@@ -324,15 +326,31 @@ public class DBMetaDump {
 		return( dump );
 	}
 
-	public static void modifyDump( TransactionBase transaction , MetaEnv env , MetaDump dump , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+	public static void modifyDumpPrimary( TransactionBase transaction , MetaDump dump , String name , String desc , MetaEnvServer server , String dataset ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		dump.modify( name , desc );
-		dump.setTarget( server , standby , setdbenv );
-		dump.setFiles( dataset , ownTables , dumpdir , datapumpdir , nfs , postRefresh );
+		MetaEnvServer serverOld = dump.findServer();
 		
+		dump.modify( name , desc );
+		dump.setTargetServer( server );
+		dump.setFilesDataset( dataset );
+
+		modifyDump( c , dump.env , dump , false );
+		
+		if( serverOld.sg.env.ID != server.sg.env.ID ) {
+			serverOld.sg.env.removeDump( dump );
+			server.sg.env.addDump( dump );
+		}
+	}
+	
+	public static void modifyDumpExecution( TransactionBase transaction , MetaDump dump , boolean standby , String setdbenv , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		dump.setTargetDetails( standby , setdbenv );
+		dump.setFilesDetails( ownTables , dumpdir , datapumpdir , nfs , postRefresh );
+		
+		MetaEnv env = dump.env;
 		modifyDump( c , env , dump , false );
-		env.updateDump( dump );
 	}
 	
 	public static void deleteDump( TransactionBase transaction , MetaEnv env , MetaDump dump ) throws Exception {

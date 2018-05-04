@@ -77,8 +77,8 @@ public class MetaEnv extends EngineObject {
 
 	private Map<String,MetaEnvSegment> sgMap;
 	private Map<Integer,MetaEnvSegment> sgMapById;
-	public Map<String,MetaDump> mapExport;
-	public Map<String,MetaDump> mapImport;
+	public Map<Integer,MetaDump> mapExportById;
+	public Map<Integer,MetaDump> mapImportById;
 
 	public MetaEnv( ProductMeta storage , Meta meta , ProductEnvs envs ) {
 		super( null );
@@ -90,8 +90,8 @@ public class MetaEnv extends EngineObject {
 		MATCHED = false;
 		sgMap = new HashMap<String,MetaEnvSegment>();
 		sgMapById = new HashMap<Integer,MetaEnvSegment>();
-		mapExport = new HashMap<String,MetaDump>();
-		mapImport = new HashMap<String,MetaDump>();
+		mapExportById = new HashMap<Integer,MetaDump>();
+		mapImportById = new HashMap<Integer,MetaDump>();
 	}
 	
 	@Override
@@ -126,12 +126,12 @@ public class MetaEnv extends EngineObject {
 			r.addSegment( rsg );
 		}
 		
-		for( MetaDump dump : mapExport.values() ) {
+		for( MetaDump dump : mapExportById.values() ) {
 			MetaDump rdump = dump.copy( rmeta , r );
 			r.addDump( rdump );
 		}
 		
-		for( MetaDump dump : mapImport.values() ) {
+		for( MetaDump dump : mapImportById.values() ) {
 			MetaDump rdump = dump.copy( rmeta , r );
 			r.addDump( rdump );
 		}
@@ -433,47 +433,58 @@ public class MetaEnv extends EngineObject {
 	}
 	
 	public String[] getExportDumpNames() {
-		return( Common.getSortedKeys( mapExport ) );
+		List<String> list = new LinkedList<String>();
+		for( MetaDump dump : mapExportById.values() )
+			list.add( dump.NAME );
+		return( Common.getSortedList( list ) );
 	}
 
 	public String[] getImportDumpNames() {
-		return( Common.getSortedKeys( mapImport ) );
+		List<String> list = new LinkedList<String>();
+		for( MetaDump dump : mapImportById.values() )
+			list.add( dump.NAME );
+		return( Common.getSortedList( list ) );
 	}
 
 	public MetaDump findExportDump( String name ) {
-		return( mapExport.get( name ) );
+		for( MetaDump dump : mapExportById.values() ) {
+			if( name.equals( dump.NAME ) )
+				return( dump );
+		}
+		return( null );
 	}
 	
 	public MetaDump findImportDump( String name ) {
-		return( mapImport.get( name ) );
+		for( MetaDump dump : mapImportById.values() ) {
+			if( name.equals( dump.NAME ) )
+				return( dump );
+		}
+		return( null );
 	}
 	
 	public void addDump( MetaDump dump ) {
 		if( dump.MODEEXPORT )
-			mapExport.put( dump.NAME , dump );
+			mapExportById.put( dump.ID , dump );
 		else
-			mapImport.put( dump.NAME , dump );
-	}
-	
-	public void updateDump( MetaDump dump ) throws Exception {
-		if( dump.MODEEXPORT )
-			Common.changeMapKey( mapExport , dump , dump.NAME );
-		else
-			Common.changeMapKey( mapImport , dump , dump.NAME );
+			mapImportById.put( dump.ID , dump );
 	}
 	
 	public void removeDump( MetaDump dump ) {
 		if( dump.MODEEXPORT )
-			mapExport.remove( dump.NAME );
+			mapExportById.remove( dump.ID );
 		else
-			mapImport.remove( dump.NAME );
+			mapImportById.remove( dump.ID );
 	}
 
 	public MetaDump findDump( int id ) {
-		for( MetaDump dump : mapExport.values() ) {
-			if( dump.ID == id )
-				return( dump );
-		}
+		MetaDump dump = mapExportById.get( id );
+		if( dump != null )
+			return( dump );
+		
+		dump = mapImportById.get( id );
+		if( dump != null )
+			return( dump );
+		
 		return( null );
 	}
 	

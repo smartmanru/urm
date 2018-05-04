@@ -119,9 +119,20 @@ public class MetaDump {
 		this.NAME = name;
 		this.DESC = desc;
 	}
-	
+
 	public void setTarget( MetaEnvServer server , boolean standby , String setdbenv ) {
+		setTargetServer( server );
+		this.USESTANDBY = standby;
+		this.REMOTE_SETDBENV = setdbenv;
+	}
+	
+	public void setTargetServer( MetaEnvServer server ) {
 		this.SERVER = server.ID;
+		this.meta = server.meta;
+		this.env = server.sg.env;
+	}
+
+	public void setTargetDetails( boolean standby , String setdbenv ) {
 		this.USESTANDBY = standby;
 		this.REMOTE_SETDBENV = setdbenv;
 	}
@@ -135,6 +146,18 @@ public class MetaDump {
 		this.POSTREFRESH = postRefresh;
 	}
 
+	public void setFilesDataset( String dataset ) {
+		this.DATASET = dataset;
+	}
+
+	public void setFilesDetails( boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) {
+		this.OWNTABLESET = ownTables;
+		this.DUMPDIR = dumpdir;
+		this.DATABASE_DATAPUMPDIR = datapumpdir;
+		this.USENFS = nfs;
+		this.POSTREFRESH = postRefresh;
+	}
+	
 	public void setSchedule( ScheduleProperties schedule ) {
 		this.schedule = schedule;
 	}
