@@ -10,6 +10,7 @@ import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -23,7 +24,6 @@ import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaDump;
 import org.urm.meta.env.MetaDumpMask;
-import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaProductCoreSettings;
@@ -31,7 +31,7 @@ import org.urm.meta.product.MetaProductSettings;
 
 public class ActionImportDatabase extends ActionBase {
 
-	MetaEnvServer server;
+	AppProduct product;
 	String TASK;
 	String CMD;
 	String SCHEMA;
@@ -50,15 +50,16 @@ public class ActionImportDatabase extends ActionBase {
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,List<MetaDumpMask>> tableSet;
 	MetaDump dump;
+	MetaEnvServer server;
 	
 	LocalFolder workFolder;
 	RemoteFolder importScriptsFolder;
 	RemoteFolder importLogFolder;
 	RemoteFolder importDataFolder;
 	
-	public ActionImportDatabase( ActionBase action , String stream , MetaEnvServer server , String TASK , String CMD , String SCHEMA ) {
-		super( action , stream , "Import database, server=" + server.NAME );
-		this.server = server;
+	public ActionImportDatabase( ActionBase action , String stream , AppProduct product , String TASK , String CMD , String SCHEMA ) {
+		super( action , stream , "Import database, product=" + product.NAME + ", task=" + TASK );
+		this.product = product;
 		this.TASK = TASK;
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
@@ -86,11 +87,12 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void loadImportSettings() throws Exception {
-		MetaEnv env = server.sg.env;
-		dump = env.findImportDump( TASK );
+		EngineProductEnvs envs = product.findEnvs();
+		dump = envs.findImportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownImportTask1 , "import task " + TASK + " is not found in product database configuraton" , TASK );
-		
+
+		server = dump.findServer();
 		DATASET = dump.DATASET;
 		DUMPDIR = dump.DUMPDIR;
 		REMOTE_SETDBENV = dump.REMOTE_SETDBENV;

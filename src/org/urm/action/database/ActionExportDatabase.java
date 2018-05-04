@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -20,14 +21,13 @@ import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaDump;
 import org.urm.meta.env.MetaDumpMask;
-import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDatabaseSchema;
 
 public class ActionExportDatabase extends ActionBase {
 
-	MetaEnvServer server;
+	AppProduct product;
 	String TASK;
 	String CMD;
 	String SCHEMA;
@@ -42,6 +42,7 @@ public class ActionExportDatabase extends ActionBase {
 	Map<String,MetaDatabaseSchema> serverSchemas;
 	Map<String,List<MetaDumpMask>> tableSet;
 	MetaDump dump;
+	MetaEnvServer server;
 
 	DistRepository repository;
 	RemoteFolder distDataFolder;
@@ -51,9 +52,9 @@ public class ActionExportDatabase extends ActionBase {
 	RemoteFolder exportDataFolder;
 	DatabaseClient client;
 
-	public ActionExportDatabase( ActionBase action , String stream , MetaEnvServer server , String TASK , String CMD , String SCHEMA ) {
-		super( action , stream , "Export database, server=" + server.NAME );
-		this.server = server;
+	public ActionExportDatabase( ActionBase action , String stream , AppProduct product , String TASK , String CMD , String SCHEMA ) {
+		super( action , stream , "Export database, product=" + product.NAME + ", task=" + TASK );
+		this.product = product;
 		this.TASK = TASK;
 		this.CMD = CMD;
 		this.SCHEMA = SCHEMA;
@@ -84,10 +85,12 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void loadExportSettings() throws Exception {
-		MetaEnv env = server.sg.env;
-		dump = env.findExportDump( TASK );
+		EngineProductEnvs envs = product.findEnvs();
+		dump = envs.findExportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownExportTask1 , "export task " + TASK + " is not found in product database configuraton" , TASK );
+		
+		server = dump.findServer();
 		
 		DATASET = dump.DATASET;
 		DUMPDIR = dump.DUMPDIR;
