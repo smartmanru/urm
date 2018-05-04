@@ -1,4 +1,4 @@
-﻿
+
 CREATE TABLE main.urm_env_dbdump (
                 dump_id INTEGER NOT NULL,
                 env_id INTEGER NOT NULL,
