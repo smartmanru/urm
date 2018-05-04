@@ -102,7 +102,7 @@ public class EntityVar {
 	}
 
 	public static EntityVar metaEnumVar( String propertyXmlKey , String propertyDatabaseKey , String propertyDesc , boolean required , DBEnumInterface defValue ) throws Exception {
-		return( metaEnumVar( propertyXmlKey , null , propertyXmlKey , propertyDesc , required , defValue ) ); 
+		return( metaEnumVar( propertyXmlKey , propertyDatabaseKey , propertyXmlKey , propertyDesc , required , defValue ) ); 
 	}
 	
 	private static EntityVar metaEnumVar( String propertyKey , String propertyDatabaseKey , String propertyXmlKey , String propertyDesc , boolean required , DBEnumInterface defValue ) throws Exception {
