@@ -19,9 +19,10 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaDump;
+import org.urm.meta.env.MetaDumpMask;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 
 public class ActionExportDatabase extends ActionBase {
@@ -39,7 +40,7 @@ public class ActionExportDatabase extends ActionBase {
 	boolean NFS;
 	
 	Map<String,MetaDatabaseSchema> serverSchemas;
-	Map<String,Map<String,String>> tableSet;
+	Map<String,List<MetaDumpMask>> tableSet;
 	MetaDump dump;
 
 	DistRepository repository;
@@ -83,8 +84,8 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void loadExportSettings() throws Exception {
-		MetaDatabase db = server.meta.getDatabase();
-		dump = db.findExportDump( TASK );
+		MetaEnv env = server.sg.env;
+		dump = env.findExportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownExportTask1 , "export task " + TASK + " is not found in product database configuraton" , TASK );
 		
@@ -92,8 +93,8 @@ public class ActionExportDatabase extends ActionBase {
 		DUMPDIR = dump.DUMPDIR;
 		REMOTE_SETDBENV = dump.REMOTE_SETDBENV;
 		DATABASE_DATAPUMPDIR = dump.DATABASE_DATAPUMPDIR;
-		STANDBY = dump.STANDBY; 
-		NFS = dump.NFS; 
+		STANDBY = dump.USESTANDBY; 
+		NFS = dump.USENFS; 
 
 		serverSchemas = new HashMap<String,MetaDatabaseSchema>();
 		for( MetaDatabaseSchema schema : server.getSchemaSet() )
@@ -185,7 +186,7 @@ public class ActionExportDatabase extends ActionBase {
 		if( !STANDBY ) {
 			AppProduct product = server.meta.findProduct();
 			ProductStorage ms = artefactory.getMetadataStorage( this , product );
-			ms.loadDatapumpSet( this , tableSet , server , STANDBY , true );
+			ms.createdbDatapumpSet( this , tableSet , server , STANDBY , true );
 		}
 		
 		boolean full = ( CMD.equals( "all" ) )? true : false;

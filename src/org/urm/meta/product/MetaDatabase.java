@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.meta.env.MetaDump;
 import org.urm.meta.loader.MatchItem;
 
 public class MetaDatabase {
@@ -14,8 +13,6 @@ public class MetaDatabase {
 	public MetaDatabaseAdministration admin;
 	public Map<String,MetaDatabaseSchema> mapSchema;
 	public Map<Integer,MetaDatabaseSchema> mapSchemaById;
-	public Map<String,MetaDump> mapExport;
-	public Map<String,MetaDump> mapImport;
 	
 	public String ALIGNEDMAPPING;
 	
@@ -25,8 +22,6 @@ public class MetaDatabase {
 		admin = new MetaDatabaseAdministration( meta , this );
 		mapSchema = new HashMap<String,MetaDatabaseSchema>();
 		mapSchemaById = new HashMap<Integer,MetaDatabaseSchema>();
-		mapExport = new HashMap<String,MetaDump>();
-		mapImport = new HashMap<String,MetaDump>();
 	}
 
 	public MetaDatabase copy( Meta rmeta ) throws Exception {
@@ -78,22 +73,6 @@ public class MetaDatabase {
 		return( mapSchema.get( item.FKNAME ) );
 	}
 	
-	public String[] getExportDumpNames() {
-		return( Common.getSortedKeys( mapExport ) );
-	}
-
-	public String[] getImportDumpNames() {
-		return( Common.getSortedKeys( mapImport ) );
-	}
-
-	public MetaDump findExportDump( String name ) {
-		return( mapExport.get( name ) );
-	}
-	
-	public MetaDump findImportDump( String name ) {
-		return( mapImport.get( name ) );
-	}
-	
 	public MetaDatabaseSchema getSchema( String name ) throws Exception {
 		MetaDatabaseSchema schema = mapSchema.get( name );
 		if( schema == null )
@@ -132,27 +111,6 @@ public class MetaDatabase {
 		mapSchemaById.remove( schema.ID );
 	}
 
-	public void addDump( MetaDump dump ) {
-		if( dump.EXPORT )
-			mapExport.put( dump.NAME , dump );
-		else
-			mapImport.put( dump.NAME , dump );
-	}
-	
-	public void updateDump( MetaDump dump ) throws Exception {
-		if( dump.EXPORT )
-			Common.changeMapKey( mapExport , dump , dump.NAME );
-		else
-			Common.changeMapKey( mapImport , dump , dump.NAME );
-	}
-	
-	public void removeDump( MetaDump dump ) {
-		if( dump.EXPORT )
-			mapExport.remove( dump.NAME );
-		else
-			mapImport.remove( dump.NAME );
-	}
-	
 	public MatchItem getSchemaMatchItem( Integer id , String name ) throws Exception {
 		if( id == null && name.isEmpty() )
 			return( null );

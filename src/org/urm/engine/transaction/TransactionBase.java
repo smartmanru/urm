@@ -45,6 +45,7 @@ import org.urm.meta.engine.Network;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.env.MetaDump;
+import org.urm.meta.env.MetaDumpMask;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -1381,6 +1382,10 @@ public class TransactionBase extends EngineObject {
 		return( null );
 	}
 
+	public MetaEnv getTransactionEnv( MetaEnv env ) throws Exception {
+		return( getTransactionEnv( env.ID ) );
+	}
+	
 	public MetaEnv getTransactionEnv( int envId ) throws Exception {
 		for( TransactionProduct tm : productChanges.values() ) {
 			MetaEnv env = tm.findTransactionEnv( envId );
@@ -1488,11 +1493,15 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public MetaDump getDump( MetaDump dump ) throws Exception {
-		Meta meta = getTransactionMetadata( dump.meta );
-		MetaDatabase db = meta.getDatabase();
-		if( dump.EXPORT )
-			return( db.findExportDump( dump.NAME ) );
-		return( db.findImportDump( dump.NAME ) );
+		MetaEnv env = getTransactionEnv( dump.env );
+		if( dump.MODEEXPORT )
+			return( env.findExportDump( dump.NAME ) );
+		return( env.findImportDump( dump.NAME ) );
+	}
+	
+	public MetaDumpMask getDumpMask( MetaDumpMask mask ) throws Exception {
+		MetaDump dump = getDump( mask.dump );
+		return( dump.getDumpMask( mask.ID ) );
 	}
 	
 	public MetaMonitoringTarget getMonitoringTarget( MetaMonitoringTarget target ) throws Exception {

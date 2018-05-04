@@ -22,8 +22,9 @@ import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaDump;
+import org.urm.meta.env.MetaDumpMask;
+import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
@@ -47,7 +48,7 @@ public class ActionImportDatabase extends ActionBase {
 	boolean NFS;
 
 	Map<String,MetaDatabaseSchema> serverSchemas;
-	Map<String,Map<String,String>> tableSet;
+	Map<String,List<MetaDumpMask>> tableSet;
 	MetaDump dump;
 	
 	LocalFolder workFolder;
@@ -85,8 +86,8 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void loadImportSettings() throws Exception {
-		MetaDatabase db = server.meta.getDatabase();
-		dump = db.findExportDump( TASK );
+		MetaEnv env = server.sg.env;
+		dump = env.findImportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownImportTask1 , "import task " + TASK + " is not found in product database configuraton" , TASK );
 		
@@ -95,7 +96,7 @@ public class ActionImportDatabase extends ActionBase {
 		REMOTE_SETDBENV = dump.REMOTE_SETDBENV;
 		DATABASE_DATAPUMPDIR = dump.DATABASE_DATAPUMPDIR;
 		POSTREFRESH = dump.POSTREFRESH;
-		NFS = dump.NFS; 
+		NFS = dump.USENFS; 
 
 		serverSchemas = new HashMap<String,MetaDatabaseSchema>();
 		for( MetaDatabaseSchema schema : server.getSchemaSet() )
@@ -220,7 +221,7 @@ public class ActionImportDatabase extends ActionBase {
 		if( CMD.equals( "all" ) || CMD.equals( "data" ) ) {
 			AppProduct product = server.meta.findProduct();
 			ProductStorage ms = artefactory.getMetadataStorage( this , product );
-			ms.loadDatapumpSet( this , tableSet , server , false , false );
+			ms.createdbDatapumpSet( this , tableSet , server , false , false );
 			
 			if( CMD.equals( "data" ) && !SCHEMA.isEmpty() )
 				runTarget( "data" , SCHEMA );

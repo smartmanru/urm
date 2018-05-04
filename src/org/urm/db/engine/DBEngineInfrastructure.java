@@ -44,15 +44,11 @@ public class DBEngineInfrastructure {
 	public static String FIELD_HOST_ID = "host_id";
 	public static String FIELD_HOST_NETWORK = "network_id";
 	public static String FIELD_HOST_DESC = "xdesc";
+	public static String FIELD_HOST_OSTYPE = "os_type";
 	public static String FIELD_ACCOUNT_ID = "account_id";
 	public static String FIELD_ACCOUNT_HOST = "host_id";
 	public static String FIELD_ACCOUNT_DESC = "xdesc";
 	public static String FIELD_ACCOUNT_RESOURCE = "resource_id";
-	public static String XMLPROP_DATACENTER_NAME = "id";
-	public static String XMLPROP_NETWORK_NAME = "id";
-	public static String XMLPROP_HOST_NAME = "id";
-	public static String XMLPROP_HOST_OSTYPE = "ostype";
-	public static String XMLPROP_ACCOUNT_NAME = "id";
 	
 	public static PropertyEntity makeEntityDatacenter( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.DATACENTER , DBEnumParamEntityType.DATACENTER , DBEnumObjectVersionType.CORE , TABLE_DATACENTER , FIELD_DATACENTER_ID , false );
@@ -62,8 +58,8 @@ public class DBEngineInfrastructure {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaStringVar( Datacenter.PROPERTY_NAME , Datacenter.PROPERTY_NAME , XMLPROP_DATACENTER_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( Datacenter.PROPERTY_DESC , FIELD_DATACENTER_DESC , Datacenter.PROPERTY_DESC , "Description" , false , null )
+				EntityVar.metaStringVar( Datacenter.PROPERTY_NAME , Datacenter.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( Datacenter.PROPERTY_DESC , FIELD_DATACENTER_DESC , "Description" , false , null )
 		} ) );
 	}
 
@@ -76,8 +72,8 @@ public class DBEngineInfrastructure {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringDatabaseOnly( FIELD_NETWORK_DATACENTER , "Datacenter" , true , null ) ,
-				EntityVar.metaStringVar( Network.PROPERTY_NAME , Network.PROPERTY_NAME , XMLPROP_NETWORK_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( Network.PROPERTY_DESC , FIELD_NETWORK_DESC , Network.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( Network.PROPERTY_NAME , Network.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( Network.PROPERTY_DESC , FIELD_NETWORK_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( Network.PROPERTY_MASK , "Address mask" , true , null )
 		} ) );
 	}
@@ -91,11 +87,11 @@ public class DBEngineInfrastructure {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringDatabaseOnly( FIELD_HOST_NETWORK , "Network" , true , null ) ,
-				EntityVar.metaStringVar( NetworkHost.PROPERTY_NAME , NetworkHost.PROPERTY_NAME , XMLPROP_HOST_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( NetworkHost.PROPERTY_DESC , FIELD_HOST_DESC , NetworkHost.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( NetworkHost.PROPERTY_NAME , NetworkHost.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( NetworkHost.PROPERTY_DESC , FIELD_HOST_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( NetworkHost.PROPERTY_IP , "IP address" , true , null ) ,
 				EntityVar.metaInteger( NetworkHost.PROPERTY_PORT , "Port" , true , 22 ) ,
-				EntityVar.metaEnumVar( NetworkHost.PROPERTY_OSTYPE , NetworkHost.PROPERTY_OSTYPE , XMLPROP_HOST_OSTYPE , "Operating system" , true , DBEnumOSType.UNKNOWN )
+				EntityVar.metaEnumVar( NetworkHost.PROPERTY_OSTYPE , FIELD_HOST_OSTYPE , "Operating system" , true , DBEnumOSType.UNKNOWN )
 		} ) );
 	}
 
@@ -108,10 +104,10 @@ public class DBEngineInfrastructure {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringDatabaseOnly( FIELD_ACCOUNT_HOST , "Host" , true , null ) ,
-				EntityVar.metaStringVar( HostAccount.PROPERTY_NAME , HostAccount.PROPERTY_NAME , XMLPROP_ACCOUNT_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( HostAccount.PROPERTY_DESC , FIELD_ACCOUNT_DESC , HostAccount.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( HostAccount.PROPERTY_NAME , HostAccount.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( HostAccount.PROPERTY_DESC , FIELD_ACCOUNT_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( HostAccount.PROPERTY_ADMIN , "Administrator role" , true , false ) ,
-				EntityVar.metaObjectVar( HostAccount.PROPERTY_RESOURCE , FIELD_ACCOUNT_RESOURCE , HostAccount.PROPERTY_RESOURCE , "Authorized resource" , DBEnumObjectType.RESOURCE , false )
+				EntityVar.metaObjectVar( HostAccount.PROPERTY_RESOURCE , FIELD_ACCOUNT_RESOURCE , "Authorized resource" , DBEnumObjectType.RESOURCE , false )
 		} ) );
 	}
 

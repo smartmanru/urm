@@ -5,7 +5,6 @@ import org.urm.engine.Engine;
 import org.urm.meta.env.MetaDump;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.ProductMeta;
 
 public class EngineProductEnvs {
@@ -49,20 +48,15 @@ public class EngineProductEnvs {
 	}
 
 	public String[] getExportDumpNames() {
-		EngineProductRevisions revisions = ep.getRevisions();
 		String[] list = new String[0];
-		for( ProductMeta storage : revisions.getRevisions() ) {
-			MetaDatabase db = storage.getDatabase();
-			list = Common.addArrays( list , db.getExportDumpNames() );
-		}
+		for( MetaEnv env : getEnvs() )
+			list = Common.addArrays( list , env.getExportDumpNames() );
 		return( Common.getSortedList( list ) );
 	}
 
 	public MetaDump findExportDump( String name ) {
-		EngineProductRevisions revisions = ep.getRevisions();
-		for( ProductMeta storage : revisions.getRevisions() ) {
-			MetaDatabase db = storage.getDatabase();
-			MetaDump dump = db.findExportDump( name );
+		for( MetaEnv env : getEnvs() ) {
+			MetaDump dump = env.findExportDump( name );
 			if( dump != null )
 				return( dump );
 		}
@@ -70,20 +64,15 @@ public class EngineProductEnvs {
 	}
 	
 	public String[] getImportDumpNames() {
-		EngineProductRevisions revisions = ep.getRevisions();
 		String[] list = new String[0];
-		for( ProductMeta storage : revisions.getRevisions() ) {
-			MetaDatabase db = storage.getDatabase();
-			list = Common.addArrays( list , db.getImportDumpNames() );
-		}
+		for( MetaEnv env : getEnvs() )
+			list = Common.addArrays( list , env.getImportDumpNames() );
 		return( Common.getSortedList( list ) );
 	}
 
 	public MetaDump findImportDump( String name ) {
-		EngineProductRevisions revisions = ep.getRevisions();
-		for( ProductMeta storage : revisions.getRevisions() ) {
-			MetaDatabase db = storage.getDatabase();
-			MetaDump dump = db.findImportDump( name );
+		for( MetaEnv env : getEnvs() ) {
+			MetaDump dump = env.findImportDump( name );
 			if( dump != null )
 				return( dump );
 		}

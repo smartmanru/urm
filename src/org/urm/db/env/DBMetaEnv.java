@@ -60,6 +60,7 @@ public class DBMetaEnv {
 		
 		importxmlMain( loader , storage , name , env , root );
 		importxmlSegments( loader , storage , env , root );
+		DBMetaDump.importxmlAll( loader , storage , env , root );
 		
 		envs.addEnv( env );
 		return( env );
@@ -166,6 +167,7 @@ public class DBMetaEnv {
 	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
 		exportxmlMain( loader , storage , env , doc , root );
 		exportxmlSegments( loader , storage , env , doc , root );
+		DBMetaDump.exportxmlAll( loader , storage , env , doc , root );
 	}
 
 	private static void exportxmlMain( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
@@ -333,6 +335,7 @@ public class DBMetaEnv {
 		env.scatterExtraProperties();
 		
 		DBMetaEnvSegment.loaddb( loader , storage , env );
+		DBMetaDump.loaddbAll( loader , storage , env );
 	}
 	
 	public static void setMatched( EngineLoader loader , MetaEnv env , boolean matched ) throws Exception {

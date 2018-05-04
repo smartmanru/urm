@@ -4,6 +4,7 @@ import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.*;
+import org.urm.db.env.DBMetaDump;
 import org.urm.db.env.DBMetaEnv;
 import org.urm.db.env.DBMetaEnvSegment;
 import org.urm.db.env.DBMetaEnvServer;
@@ -37,6 +38,7 @@ import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.*;
 import org.urm.meta.env.MetaDump;
+import org.urm.meta.env.MetaDumpMask;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -1286,47 +1288,44 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnv.updateExtraProperties( this , storage , env );
 	}
 	
-	public MetaDump createDump( MetaEnvServer server , MetaDatabase db , boolean export , String name , String desc , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+	public MetaDump createDump( MetaEnvServer server , boolean export , String name , String desc , boolean standby , String setdbenv , String dataset , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
 		super.checkTransactionEnv( server.sg.env );
-		MetaDump dump = new MetaDump( db.meta , db );
-		dump.create( name , desc , export );
-		dump.setTarget( server , standby , setdbenv );
-		dump.setFiles( dataset , dumpdir , datapumpdir , nfs , postRefresh );
-		//db.createDump( this , dump );
-		return( dump );
+		return( DBMetaDump.createDump( this , server.sg.env , server , export , name , desc , standby , setdbenv , dataset , ownTables , dumpdir , datapumpdir , nfs , postRefresh ) );
 	}
 	
-	public void modifyDump( MetaDump dump , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+	public void modifyDump( MetaDump dump , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
 		super.checkTransactionEnv( server.sg.env );
-		dump.modify( name , desc );
-		dump.setTarget( server , standby , setdbenv );
-		dump.setFiles( dataset , dumpdir , datapumpdir , nfs , postRefresh );
-		dump.database.updateDump( dump );
+		DBMetaDump.modifyDump( this , dump.env , dump , name , desc , server , standby , setdbenv , dataset , ownTables , dumpdir , datapumpdir , nfs , postRefresh );
 	}
 	
 	public void deleteDump( MetaDump dump ) throws Exception {
-		//super.checkTransactionEnv( dump.server.sg.env );
-		//dump.database.deleteDump( this , dump );
+		super.checkTransactionEnv( dump.env );
+		DBMetaDump.deleteDump( this , dump.env , dump );
 	}
 
-	public void createDumpTables( MetaDump dump , String schema , String tables ) throws Exception {
-		super.checkTransactionMetadata( dump.database.meta.getStorage() );
-		dump.addTables( schema , tables );
+	public MetaDumpMask createDumpMask( MetaDump dump , MetaDatabaseSchema schema , boolean include , String tables ) throws Exception {
+		super.checkTransactionEnv( dump.env );
+		return( DBMetaDump.createDumpMask( this , dump.env , dump , schema , include , tables ) );
 	}
 	
-	public void deleteDumpTables( MetaDump dump , int index ) throws Exception {
-		super.checkTransactionMetadata( dump.database.meta.getStorage() );
-		dump.deleteTables( index );
+	public void modifyDumpMask( MetaDumpMask mask , MetaDatabaseSchema schema , boolean include , String tables ) throws Exception {
+		super.checkTransactionEnv( mask.dump.env );
+		DBMetaDump.modifyDumpMask( this , mask.dump.env , mask.dump , mask , schema , include , tables );
+	}
+	
+	public void deleteDumpMask( MetaDumpMask mask ) throws Exception {
+		super.checkTransactionEnv( mask.dump.env );
+		DBMetaDump.deleteDumpMask( this , mask.dump.env , mask.dump , mask );
 	}
 
-	public void setDumpOnline( MetaDump dump , boolean online ) throws Exception {
-		super.checkTransactionMetadata( dump.database.meta.getStorage() );
-		dump.setOnline( online );
+	public void setDumpOnline( MetaDump dump , boolean offline ) throws Exception {
+		super.checkTransactionEnv( dump.env );
+		DBMetaDump.setDumpOffline( this , dump.env , dump , offline );
 	}
 
 	public void setDumpSchedule( MetaDump dump , ScheduleProperties schedule ) throws Exception {
-		super.checkTransactionMetadata( dump.database.meta.getStorage() );
-		dump.setSchedule( schedule );
+		super.checkTransactionEnv( dump.env );
+		DBMetaDump.setDumpSchedule( this , dump.env , dump , schedule );
 	}
 
 	public MetaMonitoringTarget modifyMonitoringTarget( MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {

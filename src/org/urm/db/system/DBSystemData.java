@@ -49,7 +49,7 @@ public class DBSystemData {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AppSystem.PROPERTY_DESC , FIELD_SYSTEM_DESC , AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( AppSystem.PROPERTY_DESC , FIELD_SYSTEM_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true ) ,
 				EntityVar.metaBooleanDatabaseOnly( FIELD_SYSTEM_MATCHED , "State of matched to core" , false , true )
 		} ) );
@@ -65,18 +65,18 @@ public class DBSystemData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_PRODUCT_SYSTEM_ID , "System" , DBEnumObjectType.APPSYSTEM , true ) ,
 				EntityVar.metaString( AppProduct.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AppProduct.PROPERTY_DESC , FIELD_PRODUCT_DESC , AppProduct.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( AppProduct.PROPERTY_DESC , FIELD_PRODUCT_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( AppProduct.PROPERTY_PATH , "Path" , true , null ) ,
 				EntityVar.metaBoolean( AppProduct.PROPERTY_OFFLINE , "Offline" , false , true ) ,
-				EntityVar.metaBooleanVar( AppProduct.PROPERTY_MONITORING_ENABLED , FIELD_PRODUCT_MONITORING_ENABLED , AppProduct.PROPERTY_MONITORING_ENABLED , "Monitoring enabled" , false , false ) ,
-				EntityVar.metaIntegerVar( AppProduct.PROPERTY_LAST_MAJOR_FIRST , FIELD_PRODUCT_LAST_MAJOR1 , AppProduct.PROPERTY_LAST_MAJOR_FIRST , "Major last version, first number" , true , null ) ,
-				EntityVar.metaIntegerVar( AppProduct.PROPERTY_LAST_MAJOR_SECOND , FIELD_PRODUCT_LAST_MAJOR2 , AppProduct.PROPERTY_LAST_MAJOR_SECOND , "Major last version, last number" , true , null ) ,
-				EntityVar.metaIntegerVar( AppProduct.PROPERTY_LAST_MINOR_FIRST , FIELD_PRODUCT_LAST_MINOR1 , AppProduct.PROPERTY_LAST_MINOR_FIRST , "Minor last version, first number" , true , null ) ,
-				EntityVar.metaIntegerVar( AppProduct.PROPERTY_LAST_MINOR_SECOND , FIELD_PRODUCT_LAST_MINOR2 , AppProduct.PROPERTY_LAST_MINOR_SECOND , "Minor last version, last number" , true , null ) ,
-				EntityVar.metaIntegerVar( AppProduct.PROPERTY_NEXT_MAJOR_FIRST , FIELD_PRODUCT_NEXT_MAJOR1 , AppProduct.PROPERTY_NEXT_MAJOR_FIRST , "Major next version, first number" , true , null ) ,
-				EntityVar.metaIntegerVar( AppProduct.PROPERTY_NEXT_MAJOR_SECOND , FIELD_PRODUCT_NEXT_MAJOR2 , AppProduct.PROPERTY_NEXT_MAJOR_SECOND , "Major next version, last number" , true , null ) ,
-				EntityVar.metaIntegerVar( AppProduct.PROPERTY_NEXT_MINOR_FIRST , FIELD_PRODUCT_NEXT_MINOR1 , AppProduct.PROPERTY_NEXT_MINOR_FIRST , "Minor next version, first number" , true , null ) ,
-				EntityVar.metaIntegerVar( AppProduct.PROPERTY_NEXT_MINOR_SECOND , FIELD_PRODUCT_NEXT_MINOR2 , AppProduct.PROPERTY_NEXT_MINOR_SECOND , "Minor next version, second number" , true , null )
+				EntityVar.metaBooleanVar( AppProduct.PROPERTY_MONITORING_ENABLED , FIELD_PRODUCT_MONITORING_ENABLED , "Monitoring enabled" , false , false ) ,
+				EntityVar.metaIntegerVar( AppProduct.PROPERTY_LAST_MAJOR_FIRST , FIELD_PRODUCT_LAST_MAJOR1 , "Major last version, first number" , true , null ) ,
+				EntityVar.metaIntegerVar( AppProduct.PROPERTY_LAST_MAJOR_SECOND , FIELD_PRODUCT_LAST_MAJOR2 , "Major last version, last number" , true , null ) ,
+				EntityVar.metaIntegerVar( AppProduct.PROPERTY_LAST_MINOR_FIRST , FIELD_PRODUCT_LAST_MINOR1 , "Minor last version, first number" , true , null ) ,
+				EntityVar.metaIntegerVar( AppProduct.PROPERTY_LAST_MINOR_SECOND , FIELD_PRODUCT_LAST_MINOR2 , "Minor last version, last number" , true , null ) ,
+				EntityVar.metaIntegerVar( AppProduct.PROPERTY_NEXT_MAJOR_FIRST , FIELD_PRODUCT_NEXT_MAJOR1 , "Major next version, first number" , true , null ) ,
+				EntityVar.metaIntegerVar( AppProduct.PROPERTY_NEXT_MAJOR_SECOND , FIELD_PRODUCT_NEXT_MAJOR2 , "Major next version, last number" , true , null ) ,
+				EntityVar.metaIntegerVar( AppProduct.PROPERTY_NEXT_MINOR_FIRST , FIELD_PRODUCT_NEXT_MINOR1 , "Minor next version, first number" , true , null ) ,
+				EntityVar.metaIntegerVar( AppProduct.PROPERTY_NEXT_MINOR_SECOND , FIELD_PRODUCT_NEXT_MINOR2 , "Minor next version, second number" , true , null )
 		} ) );
 	}
 
@@ -88,7 +88,7 @@ public class DBSystemData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
-				EntityVar.metaBooleanVar( AppProductPolicy.PROPERTY_RELEASELC_URGENTANY , FIELD_POLICY_LCURGENTALL , AppProductPolicy.PROPERTY_RELEASELC_URGENTANY , "Any urgent lifecycle enabled" , true , false )
+				EntityVar.metaBooleanVar( AppProductPolicy.PROPERTY_RELEASELC_URGENTANY , FIELD_POLICY_LCURGENTALL , "Any urgent lifecycle enabled" , true , false )
 		} ) );
 	}
 

@@ -105,6 +105,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppServerDeployment;
 	public PropertyEntity entityAppServerDependency;
 	public PropertyEntity entityAppNodePrimary;
+	public PropertyEntity entityAppDump;
+	public PropertyEntity entityAppDumpMask;
 	public PropertyEntity entityAppReleaseRepository;
 	public PropertyEntity entityAppReleaseMain;
 	public PropertyEntity entityAppReleaseDist;
@@ -184,6 +186,8 @@ public class EngineEntities {
 		entityAppServerDeployment = DBEnvData.makeEntityServerDeployment( c , upgrade );
 		entityAppServerDependency = DBEnvData.makeEntityServerDependency( c , upgrade );
 		entityAppNodePrimary = DBEnvData.makeEntityNodePrimary( c , upgrade );
+		entityAppDump = DBEnvData.makeEntityDump( c , upgrade );
+		entityAppDumpMask = DBEnvData.makeEntityDumpMask( c , upgrade );
 		entityAppReleaseRepository = DBReleaseData.makeEntityReleaseRepository( c , upgrade );
 		entityAppReleaseMain = DBReleaseData.makeEntityReleaseMain( c , upgrade );
 		entityAppReleaseDist = DBReleaseData.makeEntityReleaseDist( c , upgrade );
