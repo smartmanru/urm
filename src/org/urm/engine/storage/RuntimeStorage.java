@@ -321,11 +321,15 @@ public class RuntimeStorage extends ServerStorage {
 	}
 
 	public void createRootPath( ActionBase action ) throws Exception {
+		if( server.ROOTPATH.isEmpty() )
+			Common.exitUnexpected();
 		RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , server.ROOTPATH );
 		runtimeDir.ensureExists( action );
 	}
 	
 	public void createBinPath( ActionBase action ) throws Exception {
+		if( server.ROOTPATH.isEmpty() )
+			Common.exitUnexpected();
 		String path = Common.getPath( server.ROOTPATH , server.BINPATH );
 		RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , path );
 		runtimeDir.ensureExists( action );
