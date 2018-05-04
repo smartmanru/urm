@@ -8,7 +8,7 @@ CREATE TABLE main.urm_env_dbdump (
                 modeexport BOOLEAN NOT NULL,
                 dataset VARCHAR NOT NULL,
                 owntableset BOOLEAN NOT NULL,
-                dumpdir VARCHAR NOT NULL,
+                dumpdir VARCHAR,
                 remote_setdbenv VARCHAR,
                 database_datapumpdir VARCHAR,
                 postrefresh VARCHAR,

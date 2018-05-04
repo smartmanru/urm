@@ -55,7 +55,8 @@ public class MetaDump {
 		this.meta = meta;
 		this.env = env;
 		
-		tables = new HashMap<Integer,MetaDumpMask>(); 
+		schedule = new ScheduleProperties();
+		tables = new HashMap<Integer,MetaDumpMask>();
 	}
 	
 	public MetaDump copy( Meta rmeta , MetaEnv renv ) throws Exception {

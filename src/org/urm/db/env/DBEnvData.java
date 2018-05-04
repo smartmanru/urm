@@ -395,7 +395,7 @@ public class DBEnvData {
 				EntityVar.metaBooleanVar( MetaDump.PROPERTY_EXPORT , FIELD_DUMP_EXPORT , "export direction" , true , true ) ,
 				EntityVar.metaString( MetaDump.PROPERTY_DATASET , "dataset folder" , true , null ) ,
 				EntityVar.metaBoolean( MetaDump.PROPERTY_OWNTABLESET , "own table set" , true , false ) ,
-				EntityVar.metaString( MetaDump.PROPERTY_DUMPDIR , "dump directory to put/get files" , true , null ) ,
+				EntityVar.metaString( MetaDump.PROPERTY_DUMPDIR , "dump directory to put/get files" , false , null ) ,
 				EntityVar.metaStringVar( MetaDump.PROPERTY_SETDBENV , FIELD_DUMP_SETDBENV , "context setup script" , false , null ) ,
 				EntityVar.metaStringVar( MetaDump.PROPERTY_DATAPUMPDIR , FIELD_DUMP_DATAPUMPDIR , "dump directory seen from database" , false , null ) ,
 				EntityVar.metaString( MetaDump.PROPERTY_POSTREFRESH , "product data folder where there are postrefresh scripts to be applied after import" , false , null ) ,
