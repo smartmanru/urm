@@ -31,6 +31,9 @@ public class DatabaseClient {
 	}
 	
 	public boolean checkConnect( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+		this.server = server;
+		this.node = node;
+		
 		specific = new DatabaseSpecific( server , node );
 		admSchema = server.getAdmSchema();
 		

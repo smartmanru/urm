@@ -1165,7 +1165,7 @@ public abstract class DBEnums {
     	
 		return( null );
     }
-    
+
     public static void verifyDatabase( EngineLoader loader ) throws Exception {
     	DBConnection c = loader.getConnection();
     	ResultSet rs = c.query( DBQueries.QUERY_ENUMS_GETALL0 );

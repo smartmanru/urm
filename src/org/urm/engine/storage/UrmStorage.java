@@ -65,7 +65,7 @@ public class UrmStorage {
 		if( dbtype == DBEnumDbmsType.FIREBIRD )
 			dbFolder = "firebird";
 		else
-			action.exitUnexpectedState();
+			action.exit1( _Error.UnexpectedDatabaseType1 , "unexpected database type=" + dbtype.name() , dbtype.name() );
 		
 		if( !remoteRun )
 			ostype = DBEnumOSType.getValue( action.execrc.osType );
