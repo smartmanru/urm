@@ -101,7 +101,7 @@ public abstract class GenericVCS {
 		if( res.isGit() )
 			return( new GitVCS( action , meta , res , shell , builder ) );
 		
-		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.RESOURCE_TYPE ) , res.NAME , Common.getEnumLower( res.RESOURCE_TYPE ) );
+		action.exit2( _Error.UnexectedVcsType2 , "unexpected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.RESOURCE_TYPE ) , res.NAME , Common.getEnumLower( res.RESOURCE_TYPE ) );
 		return( null );
 	}
 	
