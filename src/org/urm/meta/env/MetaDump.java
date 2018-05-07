@@ -182,7 +182,7 @@ public class MetaDump {
 					continue;
 			}
 			
-			List<MetaDumpMask> schemaSet = tableSet.get( schema );
+			List<MetaDumpMask> schemaSet = tableSet.get( schema.NAME );
 			if( schemaSet == null ) {
 				schemaSet = new LinkedList<MetaDumpMask>();
 				tableSet.put( schema.NAME , schemaSet );
