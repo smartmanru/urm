@@ -575,7 +575,7 @@ public class DBMetaSources {
 		MirrorRepository mirror = DBEngineMirrors.createProjectMirror( transaction , mirrors , project , repoRes , repoName , repoPath , codePath );
 		
 		project.setSource( type , tracker , new MatchItem( mirror.ID ) , null , "" , "" , "" );
-		project.setBuild( new MatchItem( builder ) , addOptions , branch );
+		project.setBuild( MatchItem.create( builder ) , addOptions , branch );
 		project.setCustom( customBuild , customGet );
 		modifyProject( c , storage , project , true , EnumModifyType.NORMAL );
 		
