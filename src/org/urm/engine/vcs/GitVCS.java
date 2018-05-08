@@ -47,6 +47,20 @@ public class GitVCS extends GenericVCS {
 	}
 	
 	@Override 
+	public String[] getBranches( MetaSourceProject project ) throws Exception {
+		GitProjectRepo repo = getRepo( project , "" );
+		repo.refreshRepository();
+		return( repo.getBranches() );
+	}
+	
+	@Override 
+	public String[] getTags( MetaSourceProject project ) throws Exception {
+		GitProjectRepo repo = getRepo( project , "" );
+		repo.refreshRepository();
+		return( repo.getTags() );
+	}
+	
+	@Override 
 	public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
 		GitProjectRepo repo = getRepo( project , BRANCH );
 		repo.refreshMirror();

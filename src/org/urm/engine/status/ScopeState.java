@@ -27,7 +27,9 @@ public class ScopeState extends ObjectState {
 		PROCESSMODE ,
 		PROCESSACTION ,
 		BASEITEM ,
-		VERSION
+		VERSION ,
+		BRANCHNAME ,
+		TAGNAME
 	};
 	
 	public ActionCore action;

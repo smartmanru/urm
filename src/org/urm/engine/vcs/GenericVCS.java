@@ -36,6 +36,8 @@ public abstract class GenericVCS {
 	public abstract boolean ignoreDir( String name );
 	public abstract boolean ignoreFile( String name );
 	
+	public abstract String[] getBranches( MetaSourceProject project ) throws Exception;
+	public abstract String[] getTags( MetaSourceProject project ) throws Exception;
 	public abstract boolean checkout( MetaSourceProject project , LocalFolder PATCHPATH , String BRANCH ) throws Exception;
 	public abstract boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHPATH , String MESSAGE ) throws Exception;
 	public abstract boolean copyBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) throws Exception;

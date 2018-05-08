@@ -45,6 +45,7 @@ public class CommandExecutorCodebase extends CommandExecutor {
 		super.defineAction( new CodebaseDropBranch() , CodebaseCommandMeta.METHOD_DROPBRANCH );
 		super.defineAction( new CodebaseDropTags() , CodebaseCommandMeta.METHOD_DROPTAGS );
 		super.defineAction( new CodebaseExport() , CodebaseCommandMeta.METHOD_EXPORT );
+		super.defineAction( new CodebaseList() , CodebaseCommandMeta.METHOD_LIST );
 		super.defineAction( new CodebaseRenameBranch() , CodebaseCommandMeta.METHOD_RENAMEBRANCH );
 		super.defineAction( new CodebaseRenameTags() , CodebaseCommandMeta.METHOD_RENAMETAGS );
 		super.defineAction( new CodebaseSetVersion() , CodebaseCommandMeta.METHOD_SETVERSION );
@@ -269,6 +270,14 @@ public class CommandExecutorCodebase extends CommandExecutor {
 		ActionScope scope = getCodebaseScope( action , 1 ); 
 		LocalFolder CODIR = action.artefactory.getAnyFolder( action , CODIRNAME );
 		CodebaseCommand.export( parentState , action , scope , CODIR , "" );
+	}
+	}
+	
+	private class CodebaseList extends CommandMethod {
+	public void run( ScopeState parentState , ActionBase action ) throws Exception {
+		String CMD = getArg( action , 0 );
+		ActionScope scope = getCodebaseScope( action , 1 ); 
+		CodebaseCommand.list( parentState , action , scope , CMD );
 	}
 	}
 	

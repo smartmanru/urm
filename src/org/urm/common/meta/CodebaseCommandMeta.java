@@ -24,6 +24,7 @@ public class CodebaseCommandMeta extends CommandMeta {
 	public static String METHOD_DROPBRANCH = "dropbranch";
 	public static String METHOD_DROPTAGS = "droptags";
 	public static String METHOD_EXPORT = "export";
+	public static String METHOD_LIST = "list";
 	public static String METHOD_RENAMEBRANCH = "renamebranch";
 	public static String METHOD_RENAMETAGS = "renametags";
 	public static String METHOD_SETVERSION = "setversion";
@@ -64,6 +65,7 @@ public class CodebaseCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_DROPBRANCH , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "drop branches" , cmdOpts , "<BRANCH> [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_DROPTAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "drop tags" , cmdOpts , "<TAG> [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_EXPORT , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CODEBASE , true , "codebase export" , cmdOpts , "<CODIR> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_LIST , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CODEBASE , true , "show codebase items" , cmdOpts , "{branches|tags} [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_RENAMEBRANCH , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "rename branch" , cmdOpts , "<SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_RENAMETAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "rename tag" , cmdOpts , "<SRCTAG> <DSTTAG> [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_SETVERSION , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "change version in pom.xml using maven" , cmdOpts , "<VERSION> [set [projects]]" ) );

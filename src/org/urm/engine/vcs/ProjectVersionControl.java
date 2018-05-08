@@ -31,6 +31,16 @@ public class ProjectVersionControl {
 			return( vcs.getMainBranch() );
 		return( BRANCH );
 	}
+
+	public String[] listBranches( MetaSourceProject project ) throws Exception {
+		GenericVCS vcs = getVCS( project );
+		return( vcs.getBranches( project ) );
+	}
+	
+	public String[] listTags( MetaSourceProject project ) throws Exception {
+		GenericVCS vcs = getVCS( project );
+		return( vcs.getTags( project ) );
+	}
 	
 	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) {
 		int timeout = action.setTimeoutUnlimited();

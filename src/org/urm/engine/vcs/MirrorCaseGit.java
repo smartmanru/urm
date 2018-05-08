@@ -172,6 +172,49 @@ public class MirrorCaseGit extends MirrorCase {
 		return( false );
 	}
 
+	public String[] getBranches() throws Exception {
+		String OSPATH = getBareOSPath();
+		String[] items = shell.customGetLines( action , "git -C " + OSPATH + " branch --list --no-color -q" );
+		List<String> list = new LinkedList<String>(); 
+		
+		boolean master = false;
+		for( String s : items ) {
+			s = Common.getPartAfterLast( s , " " );
+			if( s.equals( "master" ) )
+				master = true;
+			else {
+				if( s.startsWith( "branch-" ) ) {
+					s = Common.getPartAfterFirst( s , "branch-" );
+					list.add( s );
+				}
+			}
+		}
+		
+		items = Common.getSortedList( list );
+		list.clear();
+		if( master )
+			list.add( "(master)" );
+		for( String s : items )
+			list.add( s );
+		return( list.toArray( new String[0] ) );
+	}
+	
+	public String[] getTags() throws Exception {
+		String OSPATH = getBareOSPath();
+		String[] items = shell.customGetLines( action , "git -C " + OSPATH + " tag --list" );
+		List<String> list = new LinkedList<String>(); 
+		
+		for( String s : items ) {
+			s = Common.getPartAfterLast( s , " " );
+			if( s.startsWith( "tag-" ) ) {
+				s = Common.getPartAfterFirst( s , "tag-" );
+				list.add( s );
+			}
+		}
+		
+		return( Common.getSortedList( list ) );
+	}
+	
 	public boolean checkValidBranch( String BRANCH ) throws Exception {
 		String OSPATH = getBareOSPath();
 		String GITBRANCH = vcsGit.getGitBranchName( BRANCH );

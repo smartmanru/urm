@@ -781,6 +781,26 @@ public class Common {
 		return( -1 );
 	}
 
+	public static int findItemInsertIndex( String value , String[] list ) {
+		if( value == null || value.isEmpty() )
+			return( -1 );
+		
+		for( int k = 0; k < list.length; k++ )
+			if( list[ k ].compareTo( value ) >= 0 )
+				return( k );
+		return( list.length );
+	}
+
+	public static int findItemInsertIndex( String value , List<String> list ) {
+		if( value == null || value.isEmpty() )
+			return( -1 );
+		
+		for( int k = 0; k < list.size(); k++ )
+			if( list.get( k ).compareTo( value ) >= 0 )
+				return( k );
+		return( list.size() );
+	}
+
 	public static boolean checkListItem( Object[] list , Object item ) {
 		for( Object xitem : list ) {
 			if( xitem.equals( item ) )

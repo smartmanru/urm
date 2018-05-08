@@ -54,6 +54,14 @@ public class GitProjectRepo {
 		mc.addModified( checkoutFolder );
 	}
 	
+	public String[] getBranches() throws Exception {
+		return( mc.getBranches() );
+	}
+	
+	public String[] getTags() throws Exception {
+		return( mc.getTags() );
+	}
+	
 	public boolean checkBranchExists( String BRANCH ) throws Exception {
 		return( mc.checkValidBranch( BRANCH ) );
 	}

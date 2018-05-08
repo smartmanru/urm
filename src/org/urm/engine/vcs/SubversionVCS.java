@@ -55,6 +55,49 @@ public class SubversionVCS extends GenericVCS {
 	public boolean ignoreFile( String name ) {
 		return( false );
 	}
+
+	@Override 
+	public String[] getBranches( MetaSourceProject project ) throws Exception {
+		List<String> list = new LinkedList<String>();
+		String projectPath = getProjectPath( project );
+		String BRANCH_PATH = Common.getPath( projectPath , "trunk" );
+		if( checkSvnPathExists( BRANCH_PATH ) )
+			list.add( "(trunk)" );
+		
+		BRANCH_PATH = Common.getPath( projectPath , "branches" );
+		if( checkSvnPathExists( BRANCH_PATH ) ) {
+			String[] items = shell.customGetLines( action , "svn list " + SVNAUTH + " " + BRANCH_PATH );
+			items = Common.getSortedList( items );
+			for( String s : items ) {
+				if( s.endsWith( "/" ) ) {
+					s = Common.trim( s , '/' );
+					list.add( s );
+				}
+			}
+		}
+		
+		return( list.toArray( new String[0] ) );
+	}
+	
+	@Override 
+	public String[] getTags( MetaSourceProject project ) throws Exception {
+		List<String> list = new LinkedList<String>();
+		String projectPath = getProjectPath( project );
+		
+		String TAGS_PATH = Common.getPath( projectPath , "tags" );
+		if( checkSvnPathExists( TAGS_PATH ) ) {
+			String[] items = shell.customGetLines( action , "svn list " + SVNAUTH + " " + TAGS_PATH );
+			items = Common.getSortedList( items );
+			for( String s : items ) {
+				if( s.endsWith( "/" ) ) {
+					s = Common.trim( s , '/' );
+					list.add( s );
+				}
+			}
+		}
+		
+		return( list.toArray( new String[0] ) );
+	}
 	
 	@Override 
 	public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
