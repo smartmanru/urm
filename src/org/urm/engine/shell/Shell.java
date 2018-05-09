@@ -15,6 +15,10 @@ import org.urm.meta.engine.AuthResource;
 
 abstract public class Shell {
 
+	public static int WAIT_DEFAULT = -1;
+	public static int WAIT_INFINITE = 0;
+	public static int WAIT_LONG = 300000;
+	
 	abstract public boolean start( ActionBase action ) throws Exception;
 	abstract public void kill( ActionBase action ) throws Exception;
 	
@@ -206,8 +210,8 @@ abstract public class Shell {
 		stdin.write( input );
 	}
 
-	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean system ) throws Exception {
-		if( wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr ) )
+	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean system , int commandTimeoutMillis ) throws Exception {
+		if( wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr , commandTimeoutMillis ) )
 			return;
 		
 		kill( action );
@@ -221,8 +225,8 @@ abstract public class Shell {
 		return( useProcess.waitForInteractive( action ) );
 	}
 
-	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {
-		return( wc.waitForMarker( action , action.context.logLevelLimit , system , marker ) );
+	public boolean waitForMarker( ActionBase action , String marker , boolean system , int commandTimeoutMillis ) throws Exception {
+		return( wc.waitForMarker( action , action.context.logLevelLimit , system , marker , commandTimeoutMillis ) );
 	}
 
 	public String getPathBreak() {

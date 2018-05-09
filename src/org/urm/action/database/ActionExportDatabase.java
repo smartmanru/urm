@@ -10,6 +10,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductEnvs;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -143,7 +144,7 @@ public class ActionExportDatabase extends ActionBase {
 		exportScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
 		if( server.isLinux() ) {
 			ShellExecutor shell = exportScriptsFolder.getSession( this );
-			shell.custom( this , exportScriptsFolder.folderPath , "chmod 744 *.sh" );
+			shell.custom( this , exportScriptsFolder.folderPath , "chmod 744 *.sh" , Shell.WAIT_DEFAULT );
 		}
 		
 		exportLogFolder = exportFolder.getSubFolder( this , "log" );
@@ -213,7 +214,7 @@ public class ActionExportDatabase extends ActionBase {
 	
 	public String checkStatus( RemoteFolder folder ) throws Exception {
 		ShellExecutor shell = folder.getSession( this );
-		String value = shell.customGetValue( this , folder.folderPath , "./run.sh export status" );
+		String value = shell.customGetValue( this , folder.folderPath , "./run.sh export status" , Shell.WAIT_DEFAULT );
 		return( value );
 	}
 	
@@ -231,7 +232,7 @@ public class ActionExportDatabase extends ActionBase {
 		// initiate execution
 		info( "start export cmd=" + cmd + " schemaset=" + SN + " ..." );
 		ShellExecutor shell = exportScriptsFolder.getSession( this );
-		shell.customCheckStatus( this , exportScriptsFolder.folderPath , "./run.sh export start " + cmd + " " + Common.getQuoted( SN ) );
+		shell.customCheckStatus( this , exportScriptsFolder.folderPath , "./run.sh export start " + cmd + " " + Common.getQuoted( SN ) , Shell.WAIT_DEFAULT );
 		
 		// check execution is started
 		Common.sleep( 1000 );
@@ -305,9 +306,7 @@ public class ActionExportDatabase extends ActionBase {
 		LocalFolder workDataFolder = artefactory.getWorkFolder( this , "data" );
 		workDataFolder.recreateThis( this );
 		
-		int timeout = setTimeoutUnlimited();
 		exportFolder.copyFilesToLocal( this , workDataFolder , files );
-		setTimeout( timeout );
 		
 		String[] copied = workDataFolder.findFiles( this , files );
 		
@@ -315,12 +314,10 @@ public class ActionExportDatabase extends ActionBase {
 			exit1( _Error.UnableFindFiles1, "unable to find files: " + files , files );
 		
 		// copy to target
-		timeout = setTimeoutUnlimited();
 		distFolder.moveFilesFromLocal( this , workDataFolder , files );
 		
 		// cleanup source
 		exportFolder.removeFiles( this , files );
-		setTimeout( timeout );
 	}
 
 }

@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.properties.PropertySet;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -46,11 +47,11 @@ public class BuilderMavenMethod extends Builder {
 			cmd += "	rm $FNAME_ORIGINAL\n";
 			cmd += "	cp $x $FNAME_ORIGINAL\n";
 			cmd += "done";
-			action.shell.customCheckErrorsDebug( action , cmd );
+			action.shell.customCheckErrorsDebug( action , cmd , Shell.WAIT_DEFAULT );
 		}
 
 		if( MODULEOPTIONS_SETVERSION == true )
-			action.shell.customCheckErrorsDebug( action , CODEPATH.folderPath , "mvn versions:set -DnewVersion=" + APPVERSION );
+			action.shell.customCheckErrorsDebug( action , CODEPATH.folderPath , "mvn versions:set -DnewVersion=" + APPVERSION , Shell.WAIT_LONG );
 
 		if( MODULEOPTIONS_REPLACESNAPSHOTS == true ) {
 			action.info( "patchPrepareSource: replace snapshots..." );
@@ -64,7 +65,7 @@ public class BuilderMavenMethod extends Builder {
 			cmd += "	rm $fname\n";
 			cmd += "	mv $fname-new $fname\n";
 			cmd += "done";
-			action.shell.customCheckErrorsDebug( action , cmd );
+			action.shell.customCheckErrorsDebug( action , cmd , Shell.WAIT_DEFAULT );
 		}
 		
 		return( true );
@@ -144,12 +145,10 @@ public class BuilderMavenMethod extends Builder {
 
 		// execute maven
 		action.info( "using maven:" );
-		session.customCheckErrorsNormal( action , "mvn --version" );
+		session.customCheckErrorsNormal( action , "mvn --version" , Shell.WAIT_DEFAULT );
 		
 		action.info( "execute: " + MAVEN_CMD );
-		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , MAVEN_CMD );
-		action.setTimeout( timeout );
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , MAVEN_CMD , Shell.WAIT_INFINITE );
 
 		if( status != 0 ) {
 			action.error( "buildMaven: maven build failed" );

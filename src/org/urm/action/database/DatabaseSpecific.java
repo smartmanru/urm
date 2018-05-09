@@ -9,6 +9,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
@@ -83,7 +84,7 @@ public class DatabaseSpecific {
 		else
 			cmd = applyName + " " + file + " " + fileLog;
 		
-		int status = shell.customGetStatus( action , execFolder.folderPath , cmd );
+		int status = shell.customGetStatus( action , execFolder.folderPath , cmd , Shell.WAIT_INFINITE );
 		if( status != 0 ) {
 			action.error( "errors, status=" + status + " (see log at " + fileLog + ")" );
 			return( false );
@@ -91,10 +92,10 @@ public class DatabaseSpecific {
 		
 		String err = "";
 		if( shell.isLinux() ) {
-			err = shell.customGetValue( action , "cat " + fileLog + " | grep ^ERROR: | head -1" );
+			err = shell.customGetValue( action , "cat " + fileLog + " | grep ^ERROR: | head -1" , Shell.WAIT_DEFAULT );
 		}
 		else {
-			String[] lines = shell.customGetLines( action , "type " + fileLog + " | findstr ^ERROR:" );
+			String[] lines = shell.customGetLines( action , "type " + fileLog + " | findstr ^ERROR:" , Shell.WAIT_DEFAULT );
 			if( lines.length > 0 )
 				err = lines[0];
 		}
@@ -471,7 +472,7 @@ public class DatabaseSpecific {
 		else
 			action.exitUnexpectedState();
 		
-		int status = action.shell.customGetStatusCheckErrors( action , scripts.folderPath , ctxCmd );
+		int status = action.shell.customGetStatusCheckErrors( action , scripts.folderPath , ctxCmd , Shell.WAIT_INFINITE );
 		return( status );
 	}
 

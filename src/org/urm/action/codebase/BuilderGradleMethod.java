@@ -2,6 +2,7 @@ package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.properties.PropertySet;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.meta.engine.ProjectBuilder;
@@ -54,12 +55,10 @@ public class BuilderGradleMethod extends Builder {
 
 		// execute gradle
 		action.info( "using gradle:" );
-		session.customCheckErrorsNormal( action , "gradle --version" );
+		session.customCheckErrorsNormal( action , "gradle --version" , Shell.WAIT_DEFAULT );
 		
 		action.info( "execute: " + GRADLE_CMD );
-		int timeout = action.setTimeoutUnlimited();
-		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , GRADLE_CMD );
-		action.setTimeout( timeout );
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , GRADLE_CMD , Shell.WAIT_INFINITE );
 
 		if( status != 0 ) {
 			action.error( "buildGradle: gradle build failed" );

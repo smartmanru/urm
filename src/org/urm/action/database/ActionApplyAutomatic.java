@@ -14,6 +14,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeSet;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
@@ -186,7 +187,7 @@ public class ActionApplyAutomatic extends ActionBase {
 				String newName = dsf.getDistFile();
 				
 				shell.customCheckStatus( this , logReleaseExecute.folderPath , "sed " + Common.getQuoted( "s/@region@/" + region + "/g" ) + 
-						" " + file + " > " + newName ); 
+						" " + file + " > " + newName , Shell.WAIT_DEFAULT ); 
 			}
 		}
 		

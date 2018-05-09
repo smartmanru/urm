@@ -3,6 +3,7 @@ package org.urm.action.codebase;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.engine.AuthResource;
@@ -92,7 +93,7 @@ public class ActionUploadLibItem extends ActionBase {
 				" -DartifactId=" + F_ARTEFACTID + " " + F_CLASSIFIER + " -Dfile=" + BUILD_FILE;
 		}
 		
-		shell.custom( this , CMD );
+		shell.custom( this , CMD , Shell.WAIT_LONG );
 		return( SCOPESTATE.RunSuccess );
 	}
 	

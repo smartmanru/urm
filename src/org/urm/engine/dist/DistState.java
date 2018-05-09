@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
@@ -362,7 +363,7 @@ public class DistState {
 		String hash;
 		if( shell.account.isLinux() ) {
 			String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | grep -v release.xml | md5sum | cut -d \" \" -f1";
-			hash = shell.customGetValue( action , distFolder.folderPath , cmd );
+			hash = shell.customGetValue( action , distFolder.folderPath , cmd , Shell.WAIT_DEFAULT );
 		}
 		else {
 			Map<String,File> fileMap = new HashMap<String,File>(); 

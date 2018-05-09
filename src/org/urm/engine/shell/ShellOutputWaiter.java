@@ -166,7 +166,7 @@ public class ShellOutputWaiter {
 		action.logExact( line , logLevel );
 	}
 
-	public boolean waitForCommandFinished( ActionBase action , int logLevel , boolean system , List<String> cmdout , List<String> cmderr ) throws Exception {
+	public boolean waitForCommandFinished( ActionBase action , int logLevel , boolean system , List<String> cmdout , List<String> cmderr , int commandTimeoutMillis ) throws Exception {
 		this.action = action;
 		this.logLevel = logLevel;
 		this.waitForCommandFinished = true;
@@ -174,16 +174,28 @@ public class ShellOutputWaiter {
 		this.cmdout = cmdout;
 		this.cmderr = cmderr;
 		
-		return( waiter.wait( action , action.commandTimeoutMillis , logLevel , system ) );
+		if( commandTimeoutMillis == Shell.WAIT_DEFAULT )
+			commandTimeoutMillis = action.context.CTX_TIMEOUT;
+		else
+		if( commandTimeoutMillis == Shell.WAIT_INFINITE )
+			commandTimeoutMillis = 0;
+		
+		return( waiter.wait( action , commandTimeoutMillis , logLevel , system ) );
 	}
 	
-	public boolean waitForMarker( ActionBase action , int logLevel , boolean system , String marker ) throws Exception {
+	public boolean waitForMarker( ActionBase action , int logLevel , boolean system , String marker , int commandTimeoutMillis ) throws Exception {
 		this.action = action;
 		this.logLevel = logLevel;
 		this.waitForMarker = true;
 		this.waitMarker = marker;
 		
-		return( waiter.wait( action , action.commandTimeoutMillis , logLevel , system ) );
+		if( commandTimeoutMillis == Shell.WAIT_DEFAULT )
+			commandTimeoutMillis = action.context.CTX_TIMEOUT;
+		else
+		if( commandTimeoutMillis == Shell.WAIT_INFINITE )
+			commandTimeoutMillis = 0;
+		
+		return( waiter.wait( action , commandTimeoutMillis , logLevel , system ) );
 	}
 
 	public boolean runWaitForCommandFinished() throws Exception {

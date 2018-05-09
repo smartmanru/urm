@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.AuthResource;
@@ -174,7 +175,7 @@ public class MirrorCaseGit extends MirrorCase {
 
 	public String[] getBranches() throws Exception {
 		String OSPATH = getBareOSPath();
-		String[] items = shell.customGetLines( action , "git -C " + OSPATH + " branch --list --no-color -q" );
+		String[] items = shell.customGetLines( action , "git -C " + OSPATH + " branch --list --no-color -q" , Shell.WAIT_DEFAULT );
 		List<String> list = new LinkedList<String>(); 
 		
 		boolean master = false;
@@ -201,7 +202,7 @@ public class MirrorCaseGit extends MirrorCase {
 	
 	public String[] getTags() throws Exception {
 		String OSPATH = getBareOSPath();
-		String[] items = shell.customGetLines( action , "git -C " + OSPATH + " tag --list" );
+		String[] items = shell.customGetLines( action , "git -C " + OSPATH + " tag --list" , Shell.WAIT_DEFAULT );
 		List<String> list = new LinkedList<String>(); 
 		
 		for( String s : items ) {
@@ -218,7 +219,7 @@ public class MirrorCaseGit extends MirrorCase {
 	public boolean checkValidBranch( String BRANCH ) throws Exception {
 		String OSPATH = getBareOSPath();
 		String GITBRANCH = vcsGit.getGitBranchName( BRANCH );
-		String STATUS = shell.customGetValue( action , "git -C " + OSPATH + " branch --list " + GITBRANCH );
+		String STATUS = shell.customGetValue( action , "git -C " + OSPATH + " branch --list " + GITBRANCH , Shell.WAIT_DEFAULT );
 		
 		if( STATUS.isEmpty() )
 			return( false );
@@ -238,7 +239,7 @@ public class MirrorCaseGit extends MirrorCase {
 			action.exit2( _Error.GitUnableClone2 , "Unable to clone from " + OSPATH + " to " + OSPATHPROJECT , OSPATH , OSPATHPROJECT );
 		
 		String GITBRANCH = vcsGit.getGitBranchName( BRANCH );
-		int status = shell.customGetStatus( action , "git -C " + OSPATH + " clone -q " + OSPATH + " --shared -b " + GITBRANCH + " " + OSPATHPROJECT );
+		int status = shell.customGetStatus( action , "git -C " + OSPATH + " clone -q " + OSPATH + " --shared -b " + GITBRANCH + " " + OSPATHPROJECT , Shell.WAIT_LONG );
 		if( status != 0 )
 			action.exit2( _Error.GitUnableClone2 , "Unable to clone from " + OSPATH + " to " + OSPATHPROJECT , OSPATH , OSPATHPROJECT );
 		
@@ -251,17 +252,17 @@ public class MirrorCaseGit extends MirrorCase {
 		if( !res.ac.isAnonymous() )
 			user = res.ac.getUser( action );
 		
-		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.name " + Common.getQuoted( user ) );
-		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.email " + Common.getQuoted( "ignore@mail.com" ) );
+		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.name " + Common.getQuoted( user ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "git -C " + OSPATH + " config user.email " + Common.getQuoted( "ignore@mail.com" ) , Shell.WAIT_DEFAULT );
 	}
 	
 	public void addModified( LocalFolder checkoutFolder ) throws Exception {
-		shell.customCheckErrorsDebug( action , checkoutFolder.folderPath , "git add -u" );
+		shell.customCheckErrorsDebug( action , checkoutFolder.folderPath , "git add -u" , Shell.WAIT_DEFAULT );
 	}
 
 	public void pushOrigin( String path ) throws Exception {
 		String OSPATH = shell.getLocalPath( path );
-		int status = shell.customGetStatus( action , "git -C " + OSPATH + " push origin" );
+		int status = shell.customGetStatus( action , "git -C " + OSPATH + " push origin" , Shell.WAIT_LONG );
 		if( status != 0 )
 			action.exit1( _Error.UnablePushOrigin1 , "Unable to push origin, path=" + OSPATH , OSPATH );
 	}
@@ -285,11 +286,11 @@ public class MirrorCaseGit extends MirrorCase {
 					String WINPATH = getBareOSPath();
 					String WINPATHPROJECT = shell.getLocalPath( exportFolder.folderPath );
 					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + GITBRANCHTAG + " " + 
-							" . | ( cd /D " + WINPATHPROJECT + " & tar x --exclude pax_global_header)" );
+							" . | ( cd /D " + WINPATHPROJECT + " & tar x --exclude pax_global_header)" , Shell.WAIT_LONG );
 				}
 				else {
 					shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + GITBRANCHTAG + " " + 
-						" . | ( cd " + exportFolder.folderPath + "; tar x )" );
+						" . | ( cd " + exportFolder.folderPath + "; tar x )" , Shell.WAIT_LONG );
 				}
 			}
 			else {
@@ -301,11 +302,11 @@ public class MirrorCaseGit extends MirrorCase {
 					String WINPATHPROJECT = shell.getLocalPath( exportFolder.folderPath );
 					String WINPATHSUB = Common.getWinPath( SUBPATH );
 					shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + GITBRANCHTAG + " " + 
-							WINPATHSUB + " | ( cd /D " + WINPATHPROJECT + " & tar x " + WINPATHSUB + " " + STRIPOPTION + " )" );
+							WINPATHSUB + " | ( cd /D " + WINPATHPROJECT + " & tar x " + WINPATHSUB + " " + STRIPOPTION + " )" , Shell.WAIT_LONG );
 				}
 				else {
 					shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + GITBRANCHTAG + " " + 
-							SUBPATH + " | ( cd " + exportFolder.folderPath + "; tar x --exclude pax_global_header " + SUBPATH + " " + STRIPOPTION + " )" );
+							SUBPATH + " | ( cd " + exportFolder.folderPath + "; tar x --exclude pax_global_header " + SUBPATH + " " + STRIPOPTION + " )" , Shell.WAIT_LONG );
 				}
 			}
 		}
@@ -328,11 +329,11 @@ public class MirrorCaseGit extends MirrorCase {
 				String WINPATHBASE = Common.getWinPath( BASEDIR.folderPath );
 				String WINPATHFILE = Common.getWinPath( FILEPATH );
 				shell.customCheckStatus( action , "git -C " + WINPATH + " archive " + GITBRANCHTAG + " " + 
-						WINPATHFILE + " | ( cd /D " + WINPATHBASE + " & tar x --exclude pax_global_header " + WINPATHFILE + " " + STRIPOPTION + " )" );
+						WINPATHFILE + " | ( cd /D " + WINPATHBASE + " & tar x --exclude pax_global_header " + WINPATHFILE + " " + STRIPOPTION + " )" , Shell.WAIT_LONG );
 			}
 			else {
 				shell.customCheckStatus( action , "git -C " + getBareOSPath() + " archive " + GITBRANCHTAG + " " + 
-						FILEPATH + " | ( cd " + BASEDIR.folderPath + "; tar x " + FILEPATH + " " + STRIPOPTION + " )" );
+						FILEPATH + " | ( cd " + BASEDIR.folderPath + "; tar x " + FILEPATH + " " + STRIPOPTION + " )" , Shell.WAIT_LONG );
 			}
 			if( !FILENAME.equals( BASENAME ) ) {
 				String src = BASEDIR.getFilePath( action , FILENAME );
@@ -367,7 +368,6 @@ public class MirrorCaseGit extends MirrorCase {
 		int status = 0;
 		AuthResource res = vcs.res;
 		String url = res.BASEURL;
-		int timeout = action.setTimeoutUnlimited();
 		try {
 			String urlAuth = vcsGit.getRepositoryAuthUrl();
 			
@@ -377,7 +377,7 @@ public class MirrorCaseGit extends MirrorCase {
 			String cmd = "git clone -q " + urlAuthFull + " --mirror";
 			cmd += " " + OSPATH;
 			
-			status = shell.customGetStatus( action , cmd );
+			status = shell.customGetStatus( action , cmd , Shell.WAIT_LONG );
 			if( status == 0 ) {
 				setAccess( OSPATH );
 				
@@ -392,10 +392,10 @@ public class MirrorCaseGit extends MirrorCase {
 					}
 					Common.createFileFromStringList( action.execrc , file , nopulls );
 					
-					shell.customCheckStatus( action , "git -C " + OSPATH + " config --unset-all remote.origin.fetch" );
-					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/heads/*:refs/heads/*" );
-					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/tags/*:refs/tags/*" );
-					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/change/*:refs/change/*" );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --unset-all remote.origin.fetch" , Shell.WAIT_DEFAULT );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/heads/*:refs/heads/*" , Shell.WAIT_DEFAULT );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/tags/*:refs/tags/*" , Shell.WAIT_DEFAULT );
+					shell.customCheckStatus( action , "git -C " + OSPATH + " config --add remote.origin.fetch +refs/change/*:refs/change/*" , Shell.WAIT_DEFAULT );
 				}
 			}
 		}
@@ -404,7 +404,6 @@ public class MirrorCaseGit extends MirrorCase {
 			status = -1;
 		}
 		
-		action.setTimeout( timeout );
 		if( status != 0 ) {
 			shell.removeDir( action , repo.folderPath );
 			String urlShow = Common.getPath( url , remotePath );
@@ -438,7 +437,7 @@ public class MirrorCaseGit extends MirrorCase {
 
 	private void fetchOrigin( String path ) throws Exception {
 		String OSPATH = shell.getLocalPath( path );
-		int status = shell.customGetStatus( action , "git -C " + OSPATH + " fetch -q origin" );
+		int status = shell.customGetStatus( action , "git -C " + OSPATH + " fetch -q origin" , Shell.WAIT_LONG );
 		if( status != 0 )
 			action.exit1( _Error.UnableFetchOrigin1 , "Unable to fetch origin, path=" + OSPATH , OSPATH );
 	}

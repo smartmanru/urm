@@ -11,6 +11,7 @@ import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductEnvs;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -168,7 +169,7 @@ public class ActionImportDatabase extends ActionBase {
 		importScriptsFolder.copyDirContentFromLocal( this , urmScripts , "" );
 		if( server.isLinux() ) {
 			ShellExecutor shell = importScriptsFolder.getSession( this );
-			shell.custom( this , importScriptsFolder.folderPath , "chmod 744 *.sh" );
+			shell.custom( this , importScriptsFolder.folderPath , "chmod 744 *.sh" , Shell.WAIT_DEFAULT );
 		}
 		
 		importLogFolder = importFolder.getSubFolder( this , "log" );
@@ -179,7 +180,7 @@ public class ActionImportDatabase extends ActionBase {
 	
 	public String checkStatus( RemoteFolder folder ) throws Exception {
 		ShellExecutor shell = folder.getSession( this );
-		String value = shell.customGetValue( this , folder.folderPath , "./run.sh import status" );
+		String value = shell.customGetValue( this , folder.folderPath , "./run.sh import status" , Shell.WAIT_DEFAULT );
 		return( value );
 	}
 	
@@ -260,7 +261,7 @@ public class ActionImportDatabase extends ActionBase {
 		}
 		
 		ShellExecutor shell = importScriptsFolder.getSession( this );
-		shell.customCheckStatus( this , importScriptsFolder.folderPath , "./run.sh import start " + cmd + " " + Common.getQuoted( SN ) );
+		shell.customCheckStatus( this , importScriptsFolder.folderPath , "./run.sh import start " + cmd + " " + Common.getQuoted( SN ) , Shell.WAIT_DEFAULT );
 		
 		// check execution is started
 		Common.sleep( 1000 );
@@ -340,7 +341,6 @@ public class ActionImportDatabase extends ActionBase {
 			exit1( _Error.UnableFindFiles1 , "unable to find files: " + files , files );
 		
 		LocalFolder workDataFolder;
-		int timeout = setTimeoutUnlimited();
 		if( distFolder.isRemote( this ) ) {
 			workDataFolder = artefactory.getWorkFolder( this , "data" );
 			workDataFolder.recreateThis( this );
@@ -352,8 +352,7 @@ public class ActionImportDatabase extends ActionBase {
 			workDataFolder = artefactory.getAnyFolder( this , distFolder.folderPath );
 			importFolder.copyFilesFromLocal( this , workDataFolder , files );
 		}
-		setTimeout( timeout );
-}
+	}
 
 	private void applyPostRefresh() throws Exception {
 		if( POSTREFRESH.isEmpty() ) {

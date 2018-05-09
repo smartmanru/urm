@@ -4,6 +4,7 @@ import java.net.URLEncoder;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.AuthResource;
@@ -307,7 +308,7 @@ public class GitVCS extends GenericVCS {
 		int status;
 		String OSPATH = mc.getBareOSPath();
 		String OSPATHDIR = shell.getLocalPath( Common.getPath( mirror.RESOURCE_DATA , path ) );
-		status = shell.customGetStatus( action , "git -C " + OSPATH + " cat-file -e master:" + OSPATHDIR );
+		status = shell.customGetStatus( action , "git -C " + OSPATH + " cat-file -e master:" + OSPATHDIR , Shell.WAIT_DEFAULT );
 		
 		if( status == 0 )
 			return( true );
@@ -345,10 +346,10 @@ public class GitVCS extends GenericVCS {
 		if( shell.isWindows() ) {
 			String WINPATHDIR = Common.getWinPath( ITEMPATH );
 			String WINPATHPATCH = Common.getWinPath( PATCHFOLDER.folderPath );
-			shell.customCheckStatus( action , "git -C " + OSPATH + " archive " + WINPATHDIR + " . | ( cd /D " + WINPATHPATCH + " & tar x --exclude pax_global_header)" );
+			shell.customCheckStatus( action , "git -C " + OSPATH + " archive " + WINPATHDIR + " . | ( cd /D " + WINPATHPATCH + " & tar x --exclude pax_global_header)" , Shell.WAIT_LONG );
 		}
 		else {
-			shell.customCheckStatus( action , "git -C " + OSPATH + " archive " + ITEMPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" );
+			shell.customCheckStatus( action , "git -C " + OSPATH + " archive " + ITEMPATH + " . | ( cd " + PATCHFOLDER.folderPath + "; tar x )" , Shell.WAIT_LONG );
 		}
 		
 		if( name.isEmpty() == false && name.equals( baseName ) == false ) {
@@ -390,11 +391,11 @@ public class GitVCS extends GenericVCS {
 		String s;
 		String OSPATH = mc.getBareOSPath();
 		if( shell.isWindows() ) {
-			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master " + checkPath + " --name-only" );
+			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master " + checkPath + " --name-only" , Shell.WAIT_DEFAULT );
 			s = Common.replace( s , "\\n" , " \"" );
 		}
 		else {
-			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master " + checkPath + " --name-only | tr \"\\n\" \" \"" );
+			s = shell.customGetValue( action , "git -C " + OSPATH + " ls-tree master " + checkPath + " --name-only | tr \"\\n\" \" \"" , Shell.WAIT_DEFAULT );
 		}
 		return( Common.splitSpaced( s ) );
 	}
@@ -430,7 +431,7 @@ public class GitVCS extends GenericVCS {
 	@Override 
 	public boolean commitMasterFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
 		String folder = PATCHPATH.getFilePath( action , masterFolder );
-		int status = shell.customGetStatus( action , folder , "git commit -m " + Common.getQuoted( commitMessage ) );
+		int status = shell.customGetStatus( action , folder , "git commit -m " + Common.getQuoted( commitMessage ) , Shell.WAIT_LONG );
 		if( status != 0 )
 			return( false );
 		
@@ -445,7 +446,7 @@ public class GitVCS extends GenericVCS {
 		String filePath = file;
 		if( PATCHPATH.windows )
 			filePath = Common.getWinPath( filePath );
-		shell.customCheckStatus( action , path , "git add " + filePath );
+		shell.customCheckStatus( action , path , "git add " + filePath , Shell.WAIT_DEFAULT );
 	}
 	
 	@Override 
@@ -454,7 +455,7 @@ public class GitVCS extends GenericVCS {
 		String filePath = file;
 		if( PATCHPATH.windows )
 			filePath = Common.getWinPath( filePath );
-		shell.customCheckStatus( action , path , "git rm " + filePath );
+		shell.customCheckStatus( action , path , "git rm " + filePath , Shell.WAIT_DEFAULT );
 	}
 	
 	@Override 
@@ -462,7 +463,7 @@ public class GitVCS extends GenericVCS {
 		String path = PATCHPATH.getFilePath( action , folder );
 		if( PATCHPATH.windows )
 			path = Common.getWinPath( path );
-		shell.customCheckStatus( action , path , "git add " + path );
+		shell.customCheckStatus( action , path , "git add " + path , Shell.WAIT_DEFAULT );
 	}
 	
 	@Override 
@@ -470,7 +471,7 @@ public class GitVCS extends GenericVCS {
 		String path = PATCHPATH.getFilePath( action , folder );
 		if( PATCHPATH.windows )
 			path = Common.getWinPath( path );
-		shell.customCheckStatus( action , path , "git rm -rf " + path );
+		shell.customCheckStatus( action , path , "git rm -rf " + path , Shell.WAIT_DEFAULT );
 	}
 
 	@Override 
@@ -486,7 +487,7 @@ public class GitVCS extends GenericVCS {
 			if( !pathToRepo.isEmpty() )
 				url += "/" + pathToRepo;
 			url += "/" + repo;
-			int status = shell.customGetStatus( action , "git ls-remote -h " + url + " master" );
+			int status = shell.customGetStatus( action , "git ls-remote -h " + url + " master" , Shell.WAIT_DEFAULT );
 			if( status == 0 )
 				return( true );
 		}

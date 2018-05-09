@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.ProductStorage;
@@ -233,7 +234,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 
 	private void createPng( String fileDot , String filePng ) throws Exception {
 		String cmd = "dot -Tpng " + fileDot + " -o " + filePng;
-		shell.customCheckStatus( this , cmd );
+		shell.customCheckStatus( this , cmd , Shell.WAIT_LONG );
 	}
 	
 }

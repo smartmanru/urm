@@ -57,25 +57,25 @@ public class ShellCoreWindows extends ShellCore {
 	protected boolean getProcessAttributes( ActionBase action ) throws Exception {
 		super.homePath = action.context.session.installPath;
 		
-		runCommand( action , "echo off && chcp 1251" , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "echo off && chcp 1251" , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		return( true );
 	}
 	
 	@Override 
-	public void runCommand( ActionBase action , String cmd , int logLevel ) throws Exception {
-		runCommand( action , cmd , logLevel , false );
+	public void runCommand( ActionBase action , String cmd , int logLevel , int commandTimeoutMillis ) throws Exception {
+		runCommand( action , cmd , logLevel , false , commandTimeoutMillis );
 	}
 	
 	@Override 
-	public int runCommandGetStatus( ActionBase action , String cmd , int logLevel ) throws Exception {
+	public int runCommandGetStatus( ActionBase action , String cmd , int logLevel , int commandTimeoutMillis ) throws Exception {
 		if( sessionType == EnumSessionType.WINDOWSFROMUNIX ) {
 			String execLine = prepareExecuteWindowsFromLinux( action , cmd , logLevel );
-			int status = localSession.runCommandGetStatus( action , execLine , logLevel );
+			int status = localSession.runCommandGetStatus( action , execLine , logLevel , commandTimeoutMillis );
 			getOutput( action );
 			return( status );
 		}
 		else {
-			runCommand( action , cmd , logLevel , true );
+			runCommand( action , cmd , logLevel , true , commandTimeoutMillis );
 			if( cmdout.size() > 0 ) {
 				String last = cmdout.get( cmdout.size() - 1 );
 				if( last.startsWith( "status=" ) ) {
@@ -106,7 +106,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public void cmdEnsureDirExists( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "if not exist " + wdir + " md " + wdir , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "if not exist " + wdir + " md " + wdir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit1( _Error.CheckCreateDirectoryError1 , "check/create directory error" , wdir );
 	}
@@ -115,9 +115,9 @@ public class ShellCoreWindows extends ShellCore {
 	public void cmdCreateFileFromString( ActionBase action , String path , String value ) throws Exception {
 		String pathWin = Common.getWinPath( path );
 		if( value.isEmpty() )
-			runCommand( action , "type NUL > " + pathWin , CommandOutput.LOGLEVEL_TRACE );
+			runCommand( action , "type NUL > " + pathWin , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		else
-			runCommand( action , "echo " + value + " > " + pathWin , CommandOutput.LOGLEVEL_TRACE );
+			runCommand( action , "echo " + value + " > " + pathWin , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 	}
 
 	@Override 
@@ -133,7 +133,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public boolean cmdCheckDirExists( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		String value = this.runCommandGetValueCheck( action , "if exist " + wdir + " echo ok" , CommandOutput.LOGLEVEL_TRACE );
+		String value = this.runCommandGetValueCheck( action , "if exist " + wdir + " echo ok" , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		if( value.equals( "ok" ) )
 			return( true );
 		
@@ -152,7 +152,7 @@ public class ShellCoreWindows extends ShellCore {
 	public boolean cmdCheckFileExists( ActionBase action , String path ) throws Exception {
 		String wpath = Common.getWinPath( path );
 		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + "\\ ( echo dir ) else if exist " + 
-				wpath + " echo file" );
+				wpath + " echo file" , Shell.WAIT_DEFAULT );
 		if( value.equals( "file" ) )
 			return( true );
 		return( false );
@@ -161,7 +161,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public boolean cmdCheckPathExists( ActionBase action , String path ) throws Exception {
 		String wpath = Common.getWinPath( path );
-		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + " echo ok" );
+		String value = this.runCommandGetValueCheckDebug( action , "if exist " + wpath + " echo ok" , Shell.WAIT_DEFAULT );
 		if( value.equals( "ok" ) )
 			return( true );
 		return( false );
@@ -170,7 +170,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public String cmdFindOneTopWithGrep( ActionBase action , String path , String mask , String grepMask ) throws Exception {
 		String cmdDir = getDirCmdIfDir( action , path , "dir /b " + mask );
-		String[] values = this.runCommandGetLines( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		String[] values = this.runCommandGetLines( action , cmdDir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		if( values.length == 0 || values[0].equals( "File Not Found" ) )
 			return( "" );
 
@@ -190,7 +190,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public String cmdFindOneTop( ActionBase action , String path , String mask ) throws Exception {
 		String cmdDir = getDirCmdIfDir( action , path , "dir /b " + mask );
-		String[] list = this.runCommandGetLines( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		String[] list = this.runCommandGetLines( action , cmdDir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		if( list.length == 0 || list[0].equals( "File Not Found" ) )
 			return( "" );
 		
@@ -212,7 +212,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public void cmdRemoveDirContent( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " " + cmdAnd + " md " + wdir + " )" , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "if exist " + wdir + " ( rmdir /S /Q " + wdir + " " + cmdAnd + " md " + wdir + " )" , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit1( _Error.RemoveDirectoryContentError1 , "remove directory content error" , wdir );
 	}
@@ -220,7 +220,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public void cmdRemoveDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "if exist " + wdir + " rmdir /S /Q " + wdir , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "if exist " + wdir + " rmdir /S /Q " + wdir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 		if( cmdout.isEmpty() == false || cmderr.isEmpty() == false )
 			action.exit1( _Error.RemoveDirectoryError1 , "remove directory error" , wdir );
 	}
@@ -228,19 +228,19 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public void cmdRecreateDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "( if exist " + wdir + " rmdir /S /Q " + wdir + " ) " + cmdAnd + " md " + wdir , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "( if exist " + wdir + " rmdir /S /Q " + wdir + " ) " + cmdAnd + " md " + wdir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 	}
 
 	@Override 
 	public void cmdCreatePublicDir( ActionBase action , String dir ) throws Exception {
 		String wdir = Common.getWinPath( dir );
-		runCommand( action , "md " + wdir , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "md " + wdir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 	}
 
 	@Override 
 	public String[] cmdGrepFile( ActionBase action , String filePath , String mask ) throws Exception {
 		String wpath = Common.getWinPath( filePath );
-		return( runCommandGetLines( action , "type " + wpath + " | findstr /C:" + Common.getQuoted( mask ) , CommandOutput.LOGLEVEL_TRACE ) );
+		return( runCommandGetLines( action , "type " + wpath + " | findstr /C:" + Common.getQuoted( mask ) , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT ) );
 	}
 
 	@Override 
@@ -253,7 +253,7 @@ public class ShellCoreWindows extends ShellCore {
 		
 		if( !newLine.isEmpty() )
 			cmd += " " + cmdAnd + " echo " + newLine + " >> " + filePathWin;
-		runCommandCheckDebug( action , cmd );
+		runCommandCheckDebug( action , cmd , Shell.WAIT_DEFAULT );
 	}
 	
 	@Override 
@@ -262,13 +262,13 @@ public class ShellCoreWindows extends ShellCore {
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /ad ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do @rmdir /Q /S %x" );
-		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 		checkOut( action , _Error.ErrorsDeleteDirs1 , "errors on delete dirs" , new String[] { filesRegular } );
 						
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + "') do @del /Q %x" );
-		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 		checkOut( action , _Error.ErrorsDeleteFiles1 , "errors on delete files" , new String[] { filesRegular } );
 	}
 
@@ -285,14 +285,14 @@ public class ShellCoreWindows extends ShellCore {
 				"for /f %x in ('dir /b /ad ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do rmdir /Q /S %x" );
-		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 		checkOut( action , _Error.ErrorsDeleteDirs2 , "errors on delete dirs" , new String[] { filesRegular , excludeRegular } );
 		
 		cmdDir = getDirCmdIfDir( action , dir , 
 				"for /f %x in ('dir /b /a-d ^| findstr /R " + 
 				Common.getQuoted( filesRegular ) + " ^| findstr /V " +
 				Common.getQuoted( excludeRegular ) + "') do del /Q %x" );
-		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 		checkOut( action , _Error.ErrorsDeleteFiles2 , "errors on delete files" , new String[] { filesRegular , excludeRegular } );
 	}
 
@@ -307,16 +307,14 @@ public class ShellCoreWindows extends ShellCore {
 				cmd += " " + cmdAnd + " rmdir /S /Q " + targetFolder + " " + cmdAnd + " rename " + extractPart + " " + targetFolder;
 		String wtargetParent = Common.getWinPath( unzipDir );
 		
-		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckStatusDebug( action , wtargetParent , cmd );
-		action.setTimeout( timeout );
+		runCommandCheckStatusDebug( action , wtargetParent , cmd , Shell.WAIT_LONG );
 	}
 
 	@Override 
 	public void cmdMove( ActionBase action , String source , String target ) throws Exception {
 		String wsource = Common.getWinPath( source );
 		String wtarget = Common.getWinPath( target );
-		runCommandCheckStatus( action , "move /Y " + wsource + " " + wtarget , CommandOutput.LOGLEVEL_TRACE );
+		runCommandCheckStatus( action , "move /Y " + wsource + " " + wtarget , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 	}
 
 	@Override 
@@ -363,7 +361,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override 
 	public void cmdSetShellVariable( ActionBase action , String var , String value ) throws Exception {
-		runCommandCheckNormal( action , "set \"" + var + "=" + value + "\"" );
+		runCommandCheckNormal( action , "set \"" + var + "=" + value + "\"" , Shell.WAIT_DEFAULT );
 	}
 
 	@Override 
@@ -376,7 +374,7 @@ public class ShellCoreWindows extends ShellCore {
 		action.debug( "copy " + files + " from " + dirFrom + " to " + dirTo + " ..." );
 		String wfilesFrom = Common.getWinPath( files );
 		String wdirTo = Common.getWinPath( dirTo ) + "\\";
-		runCommandCheckStatus( action , dirFrom , "for %x in ( " + wfilesFrom + " ) do xcopy /Y /Q \"%~x\" " + wdirTo , CommandOutput.LOGLEVEL_TRACE );
+		runCommandCheckStatus( action , dirFrom , "for %x in ( " + wfilesFrom + " ) do xcopy /Y /Q \"%~x\" " + wdirTo , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 	}
 
 	@Override 
@@ -384,7 +382,7 @@ public class ShellCoreWindows extends ShellCore {
 		action.debug( "copy " + fileFrom + " to " + fileTo + " ..." );
 		String wfileFrom = Common.getWinPath( fileFrom );
 		String wfileTo = Common.getWinPath( fileTo );
-		runCommandCheckStatus( action , "copy /Y " + wfileFrom + " " + wfileTo , CommandOutput.LOGLEVEL_TRACE );
+		runCommandCheckStatus( action , "copy /Y " + wfileFrom + " " + wfileTo , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 	}
 	
 	@Override 
@@ -405,7 +403,7 @@ public class ShellCoreWindows extends ShellCore {
 		action.debug( "copy content from " + srcDir + " to " + dstDir + " ..." );
 		String wdirFrom = Common.getWinPath( srcDir );
 		String wdirTo = Common.getWinPath( dstDir );
-		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + "\\* " + wdirTo + "\\" );
+		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + "\\* " + wdirTo + "\\" , Shell.WAIT_LONG );
 	}
 	
 	@Override 
@@ -415,7 +413,7 @@ public class ShellCoreWindows extends ShellCore {
 		String wdirTo = Common.getWinPath( dirTo );
 		cmdRemoveDir( action , dirTo );
 		cmdEnsureDirExists( action , dirTo );
-		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + "\\* " + wdirTo + "\\" );
+		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + "\\* " + wdirTo + "\\" , Shell.WAIT_LONG );
 	}
 	
 	@Override 
@@ -428,7 +426,7 @@ public class ShellCoreWindows extends ShellCore {
 		action.debug( "copy " + dirFrom + " to " + dirTo + " ..." );
 		String wdirFrom = Common.getWinPath( dirFrom );
 		String wdirTo = Common.getWinPath( dirTo );
-		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + " " + wdirTo  );
+		runCommandCheckDebug( action , "xcopy /Q /Y /E " + wdirFrom + " " + wdirTo , Shell.WAIT_LONG );
 	}
 	
 	@Override 
@@ -466,14 +464,14 @@ public class ShellCoreWindows extends ShellCore {
 		String wfileSrc = Common.getWinPath( fileSrc );
 		String wfileDst = Common.getWinPath( fileDst );
 		String cmdDir = getDirCmdIfDir( action , dirPath , "copy /Y " + wfileSrc + " " + wfileDst );
-		runCommandCheckDebug( action , cmdDir );
+		runCommandCheckDebug( action , cmdDir , Shell.WAIT_DEFAULT );
 	}
 
 	@Override 
 	public void cmdGetDirsAndFiles( ActionBase action , String rootPath , List<String> dirs , List<String> files , String excludeRegExp ) throws Exception {
 		String excludeOption = ( excludeRegExp == null || excludeRegExp.isEmpty() )? "" : " | findstr /V /R \"" + excludeRegExp + "\"";
 		List<String> resDirs = runCommandCheckGetOutputDebug( action , rootPath , 
-				"chdir " + cmdAnd + " dir /ad /s /b 2>nul" + excludeOption );
+				"chdir " + cmdAnd + " dir /ad /s /b 2>nul" + excludeOption , Shell.WAIT_DEFAULT );
 		
 		if( resDirs.isEmpty() )
 			action.exit1( _Error.MissingDirectory1 , "directory " + rootPath + " does not exist" , rootPath );
@@ -493,7 +491,7 @@ public class ShellCoreWindows extends ShellCore {
 		}
 		
 		List<String> resFiles = runCommandCheckGetOutputDebug( action , rootPath , 
-				"dir /a-d /s /b 2>nul" + excludeOption );
+				"dir /a-d /s /b 2>nul" + excludeOption , Shell.WAIT_DEFAULT );
 		for( int k = 0; k < resFiles.size(); k++ ) {
 			String s = resFiles.get( k );
 			if( s.startsWith( pwd ) )
@@ -511,7 +509,7 @@ public class ShellCoreWindows extends ShellCore {
 		String delimiter = "URM_DELIMITER";
 		String cmd = "dir /ad /b " + cmdAnd + " echo " + delimiter + " " + cmdAnd + " dir /a-d /b 2>nul"; 
 		String dirCmd = getDirCmd( action , rootPath , cmd );
-		runCommand( action , dirCmd , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , dirCmd , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		
 		List<String> list = dirs; 
 		for( String s : cmdout ) {
@@ -530,7 +528,7 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public String cmdGetMD5( ActionBase action , String filePath ) throws Exception {
 		String fileWin = Common.getWinPath( filePath );
-		runCommand( action , "certutil -hashfile " + Common.getQuoted( fileWin ) + " MD5" , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "certutil -hashfile " + Common.getQuoted( fileWin ) + " MD5" , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_LONG );
 		if( cmdout.size() != 3 )
 			action.exit1( _Error.UnableGetMd5Sum1 , "unable to get md5sum of " + filePath , filePath );
 		
@@ -546,20 +544,20 @@ public class ShellCoreWindows extends ShellCore {
 	@Override 
 	public String cmdGetFileContentAsString( ActionBase action , String filePath ) throws Exception {
 		String fileWin = Common.getWinPath( filePath );
-		String value = runCommandGetValueCheckDebug( action , "type " + fileWin );
+		String value = runCommandGetValueCheckDebug( action , "type " + fileWin , Shell.WAIT_DEFAULT );
 		return( value );
 	}
 
 	@Override 
 	public String[] cmdGetFileLines( ActionBase action , String filePath ) throws Exception {
 		String fileWin = Common.getWinPath( filePath );
-		return( this.runCommandGetLines( action , "type  " + fileWin , CommandOutput.LOGLEVEL_TRACE ) );
+		return( this.runCommandGetLines( action , "type " + fileWin , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT ) );
 	}
 	
 	@Override
 	public Date cmdGetFileChangeTime( ActionBase action , String filePath ) throws Exception {
 		String fileWin = Common.getWinPath( filePath );
-		String[] lines = this.runCommandGetLines( action , "wmic datafile where name=\"" + Common.replace( fileWin , "\\" , "\\\\" ) + "\" get lastmodified " , CommandOutput.LOGLEVEL_TRACE );
+		String[] lines = this.runCommandGetLines( action , "wmic datafile where name=\"" + Common.replace( fileWin , "\\" , "\\\\" ) + "\" get lastmodified " , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		if( lines.length != 2 || !lines[0].equals( "LastModified" ) )
 			return( null );
 		
@@ -571,7 +569,7 @@ public class ShellCoreWindows extends ShellCore {
 	
 	@Override
 	public long cmdGetFileSize( ActionBase action , String filePath ) throws Exception {
-		String value = runCommandGetValueCheckDebug( action , "for %I in (" + filePath + ") do @echo %~zI" );
+		String value = runCommandGetValueCheckDebug( action , "for %I in (" + filePath + ") do @echo %~zI" , Shell.WAIT_DEFAULT );
 		if( !value.matches( "[0-9]+" ) )
 			Common.exitUnexpected();
 		long data = Long.parseLong( value );
@@ -582,7 +580,7 @@ public class ShellCoreWindows extends ShellCore {
 	public void cmdAppendExecuteLog( ActionBase action , String msg ) throws Exception {
 		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , EXECUTE_LOG ) );
 		String ts = Common.getLogTimeStamp();
-		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + Common.getQuoted( executeLog ) , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + Common.getQuoted( executeLog ) , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 	}
 
 	@Override 
@@ -590,7 +588,7 @@ public class ShellCoreWindows extends ShellCore {
 		String executeLog = Common.getWinPath( Common.getPath( executor.rootPath , Common.getQuoted( UPLOAD_LOG ) ) );
 		String ts = Common.getLogTimeStamp();
 		String msg = "upload " + dst + " from " + src;
-		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , "echo " + Common.getQuoted( ts + ": " + msg ) + " >> " + executeLog , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 	}
 
 	@Override 
@@ -610,7 +608,7 @@ public class ShellCoreWindows extends ShellCore {
 		String filesRegular = getRegularMaskList( action , mask );
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"dir /b | findstr /R " + Common.getQuoted( filesRegular ) );
-		return( runCommandGetLines( action , cmdDir , CommandOutput.LOGLEVEL_TRACE ) );
+		return( runCommandGetLines( action , cmdDir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT ) );
 	}
 
 	@Override 
@@ -634,9 +632,7 @@ public class ShellCoreWindows extends ShellCore {
 		String cmdDir = getDirCmdIfDir( action , dir , 
 				"( for /f %x in ('dir /S /b /a-d /ON ^| " + cmd + "') do certutil -hashfile %x MD5 | findstr /V " + 
 				Common.getQuoted( "MD5 CertUtil" ) + " ) > " + wtmpFile );
-		int timeout = action.setTimeoutUnlimited();
-		executor.customCheckErrorsDebug( action , cmdDir );
-		action.setTimeout( timeout );
+		executor.customCheckErrorsDebug( action , cmdDir , Shell.WAIT_LONG );
 		
 		String[] lines = executor.getFileLines( action , tmpFile );
 		for( int k = 0; k < lines.length; k++ )
@@ -655,7 +651,7 @@ public class ShellCoreWindows extends ShellCore {
 		String useMarker = "##";
 		String cmd = "for %x in (" + fileMask + ") do echo %x " + cmdAnd + " type %x " + cmdAnd + " echo " + useMarker;
 		String cmdDir = getDirCmd( action , dir , cmd );
-		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE );
+		runCommand( action , cmdDir , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		
 		Map<String,List<String>> map = new HashMap<String,List<String>>();
 		int pos = 0;
@@ -702,9 +698,7 @@ public class ShellCoreWindows extends ShellCore {
 				cmd += " " + cmdAnd + " rmdir /S /Q " + targetDir + " " + cmdAnd + " rename " + extractPart + " " + targetDir;
 		String wtargetParent = Common.getWinPath( targetParent );
 		
-		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckStatusDebug( action , wtargetParent , cmd );
-		action.setTimeout( timeout );
+		runCommandCheckStatusDebug( action , wtargetParent , cmd , Shell.WAIT_LONG );
 	}
 	
 	private void cmdCreateAnyFromDirContent( ActionBase action , String anyFile , String dir , String content , String exclude , String type ) throws Exception {
@@ -717,9 +711,7 @@ public class ShellCoreWindows extends ShellCore {
 		for( String item : Common.split( exclude , " " ) )
 			excludeArgs += " -x!" + Common.getWinPath( item );
 		
-		int timeout = action.setTimeoutUnlimited();
-		runCommandCheckStatusDebug( action , dir , "7z a -t" + type + " -r -bd " + wtarFile + " " + contentArgs + " " + excludeArgs );
-		action.setTimeout( timeout );
+		runCommandCheckStatusDebug( action , dir , "7z a -t" + type + " -r -bd " + wtarFile + " " + contentArgs + " " + excludeArgs , Shell.WAIT_LONG );
 	}
 	
 	private String prepareExecuteWindowsFromLinux( ActionBase action , String cmd , int logLevel ) throws Exception {
@@ -738,10 +730,10 @@ public class ShellCoreWindows extends ShellCore {
 		cmderr.addAll( localSession.cmderr );
 	}
 
-	private void runCommand( ActionBase action , String cmd , int logLevel , boolean addErrorLevel ) throws Exception {
+	private void runCommand( ActionBase action , String cmd , int logLevel , boolean addErrorLevel , int commandTimeoutMillis ) throws Exception {
 		if( sessionType == EnumSessionType.WINDOWSFROMUNIX ) {
 			String execLine = prepareExecuteWindowsFromLinux( action , cmd , logLevel );
-			localSession.runCommand( action , execLine , logLevel );
+			localSession.runCommand( action , execLine , logLevel , commandTimeoutMillis );
 			getOutput( action );
 		}
 		else {
@@ -764,7 +756,7 @@ public class ShellCoreWindows extends ShellCore {
 					e.printStackTrace();
 			}
 			
-			executor.waitCommandFinished( action , logLevel , cmdout , cmderr , false );
+			executor.waitCommandFinished( action , logLevel , cmdout , cmderr , false , commandTimeoutMillis );
 		}
 	}
 

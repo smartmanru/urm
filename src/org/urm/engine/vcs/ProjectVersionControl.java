@@ -43,7 +43,6 @@ public class ProjectVersionControl {
 	}
 	
 	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) {
-		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
 			action.info( "checkout PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + " ..." );
@@ -54,7 +53,6 @@ public class ProjectVersionControl {
 		catch( Throwable e ) {
 			action.handle( e );
 		}
-		action.setTimeout( timeout );
 		return( res );
 	}
 	
@@ -173,7 +171,6 @@ public class ProjectVersionControl {
 	}
 
 	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE , ProjectBuilder builder ) {
-		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
 			action.info( "export PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
@@ -184,7 +181,6 @@ public class ProjectVersionControl {
 		catch( Throwable e ) {
 			action.handle( e );
 		}
-		action.setTimeout( timeout );
 		return( res );
 	}
 

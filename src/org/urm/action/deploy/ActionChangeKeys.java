@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 
@@ -157,7 +158,7 @@ public class ActionChangeKeys extends ActionBase {
 
 	private boolean tryConnect( Account account , String ACCESSOPTION ) throws Exception {
 		String F_CHECK = shell.customGetValueNoCheck( this , "ssh -n " + ACCESSOPTION + 
-				" -o PasswordAuthentication=no " + account.getSshAddr() + " " + Common.getQuoted( "echo ok" ) );
+				" -o PasswordAuthentication=no " + account.getSshAddr() + " " + Common.getQuoted( "echo ok" ) , Shell.WAIT_DEFAULT );
 		if( F_CHECK.equals( "ok" ) )
 			return( true );
 		return( false );
@@ -168,7 +169,7 @@ public class ActionChangeKeys extends ActionBase {
 			exitNotImplemented();
 		
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
-			Common.getQuoted( "cd ~" + user ) );
+			Common.getQuoted( "cd ~" + user ) , Shell.WAIT_DEFAULT );
 		if( status != 0 )
 			return( false );
 		return( true );
@@ -222,13 +223,11 @@ public class ActionChangeKeys extends ActionBase {
 		if( context.CTX_SUDO )
 			exit0( _Error.NotSupportedWithSudo0 , "unsupported with sudo" );
 		
-		int timeout = setTimeoutUnlimited();
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
 			Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + 
 				" | grep -v " + KEYOWNER + "\\$ > " + S_AUTHFILE + ".2; echo " + Common.getQuoted( KEYDATA ) + 
 				" >> " + S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + 
-				"; rm -rf " + S_AUTHFILE + ".2;" ) );
-		setTimeout( timeout );
+				"; rm -rf " + S_AUTHFILE + ".2;" ) , Shell.WAIT_DEFAULT );
 		
 		if( status != 0 )
 			return( false );
@@ -241,16 +240,14 @@ public class ActionChangeKeys extends ActionBase {
 		
 		int status;
 		
-		int timeout = setTimeoutUnlimited();
 		if( context.CTX_SUDO ) {
 			status = shell.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
-				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) );
+				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) , Shell.WAIT_DEFAULT );
 		}
 		else {
 			status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
-					Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " > " + S_AUTHFILE ) );
+					Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " > " + S_AUTHFILE ) , Shell.WAIT_DEFAULT );
 		}
-		setTimeout( timeout );
 		
 		if( status != 0 )
 			return( false );
@@ -266,7 +263,7 @@ public class ActionChangeKeys extends ActionBase {
 		
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
 		Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + " | grep -v " + KEYOWNER + "\\$ > " +
-			S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + "; rm -rf " + S_AUTHFILE + ".2;" ) );
+			S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + "; rm -rf " + S_AUTHFILE + ".2;" ) , Shell.WAIT_DEFAULT );
 		if( status != 0 )
 			return( false );
 		return( true );
@@ -279,10 +276,8 @@ public class ActionChangeKeys extends ActionBase {
 		if( context.CTX_SUDO )
 			exit0( _Error.NotSupportedWithSudo0 , "not supported with sudo" );
 		
-		int timeout = setTimeoutUnlimited();
 		String[] list = shell.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
-				Common.getQuoted( SETUPAUTH ) );
-		setTimeout( timeout );
+				Common.getQuoted( SETUPAUTH ) , Shell.WAIT_DEFAULT );
 		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )
 			exit1( _Error.AuthFileNotFound1 , S_AUTHFILE + " is not found" , S_AUTHFILE );
 		

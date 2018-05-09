@@ -2,6 +2,7 @@ package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.MirrorRepository;
@@ -70,20 +71,20 @@ public class GitProjectRepo {
 		String OSPATH = mc.getBareOSPath();
 		String GITBRANCH_FROM = mc.vcsGit.getGitBranchName( BRANCH_FROM );
 		String GITBRANCH_TO = mc.vcsGit.getGitBranchName( BRANCH_TO );
-		shell.customCheckStatus( action , "git -C " + OSPATH + " branch " + GITBRANCH_TO + " refs/heads/" + GITBRANCH_FROM );
+		shell.customCheckStatus( action , "git -C " + OSPATH + " branch " + GITBRANCH_TO + " refs/heads/" + GITBRANCH_FROM , Shell.WAIT_LONG );
 	}
 
 	public void dropMirrorBranch( String BRANCH ) throws Exception {
 		String OSPATH = mc.getBareOSPath();
 		String GITBRANCH = mc.vcsGit.getGitBranchName( BRANCH );
-		shell.customCheckStatus( action , "git -C " + OSPATH + " branch -D " + GITBRANCH );
+		shell.customCheckStatus( action , "git -C " + OSPATH + " branch -D " + GITBRANCH , Shell.WAIT_DEFAULT );
 	}
 
 	public boolean checkTagExists( String TAG ) throws Exception {
 		String STATUS;
 		String OSPATH = mc.getBareOSPath();
 		String GITTAG = mc.vcsGit.getGitTagName( TAG );
-		STATUS = shell.customGetValue( action , "git -C " + OSPATH + " tag -l " + GITTAG );
+		STATUS = shell.customGetValue( action , "git -C " + OSPATH + " tag -l " + GITTAG , Shell.WAIT_DEFAULT );
 		
 		if( STATUS.isEmpty() )
 			return( false );
@@ -93,21 +94,21 @@ public class GitProjectRepo {
 	public void dropMirrorTag( String TAG ) throws Exception {
 		String OSPATH = mc.getBareOSPath();
 		String GITTAG = mc.vcsGit.getGitTagName( TAG );
-		shell.customCheckStatus( action , "git -C " + OSPATH + " tag -d " + GITTAG );
+		shell.customCheckStatus( action , "git -C " + OSPATH + " tag -d " + GITTAG , Shell.WAIT_DEFAULT );
 	}
 
 	public void copyMirrorTagFromTag( String TAG_FROM , String TAG_TO , String MESSAGE ) throws Exception {
 		String OSPATH = mc.getBareOSPath();
 		String GITTAG_FROM = mc.vcsGit.getGitTagName( TAG_FROM );
 		String GITTAG_TO = mc.vcsGit.getGitTagName( TAG_TO );
-		shell.customCheckStatus( action , "git -C " + OSPATH + " tag -a -f -m " + Common.getQuoted( MESSAGE ) + " " + GITTAG_TO + " refs/tags/" + GITTAG_FROM );
+		shell.customCheckStatus( action , "git -C " + OSPATH + " tag -a -f -m " + Common.getQuoted( MESSAGE ) + " " + GITTAG_TO + " refs/tags/" + GITTAG_FROM , Shell.WAIT_LONG );
 	}
 
 	public void copyMirrorBranchFromTag( String TAG_FROM , String BRANCH_TO , String MESSAGE ) throws Exception {
 		String OSPATH = mc.getBareOSPath();
 		String GITTAG_FROM = mc.vcsGit.getGitTagName( TAG_FROM );
 		String GITBRANCH_TO = mc.vcsGit.getGitBranchName( BRANCH_TO );
-		shell.customCheckStatus( action , "git -C " + OSPATH + " branch " + GITBRANCH_TO + " refs/tags/" + GITTAG_FROM );
+		shell.customCheckStatus( action , "git -C " + OSPATH + " branch " + GITBRANCH_TO + " refs/tags/" + GITTAG_FROM , Shell.WAIT_LONG );
 	}
 
 	public boolean exportFromBranch( LocalFolder PATCHFOLDER , String BRANCH , String FILEPATH , String FILENAME ) throws Exception {
@@ -132,18 +133,18 @@ public class GitProjectRepo {
 		if( !TAGDATE.isEmpty() ) {
 			if( shell.isWindows() ) {
 				REVMARK = shell.customGetValue( action , "git -C " + OSPATH + " log --format=oneline -n 1 --before=" + Common.getQuoted( TAGDATE ) + 
-						" refs/heads/" + GITBRANCH );
+						" refs/heads/" + GITBRANCH , Shell.WAIT_LONG );
 				REVMARK = Common.getListItem( REVMARK , " " , 0 );
 			}
 			else {
 				REVMARK = shell.customGetValue( action , "git -C " + OSPATH + " log --format=oneline -n 1 --before=" + Common.getQuoted( TAGDATE ) + " refs/heads/" + 
-						GITBRANCH + " | tr -d " + Common.getQuoted( " " ) + " -f1" );
+						GITBRANCH + " | tr -d " + Common.getQuoted( " " ) + " -f1" , Shell.WAIT_LONG );
 			}
 			if( REVMARK.isEmpty() )
 				action.exit0( _Error.MissingBranchDateRevision0 , "setMirrorTag: unable to find branch revision on given date" );
 		}
 
-		shell.customCheckStatus( action , "git -C " + OSPATH + " tag " + GITTAG + " -a -f -m " + Common.getQuoted( "$P_MESSAGE" ) + " refs/heads/" + GITBRANCH + " " + REVMARK );
+		shell.customCheckStatus( action , "git -C " + OSPATH + " tag " + GITTAG + " -a -f -m " + Common.getQuoted( "$P_MESSAGE" ) + " refs/heads/" + GITBRANCH + " " + REVMARK , Shell.WAIT_LONG );
 	}
 
 	public String getMirrorTagStatus( String TAG ) throws Exception {
@@ -154,14 +155,14 @@ public class GitProjectRepo {
 		String REPOVERSION;
 		String OSPATH = mc.getBareOSPath();
 		if( shell.isWindows() ) {
-			String[] lines = shell.customGetLines( action , "git -C " + OSPATH + " show --format=raw " + GITTAG );
+			String[] lines = shell.customGetLines( action , "git -C " + OSPATH + " show --format=raw " + GITTAG , Shell.WAIT_DEFAULT );
 			String[] grep = Common.grep( lines , "commit " );
 			REPOVERSION = ( grep.length > 0 )? grep[ 0 ] : "";
 			REPOVERSION = Common.getListItem( REPOVERSION , " " , 1 );
 		}
 		else {
 			REPOVERSION = shell.customGetValue( action , "git -C " + OSPATH + " show --format=raw " + GITTAG + " | grep " + Common.getQuoted( "commit " ) + 
-				" | head -1 | cut -d " + Common.getQuoted( " " ) + " -f2" );
+				" | head -1 | cut -d " + Common.getQuoted( " " ) + " -f2" , Shell.WAIT_DEFAULT );
 		}
 		
 		return( REPOVERSION ); 
@@ -175,14 +176,14 @@ public class GitProjectRepo {
 		String REPOVERSION;
 		String OSPATH = mc.getBareOSPath();
 		if( shell.isWindows() ) {
-			String[] lines = shell.customGetLines( action , "git -C " + OSPATH + " show --format=raw " + GITBRANCH );
+			String[] lines = shell.customGetLines( action , "git -C " + OSPATH + " show --format=raw " + GITBRANCH , Shell.WAIT_DEFAULT );
 			String[] grep = Common.grep( lines , "commit " );
 			REPOVERSION = ( grep.length > 0 )? grep[ 0 ] : "";
 			REPOVERSION = Common.getListItem( REPOVERSION , " " , 1 );
 		}
 		else {
 			REPOVERSION = shell.customGetValue( action , "git -C " + OSPATH + " show --format=raw " + GITBRANCH + " | grep " + Common.getQuoted( "commit " ) + 
-				" | head -1 | cut -d " + Common.getQuoted( " " ) + " -f2" );
+				" | head -1 | cut -d " + Common.getQuoted( " " ) + " -f2" , Shell.WAIT_DEFAULT );
 		}
 		return( REPOVERSION ); 
 	}

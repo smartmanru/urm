@@ -3,6 +3,7 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
 import org.urm.engine.shell.Account;
+import org.urm.engine.shell.Shell;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 
@@ -16,7 +17,7 @@ public class ActionRunCmd extends ActionBase {
 	}
 
 	@Override protected SCOPESTATE executeAccount( ScopeState state , ActionScopeSet set , Account account ) throws Exception {
-		super.executeCmdLive( account , cmd );
+		super.executeCmdLive( account , cmd , Shell.WAIT_LONG );
 		return( SCOPESTATE.RunSuccess );
 	}
 	
