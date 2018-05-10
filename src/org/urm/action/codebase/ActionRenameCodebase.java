@@ -25,13 +25,19 @@ public class ActionRenameCodebase extends ActionBase {
 	@Override 
 	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
+		
+		boolean res = false;
 		if( branchVAR1 == true && branchVAR2 == true && force == false )
-			vcs.renameBranchToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
+			res = vcs.renameBranchToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
 		else
 		if( branchVAR1 == false && branchVAR2 == false && force == true )
-			vcs.renameTagToTag( scopeProject.sourceProject , VAR1 , VAR2 );
+			res = vcs.renameTagToTag( scopeProject.sourceProject , VAR1 , VAR2 );
 		else
 			exitNotImplemented();
+		
+		if( !res )
+			super.exit1( _Error.UnableChangeProjectCodebase1 , "Unable to change source codebase of project=" + scopeProject.sourceProject.NAME , scopeProject.sourceProject.NAME );
+			
 		return( SCOPESTATE.RunSuccess );
 	}
 }
