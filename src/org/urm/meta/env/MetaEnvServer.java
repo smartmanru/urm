@@ -818,6 +818,9 @@ public class MetaEnvServer extends EngineObject {
 	}
 	
 	public void setBaseline( MatchItem baselineMatchItem ) throws Exception {
+		if( !sg.hasBaseline() )
+			baselineMatchItem = null;
+		
 		this.BASELINE = MatchItem.copy( baselineMatchItem );
 		refreshPrimaryProperties();
 	}

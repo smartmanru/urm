@@ -18,7 +18,7 @@ import org.urm.meta.product.MetaSourceProject;
 
 public class SubversionVCS extends GenericVCS {
 
-	static String MASTERBRANCH = "trunk";
+	public static String MASTERBRANCH = "trunk";
 
 	String SVNPATH;
 	String SVNAUTH;
@@ -171,7 +171,7 @@ public class SubversionVCS extends GenericVCS {
 		}
 
 		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: copy branch" ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: copy branch from " + BRANCH1 ) , Shell.WAIT_DEFAULT );
 		return( true );
 	}
 
@@ -223,7 +223,7 @@ public class SubversionVCS extends GenericVCS {
 		}
 
 		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: copy tag" ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: create tag from " + TAG1 ) , Shell.WAIT_DEFAULT );
 		return( true );
 	}
 
@@ -245,7 +245,7 @@ public class SubversionVCS extends GenericVCS {
 			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: drop tag before svn copy" ) , Shell.WAIT_DEFAULT );
 		}
 
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: copy tag" ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: create tag from " + TAG1 ) , Shell.WAIT_DEFAULT );
 		return( true );
 	}
 	
@@ -292,7 +292,7 @@ public class SubversionVCS extends GenericVCS {
 		}
 
 		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: copy tag to branch" ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: create branch from tag " + TAG1 ) , Shell.WAIT_DEFAULT );
 		return( true );
 	}
 	

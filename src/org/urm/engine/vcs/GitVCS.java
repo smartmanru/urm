@@ -16,7 +16,7 @@ import org.urm.meta.product.MetaSourceProject;
 
 public class GitVCS extends GenericVCS {
 
-	static String MASTERBRANCH = "master";
+	public static String MASTERBRANCH = "master";
 
 	public GitVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell , ProjectBuilder builder ) {
 		super( action , meta , res , shell , builder );
@@ -216,7 +216,7 @@ public class GitVCS extends GenericVCS {
 		}
 
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		repo.copyMirrorBranchFromTag( TAG1 , BRANCH2 , core.CONFIG_ADM_TRACKER + "-0000: create branch " + BRANCH2 + " from " + TAG1 );
+		repo.copyMirrorBranchFromTag( TAG1 , BRANCH2 , core.CONFIG_ADM_TRACKER + "-0000: create branch from " + TAG1 );
 		repo.pushRepository();
 		return( true );
 	}
