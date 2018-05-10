@@ -305,6 +305,7 @@ public class DBMetaEnv {
 				loader.trace( "load env=" + env.NAME + " ..." );
 				loaddbEnvData( loader , storage , env );
 				ready.add( env );
+				envs.addEnv( env );
 			}
 			catch( Throwable e ) {
 				loader.log( "unable to load environment=" + env.NAME , e );
@@ -318,10 +319,12 @@ public class DBMetaEnv {
 			if( env.checkMatched() ) {
 				loader.trace( "successfully matched env=" + env.NAME );
 				env.refreshProperties();
+				env.setMatched( true );
 			}
-			else
+			else {
+				env.setMatched( false );
 				loader.trace( "match failed env=" + env.NAME );
-			envs.addEnv( env );
+			}
 		}
 	}
 
