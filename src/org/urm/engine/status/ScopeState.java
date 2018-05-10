@@ -29,7 +29,8 @@ public class ScopeState extends ObjectState {
 		BASEITEM ,
 		VERSION ,
 		BRANCHNAME ,
-		TAGNAME
+		TAGNAME ,
+		VARIABLENAME
 	};
 	
 	public ActionCore action;

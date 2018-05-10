@@ -7,6 +7,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.status.ScopeState;
+import org.urm.engine.status.ScopeState.FACTVALUE;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -14,6 +15,12 @@ import org.urm.meta.env.MetaEnvServer;
 
 public class ActionConfCheck extends ActionBase {
 
+	public enum Facts {
+		UnexpectedVariable ,
+		MatchedVariable ,
+		MissingVariable
+	};
+	
 	boolean S_CONFCHECK_STATUS;
 	
 	MetaEnv baselineEnv;
@@ -29,7 +36,7 @@ public class ActionConfCheck extends ActionBase {
 		S_CONFCHECK_STATUS = true;
 
 		// read properties
-		executeEnv( scope );
+		executeEnv( state , scope );
 		return( SCOPESTATE.NotRun );
 	}
 	
@@ -37,17 +44,17 @@ public class ActionConfCheck extends ActionBase {
 		info( "check configuration parameters in segment=" + set.sg.NAME + " ..." );
 
 		// read properties
-		executeSG( set.sg );
+		executeSG( state , set.sg );
 		return( SCOPESTATE.NotRun );
 	}
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		// read properties
-		executeServer( target.envServer );
+		executeServer( state , target.envServer );
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void executeEnv( ActionScope scope ) throws Exception {
+	private void executeEnv( ScopeState state , ActionScope scope ) throws Exception {
 		// read env properties...
 		ObjectProperties ops = context.env.getProperties();
 		String[] S_CONFCHECK_PROPLIST_ENV = ops.getPropertyList();
@@ -65,14 +72,14 @@ public class ActionConfCheck extends ActionBase {
 				baselineEnv = context.env.getBaseline();
 				String S_CONFCHECK_BASELINE_ENV = baselineEnv.NAME;
 				info( "============================================ check env properties baseline=" + S_CONFCHECK_BASELINE_ENV + " ..." );
-				checkConfEnv( context.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
+				checkConfEnv( state , context.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
 			}
 			else
 				trace( "ignore check env - no baseline defined" );
 		}
 	}
 
-	private void executeSG( MetaEnvSegment sg ) throws Exception {
+	private void executeSG( ScopeState state , MetaEnvSegment sg ) throws Exception {
 		// echo read data center=$SG properties...
 		ObjectProperties ops = sg.getProperties();
 		String[] S_CONFCHECK_PROPLIST_SG = ops.getPropertyList();
@@ -90,14 +97,14 @@ public class ActionConfCheck extends ActionBase {
 				baselineSG = sg.getBaselineSegment( baselineEnv );
 				String S_CONFCHECK_BASELINE_SG = baselineSG.NAME;
 				info( "============================================ check sg=" + sg.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SG + " ..." );
-				checkConfSG( sg , baselineSG , S_CONFCHECK_PROPLIST_SG );
+				checkConfSG( state , sg , baselineSG , S_CONFCHECK_PROPLIST_SG );
 			}
 			else
 				trace( "ignore check sg=" + sg.NAME + " - no baseline defined" );
 		}
 	}
 
-	private void executeServer( MetaEnvServer server ) throws Exception {
+	private void executeServer( ScopeState state , MetaEnvServer server ) throws Exception {
 		// echo read server properties...
 		ObjectProperties ops = server.getProperties();
 		String[] S_CONFCHECK_PROPLIST_SERVER = ops.getPropertyList();
@@ -118,39 +125,40 @@ public class ActionConfCheck extends ActionBase {
 				String S_CONFCHECK_BASELINE_SERVER = baselineServer.NAME;
 				info( "============================================ check sg=" + server.sg.NAME + " server=" + server.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SERVER + " ..." );
 				baselineServer = baselineSG.getServer( S_CONFCHECK_BASELINE_SERVER );
-				checkConfServer( server , baselineServer , S_CONFCHECK_PROPLIST_SERVER );
+				checkConfServer( state , server , baselineServer , S_CONFCHECK_PROPLIST_SERVER );
 			}
 			else
 				trace( "ignore check sg=" + server.sg.NAME + " server=" + server.NAME + " - no baseline defined" );
 		}
 	}
 
-	private void checkConfServer( MetaEnvServer server , MetaEnvServer baseline , String[] propList ) throws Exception {
+	private void checkConfServer( ScopeState state , MetaEnvServer server , MetaEnvServer baseline , String[] propList ) throws Exception {
 		ObjectProperties ops = baseline.getProperties();
 		String[] F_CONFCHECK_PROPLIST = ops.getPropertyList(); 
-		checkLists( "sg=" + server.sg.NAME + " server=" + server.NAME , propList , F_CONFCHECK_PROPLIST );
+		checkLists( state , "sg=" + server.sg.NAME + " server=" + server.NAME , propList , F_CONFCHECK_PROPLIST );
 	}
 
-	private void checkConfSG( MetaEnvSegment sg , MetaEnvSegment baseline , String[] propList ) throws Exception {
+	private void checkConfSG( ScopeState state , MetaEnvSegment sg , MetaEnvSegment baseline , String[] propList ) throws Exception {
 		ObjectProperties ops = baseline.getProperties();
 		String[] F_CONFCHECK_PROPLIST = ops.getPropertyList(); 
-		checkLists( "sg=" + sg.NAME , propList , F_CONFCHECK_PROPLIST );
+		checkLists( state , "sg=" + sg.NAME , propList , F_CONFCHECK_PROPLIST );
 	}
 
-	private void checkConfEnv( MetaEnv env , MetaEnv baseline , String[] propList ) throws Exception {
+	private void checkConfEnv( ScopeState state , MetaEnv env , MetaEnv baseline , String[] propList ) throws Exception {
 		ObjectProperties ops = baseline.getProperties();
 		String[] F_CONFCHECK_PROPLIST = ops.getPropertyList(); 
-		checkLists( "environment" , propList , F_CONFCHECK_PROPLIST );
+		checkLists( state , "environment" , propList , F_CONFCHECK_PROPLIST );
 	}
 
-	private void checkLists( String scope , String[] vars , String[] baseline ) throws Exception {
+	private void checkLists( ScopeState state , String scope , String[] vars , String[] baseline ) throws Exception {
 		// check env in base
 		for( String var : vars ) {
 			if( var.endsWith( "configuration-baseline" ) )
 				continue;
 		
 			if( Common.findItem( var , baseline ) < 0 ) {
-				String error = "unexpected variable=" + var + " in " + scope; 
+				String error = "unexpected variable=" + var + " in " + scope;
+				state.addFact( Facts.UnexpectedVariable , FACTVALUE.VARIABLENAME , var );
 			
 				if( context.CTX_SHOWALL ) {
 					error( error );
@@ -160,8 +168,10 @@ public class ActionConfCheck extends ActionBase {
 					ifexit( _Error.UnexpectedScopeVariable2 , error , new String[] { scope , var } );
 			}
 			else {
-				if( context.CTX_SHOWALL )
+				if( context.CTX_SHOWALL ) {
+					state.addFact( Facts.MatchedVariable , FACTVALUE.VARIABLENAME , var );
 					info( "variable=" + var + " in " + scope + " - ok" );
+				}
 			}
 		}
 
@@ -171,6 +181,7 @@ public class ActionConfCheck extends ActionBase {
 				continue;
 		
 			if( Common.findItem( var , vars ) < 0 ) {
+				state.addFact( Facts.MissingVariable , FACTVALUE.VARIABLENAME , var );
 				String error = "missing variable=" + var + " in " + scope;
 			
 				if( context.CTX_SHOWALL ) {
@@ -179,10 +190,6 @@ public class ActionConfCheck extends ActionBase {
 				}
 				else
 					ifexit( _Error.MissingScopeVariable2 , error , new String[] { scope , var } );
-			}
-			else {
-				if( context.CTX_SHOWALL )
-					info( "variable=" + var + " in " + scope + " - ok" );
 			}
 		}
 	}
