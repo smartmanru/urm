@@ -101,9 +101,17 @@ public class EngineProductEnvs {
 	public MetaEnv getEnv( MatchItem item ) throws Exception {
 		if( item == null )
 			return( null );
-		MetaEnv env = ( item.MATCHED )? findEnv( item.FKID ) : findEnv( item.FKNAME );
+		
+		if( item.MATCHED ) {
+			MetaEnv env = findEnv( item.FKID );
+			if( env == null )
+				Common.exit1( _Error.UnknownEnvironment1 , "Unknown environment=" + item.FKID , "" + item.FKID );
+			return( env );
+		}
+		
+		MetaEnv env = findEnv( item.FKNAME );
 		if( env == null )
-			Common.exitUnexpected();
+			Common.exit1( _Error.UnknownEnvironment1 , "Unknown environment=" + item.FKNAME , "" + item.FKNAME );
 		return( env );
 	}
 	
