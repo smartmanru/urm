@@ -187,7 +187,7 @@ public class DBMetaEnv {
 				entity.exportxmlString( env.NAME ) ,
 				entity.exportxmlString( env.DESC ) ,
 				entity.exportxmlEnum( env.ENV_TYPE ) ,
-				entity.exportxmlString( envs.getMetaEnvName( env.getBaselineMatchItem() ) ) ,
+				entity.exportxmlString( envs.getProductEnvName( env.getBaselineMatchItem() ) ) ,
 				entity.exportxmlBoolean( env.OFFLINE ) ,
 				entity.exportxmlString( resources.getResourceName( env.getEnvKeyMatchItem() ) ) ,
 				entity.exportxmlBoolean( env.DISTR_REMOTE ) ,

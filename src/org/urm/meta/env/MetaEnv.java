@@ -164,7 +164,7 @@ public class MetaEnv extends EngineObject {
 		ops.setEnumProperty( PROPERTY_ENVTYPE , ENV_TYPE );
 		
 		if( BASELINE != null ) {
-			MetaEnv env = envs.getMetaEnv( BASELINE );
+			MetaEnv env = envs.getProductEnv( BASELINE );
 			ops.setStringProperty( PROPERTY_BASELINE , env.NAME );
 		}
 		
@@ -239,7 +239,7 @@ public class MetaEnv extends EngineObject {
 	}
 	
 	public MetaEnv getBaseline() throws Exception {
-		MetaEnv env = envs.getMetaEnv( BASELINE );
+		MetaEnv env = envs.getProductEnv( BASELINE );
 		return( env );
 	}
 	

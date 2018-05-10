@@ -5,6 +5,7 @@ import org.urm.engine.Engine;
 import org.urm.meta.env.MetaDump;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.ProductMeta;
 
 public class EngineProductEnvs {
@@ -33,6 +34,17 @@ public class EngineProductEnvs {
 		for( ProductMeta storage : revisions.getRevisions() ) {
 			ProductEnvs envs = storage.getEnviroments();
 			MetaEnv env = envs.findMetaEnv( name );
+			if( env != null )
+				return( env );
+		}
+		return( null ); 
+	}
+
+	public MetaEnv findEnv( int id ) {
+		EngineProductRevisions revisions = ep.getRevisions();
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			ProductEnvs envs = storage.getEnviroments();
+			MetaEnv env = envs.findMetaEnv( id );
 			if( env != null )
 				return( env );
 		}
@@ -77,6 +89,22 @@ public class EngineProductEnvs {
 				return( dump );
 		}
 		return( null );
+	}
+
+	public MetaEnv getEnv( int id ) throws Exception {
+		MetaEnv env = findEnv( id );
+		if( env == null )
+			Common.exitUnexpected();
+		return( env );
+	}
+	
+	public MetaEnv getEnv( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		MetaEnv env = ( item.MATCHED )? findEnv( item.FKID ) : findEnv( item.FKNAME );
+		if( env == null )
+			Common.exitUnexpected();
+		return( env );
 	}
 	
 }

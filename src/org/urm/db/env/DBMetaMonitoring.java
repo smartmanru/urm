@@ -156,7 +156,7 @@ public class DBMetaMonitoring {
 				target.EV = entity.loaddbVersion( rs );
 				
 				int envId = entity.loaddbObject( rs , DBEnvData.FIELD_ENV_ID );
-				MetaEnv env = envs.getMetaEnv( envId );
+				MetaEnv env = envs.findMetaEnv( envId );
 				
 				int segmentId = entity.loaddbObject( rs , DBEnvData.FIELD_MONTARGET_SEGMENT_ID );
 				MetaEnvSegment sg = env.getSegment( segmentId );
