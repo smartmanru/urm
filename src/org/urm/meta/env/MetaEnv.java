@@ -162,12 +162,6 @@ public class MetaEnv extends EngineObject {
 		ops.setStringProperty( PROPERTY_NAME , NAME );
 		ops.setStringProperty( PROPERTY_DESC , DESC );
 		ops.setEnumProperty( PROPERTY_ENVTYPE , ENV_TYPE );
-		
-		if( BASELINE != null ) {
-			MetaEnv env = envs.getProductEnv( BASELINE );
-			ops.setStringProperty( PROPERTY_BASELINE , env.NAME );
-		}
-		
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		
 		if( ENVKEY != null ) {
@@ -252,6 +246,14 @@ public class MetaEnv extends EngineObject {
 		Common.changeMapKey( sgMap , sg , sg.NAME );
 	}
 	
+	public MetaEnvSegment findSegment( MatchItem item ) {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( findSegment( item.FKID ) );
+		return( findSegment( item.FKNAME ) );
+	}
+
 	public MetaEnvSegment findSegment( String name ) {
 		return( sgMap.get( name ) );
 	}

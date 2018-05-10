@@ -79,19 +79,15 @@ public class DBMetaEnvServer {
 	}
 	
 	public static void matchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvSegment baselineSegment ) throws Exception {
-		EngineEntities entities = loader.getEntities();
-		EngineMatcher matcher = loader.getMatcher();
 		DBConnection c = loader.getConnection();
 		
 		MatchItem BASELINE = server.getBaselineMatchItem();
 		if( BASELINE != null ) {
-			String value = matcher.matchEnvBefore( env , BASELINE.FKNAME , server.ID , entities.entityAppServerPrimary , MetaEnvServer.PROPERTY_BASELINE , null );
-			MetaEnvServer baseline = baselineSegment.findServer( value );
+			MetaEnvServer baseline = baselineSegment.findServer( BASELINE );
 			if( baseline != null ) {
 				BASELINE.match( baseline.ID );
 				modifyServerMatch( c , storage , env , server );
 			}
-			matcher.matchEnvDone( BASELINE );
 		}
 	}
 	

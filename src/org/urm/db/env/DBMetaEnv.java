@@ -67,20 +67,16 @@ public class DBMetaEnv {
 	}
 
 	public static void matchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
-		EngineEntities entities = loader.getEntities();
-		EngineMatcher matcher = loader.getMatcher();
 		ProductEnvs envs = storage.getEnviroments();
 		DBConnection c = loader.getConnection();
 		
 		MatchItem BASELINE = env.getBaselineMatchItem();
 		if( BASELINE != null ) {
-			String value = matcher.matchEnvBefore( env , BASELINE.FKNAME , env.ID , entities.entityAppEnvPrimary , MetaEnv.PROPERTY_BASELINE , null );
-			MetaEnv baseline = envs.findMetaEnv( value );
+			MetaEnv baseline = envs.findMetaEnv( BASELINE );
 			if( baseline != null ) {
 				BASELINE.match( baseline.ID );
 				modifyEnvMatch( c , storage , env );
 			}
-			matcher.matchEnvDone( BASELINE );
 			
 			if( baseline != null ) {
 				for( MetaEnvSegment sg : env.getSegments() )
@@ -305,7 +301,6 @@ public class DBMetaEnv {
 				loader.trace( "load env=" + env.NAME + " ..." );
 				loaddbEnvData( loader , storage , env );
 				ready.add( env );
-				envs.addEnv( env );
 			}
 			catch( Throwable e ) {
 				loader.log( "unable to load environment=" + env.NAME , e );
@@ -319,10 +314,9 @@ public class DBMetaEnv {
 			if( env.checkMatched() ) {
 				loader.trace( "successfully matched env=" + env.NAME );
 				env.refreshProperties();
-				env.setMatched( true );
+				envs.addEnv( env );
 			}
 			else {
-				env.setMatched( false );
 				loader.trace( "match failed env=" + env.NAME );
 			}
 		}

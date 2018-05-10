@@ -268,10 +268,6 @@ public class MetaEnvSegment extends EngineObject {
 		ops.setStringProperty( PROPERTY_DESC , DESC );
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		
-		MetaEnvSegment sgBaseline = getBaseline();
-		if( sgBaseline != null )
-			ops.setStringProperty( PROPERTY_BASELINE , sgBaseline.NAME );
-		
 		Datacenter dc = getDatacenter();
 		if( dc != null )
 			ops.setStringProperty( PROPERTY_DC , dc.NAME );

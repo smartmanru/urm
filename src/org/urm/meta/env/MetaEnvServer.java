@@ -253,10 +253,6 @@ public class MetaEnvServer extends EngineObject {
 		ops.setEnumProperty( PROPERTY_OSTYPE , OS_TYPE );
 		ops.setStringProperty( PROPERTY_SYSNAME , SYSNAME );
 		
-		MetaEnvServer serverBaseline = getBaseline();
-		if( serverBaseline != null )
-			ops.setStringProperty( PROPERTY_BASELINE , serverBaseline.NAME );
-
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		ops.setEnumProperty( PROPERTY_DBMSTYPE , DBMS_TYPE );
 		
