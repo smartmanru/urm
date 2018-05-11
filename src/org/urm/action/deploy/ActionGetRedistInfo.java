@@ -3,37 +3,34 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.RedistStateInfo;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.HostAccount;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.Types.*;
 
 public class ActionGetRedistInfo extends ActionBase {
 
 	Dist dist;
 
 	public ActionGetRedistInfo( ActionBase action , String stream , Dist dist ) {
-		super( action , stream , "Get redist data information" );
+		super( action , stream );
 		this.dist = dist;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 		info( "root path: " + server.ROOTPATH );
 		
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			HostAccount hostAccount = node.getHostAccount();
-			info( "node" + node.POS + " (" + hostAccount.getFinalAccount() + "):" );
+			info( "node" + node.POS + " (" + node.HOSTLOGIN + "):" );
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			if( dist == null )
@@ -57,12 +54,12 @@ public class ActionGetRedistInfo extends ActionBase {
 	}
 	
 	private void showReleaseState( RedistStorage redist ) throws Exception {
-		VersionInfo version = VersionInfo.getDistVersion( dist ); 
+		VersionInfo version = VersionInfo.getDistVersion( this , dist ); 
 		ServerDeployment deployment = redist.getDeployment( this , version );
 		for( String category : deployment.getCategories( this ) ) {
 			boolean first = true;
 			
-			EnumContentType CONTENTTYPE = deployment.getCategoryContent( this , category );
+			VarCONTENTTYPE CONTENTTYPE = deployment.getCategoryContent( this , category );
 			boolean rollout = deployment.getCategoryRollout( this , category );
 			
 			for( String LOCATION : deployment.getCategoryLocations( this , category ) ) {
@@ -89,7 +86,7 @@ public class ActionGetRedistInfo extends ActionBase {
 					String text = info.itemName;
 					text += ", version: " + info.version.getFullVersion();
 					if( info.binaryItem != null ) {
-						if( info.binaryItem.isArchive() )
+						if( info.binaryItem.isArchive( this ) )
 							text += ", archive";
 						else
 							text += ", deployname: " + info.deployFinalName;

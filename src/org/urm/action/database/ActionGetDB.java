@@ -2,24 +2,18 @@ package org.urm.action.database;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
 
 public class ActionGetDB extends ActionBase {
 
-	public Dist dist;
-	public LocalFolder downloadFolder;
-	public boolean copyDist;
+	Dist dist;
 	
-	public ActionGetDB( ActionBase action , String stream , Dist dist , LocalFolder downloadFolder , boolean copyDist ) {
-		super( action , stream , "Get database files, " + 
-				( ( dist == null )? "default built" : "release=" + dist.RELEASEDIR ) + 
-				", change distr=" + copyDist );
+	public ActionGetDB( ActionBase action , String stream , Dist dist ) {
+		super( action , stream );
 		this.dist = dist;
-		this.downloadFolder = downloadFolder;
-		this.copyDist = copyDist;
 	}
 
 	protected SCOPESTATE executeScopeTarget( ActionScopeTarget item ) throws Exception {
@@ -29,10 +23,11 @@ public class ActionGetDB extends ActionBase {
 		workFolder.recreateThis( this );
 		
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , item.meta , workFolder );
-		if( !sourceStorage.downloadReleaseDatabaseFiles( this , dist , item.delivery , workFolder ) )
+		if( !sourceStorage.downloadReleaseDatabaseFiles( this , dist , item.dbDelivery , workFolder ) )
 			return( SCOPESTATE.NotRun );
 
-		LocalFolder dbPreparedFolder = downloadFolder.getSubFolder( this , dist.getDeliveryDatabaseFolder( this , item.delivery , dist.release.RELEASEVER ) );
+		LocalFolder downloadFolder = artefactory.getDownloadFolder( this , item.meta );
+		LocalFolder dbPreparedFolder = downloadFolder.getSubFolder( this , dist.getDeliveryDatabaseFolder( this , item.dbDelivery , dist.release.RELEASEVER ) );
 		dbPreparedFolder.recreateThis( this );
 
 		LocalFolder dbWorkFolder = workFolder.getSubFolder( this , SourceStorage.DATABASE_FOLDER );
@@ -45,13 +40,13 @@ public class ActionGetDB extends ActionBase {
 		DatabasePrepare prepare = new DatabasePrepare();
 		
 		debug( "prepare scripts dir=" + workFolder.folderPath + " ..." );
-		if( !prepare.processDatabaseFiles( this , dist , item.delivery , workFolder , preparedFolder ) ) {
+		if( !prepare.processDatabaseFiles( this , dist , item.dbDelivery , workFolder , preparedFolder ) ) {
 			error( "script set check errors, do not copy to dist" );
 			return;
 		}
 		
 		// copy
-		if( copyDist )
-			dist.copyDatabaseFilesToDistr( this , item.delivery , preparedFolder );
+		if( context.CTX_DIST )
+			dist.copyDatabaseFilesToDistr( this , item.dbDelivery , preparedFolder );
 	}
 }

@@ -1,5 +1,10 @@
 package org.urm.meta.product;
 
+import org.urm.action.ActionBase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 public class MetaDatabaseAdministration {
 
 	protected Meta meta;
@@ -10,8 +15,14 @@ public class MetaDatabaseAdministration {
 		this.database = database;
 	}
 
-	public MetaDatabaseAdministration copy( Meta rmeta , MetaDatabase rdatabase ) throws Exception {
-		MetaDatabaseAdministration r = new MetaDatabaseAdministration( rmeta , rdatabase );
+	public void load( ActionBase action , Node node ) throws Exception {
+	}
+	
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+	}
+
+	public MetaDatabaseAdministration copy( ActionBase action , Meta meta , MetaDatabase database ) throws Exception {
+		MetaDatabaseAdministration r = new MetaDatabaseAdministration( meta , database );
 		return( r );
 	}
 	

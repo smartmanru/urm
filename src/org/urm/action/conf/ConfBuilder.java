@@ -7,21 +7,20 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.PropertySet;
+import org.urm.common.PropertyValue;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDistScopeDelivery;
-import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
-import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertyValue;
-import org.urm.engine.shell.Shell;
+import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.HiddenFiles;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ConfBuilder {
 
@@ -37,19 +36,19 @@ public class ConfBuilder {
 		this.meta = meta;
 	}
 
-	public String createConfDiffFile( Dist dist , ReleaseDistScopeDelivery delivery ) throws Exception {
+	public String createConfDiffFile( Dist release , ReleaseDelivery delivery ) throws Exception {
 		// copy conf from release
 		LocalFolder releaseFolder = artefactory.getWorkFolder( action , "release.delivery.conf" );
 		releaseFolder.recreateThis( action );
-		dist.copyDistConfToFolder( action , delivery , releaseFolder );
+		release.copyDistConfToFolder( action , delivery , releaseFolder );
 		
 		// copy conf from product
 		action.debug( "compare with product configuration ..." );
 		LocalFolder prodFolder = artefactory.getWorkFolder( action , "prod.delivery.conf" );
 		prodFolder.recreateThis( action );
-		SourceStorage storage = artefactory.getSourceStorage( action , dist.meta , prodFolder );
+		SourceStorage storage = artefactory.getSourceStorage( action , delivery.meta , prodFolder );
 		
-		for( ReleaseDistScopeDeliveryItem releaseComp : delivery.getItems() ) {
+		for( ReleaseTarget releaseComp : delivery.getConfItems( action ).values() ) {
 			ConfSourceFolder sourceFolder = new ConfSourceFolder( meta );
 			sourceFolder.createReleaseConfigurationFolder( action , releaseComp );
 			storage.downloadProductConfigItem( action , sourceFolder , prodFolder );
@@ -63,8 +62,8 @@ public class ConfBuilder {
 		FileSet releaseSet = releaseFolder.getFileSet( action );
 		FileSet prodSet = prodFolder.getFileSet( action );
 		
-		ConfDiffSet diff = new ConfDiffSet( dist.meta , releaseSet , prodSet , null , true ); 
-		diff.calculate( action , dist.release );
+		ConfDiffSet diff = new ConfDiffSet( delivery.meta , releaseSet , prodSet , null , true ); 
+		diff.calculate( action , release.release );
 		
 		String filePath = releaseFolder.getFilePath( action , diffFile ); 
 		diff.save( action , filePath );
@@ -87,7 +86,7 @@ public class ConfBuilder {
 		if( live.checkFileExists( action , runScript ) ) {
 			action.info( "run " + runScript );
 			action.shell.custom( action , live.folderPath , "chmod 744 " + runScript + "; ./" + runScript + " " + 
-				server.sg.env.NAME + " " + server.sg.NAME + " " + server.NAME + " " + node.POS , Shell.WAIT_DEFAULT );
+				server.sg.env.ID + " " + server.sg.NAME + " " + server.NAME + " " + node.POS );
 		}
 		
 		// copy explicit environment directories
@@ -119,7 +118,7 @@ public class ConfBuilder {
 			extCompOptions += Common.getQuoted( mask );
 		}
 		String list = action.shell.customGetValue( action , live.folderPath , "F_FILES=`find . -type f -a \\( " + 
-				extCompOptions + " \\) | tr \"\\n\" \" \"`; if [ \"$F_FILES\" != \"\" ]; then grep -l \"@.*@\" $F_FILES; fi" , Shell.WAIT_DEFAULT );
+				extCompOptions + " \\) | tr \"\\n\" \" \"`; if [ \"$F_FILES\" != \"\" ]; then grep -l \"@.*@\" $F_FILES; fi" );
 		String[] files = Common.splitLines( list );
 		return( files );
 	}
@@ -151,43 +150,43 @@ public class ConfBuilder {
 		return( filtered.toArray( new String[0] ) );
 	}
 	
-	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServer server , ObjectProperties ops , Charset charset ) throws Exception {
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServer server , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
 		FileSet files = folder.getFileSet( action );
-		if( ops == null )
-			ops = server.getProperties();
+		if( props == null )
+			props = server.getProperties();
 		
 		for( String file : files.fileList )
-			configureFile( folder , file , server , ops , charset );
+			configureFile( folder , file , server , props , charset );
 	}
 
-	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , ObjectProperties ops ) throws Exception {
-		configureFolder( action , folder , node , ops , StandardCharsets.UTF_8 );
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , PropertySet props ) throws Exception {
+		configureFolder( action , folder , node , props , StandardCharsets.UTF_8 );
 	}
 	
-	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , ObjectProperties ops , Charset charset ) throws Exception {
+	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse configuration files in folder=" + folder.folderPath + " ..." );
 		FileSet files = folder.getFileSet( action );
 		
-		if( ops == null )
-			ops = node.getProperties();
+		if( props == null )
+			props = node.getProperties();
 		
 		for( String file : files.fileList )
-			configureFile( folder , file , node , ops , charset );
+			configureFile( folder , file , node , props , charset );
 	}
 	
-	public void configureFile( LocalFolder live , String file , MetaEnvServer server , ObjectProperties ops , Charset charset ) throws Exception {
+	public void configureFile( LocalFolder live , String file , MetaEnvServer server , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
 		List<String> fileLines = action.readFileLines( filePath , charset );
 		
-		if( ops == null )
-			ops = server.getProperties();
+		if( props == null )
+			props = server.getProperties();
 		
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			PropertyValue res = ops.getFinalValue( s , server.isWindows() , true , false );
+			PropertyValue res = props.getFinalValue( s , server.isWindows() , true , false );
 			if( res != null ) {
 				fileLines.set( k , res.getFinalValue() );
 				changed = true;
@@ -195,21 +194,21 @@ public class ConfBuilder {
 		}
 
 		if( changed )
-			Common.createFileFromStringList( action.execrc , filePath , fileLines , charset );
+			Common.createFileFromStringList( filePath , fileLines , charset );
 	}
 	
-	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , ObjectProperties ops , Charset charset ) throws Exception {
+	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , PropertySet props , Charset charset ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
 		List<String> fileLines = action.readFileLines( filePath , charset );
 		
-		if( ops == null )
-			ops = node.getProperties();
+		if( props == null )
+			props = node.getProperties();
 		
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			PropertyValue res = ops.getFinalValue( s , node.server.isWindows() , true , false );
+			PropertyValue res = props.getFinalValue( s , node.server.isWindows() , true , false );
 			if( res != null ) {
 				fileLines.set( k , res.getFinalValue() );
 				changed = true;
@@ -217,7 +216,7 @@ public class ConfBuilder {
 		}
 
 		if( changed )
-			Common.createFileFromStringList( action.execrc , filePath , fileLines , charset );
+			Common.createFileFromStringList( filePath , fileLines , charset );
 	}
 	
 }

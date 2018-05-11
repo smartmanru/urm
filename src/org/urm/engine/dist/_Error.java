@@ -14,10 +14,12 @@ public class _Error {
 	public static final int MissingRelease1 = ErrorBase + 5;
 	public static final int ReleaseAlreadyExists1 = ErrorBase + 6;
 	public static final int InvalidReleaseVersion1 = ErrorBase + 7;
+	public static final int UnableFindProdDistributive0 = ErrorBase + 8;
 	public static final int LastMinorVersionNotSet0 = ErrorBase + 9;
 	public static final int NextMinorVersionNotSet0 = ErrorBase + 10;
 	public static final int UnexpectedReleaseLabel1 = ErrorBase + 11;
 	public static final int MissingProdFolder1 = ErrorBase + 12;
+	public static final int ProdFolderAlreadyInitialized1 = ErrorBase + 13;
 	public static final int UnableChangeReleaseState2 = ErrorBase + 14;
 	public static final int CannotCreateExistingDistributive0 = ErrorBase + 15;
 	public static final int MissingProdDistributiveDirectory0 = ErrorBase + 16;
@@ -28,7 +30,7 @@ public class _Error {
 	public static final int DistributiveNotReleased1 = ErrorBase + 21;
 	public static final int DistributiveNotReadyForUse1 = ErrorBase + 22;
 	public static final int DistributiveNotReadyForProd1 = ErrorBase + 23;
-	public static final int DistributiveHashDiffers0 = ErrorBase + 24;
+	public static final int DistributiveHashDiffers2 = ErrorBase + 24;
 	public static final int DistributiveNotClosed1 = ErrorBase + 25;
 	public static final int DistributiveProtected1 = ErrorBase + 26;
 	public static final int CompatibilityExpectedForEarlierRelease1 = ErrorBase + 27;
@@ -47,28 +49,5 @@ public class _Error {
 	public static final int UnexpectedFullSetDatabaseItems0 = ErrorBase + 40;
 	public static final int UnexpectedFullSetManuaItems0 = ErrorBase + 41;
 	public static final int UnknownReleaseTarget1 = ErrorBase + 42;	
-	public static final int ReleaseRepositoryExists1 = ErrorBase + 43;
-	public static final int MissingReleaseRepositoryParent1 = ErrorBase + 44;
-	public static final int MissingReleaseRepository1 = ErrorBase + 45;
-	public static final int MissingReleaseDate0 = ErrorBase + 47;
-	public static final int DisabledLifecycle1 = ErrorBase + 49;
-	public static final int AlreadyReleased1 = ErrorBase + 50;
-	public static final int NotCompletedSource1 = ErrorBase + 51;
-	public static final int NoCurrentPhase0 = ErrorBase + 52;
-	public static final int UnknownReleasePhase2 = ErrorBase + 53;
-	public static final int PhaseFinished2 = ErrorBase + 54;
-	public static final int DateEalierThanReleaseStarted2 = ErrorBase + 55;
-	public static final int DateEalierThanPhaseStart2 = ErrorBase + 56;
-	public static final int DateEalierThanToday2 = ErrorBase + 57;
-	public static final int DateEalierThanNextPhaseDeadline2 = ErrorBase + 58;
-	public static final int DateEqualToNextPhaseDeadline2 = ErrorBase + 59;
-	public static final int MissingReleaseDate1 = ErrorBase + 60;
-	public static final int UnexpectedFullSetDerivedItems0 = ErrorBase + 61;
-	public static final int DuplicateReleaseTicket3 = ErrorBase + 63;
-	public static final int UnexpectedFullSetDocItems0 = ErrorBase + 64;
-	public static final int ActiveReleaseExists0 = ErrorBase + 65;
-	public static final int ActiveEnvExists0 = ErrorBase + 66;
-	public static final int ReleaseExists0 = ErrorBase + 67;
-	public static final int EnvExists0 = ErrorBase + 68;
 	
 }

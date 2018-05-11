@@ -2,9 +2,7 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.SimpleHttp;
-import org.urm.meta.engine.AuthResource;
-import org.urm.meta.engine.ProjectBuilder;
+import org.urm.meta.engine.ServerAuthResource;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductBuildSettings;
@@ -15,29 +13,20 @@ public class NexusStorage {
 	Artefactory artefactory;
 	public LocalFolder artefactoryFolder;
 	Meta meta;
-	Integer NEXUS_RESOURCE;
 	String repository;
 	
 	String authFile = "~/.auth/nexus.http.txt"; 
 	
-	public NexusStorage( Artefactory artefactory , Meta meta , LocalFolder artefactoryFolder , Integer NEXUS_RESOURCE , String repository ) {
+	public NexusStorage( Artefactory artefactory , Meta meta , LocalFolder artefactoryFolder , String repository ) {
 		this.artefactory = artefactory;
 		this.artefactoryFolder = artefactoryFolder;
-		this.NEXUS_RESOURCE = NEXUS_RESOURCE;
 		this.repository = repository;
 		this.meta = meta;
 	}
 
-	public static boolean verifyRepository( ActionBase action , String repository , AuthResource res ) throws Exception {
-		String REPOPATH = res.BASEURL + "/content/repositories/" + repository + "/";
-		res.loadAuthData();
-		String user = res.ac.getUser( action );
-		String password = res.ac.getPassword( action );
-		return( SimpleHttp.check( action , REPOPATH , user , password ) );
-	}
-	
 	public NexusDownloadInfo downloadNexus( ActionBase action , String GROUPID , String ARTEFACTID , String VERSION , String PACKAGING , String CLASSIFIER , MetaDistrBinaryItem item ) throws Exception {
-		AuthResource res = action.getResource( NEXUS_RESOURCE );
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION;
 		if( !CLASSIFIER.isEmpty() )
@@ -66,7 +55,8 @@ public class NexusStorage {
 	}
 
 	public NexusDownloadInfo downloadNuget( ActionBase action , String ARTEFACTID , String VERSION , MetaDistrBinaryItem item ) throws Exception {
-		AuthResource res = action.getResource( NEXUS_RESOURCE );
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		ServerAuthResource res = action.getResource( build.CONFIG_NEXUS_RESOURCE );
 		String REPOPATH = res.BASEURL + "/content/repositories/" + repository;
 		String NAME = ARTEFACTID + "-" + VERSION + ".nupkg";
 
@@ -86,22 +76,21 @@ public class NexusStorage {
 		LocalFolder tmp = artefactoryFolder.getSubFolder( action , "tmp" );
 		tmp.ensureExists( action );
 		
-		ProjectBuilder builder = item.project.getBuilder( action );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
-				Common.getPath( "lib" , builder.TARGET_PLATFORM , "*" ) );
+				Common.getPath( "lib" , item.NUGET_PLATFORM , "*" ) );
 		action.shell.unzipPart( action , artefactoryFolder.folderPath , src.DOWNLOAD_FILENAME , tmp.folderPath , 
 				Common.getPath( "content" , "*" ) );
 		
 		// copy to final zip dir
 		LocalFolder zip = tmp.getSubFolder( action , "final" );
 		zip.ensureExists( action );
-		String zipLibPath = zip.getFilePath( action , item.BASENAME + ".zip" );
+		String zipLibPath = zip.getFilePath( action , item.NUGET_LIBNAME + ".zip" );
 		
-		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , builder.TARGET_PLATFORM ) , "*" , "" );
+		tmp.createZipFromFolderContent( action , zipLibPath , Common.getPath( "lib" , item.NUGET_PLATFORM ) , "*" , "" );
 		zip.copyDirContent( action , tmp.getSubFolder( action , "content" ) );
 		
 		// create final zip file
-		String FILENAME = item.BASENAME + item.EXT;
+		String FILENAME = item.ITEMBASENAME + item.ITEMEXTENSION;
 		String finalFile = artefactoryFolder.getFilePath( action , FILENAME );
 		zip.createZipFromContent( action , finalFile , "*" , "" );
 		action.shell.createMD5( action , finalFile );

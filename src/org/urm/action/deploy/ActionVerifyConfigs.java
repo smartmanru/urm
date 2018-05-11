@@ -1,45 +1,37 @@
 package org.urm.action.deploy;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.action.conf.ConfDiffSet;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerDeployment;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionVerifyConfigs extends ActionBase {
 
 	String timestamp;
 	String confVersion;
-
-	private Map<MetaEnvServerNode,ConfDiffSet> nodeDiffs;
 	
 	public ActionVerifyConfigs( ActionBase action , String stream ) {
-		super( action , stream , "Verify environment configuration" );
+		super( action , stream );
 		timestamp = Common.getNameTimeStamp();
-		nodeDiffs = new HashMap<MetaEnvServerNode,ConfDiffSet>(); 
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer; 
 		if( !server.isConfigurable() ) {
-			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName() );
+			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName( this ) );
 			return( SCOPESTATE.NotRun );
 		}
 
@@ -105,20 +97,18 @@ public class ActionVerifyConfigs extends ActionBase {
 		
 		boolean ok = true;
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.isConfItem() ) {
-				MetaDistrConfItem confItem = deployment.getConfItem();
-				String name = sourceStorage.getConfItemLiveName( this , node , confItem );
-				if( !executeNodeConf( parentAsis , parentTobe , sourceStorage , server , node , deployment , confItem , name , prepare ) )
+			if( deployment.confItem != null ) {
+				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
+				if( !executeNodeConf( parentAsis , parentTobe , sourceStorage , server , node , deployment , deployment.confItem , name , prepare ) )
 					ok = false;
 				continue;
 			}
 			
 			// deployments
-			if( !deployment.isComponent() )
+			if( deployment.comp == null )
 				continue;
 			
-			MetaDistrComponent comp = deployment.getComponent();
-			for( MetaDistrComponentItem compItem : comp.getConfItems() ) {
+			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					if( !executeNodeConf( parentAsis , parentTobe , sourceStorage , server , node , deployment , compItem.confItem , name , prepare ) )
@@ -170,20 +160,20 @@ public class ActionVerifyConfigs extends ActionBase {
 		
 		boolean ok = true;
 		if( prepare ) {
-			debug( "prepare configuraton item=" + confItem.NAME + " from live ..." );
+			debug( "prepare configuraton item=" + confItem.KEY + " from live ..." );
 			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parentTobe );
 	
 			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureLiveComponent( tobe , confItem , server , node );
 		}
 		else {
-			info( "compare configuraton item=" + confItem.NAME + " with live ..." );
+			info( "compare configuraton item=" + confItem.KEY + " with live ..." );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			LocalFolder asis = parentAsis.getSubFolder( this , name );
 			asis.ensureExists( this );
 			
 			if( !redist.getConfigItem( this , asis , confItem , deployment.DEPLOYPATH ) )
-				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.NAME , new String[] { confItem.NAME } );
+				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
 			
 			String nodePrefix = "node" + node.POS + "-";
 			if( !showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , true ) )
@@ -197,23 +187,23 @@ public class ActionVerifyConfigs extends ActionBase {
 		
 		boolean ok = true;
 		if( prepare ) {
-			debug( "prepare configuraton item=" + confItem.NAME + " from templates ..." );
+			debug( "prepare configuraton item=" + confItem.KEY + " from templates ..." );
 			
-			LocalFolder template = parentTobe.getSubFolder( this , confItem.NAME );
+			LocalFolder template = parentTobe.getSubFolder( this , confItem.KEY );
 			tobe.recreateThis( this );
 			
 			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureComponent( template , tobe , confItem , server , node );
 		}
 		else {
-			info( "compare configuraton item=" + confItem.NAME + " with templates ..." );
+			info( "compare configuraton item=" + confItem.KEY + " with templates ..." );
 			
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 			LocalFolder asis = parentAsis.getSubFolder( this , name );
 			asis.ensureExists( this );
 			
 			if( !redist.getConfigItem( this , asis , confItem , deployment.DEPLOYPATH ) )
-				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.NAME , new String[] { confItem.NAME } );
+				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
 			
 			String nodePrefix = "node" + node.POS + "-";
 			if( !showConfDiffs( server , node , parentTobe , parentAsis , nodePrefix , true ) )
@@ -222,7 +212,7 @@ public class ActionVerifyConfigs extends ActionBase {
 		return( ok );
 	}
 
-	private synchronized boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix , boolean comps ) throws Exception {
+	private boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix , boolean comps ) throws Exception {
 		boolean verifyNode = true;
 		
 		FileSet releaseSet = tobeServerFolder.getFileSet( this );
@@ -231,9 +221,8 @@ public class ActionVerifyConfigs extends ActionBase {
 		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " ..." );
 		ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , nodePrefix , comps );
 		diff.calculate( this , null );
-		nodeDiffs.put( node , diff );
 		
-		if( diff.isDifferent() ) {
+		if( diff.isDifferent( this ) ) {
 			verifyNode = false;
 			String diffFile = asisServerFolder.getFilePath( this , "confdiff.txt" );
 			diff.save( this , diffFile );
@@ -249,10 +238,6 @@ public class ActionVerifyConfigs extends ActionBase {
 			debug( "node configuration is matched" );
 		
 		return( verifyNode );
-	}
-
-	public synchronized ConfDiffSet getNodeDiff( MetaEnvServerNode node ) {
-		return( nodeDiffs.get( node ) );
 	}
 	
 }

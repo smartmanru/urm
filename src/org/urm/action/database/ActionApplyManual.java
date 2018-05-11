@@ -3,14 +3,12 @@ package org.urm.action.database;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.product.MetaProductCoreSettings;
+import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionApplyManual extends ActionBase {
@@ -19,12 +17,12 @@ public class ActionApplyManual extends ActionBase {
 	MetaEnvServer server;
 	
 	public ActionApplyManual( ActionBase action , String stream , Dist release , MetaEnvServer server ) {
-		super( action , stream , "Apply manual database changes, release=" + release.RELEASEDIR + ", server=" + server.NAME );
+		super( action , stream );
 		this.release = release;
 		this.server = server;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		info( "apply manual database items ..." );
 		LogStorage logs = artefactory.getDatabaseLogStorage( this , target.meta , release.release.RELEASEVER );
 		info( "log to " + logs.logFolder.folderPath );
@@ -64,9 +62,8 @@ public class ActionApplyManual extends ActionBase {
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this , target.meta );
-		MetaProductSettings settings = target.meta.getProductSettings();
-		MetaProductCoreSettings core = settings.getCoreSettings();
-		builder.configureFile( logReleaseExecute , file , server , null , core.charset );
+		MetaProductSettings settings = target.meta.getProductSettings( this );
+		builder.configureFile( logReleaseExecute , file , server , null , settings.charset );
 	}
 	
 }

@@ -8,5 +8,4 @@ public class _Error {
 	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int MetaNoAction2 = ErrorBase + 1;
-	
 }

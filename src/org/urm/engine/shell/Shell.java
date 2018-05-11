@@ -10,21 +10,14 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.ShellService;
-import org.urm.meta.engine.AuthResource;
 
 abstract public class Shell {
 
-	public static int WAIT_DEFAULT = -1;
-	public static int WAIT_INFINITE = 0;
-	public static int WAIT_LONG = 300000;
-	
 	abstract public boolean start( ActionBase action ) throws Exception;
 	abstract public void kill( ActionBase action ) throws Exception;
 	
-	public int id;
 	public String name;
-	public ShellService pool;
+	public ShellPool pool;
 	public Account account;
 	public String rootPath;
 
@@ -44,8 +37,7 @@ abstract public class Shell {
 	
 	ShellOutputWaiter wc;
 	
-	public Shell( int id , String name , ShellService pool , Account account ) {
-		this.id = id;
+	public Shell( String name , ShellPool pool , Account account ) {
 		this.name = name;
 		this.pool = pool;
 		this.account = account;
@@ -53,11 +45,11 @@ abstract public class Shell {
 		tsCreated = System.currentTimeMillis();
 	}
 
-	public void startProcess( ActionBase action , ShellProcess process , String rootPath , boolean redirect , AuthResource auth ) throws Exception {
+	public void startProcess( ActionBase action , ShellProcess process , String rootPath , boolean redirect ) throws Exception {
 		this.rootPath = rootPath;
 		this.process = process;
 		
-		process.start( action , rootPath , auth );
+		process.start( action , rootPath );
 		available = true;
 
 		if( !redirect )
@@ -93,7 +85,6 @@ abstract public class Shell {
 	}
 	
 	public void killProcess( ActionBase action ) throws Exception {
-		available = false;
 		wc.stop( action );
 		killShellProcess( action );
 		killOSProcess( action );
@@ -104,71 +95,31 @@ abstract public class Shell {
 			process.kill( action );
 	}
 
-	private synchronized void killOSProcess( ActionBase action ) {
+	private synchronized void killOSProcess( ActionBase action ) throws Exception {
 		if( process == null )
 			return;
 		
 		process.destroy( action );
+			
 		process = null;
-		
-		try {
-			if( writer != null )
-				writer.close();
-		}
-		catch( Throwable e ) {
-			action.log( "kill process" , e );
-		}
-
-		try {
-			if( stdin != null )
-				stdin.close();
-		}
-		catch( Throwable e ) {
-			action.log( "kill process" , e );
-		}
-
-		try {
-			if( reader != null )
-				reader.close();
-		}
-		catch( Throwable e ) {
-			action.log( "kill process" , e );
-		}
-
-		try {
-			if( stdout != null )
-				stdout.close();
-		}
-		catch( Throwable e ) {
-			action.log( "kill process" , e );
-		}
-
-		try {
-			if( errreader != null )
-				errreader.close();
-		}
-		catch( Throwable e ) {
-			action.log( "kill process" , e );
-		}
-
-		try {
-			if( stderr != null )
-				stderr.close();
-		}
-		catch( Throwable e ) {
-			action.log( "kill process" , e );
-		}
-		
-		writer = null;
 		stdin = null;
-		reader = null;
-		stdout = null;
-		errreader = null;
+		writer = null;
+			
 		stderr = null;
+		stdout = null;
+			
+		reader = null;
+		errreader = null;
 	}
 	
 	public void setRootPath( String rootPath ) {
 		this.rootPath = rootPath;
+	}
+	
+	public synchronized String getOSPath( ActionBase action , String path ) throws Exception {
+		if( account.isWindows() )
+			return( Common.getWinPath( path ) );
+		return( path );
 	}
 	
 	public boolean isWindows() {
@@ -210,45 +161,18 @@ abstract public class Shell {
 		stdin.write( input );
 	}
 
-	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean system , int commandTimeoutMillis ) throws Exception {
-		if( wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr , commandTimeoutMillis ) )
-			return;
-		
-		kill( action );
-		action.exit0( _Error.CommandKilled , "Wait failed, command has been killed" );
+	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean system ) throws Exception {
+		wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr );
 	}
 
-	public int waitForInteractive( ActionBase action ) throws Exception {
-		ShellProcess useProcess = process;
-		if( useProcess == null )
+	public synchronized int waitForInteractive( ActionBase action ) throws Exception {
+		if( process == null )
 			return( -1 );
-		return( useProcess.waitForInteractive( action ) );
+		return( process.waitForInteractive( action ) );
 	}
 
-	public boolean waitForMarker( ActionBase action , String marker , boolean system , int commandTimeoutMillis ) throws Exception {
-		return( wc.waitForMarker( action , action.context.logLevelLimit , system , marker , commandTimeoutMillis ) );
-	}
-
-	public String getPathBreak() {
-		return( ( isWindows() )? ";" : ":" );
-	}
-
-	public String getVariable( String name ) {
-		if( isWindows() )
-			return( "%" + name + "%" );
-		return( "$" + name );
-	}
-	
-	public String getPathDelimiter() {
-		if( isWindows() )
-			return( "\\" );
-		return( "/" );
-	}
-
-	public String getLocalPath( String path ) {
-		if( isWindows() )
-			return( Common.getWinPath( path ) );
-		return( Common.getLinuxPath( path ) );
+	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {
+		return( wc.waitForMarker( action , action.context.logLevelLimit , system , marker ) );
 	}
 	
 }

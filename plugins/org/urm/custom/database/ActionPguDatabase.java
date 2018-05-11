@@ -5,7 +5,6 @@ import org.urm.common.Common;
 import org.urm.common.RunErrorClass;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.custom.ICustomDatabase;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 
@@ -51,7 +50,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 	protected void copyServices( ActionBase action , FileSet P_ALIGNEDNAME , String P_ALIGNEDID , LocalFolder P_TARGETDIR ) throws Exception {
 		LocalFolder scriptDir = P_TARGETDIR.getSubFolder( action , "scripts" );
 		
-		for( FileSet name : P_ALIGNEDNAME.getAllDirs() ) {
+		for( FileSet name : P_ALIGNEDNAME.dirs.values() ) {
 //			if( name.dirName.equals( "coresvc" ) )
 //				copyDir( action , P_ALIGNEDNAME , P_ALIGNEDID , P_ALIGNEDNAME.getDirByPath( action , "coresvc" ) , scriptDir );
 			if( name.dirName.startsWith( "war." ) )
@@ -61,7 +60,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 		}
 			
 		if( S_CHECK_FAILED ) {
-			if( action.isForced() )
+			if( action.context.CTX_FORCE )
 				action.error( "prepare: errors in script set. Ignored." );
 			else
 				action.exit0( ScriptSetErrors0 , "prepare: errors in script set" );
@@ -95,7 +94,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 
 		// regional tail
 		String F_REGIONALINDEX = "";
-		if( P_ALIGNEDNAME.dirName.equals( "regional" ) )
+		if( P_ALIGNEDNAME.equals( "regional" ) )
 			F_REGIONALINDEX = "RR";
 
 		// process UDDI
@@ -120,7 +119,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 			P_TARGETDIR.removeFiles( action , SRC_SVCFILE_EP );
 			P_TARGETDIR.removeFiles( action , SRC_SMEVATTRFILE );
 
-			for( String script : svcspec.getAllFiles() ) {
+			for( String script : Common.getSortedKeys( svcspec.files ) ) {
 				if( !script.endsWith( ".sql" ) )
 					continue;
 					
@@ -165,7 +164,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 //			F_REGIONALINDEX = "RR";
 
 		// add registration index
-		for( String x : P_DIRFROM.getAllFiles() ) {
+		for( String x : Common.getSortedKeys( P_DIRFROM.files ) ) {
 			if( !x.endsWith( ".zip" ) )
 				continue;
 			
@@ -217,7 +216,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 		S_CHECK_FAILED = false;
 
 		// check folders
-		for( String dir : P_ALIGNEDNAME.getAllDirNames() ) {
+		for( String dir : Common.getSortedKeys( P_ALIGNEDNAME.dirs ) ) {
 			if( dir.startsWith( "war." ) )
 				checkOneWar( action , P_ALIGNEDNAME , P_ALIGNEDID , dir );
 			else
@@ -449,7 +448,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 		if( !action.shell.checkFileExists( action , path ) )
 			action.exit1( MissingOrganizationalMappingFile1 , "organizational mapping file " + path + " not found" , path );
 			
-		String S_ORG_FOLDERID = action.shell.customGetValue( action , "grep " + Common.getQuoted( "^" + S_ORG_EXTID + "=" ) + " " + path + " | cut -d " + Common.getQuoted( "=" ) + " -f2" , Shell.WAIT_DEFAULT );
+		String S_ORG_FOLDERID = action.shell.customGetValue( action , "grep " + Common.getQuoted( "^" + S_ORG_EXTID + "=" ) + " " + path + " | cut -d " + Common.getQuoted( "=" ) + " -f2" );
 		return( S_ORG_FOLDERID );
 	}
 	

@@ -8,25 +8,24 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.jmx.RemoteCall;
-import org.urm.common.meta.CodebaseCommandMeta;
+import org.urm.common.meta.BuildCommandMeta;
 import org.urm.common.meta.DatabaseCommandMeta;
 import org.urm.common.meta.DeployCommandMeta;
 import org.urm.common.meta.MainCommandMeta;
-import org.urm.db.core.DBEnums.*;
-import org.urm.engine.data.EngineDirectory;
-import org.urm.engine.products.EngineProduct;
-import org.urm.engine.products.EngineProductEnvs;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.MetadataStorage;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.engine.ServerDirectory;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvSegment;
+import org.urm.meta.Types.*;
 
 public class ActionConfigure extends ActionBase {
 
@@ -46,10 +45,10 @@ public class ActionConfigure extends ActionBase {
 	String sgMasterFolderRel;
 	String envDbMasterFolderRel;
 	String sgDbMasterFolderRel;
-	String codebaseMasterFolderRel;
+	String buildMasterFolderRel;
 
 	public ActionConfigure( ActionBase action , String stream , String OSTYPE , String USEENV , String USESG ) {
-		super( action , stream , "Create proxy files" );
+		super( action , stream );
 		this.USEPRODUCT = "";
 		this.USEENV = USEENV;
 		this.USESG = USESG;
@@ -59,7 +58,7 @@ public class ActionConfigure extends ActionBase {
 	}
 
 	public ActionConfigure( ActionBase action , String stream , String USEPRODUCT , String USEENV , boolean confLinux , boolean confWindows ) {
-		super( action , stream , "Create proxy files, product=" + USEPRODUCT );
+		super( action , stream );
 		this.USEPRODUCT = USEPRODUCT;
 		this.USEENV = USEENV;
 		this.USESG = "";
@@ -68,7 +67,7 @@ public class ActionConfigure extends ActionBase {
 		deleteOld = true;
 	}
 
-	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		commentExecutor( "configure ..." );
 		
 		executorMasterFolderRel = "..";
@@ -76,7 +75,7 @@ public class ActionConfigure extends ActionBase {
 		sgMasterFolderRel = "../../..";
 		envDbMasterFolderRel = "../../..";
 		sgDbMasterFolderRel = "../../../..";
-		codebaseMasterFolderRel = "../..";
+		buildMasterFolderRel = "../..";
 
 		// set execution context
 		configureDefault();
@@ -86,8 +85,8 @@ public class ActionConfigure extends ActionBase {
 	private void configureDefault() throws Exception {
 		if( super.isStandalone() ) {
 			context.session.setStandaloneLayout( context.options );
-			EngineProduct ep = super.getEngineProduct( USEPRODUCT );
-			configureProduct( ep );
+			Meta meta = super.getContextMeta();
+			configureProduct( meta );
 		}
 		else {
 			context.session.setServerLayout( context.options );
@@ -96,19 +95,19 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void configureServer() throws Exception {
-		EngineDirectory directory = actionInit.getEngineDirectory();
-		for( String name : directory.getProductNames() ) {
+		ServerDirectory directory = actionInit.getDirectory();
+		for( String name : directory.getProducts() ) {
 			if( USEPRODUCT.isEmpty() || USEPRODUCT.equals( name ) ) {
 				info( "configure product name=" + name + " ..." );
-				EngineProduct ep = super.getEngineProduct( name );
-				configureProduct( ep );
+				Meta meta = super.getProductMetadata( name );
+				configureProduct( meta );
 			}
 		}
 	}
 
-	private void configureProduct( EngineProduct ep ) throws Exception {
+	private void configureProduct( Meta meta ) throws Exception {
 		UrmStorage urm = artefactory.getUrmStorage();
-		LocalFolder pf = urm.getProductHome( this , ep.getProduct() );
+		LocalFolder pf = urm.getProductHome( this , meta.name );
 		pfMaster = pf.getSubFolder( this , "master" );
 		String masterPath = pfMaster.getFilePath( this , MainCommandMeta.MASTERFILE );
 		
@@ -131,7 +130,7 @@ public class ActionConfigure extends ActionBase {
 		USEENV = "";
 		USESG = "";
 		
-		configureProductDefault( ep );
+		configureProductDefault( meta );
 		createMasterFile( masterPath , lines );
 	}
 
@@ -185,26 +184,26 @@ public class ActionConfigure extends ActionBase {
 		
 		linesNew.addAll( linesProxy );
 		Collections.sort( linesNew );
-		Common.createFileFromStringList( execrc , masterPath , linesNew );
+		Common.createFileFromStringList( masterPath , linesNew );
 	}
 	
-	private void configureProductDefault( EngineProduct ep ) throws Exception {
-		LocalFolder pfCodebase = pfMaster.getSubFolder( this , CodebaseCommandMeta.NAME );
+	private void configureProductDefault( Meta meta ) throws Exception {
+		LocalFolder pfBuild = pfMaster.getSubFolder( this , BuildCommandMeta.NAME );
 		LocalFolder pfDeploy = pfMaster.getSubFolder( this , DeployCommandMeta.NAME );
 		
-		boolean codebaseUnix = false;
-		boolean codebaseWindows = false;
+		boolean buildUnix = false;
+		boolean buildWindows = false;
 		boolean deployUnix = false;
 		boolean deployWindows = false;
 		
 		if( runLinux )
-			codebaseUnix = deployUnix = true;
+			buildUnix = deployUnix = true;
 		else {
 			if( deleteOld == false ) {
 				if( isLocalLinux() ) {
-					if( pfCodebase.checkExists( this ) )
-						if( pfCodebase.findFiles( this , "*.sh" ).length > 0 )
-							codebaseUnix = true;
+					if( pfBuild.checkExists( this ) )
+						if( pfBuild.findFiles( this , "*.sh" ).length > 0 )
+							buildUnix = true;
 					if( pfDeploy.checkExists( this ) )
 						if( pfDeploy.findFiles( this , "*.sh" ).length > 0 )
 							deployUnix = true;
@@ -213,13 +212,13 @@ public class ActionConfigure extends ActionBase {
 		}
 
 		if( runWindows )
-			codebaseWindows = deployWindows = true;
+			buildWindows = deployWindows = true;
 		else {
 			if( deleteOld == false ) {
 				if( isLocalWindows() ) {
-					if( pfCodebase.checkExists( this ) )
-						if( pfCodebase.findFiles( this , "*.cmd" ).length > 0 )
-							codebaseWindows = true;
+					if( pfBuild.checkExists( this ) )
+						if( pfBuild.findFiles( this , "*.cmd" ).length > 0 )
+							buildWindows = true;
 					if( pfDeploy.checkExists( this ) )
 						if( pfDeploy.findFiles( this , "*.cmd" ).length > 0 )
 							deployWindows = true;
@@ -227,16 +226,16 @@ public class ActionConfigure extends ActionBase {
 			}
 		}
 		
-		if( codebaseUnix || deployUnix )
-			configureProductAll( ep , codebaseUnix , deployUnix , true );
-		if( codebaseWindows || deployWindows )
-			configureProductAll( ep , codebaseWindows , deployWindows , false );
+		if( buildUnix || deployUnix )
+			configureProductAll( meta , buildUnix , deployUnix , true );
+		if( buildWindows || deployWindows )
+			configureProductAll( meta , buildWindows , deployWindows , false );
 	}
 	
-	private void configureProductAll( EngineProduct ep , boolean codebase , boolean deploy , boolean linux ) throws Exception {
-		CommandBuilder builder = new CommandBuilder( context.session.clientrc , context.session.execrc , engine.optionsMeta );
+	private void configureProductAll( Meta meta , boolean build , boolean deploy , boolean linux ) throws Exception {
+		CommandBuilder builder = new CommandBuilder( context.session.clientrc , context.session.execrc );
 		
-		CommandMeta[] executors = builder.getExecutors( codebase , deploy );
+		CommandMeta[] executors = builder.getExecutors( build , deploy );
 		CommandMeta dbe = null;
 		for( CommandMeta executor : executors ) {
 			if( executor.name.equals( DatabaseCommandMeta.NAME ) ) {
@@ -246,15 +245,15 @@ public class ActionConfigure extends ActionBase {
 		}
 			
 		for( CommandMeta executor : executors )
-			configureExecutor( ep , executor , dbe , linux );
+			configureExecutor( meta , executor , dbe , linux );
 	}
 
-	private void configureExecutor( EngineProduct ep , CommandMeta executor , CommandMeta dbe , boolean linux ) throws Exception {
+	private void configureExecutor( Meta meta , CommandMeta executor , CommandMeta dbe , boolean linux ) throws Exception {
 		LocalFolder exeFolder = pfMaster.getSubFolder( this , executor.name );
 		exeFolder.ensureExists( this );
 
 		// context
-		configureExecutorContextSimple( ep , exeFolder , linux );
+		configureExecutorContextSimple( meta , exeFolder , linux );
 		
 		// add help action
 		configureExecutorWrapper( exeFolder , executor , "help" , linux , executorMasterFolderRel , null );
@@ -268,40 +267,49 @@ public class ActionConfigure extends ActionBase {
 		if( executor.name.equals( DeployCommandMeta.NAME ) ) {
 			String proxyPath = DeployCommandMeta.NAME;
 			
-			Map<String,MetaEnv> envMap = new HashMap<String,MetaEnv>();
+			Map<String,MetaEnv> envs = new HashMap<String,MetaEnv>(); 
+			MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 			
 			MetaEnvSegment sg = null;
-			EngineProductEnvs envs = ep.getEnvs();
 			if( USEENV.isEmpty() ) {
 				addAffected( linux , proxyPath , true );
-				String[] envNames = envs.getEnvNames();
-				for( String envName : envNames ) {
-					MetaEnv env = envs.findEnv( envName );
-					envMap.put( envName , env );
+				String[] envFiles = ms.getEnvFiles( this );
+				for( String envFile : envFiles ) {
+					MetaEnv env = meta.getEnvData( this , envFile , false );
+					envs.put( envFile , env );
 				}
 			}
 			else {
-				MetaEnv env = envs.findEnv( USEENV );
+				MetaEnv env = null;
+				String[] envFiles = ms.getEnvFiles( this );
+				for( String envFile : envFiles ) {
+					MetaEnv envx = meta.getEnvData( this , envFile , false );
+					if( envx.ID.equals( USEENV ) ) {
+						env = envx;
+						envs.put( envFile , envx );
+						break;
+					}
+				}
+				
 				if( env == null )
 					exit1( _Error.UnknownEnvironment1 , "unknown environment ID=" + USEENV , USEENV );
 				
-				envMap.put( env.NAME , env );
 				addAffected( linux , proxyPath , false );
 				
 				if( USESG.isEmpty() ) {
-					proxyPath = Common.getPath( proxyPath , env.NAME );
+					proxyPath = Common.getPath( proxyPath , env.ID );
 					addAffected( linux , proxyPath , true );
 				}
 				else {
-					sg = env.getSegment( USESG );
-					proxyPath = Common.getPath( proxyPath , env.NAME , USESG );
+					sg = env.getSG( this , USESG );
+					proxyPath = Common.getPath( proxyPath , env.ID , USESG );
 					addAffected( linux , proxyPath , true );
 				}
 			}
 			
-			for( String envFile : envMap.keySet() ) {
-				MetaEnv env = envMap.get( envFile );
-				configureDeploymentEnv( ep , exeFolder , executor , envFile , env , sg , linux , dbe );
+			for( String envFile : envs.keySet() ) {
+				MetaEnv env = envs.get( envFile );
+				configureDeploymentEnv( meta , exeFolder , executor , envFile , env , sg , linux , dbe );
 			}
 		}
 		else {
@@ -309,12 +317,12 @@ public class ActionConfigure extends ActionBase {
 			addAffected( linux , proxyPath , true );
 		}
 		
-		if( executor.name.equals( CodebaseCommandMeta.NAME ) ) {
-			for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
-				if( mode == DBEnumBuildModeType.UNKNOWN )
+		if( executor.name.equals( BuildCommandMeta.NAME ) ) {
+			for( VarBUILDMODE mode : VarBUILDMODE.values() ) {
+				if( mode == VarBUILDMODE.UNKNOWN )
 					continue;
 				
-				configureBuildMode( ep , exeFolder , executor , mode , linux );
+				configureBuildMode( meta , exeFolder , executor , mode , linux );
 			}
 		}
 	}
@@ -326,41 +334,41 @@ public class ActionConfigure extends ActionBase {
 		linesAffected.add( item );
 	}
 	
-	private void configureDeploymentEnv( EngineProduct ep , LocalFolder ef , CommandMeta executor , String envFile , MetaEnv env , MetaEnvSegment sg , boolean linux , CommandMeta dbe ) throws Exception {
-		LocalFolder efEnv = ef.getSubFolder( this , env.NAME );
+	private void configureDeploymentEnv( Meta meta , LocalFolder ef , CommandMeta executor , String envFile , MetaEnv env , MetaEnvSegment sg , boolean linux , CommandMeta dbe ) throws Exception {
+		LocalFolder efEnv = ef.getSubFolder( this , env.ID );
 		efEnv.ensureExists( this );
 		
 		// env-level
-		if( USESG.isEmpty() || !env.isMultiSegment() )
-			configureDeploymentEnvContent( ep , efEnv , executor , env , envFile , null , linux , dbe );
+		if( USESG.isEmpty() || !env.isMultiSG( this ) )
+			configureDeploymentEnvContent( meta , efEnv , executor , env , envFile , null , linux , dbe );
 		
-		if( env.isMultiSegment() ) {
+		if( env.isMultiSG( this ) ) {
 			if( USESG.isEmpty() ) {
 				if( context.CTX_ALL ) {
 					for( MetaEnvSegment envsg : env.getSegments() ) {
 						LocalFolder efEnvSG = efEnv.getSubFolder( this , envsg.NAME );
-						configureDeploymentEnvContent( ep , efEnvSG , executor , env , envFile , envsg.NAME , linux , dbe );
+						configureDeploymentEnvContent( meta , efEnvSG , executor , env , envFile , envsg.NAME , linux , dbe );
 					}
 				}
 			}
 			else {
 				LocalFolder efEnvSG = efEnv.getSubFolder( this , sg.NAME );
-				configureDeploymentEnvContent( ep , efEnvSG , executor , env , envFile , sg.NAME , linux , dbe );
+				configureDeploymentEnvContent( meta , efEnvSG , executor , env , envFile , sg.NAME , linux , dbe );
 			}
 		}
 	}
 
-	private void configureDeploymentEnvContent( EngineProduct ep , LocalFolder ef , CommandMeta executor , MetaEnv env , String ENVFILE , String SG , boolean linux , CommandMeta dbe ) throws Exception {
+	private void configureDeploymentEnvContent( Meta meta , LocalFolder ef , CommandMeta executor , MetaEnv env , String ENVFILE , String SG , boolean linux , CommandMeta dbe ) throws Exception {
 		// env-level context
 		ef.ensureExists( this );
 		String CTXSG = SG;
 		if( SG == null ) {
-			if( env.isMultiSegment() )
+			if( env.isMultiSG( this ) )
 				CTXSG = "";
 			else
-				CTXSG = env.getMainSegment().NAME;
+				CTXSG = env.getMainSG( this ).NAME;
 		}
-		configureExecutorContextDeployment( ep , ef , ENVFILE , CTXSG , linux );
+		configureExecutorContextDeployment( meta , ef , ENVFILE , CTXSG , linux );
 
 		String xp = ( SG == null )? envMasterFolderRel : sgMasterFolderRel;
 		String xpdb = ( SG == null )? envDbMasterFolderRel : sgDbMasterFolderRel;
@@ -380,15 +388,15 @@ public class ActionConfigure extends ActionBase {
 		}
 	}
 	
-	private void configureBuildMode( EngineProduct ep , LocalFolder ef , CommandMeta executor , DBEnumBuildModeType mode , boolean linux ) throws Exception {
+	private void configureBuildMode( Meta meta , LocalFolder ef , CommandMeta executor , VarBUILDMODE mode , boolean linux ) throws Exception {
 		LocalFolder efBuild = ef.getSubFolder( this , Common.getEnumLower( mode ) );
 		efBuild.ensureExists( this );
-		configureExecutorContextBuildMode( ep , efBuild , mode , linux );
+		configureExecutorContextBuildMode( meta , efBuild , mode , linux );
 		
 		// env-level wrappers
 		for( CommandMethodMeta cmdAction : executor.actionsList ) {
 			if( !cmdAction.top )
-				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , codebaseMasterFolderRel , null );
+				configureExecutorWrapper( efBuild , executor , cmdAction.name , linux , buildMasterFolderRel , null );
 		}
 	}
 
@@ -399,11 +407,11 @@ public class ActionConfigure extends ActionBase {
 			lines.add( "@set " + var + "=" + value );
 	}
 	
-	private void addExecutorContextBase( EngineProduct ep , LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
+	private void addExecutorContextBase( Meta meta , LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
 		if( super.isStandalone() && context.session.productName.isEmpty() )
 			return;
 		
-		addExecutorContextItem( ef , linux , lines , "C_URM_PRODUCT" , ep.productName );
+		addExecutorContextItem( ef , linux , lines , "C_URM_PRODUCT" , meta.name );
 		if( !super.isStandalone() ) { 
 			String hostName = "localhost";
 			if( !context.CTX_HOST.isEmpty() )
@@ -421,8 +429,8 @@ public class ActionConfigure extends ActionBase {
 	private void saveExecutorContext( LocalFolder ef , boolean linux , List<String> lines ) throws Exception {
 		String fileName = ( linux )? MainCommandMeta.CONTEXT_FILENAME_LIXUX : MainCommandMeta.CONTEXT_FILENAME_WIN;
 		String filePath = ef.getFilePath( this , fileName );
-		if( isForced() || !ef.checkFileExists( this , fileName ) )
-			Common.createFileFromStringList( execrc , filePath , lines );
+		if( context.CTX_FORCE == true || !ef.checkFileExists( this , fileName ) )
+			Common.createFileFromStringList( filePath , lines );
 		if( linux ) {
 			File file = new File( filePath );
 			file.setExecutable( true );
@@ -430,23 +438,23 @@ public class ActionConfigure extends ActionBase {
 		addProxyLine( ef , fileName );
 	}
 	
-	private void configureExecutorContextSimple( EngineProduct ep , LocalFolder ef , boolean linux ) throws Exception {
+	private void configureExecutorContextSimple( Meta meta , LocalFolder ef , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
-		addExecutorContextBase( ep , ef , linux , lines );
+		addExecutorContextBase( meta , ef , linux , lines );
 		saveExecutorContext( ef , linux , lines );
 	}
 	
-	private void configureExecutorContextDeployment( EngineProduct ep , LocalFolder ef , String ENVFILE , String SG , boolean linux ) throws Exception {
+	private void configureExecutorContextDeployment( Meta meta , LocalFolder ef , String ENVFILE , String SG , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
-		addExecutorContextBase( ep , ef , linux , lines );
+		addExecutorContextBase( meta , ef , linux , lines );
 		addExecutorContextItem( ef , linux , lines , "C_URM_ENV" , ENVFILE );
 		addExecutorContextItem( ef , linux , lines , "C_URM_SG" , SG );
 		saveExecutorContext( ef , linux , lines );
 	}
 	
-	private void configureExecutorContextBuildMode( EngineProduct ep , LocalFolder ef , DBEnumBuildModeType mode , boolean linux ) throws Exception {
+	private void configureExecutorContextBuildMode( Meta meta , LocalFolder ef , VarBUILDMODE mode , boolean linux ) throws Exception {
 		List<String> lines = new LinkedList<String>();
-		addExecutorContextBase( ep , ef , linux , lines );
+		addExecutorContextBase( meta , ef , linux , lines );
 		addExecutorContextItem( ef , linux , lines , "C_URM_VERSIONMODE" , Common.getEnumLower( mode ) );
 		saveExecutorContext( ef , linux , lines );
 	}
@@ -483,7 +491,7 @@ public class ActionConfigure extends ActionBase {
 			lines.add( "@" + relativePath + "\\bin\\urm.cmd " + executor.name + " " + method + " %*" );			
 		}
 		
-		Common.createFileFromStringList( execrc , filePath , lines );
+		Common.createFileFromStringList( filePath , lines );
 		if( linux ) {
 			File file = new File( filePath );
 			file.setExecutable( true );
@@ -497,4 +505,3 @@ public class ActionConfigure extends ActionBase {
 	}
 
 }
-	

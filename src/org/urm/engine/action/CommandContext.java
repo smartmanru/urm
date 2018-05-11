@@ -5,84 +5,44 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.RunContext.VarOSTYPE;
+import org.urm.common.action.CommandMethodMeta;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
-import org.urm.common.action.CommandOption.FLAG;
-import org.urm.db.core.DBEnums.*;
-import org.urm.engine.Engine;
-import org.urm.engine.products.EngineProductEnvs;
-import org.urm.engine.session.EngineSession;
+import org.urm.common.action.CommandVar.FLAG;
+import org.urm.engine.ServerCall;
+import org.urm.engine.ServerEngine;
+import org.urm.engine.ServerSession;
 import org.urm.engine.shell.Account;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.AuthResource;
-import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaProductCoreSettings;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvSegment;
 import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 
 public class CommandContext {
 
-	class CommandLogCapture {
-		public List<String> logData;
-		public int logCaptureCount;
-		
-		public CommandLogCapture() {
-			logCaptureCount = 0;
-		}
-		
-		public synchronized int logStartCapture() {
-			if( logData == null )
-				logData = new LinkedList<String>();
-			logCaptureCount++;
-			return( logData.size() );
-		}
-
-		public synchronized void logStopCapture() {
-			logCaptureCount = 0;
-			logData = null;
-		}
-		
-		public synchronized String[] logFinishCapture( int startIndex ) {
-			String[] data = null;
-			if( startIndex > 0 )
-				data = logData.subList( startIndex , logData.size() ).toArray( new String[0] );
-			else
-				data = logData.toArray( new String[0] );
-
-			logCaptureCount--;
-			if( logCaptureCount == 0 )
-				logData = null;
-			return( data );
-		}
-
-		public synchronized void outExact( String s ) {
-			if( logData != null )
-				logData.add( s );
-		}
-		
-	};
-	
-	public Engine engine;
+	public ServerEngine engine;
 	public CommandOptions options;
-	public EngineSession session;
-	public ActionBase action;
+	public ServerSession session;
+	public CommandMethodMeta commandMethod;
+	public CommandAction commandAction;
 
-	public AppProduct product;
-	public Meta meta;
 	public MetaEnv env; 
 	public MetaEnvSegment sg;
 	
-	public EngineCall call;
+	public ServerCall call;
 	public String stream;
 	public String streamLog;
 	public int logLevelLimit;
-	private CommandLogCapture logCapture;
+	public List<String> logCapture;
+	public int logCaptureCount;
 	
 	public Account account;
 	public String userHome;
-	public DBEnumBuildModeType buildMode = DBEnumBuildModeType.UNKNOWN;
+	public VarBUILDMODE buildMode = VarBUILDMODE.UNKNOWN;
 
 	// generic settings
 	public boolean CTX_TRACEINTERNAL;
@@ -90,12 +50,12 @@ public class CommandContext {
 	public boolean CTX_SHOWONLY;
 	public boolean CTX_SHOWALL;
 	public boolean CTX_FORCE;
-	public boolean CTX_SKIPERRORS;
+	public boolean CTX_IGNORE;
 	public boolean CTX_ALL;
 	public boolean CTX_LOCAL;
 	public boolean CTX_OFFLINE;
 	public int CTX_TIMEOUT;
-	public String CTX_KEYRES = "";
+	public String CTX_KEYNAME = "";
 	public String CTX_DISTPATH = "";
 	public String CTX_REDISTWIN_PATH = "";
 	public String CTX_REDISTLINUX_PATH = "";
@@ -106,8 +66,10 @@ public class CommandContext {
 	public boolean CTX_DIST;
 	public boolean CTX_UPDATENEXUS;
 	public boolean CTX_CHECK;
+	public boolean CTX_MOVE_ERRORS;
 	public boolean CTX_REPLACE;
 	public boolean CTX_BACKUP;
+	public boolean CTX_OBSOLETE;
 	public boolean CTX_CONFDEPLOY;
 	public boolean CTX_PARTIALCONF;
 	public boolean CTX_DEPLOYBINARY;
@@ -146,13 +108,13 @@ public class CommandContext {
 	public String CTX_UNIT = "";
 	public String CTX_BUILDINFO = "";
 	public String CTX_HOSTUSER = "";
-	public String CTX_NEWKEYRES = "";
-	public DBEnumBuildModeType CTX_BUILDMODE = DBEnumBuildModeType.UNKNOWN;
+	public String CTX_NEWKEY = "";
+	public VarBUILDMODE CTX_BUILDMODE = VarBUILDMODE.UNKNOWN;
 	public String CTX_OLDRELEASE = "";
 	public String CTX_HOST = "";
 	public int CTX_PORT = -1;
 
-	public CommandContext( Engine engine , EngineSession session , CommandOptions options , String stream , EngineCall call ) {
+	public CommandContext( ServerEngine engine , ServerSession session , CommandOptions options , String stream , ServerCall call ) {
 		this.engine = engine;
 		this.session = session;
 		
@@ -161,20 +123,36 @@ public class CommandContext {
 		this.call = call;
 		
 		this.logLevelLimit = CommandOutput.LOGLEVEL_ERROR;
+		logCaptureCount = 0;
 		
-		logCapture = new CommandLogCapture();
 		setLogStream();
 		setLogLevel();
 	}
 
-	public CommandContext( ActionBase action , CommandContext context , String stream ) {
+	private void setLogStream() {
+		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
+	}
+	
+	private void setLogLevel() {
+		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
+		if( CTX_TRACE ) {
+			if( CTX_TRACEINTERNAL )
+				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
+			else
+				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
+		}
+		else
+		if( CTX_SHOWALL )
+			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
+	}
+	
+	public CommandContext( CommandContext context , String stream ) {
 		if( stream == null || stream.isEmpty() )
 			this.stream = context.stream;
 		else
 			this.stream = stream;
 		
 		// copy all properties
-		this.action = action;
 		this.engine = context.engine;
 		this.session = context.session;
 		
@@ -195,12 +173,12 @@ public class CommandContext {
 		this.CTX_SHOWONLY = context.CTX_SHOWONLY;
 		this.CTX_SHOWALL = context.CTX_SHOWALL;
 		this.CTX_FORCE = context.CTX_FORCE;
-		this.CTX_SKIPERRORS = context.CTX_SKIPERRORS;
+		this.CTX_IGNORE = context.CTX_IGNORE;
 		this.CTX_ALL = context.CTX_ALL;
 		this.CTX_LOCAL = context.CTX_LOCAL;
 		this.CTX_OFFLINE = context.CTX_OFFLINE;
 		this.CTX_TIMEOUT = context.CTX_TIMEOUT;
-		this.CTX_KEYRES = context.CTX_KEYRES;
+		this.CTX_KEYNAME = context.CTX_KEYNAME;
 		this.CTX_DISTPATH = context.CTX_DISTPATH;
 		this.CTX_REDISTWIN_PATH = context.CTX_REDISTWIN_PATH;
 		this.CTX_REDISTLINUX_PATH = context.CTX_REDISTLINUX_PATH;
@@ -211,8 +189,10 @@ public class CommandContext {
 		this.CTX_DIST = context.CTX_DIST;
 		this.CTX_UPDATENEXUS = context.CTX_UPDATENEXUS;
 		this.CTX_CHECK = context.CTX_CHECK;
+		this.CTX_MOVE_ERRORS = context.CTX_MOVE_ERRORS;
 		this.CTX_REPLACE = context.CTX_REPLACE;
 		this.CTX_BACKUP = context.CTX_BACKUP;
+		this.CTX_OBSOLETE = context.CTX_OBSOLETE;
 		this.CTX_CONFDEPLOY = context.CTX_CONFDEPLOY;
 		this.CTX_PARTIALCONF = context.CTX_PARTIALCONF;
 		this.CTX_DEPLOYBINARY = context.CTX_DEPLOYBINARY;
@@ -251,7 +231,7 @@ public class CommandContext {
 		this.CTX_UNIT = context.CTX_UNIT;
 		this.CTX_BUILDINFO = context.CTX_BUILDINFO;
 		this.CTX_HOSTUSER = context.CTX_HOSTUSER;
-		this.CTX_NEWKEYRES = context.CTX_NEWKEYRES;
+		this.CTX_NEWKEY = context.CTX_NEWKEY;
 		this.CTX_BUILDMODE = context.CTX_BUILDMODE;
 		this.CTX_OLDRELEASE = context.CTX_OLDRELEASE;
 		this.CTX_PORT = context.CTX_PORT;
@@ -260,90 +240,59 @@ public class CommandContext {
 		setLogStream();
 	}
 
-	private void setLogStream() {
-		streamLog = ( call != null )? "[" + stream + "," + call.sessionContext.sessionId + "]" : "[" + stream + "]";
-	}
-
-	public void setAction( ActionInit action ) {
-		this.action = action;
-	}
-	
-	private void setLogLevel() {
-		logLevelLimit = CommandOutput.LOGLEVEL_INFO;
-		if( CTX_TRACE ) {
-			if( CTX_TRACEINTERNAL )
-				logLevelLimit = CommandOutput.LOGLEVEL_INTERNAL;
-			else
-				logLevelLimit = CommandOutput.LOGLEVEL_TRACE;
-		}
-		else
-		if( CTX_SHOWALL )
-			logLevelLimit = CommandOutput.LOGLEVEL_DEBUG;
-	}
-	
-	public void setOptions( ActionBase action , Meta meta , CommandOptions options ) throws Exception {
-		this.options = options;
-		update( action , meta.getProduct() , meta );
-	}
-	
 	public void update( ActionBase action , MetaEnv env , MetaEnvSegment sg ) throws Exception {
 		this.env = env;  
 		this.sg = sg;
-		update( action , env.meta.getProduct() , env.meta );
+		update( action , env.meta );
 	}
 
-	public void update( ActionInit action ) throws Exception {
-		AppProduct product = ( session != null && session.product )? action.getContextProduct() : null;
-		update( action , product , null );
+	public void update( ActionBase action ) throws Exception {
+		Meta meta = ( session != null && session.product )? action.getContextMeta() : null;
+		update( action , meta );
 	}
 	
-	public void update( ActionBase action , AppProduct product , Meta meta ) throws Exception {
-		this.product = product;
-		this.meta = meta;
-		
-		boolean ismeta = ( meta != null )? true : false; 
+	public void update( ActionBase action , Meta meta ) throws Exception {
+		boolean isproduct = ( meta != null )? true : false; 
 		boolean isenv = ( env == null )? false : true; 
 		boolean def = ( isenv && env.isProd() )? true : false;
 		String value;
 		
 		// generic
-		MetaProductSettings settings = ( ismeta )? meta.getProductSettings() : null;
-		MetaProductCoreSettings core = ( ismeta )? settings.getCoreSettings() : null;
+		MetaProductSettings product = ( isproduct )? meta.getProductSettings( action ) : null; 
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
-		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( ( isenv )? env.SHOWONLY : null ) , def );
+		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( isenv )? env.SHOWONLY : null , def );
 		CTX_SHOWALL = getFlagValue( "OPT_SHOWALL" );
 		if( CTX_TRACE )
 			CTX_SHOWALL = true;
 		CTX_FORCE = getFlagValue( "OPT_FORCE" );
-		CTX_SKIPERRORS = getFlagValue( "OPT_SKIPERRORS" );
+		CTX_IGNORE = getFlagValue( "OPT_SKIPERRORS" );
 		CTX_ALL = getFlagValue( "OPT_ALL" );
 		CTX_LOCAL = getFlagValue( "OPT_LOCAL" );
 		CTX_OFFLINE = getFlagValue( "OPT_OFFLINE" );
 		CTX_TIMEOUT = getIntParamValue( "OPT_TIMEOUT" , options.optDefaultCommandTimeout ) * 1000;
-		value = getParamValue( "OPT_KEY" );
-		CTX_KEYRES = value;
-		if( value.isEmpty() && isenv ) {
-			AuthResource res = env.getEnvKey();
-			CTX_KEYRES = ( res == null )? "" : res.NAME;
-		}
-		
-		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , "" );
-		CTX_REDISTWIN_PATH = ( ismeta )? core.CONFIG_REDISTWIN_PATH : "";
+		value = getParamValue( "OPT_KEY" ); 
+		CTX_KEYNAME = ( value.isEmpty() )? ( ( isenv )? env.KEYFILE : "" ) : value;
+		String productValue = ( isproduct )? product.CONFIG_DISTR_PATH : "";
+		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , productValue );
+		CTX_REDISTWIN_PATH = ( isproduct )? product.CONFIG_REDISTWIN_PATH : null;
 		if( isenv && !env.REDISTWIN_PATH.isEmpty() )
 			CTX_REDISTWIN_PATH = env.REDISTWIN_PATH;
-		CTX_REDISTLINUX_PATH = ( ismeta )? core.CONFIG_REDISTLINUX_PATH : "";
+		CTX_REDISTLINUX_PATH = ( isproduct )? product.CONFIG_REDISTLINUX_PATH : null;
 		if( isenv && !env.REDISTLINUX_PATH.isEmpty() )
 			CTX_REDISTLINUX_PATH = env.REDISTLINUX_PATH;
-		CTX_HIDDENPATH = getParamPathValue( "OPT_HIDDENPATH" );
+		value = getParamPathValue( "OPT_HIDDENPATH" );
+		CTX_HIDDENPATH = ( value.isEmpty() )? ( ( isenv )? env.CONF_SECRETFILESPATH : "" ) : value;
 		
 		// specific
 		CTX_GET = getFlagValue( "OPT_GET" );
 		CTX_DIST = getFlagValue( "OPT_DIST" );
 		CTX_UPDATENEXUS = getFlagValue( "OPT_UPDATENEXUS" );
 		CTX_CHECK = getFlagValue( "OPT_CHECK" , false );
+		CTX_MOVE_ERRORS = getFlagValue( "OPT_MOVE_ERRORS" );
 		CTX_REPLACE = getFlagValue( "OPT_REPLACE" );
 		CTX_BACKUP = combineValue( "OPT_BACKUP" , ( isenv )? env.BACKUP : null , def );
+		CTX_OBSOLETE = combineValue( "OPT_OBSOLETE" , ( isenv )? env.OBSOLETE : null , true );
 		CTX_CONFDEPLOY = combineValue( "OPT_DEPLOYCONF" , ( isenv )? env.CONF_DEPLOY : null , true );
 		CTX_PARTIALCONF = getFlagValue( "OPT_PARTIALCONF" );
 		CTX_DEPLOYBINARY = getFlagValue( "OPT_DEPLOYBINARY" , true );
@@ -362,7 +311,7 @@ public class CommandContext {
 		value = getEnumValue( "OPT_DBMODE" );
 		CTX_DBMODE = ( value.isEmpty() )? SQLMODE.UNKNOWN : SQLMODE.valueOf( value );
 		CTX_DBMOVE = getFlagValue( "OPT_DBMOVE" );
-		CTX_DBAUTH = combineValue( "OPT_DBAUTH" , ( isenv )? env.DBAUTH : null , false );
+		CTX_DBAUTH = combineValue( "OPT_DBAUTH" , ( isenv )? env.DB_AUTH : null , false );
 		CTX_CUMULATIVE = getFlagValue( "OPT_CUMULATIVE" );
 		
 		CTX_DBALIGNED = getParamValue( "OPT_DBALIGNED" );
@@ -384,8 +333,8 @@ public class CommandContext {
 		CTX_UNIT = getParamValue( "OPT_UNIT" );
 		CTX_BUILDINFO = getParamValue( "OPT_BUILDINFO" );
 		CTX_HOSTUSER = getParamValue( "OPT_HOSTUSER" );
-		CTX_NEWKEYRES = getParamValue( "OPT_NEWKEY" );
-		CTX_BUILDMODE = DBEnumBuildModeType.getValue( getParamValue( "OPT_BUILDMODE" ) , false );
+		CTX_NEWKEY = getParamValue( "OPT_NEWKEY" );
+		CTX_BUILDMODE = Types.getBuildMode( getParamValue( "OPT_BUILDMODE" ) , false );
 		CTX_OLDRELEASE = getParamValue( "OPT_COMPATIBILITY" );
 		CTX_PORT = getIntParamValue( "OPT_PORT" , -1 );
 		CTX_HOST = getParamValue( "OPT_HOST" );
@@ -394,35 +343,36 @@ public class CommandContext {
 		setLogLevel();
 	}
 
-	public void loadEnv( ActionInit action , boolean loadProps ) throws Exception {
-		if( session.ENV.isEmpty() )
-			return;
-		
+	public void loadEnv( ActionBase action , boolean loadProps ) throws Exception {
 		String useSG = session.SG;
 		if( useSG.isEmpty() )
 			useSG = CTX_SEGMENT;
 		loadEnv( action , session.ENV , useSG , loadProps );
 	}
 	
-	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
-		AppProduct product = action.getContextProduct();
-		EngineProductEnvs envs = product.findEnvs();
-		env = envs.findEnv( ENV );
+	public void loadEnv( ActionBase action , String ENV , String SG , boolean loadProps ) throws Exception {
+		Meta meta = action.getContextMeta();
+		env = meta.getEnvData( action , ENV , loadProps );
 		
 		if( SG == null || SG.isEmpty() ) {
 			sg = null;
 			return;
 		}
 		
-		sg = env.getSegment( SG );
+		sg = env.getSG( action , SG );
 		update( action );
+	}
+	
+	public CommandContext getStreamContext( String stream ) {
+		CommandContext context = new CommandContext( this , stream );
+		return( context );
 	}
 	
 	public String getBuildModeName() {
 		return( Common.getEnumLower( buildMode ) );
 	}
 	
-	public boolean setRunContext() throws Exception {
+	public boolean setRunContext() {
 		if( session == null )
 			return( true );
 		
@@ -437,11 +387,10 @@ public class CommandContext {
 			return( false );
 		}
 
-		DBEnumOSType osType = DBEnumOSType.getValue( session.execrc.osType );
+		VarOSTYPE osType = ( session.execrc.isWindows() )? VarOSTYPE.WINDOWS : VarOSTYPE.LINUX;
 		this.account = Account.getLocalAccount( session.execrc.userName , session.execrc.hostName , osType );
-		
 		this.userHome = session.execrc.userHome;
-		this.buildMode = ( session.clientrc.buildMode.isEmpty() )? DBEnumBuildModeType.UNKNOWN : DBEnumBuildModeType.valueOf( session.clientrc.buildMode );
+		this.buildMode = ( session.clientrc.buildMode.isEmpty() )? VarBUILDMODE.UNKNOWN : VarBUILDMODE.valueOf( session.clientrc.buildMode );
 		
 		return( true );
 	}
@@ -450,7 +399,7 @@ public class CommandContext {
 		String contextInfo = "";
 		if( !session.productName.isEmpty() )
 			contextInfo = "product=" + session.productName;
-		if( buildMode != DBEnumBuildModeType.UNKNOWN )
+		if( buildMode != VarBUILDMODE.UNKNOWN )
 			contextInfo += ", buildMode=" + getBuildModeName();
 		if( !session.ENV.isEmpty() )
 			contextInfo += ", env=" + session.ENV;
@@ -459,8 +408,8 @@ public class CommandContext {
 		return( contextInfo );
 	}
 	
-	public void setBuildMode( DBEnumBuildModeType value ) throws Exception {
-		if( buildMode != DBEnumBuildModeType.UNKNOWN && buildMode != value ) {
+	public void setBuildMode( VarBUILDMODE value ) throws Exception {
+		if( buildMode != VarBUILDMODE.UNKNOWN && buildMode != value ) {
 			String name = getBuildModeName();
 			Common.exit1( _Error.ReleaseWrongBuildMode1 , "release is defined for " + name + " build mode, please use appropriate context" , name );
 		}
@@ -509,34 +458,40 @@ public class CommandContext {
 		return( options.getIntParamValue( var , defaultValue ) );
 	}
 
-	public boolean combineValue( String var , Boolean confValue , boolean defValue ) throws Exception {
+	public boolean combineValue( String var , FLAG confValue , boolean defValue ) throws Exception {
 		if( !options.isValidVar( var ) )
 			Common.exit1( _Error.UnknownParamVar1 , "unknown param var=" + var , var );
-		FLAG confFlag = FLAG.DEFAULT;
-		if( confValue != null ) {
-			if( confValue.booleanValue() )
-				confFlag = FLAG.YES;
-			else
-				confFlag = FLAG.NO;
-		}
-		return( options.combineValue( var , confFlag, defValue ) );
+		return( options.combineValue( var , confValue , defValue ) );
 	}
 	
-	public int logStartCapture() {
-		return( logCapture.logStartCapture() );
+	public synchronized int logStartCapture() {
+		if( logCapture == null )
+			logCapture = new LinkedList<String>();
+		logCaptureCount++;
+		return( logCapture.size() );
 	}
 
 	public void logStopCapture() {
-		logCapture.logStopCapture();
+		logCaptureCount = 0;
+		logCapture = null;
 	}
 	
-	public String[] logFinishCapture( int startIndex ) {
-		return( logCapture.logFinishCapture( startIndex ) );
+	public synchronized String[] logFinishCapture( int startIndex ) {
+		String[] data = null;
+		if( startIndex > 0 )
+			data = logCapture.subList( startIndex , logCapture.size() ).toArray( new String[0] );
+		else
+			data = logCapture.toArray( new String[0] );
+
+		logCaptureCount--;
+		if( logCaptureCount == 0 )
+			logCapture = null;
+		return( data );
 	}
 
-	public void outExact( String s ) {
-		logCapture.outExact( s );
-		action.notifyLog( s );
+	public synchronized void outExact( String s ) {
+		if( logCapture != null )
+			logCapture.add( s );
 	}
 	
 }

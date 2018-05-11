@@ -26,7 +26,6 @@ public class RunContext implements Serializable {
 	public String installPath;
 	public String workPath;
 	public String authPath;
-	public String dbPath;
 	
 	public String product;
 	public String buildMode;
@@ -42,8 +41,8 @@ public class RunContext implements Serializable {
 	public static String PROPERTY_INSTALL_PATH = "urm.installpath";
 	public static String PROPERTY_WORK_PATH = "urm.workpath";
 	public static String PROPERTY_AUTH_PATH = "urm.authpath";
-	public static String PROPERTY_DB_PATH = "urm.dbpath";
 	public static String PROPERTY_SERVER_CONFPATH = "server.conf";
+	public static String PROPERTY_SERVER_MASTERPATH = "server.master";
 	public static String PROPERTY_SERVER_PRODUCTSPATH = "server.products";
 	
 	public RunContext() {
@@ -66,7 +65,6 @@ public class RunContext implements Serializable {
 		rc.installPath = installPath;
 		rc.workPath = workPath;
 		rc.authPath = authPath;
-		rc.dbPath = dbPath;
 		
 		rc.product = product;
 		rc.buildMode = buildMode;
@@ -119,25 +117,19 @@ public class RunContext implements Serializable {
 			installPath = getProperty( PROPERTY_INSTALL_PATH );
 			workPath = getProperty( PROPERTY_WORK_PATH );
 			authPath = getProperty( PROPERTY_AUTH_PATH );
-			dbPath = getProperty( PROPERTY_DB_PATH );
 			
 			hostName = getEnvRequired( "HOSTNAME" );
 			userName = getEnvRequired( "USER" );
-			userHome = getProperty( PROPERTY_USER_HOME );
-			if( userHome.isEmpty() )
-				userHome = getEnvRequired( "HOME" );
+	    	userHome = getEnvRequired( "HOME" );
 		}
 		else {
 			installPath = Common.getLinuxPath( getProperty( PROPERTY_INSTALL_PATH ) );
 			workPath = Common.getLinuxPath( getProperty( PROPERTY_WORK_PATH ) );
 			authPath = Common.getLinuxPath( getProperty( PROPERTY_AUTH_PATH ) );
-			dbPath = Common.getLinuxPath( getProperty( PROPERTY_DB_PATH ) );
 			
 			hostName = getEnvRequired( "COMPUTERNAME" );
 			userName = getEnvRequired( "USERNAME" );
-			userHome = getProperty( PROPERTY_USER_HOME );
-			if( userHome.isEmpty() )
-				userHome = Common.getLinuxPath( getEnvRequired( "HOMEDRIVE" ) + getEnvRequired( "HOMEPATH" ) );
+	    	userHome = Common.getLinuxPath( getEnvRequired( "HOMEDRIVE" ) + getEnvRequired( "HOMEPATH" ) );
 		}
 	
 		encoding = getProperty( "urm.encoding" );
@@ -155,7 +147,7 @@ public class RunContext implements Serializable {
 		return( value );
 	}
 	
-	public static String getProperty( String name ) {
+	private String getProperty( String name ) {
 		String value = System.getProperty( name );
 		if( value == null )
 			return( "" );
@@ -188,12 +180,27 @@ public class RunContext implements Serializable {
 		return( osType == VarOSTYPE.LINUX );		
 	}
 
-	public String getLocalPath( String path ) {
+	public String getLocalPath( String path ) throws Exception {
 		if( isLinux() )
 			return( Common.getLinuxPath( path ) );
 		if( isWindows() )
 			return( Common.getWinPath( path ) );
+		Common.exitUnexpected();
 		return( null );
 	}
 
+	public void getProperties( PropertySet set ) throws Exception {
+		set.setStringProperty( PROPERTY_OS_TYPE , Common.getEnumLower( osType ) );
+		set.setPathProperty( PROPERTY_INSTALL_PATH , installPath , null );
+		set.setPathProperty( PROPERTY_WORK_PATH , workPath , null );
+		set.setPathProperty( PROPERTY_USER_HOME , userHome , null );
+		set.setPathProperty( PROPERTY_AUTH_PATH , authPath , null );
+		set.setStringProperty( PROPERTY_HOSTNAME , hostName );
+		set.setPathProperty( PROPERTY_SERVER_CONFPATH , installPath + "/etc" , null );
+		set.setPathProperty( PROPERTY_SERVER_MASTERPATH , installPath + "/master" , null );
+		set.setPathProperty( PROPERTY_SERVER_PRODUCTSPATH , installPath + "/products" , null );
+		
+		set.resolveRawProperties();
+	}
+	
 }

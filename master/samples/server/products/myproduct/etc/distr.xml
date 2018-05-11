@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module>
+	<distributive>
+
+		<database>
+			<administration>
+			</administration>
+
+			<schema name="urm" dbtype="postgresql" dbname="urm" dbuser="urm"/>
+			<schema name="myschema" dbtype="postgresql" dbname="production" dbuser="myuser"/>
+
+			<datagroup name="main" schemaset="urm myschema"/>
+		</database>
+
+		<delivery name="build">
+			<distitem name="signer" source="manual" type="binary" deployversion="none" extension=".war"/>
+			<distitem name="static" source="manual" type="archive.direct" extension=".tar.gz"/>
+			<distitem name="app.web" source="build" distname="app-web" deployname="app_web" type="binary" deployversion="none" extension=".war"/>
+			<distitem name="app.ws" source="build" distname="app-ws" deployname="app_ws" type="binary" deployversion="none" extension=".war"/>
+		</delivery>
+
+		<delivery name="thirdparty" folder="thirdparty">
+			<distitem name="apixlib" source="manual" type="archive.direct" files="org" extension=".tar.gz"/>
+			<distitem name="jasperserver" source="manual" type="binary" deployversion="none" extension=".war"/>
+			<distitem name="saiku" source="manual" type="binary" deployversion="none" extension=".war"/>
+
+			<distitem name="july.slf4j" distname="jul-to-slf4j-1.7.5" source="manual" type="binary" deployversion="ignore" extension=".jar"/>
+			<distitem name="july.tomcat" distname="tomcat-juli-adapters" source="manual" type="binary" deployversion="ignore" extension=".jar"/>
+			<distitem name="slf4j.log4j" distname="slf4j-log4j12-1.7.5" source="manual" type="binary" deployversion="ignore" extension=".jar"/>
+
+			<distitem name="ojdbc6" distname="ojdbc6-11.2.0.2" source="manual" type="binary" deployversion="ignore" extension=".jar"/>
+			<distitem name="postgresql.jdbc4" distname="postgresql-9.4-1201.jdbc4" source="manual" type="binary" deployversion="ignore" extension=".jar"/>
+			<distitem name="sansSerif" source="manual" type="binary" deployversion="ignore" extension=".jar"/>
+			<distitem name="vertica" distname="vertica_4.1.19_jdk_5" source="manual" type="binary" deployversion="ignore" extension=".jar"/>
+		</delivery>
+
+		<delivery name="data">
+			<database datagroup="main"/>
+		</delivery>
+
+		<delivery name="files">
+			<confitem name="proxy.conf" 			unit="core" type="files" templates="*.conf conf.d sites-available error" secured="ssl"/>
+			<confitem name="exim.base" 			unit="core" type="dir" secured="passwd*"/>
+			<confitem name="sign.bin" 			unit="core" type="files" files="run.sign.conf"/>
+		</delivery>
+
+	</distributive>
+
+       	<!-- deployment components -->
+	<deployment>
+		<component name="biapp.war">
+			<distitem name="jasperserver"/>
+			<distitem name="saiku"/>
+		</component>
+		<component name="sign.lib">
+			<distitem name="july.slf4j"/>
+			<distitem name="july.tomcat"/>
+			<distitem name="slf4j.log4j"/>
+		</component>
+	</deployment>
+
+</module>

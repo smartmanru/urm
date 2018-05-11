@@ -3,20 +3,18 @@ package org.urm.action.deploy;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RuntimeStorage;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerDeployment;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionRestoreConfigs extends ActionBase {
 
@@ -24,14 +22,14 @@ public class ActionRestoreConfigs extends ActionBase {
 	String confVersion;
 	
 	public ActionRestoreConfigs( ActionBase action , String stream ) {
-		super( action , stream , "Restore environment configuration files" );
+		super( action , stream );
 		timestamp = Common.getNameTimeStamp();
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer; 
 		if( !server.isConfigurable() ) {
-			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName() );
+			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName( this ) );
 			return( SCOPESTATE.NotRun );
 		}
 
@@ -80,19 +78,17 @@ public class ActionRestoreConfigs extends ActionBase {
 		redist.recreateTmpFolder( this );
 		
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.isConfItem() ) {
-				MetaDistrConfItem confItem = deployment.getConfItem();
-				String name = sourceStorage.getConfItemLiveName( this , node , confItem );
-				executeNodeConf( parent , sourceStorage , server , node , deployment , confItem , name , prepare );
+			if( deployment.confItem != null ) {
+				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
+				executeNodeConf( parent , sourceStorage , server , node , deployment , deployment.confItem , name , prepare );
 				continue;
 			}
 			
 			// deployments
-			if( !deployment.isComponent() )
+			if( deployment.comp == null )
 				continue;
 			
-			MetaDistrComponent comp = deployment.getComponent();
-			for( MetaDistrComponentItem compItem : comp.getConfItems() ) {
+			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( parent , sourceStorage , server , node , deployment , compItem.confItem , name , prepare );
@@ -134,14 +130,14 @@ public class ActionRestoreConfigs extends ActionBase {
 	private void executeNodeConfLive( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
 		LocalFolder live = parent.getSubFolder( this , name );
 		if( prepare ) {
-			debug( "prepare restore configuraton item=" + confItem.NAME + " from live ..." );
+			debug( "prepare restore configuraton item=" + confItem.KEY + " from live ..." );
 			sourceStorage.exportLiveConfigItem( this , server , name , context.CTX_TAG , parent );
 	
 			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureLiveComponent( live , confItem , server , node );
 		}
 		else {
-			info( "restore configuraton item=" + confItem.NAME + " from live ..." );
+			info( "restore configuraton item=" + confItem.KEY + " from live ..." );
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );
@@ -152,16 +148,16 @@ public class ActionRestoreConfigs extends ActionBase {
 	private void executeNodeConfTemplates( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name , boolean prepare ) throws Exception {
 		LocalFolder live = parent.getSubFolder( this , name );
 		if( prepare ) {
-			debug( "prepare restore configuraton item=" + confItem.NAME + " from templates ..." );
+			debug( "prepare restore configuraton item=" + confItem.KEY + " from templates ..." );
 			
-			LocalFolder template = parent.getSubFolder( this , confItem.NAME );
+			LocalFolder template = parent.getSubFolder( this , confItem.KEY );
 			live.recreateThis( this );
 			
 			ConfBuilder builder = new ConfBuilder( this , server.meta );
 			builder.configureComponent( template , live , confItem , server , node );
 		}
 		else {
-			info( "restore configuraton item=" + confItem.NAME + " from templates ..." );
+			info( "restore configuraton item=" + confItem.KEY + " from templates ..." );
 			
 			RuntimeStorage runtime = artefactory.getRuntimeStorage( this , server , node );
 			RedistStorage redist = artefactory.getRedistStorage( this , server , node );

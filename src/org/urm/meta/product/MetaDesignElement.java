@@ -6,8 +6,8 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.loader.Types;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -15,7 +15,7 @@ import org.w3c.dom.Node;
 public class MetaDesignElement {
 	
 	protected Meta meta;
-	MetaDesignDiagram design;
+	MetaDesign design;
 	MetaDesignElement group;
 	public Map<String,MetaDesignLink> links;
 	public Map<String,MetaDesignElement> childs;
@@ -24,9 +24,9 @@ public class MetaDesignElement {
 	public String GROUPCOLOR;
 	public String GROUPFILLCOLOR;
 	public String FUNCTION;
-	private EnumElementType elementType;
+	private VarELEMENTTYPE elementType;
 	
-	public MetaDesignElement( Meta meta , MetaDesignDiagram design , MetaDesignElement group ) {
+	public MetaDesignElement( Meta meta , MetaDesign design , MetaDesignElement group ) {
 		this.meta = meta;
 		this.design = design;
 		this.group = group;
@@ -36,7 +36,7 @@ public class MetaDesignElement {
 		links = new HashMap<String,MetaDesignLink>();
 		childs = new HashMap<String,MetaDesignElement>();
 		
-		NAME = action.getNameAttr( node , EnumNameType.ALPHANUMDOT );
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		String TYPE = ConfReader.getRequiredAttrValue( node , "type" );
 		elementType = Types.getDesignElementType( TYPE , false );
 		FUNCTION = ConfReader.getAttrValue( node , "function" );
@@ -57,7 +57,7 @@ public class MetaDesignElement {
 			for( Node elementNode : items ) {
 				MetaDesignElement child = new MetaDesignElement( meta , design , this );
 				child.load( action , elementNode );
-				addChild( child );
+				addChild( action , child );
 			}
 		}
 		
@@ -93,16 +93,16 @@ public class MetaDesignElement {
 		}		
 	}
 	
-	private void addChild( MetaDesignElement child ) throws Exception {
+	private void addChild( ActionBase action , MetaDesignElement child ) throws Exception {
 		childs.put( child.NAME , child );
-		design.addSubGraphItem( this , child );
+		design.addSubGraphItem( action , this , child );
 	}
 	
-	public MetaDesignElement copy( Meta meta , MetaDesignDiagram design ) throws Exception {
-		return( copy( meta , design , null ) );
+	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesign design ) throws Exception {
+		return( copy( action , meta , design , null ) );
 	}
 	
-	public MetaDesignElement copy( Meta meta , MetaDesignDiagram design , MetaDesignElement group ) throws Exception {
+	public MetaDesignElement copy( ActionBase action , Meta meta , MetaDesign design , MetaDesignElement group ) throws Exception {
 		MetaDesignElement r = new MetaDesignElement( meta , design , group );
 		
 		r.NAME = NAME;
@@ -114,22 +114,22 @@ public class MetaDesignElement {
 			r.GROUPFILLCOLOR = GROUPFILLCOLOR;
 			
 			for( MetaDesignElement child : childs.values() ) {
-				MetaDesignElement rchild = child.copy( meta , design , r );
-				r.addChild( rchild );
+				MetaDesignElement rchild = child.copy( action , meta , design , r );
+				r.addChild( action , rchild );
 			}
 		}
 		
 		for( MetaDesignLink link : links.values() ) {
-			MetaDesignLink rlink = link.copy( meta , r );
+			MetaDesignLink rlink = link.copy( action , meta , r );
 			r.links.put( rlink.TARGET , rlink );
 		}
 		
 		return( r );
 	}		
 	
-	public void resolve() throws Exception {
+	public void resolve( ActionBase action ) throws Exception {
 		for( MetaDesignLink link : links.values() )
-			link.resolve();
+			link.resolve( action );
 	}
 
 	public MetaDesignLink getLink( ActionBase action , String ID ) throws Exception {
@@ -155,34 +155,34 @@ public class MetaDesignElement {
 	}
 
 	public boolean isGroup() {
-		if( elementType == EnumElementType.GROUP )
+		if( elementType == VarELEMENTTYPE.GROUP )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isGenericType() {
-		return( elementType == EnumElementType.GENERIC );
+		return( elementType == VarELEMENTTYPE.GENERIC );
 	}
 	
 	public boolean isExternalType() {
-		return( elementType == EnumElementType.EXTERNAL );
+		return( elementType == VarELEMENTTYPE.EXTERNAL );
 	}
 	
 	public boolean isLibraryType() {
-		return( elementType == EnumElementType.LIBRARY );
+		return( elementType == VarELEMENTTYPE.LIBRARY );
 	}
 	
 	public boolean isAppServerType() {
-		return( elementType == EnumElementType.SERVER );
+		return( elementType == VarELEMENTTYPE.SERVER );
 	}
 	
 	public boolean isDatabaseServerType() {
-		return( elementType == EnumElementType.DATABASE );
+		return( elementType == VarELEMENTTYPE.DATABASE );
 	}
 	
 	public boolean isServerType() {
-		if( elementType == EnumElementType.DATABASE || 
-			elementType == EnumElementType.SERVER )
+		if( elementType == VarELEMENTTYPE.DATABASE || 
+			elementType == VarELEMENTTYPE.SERVER )
 			return( true );
 		return( false );
 	}

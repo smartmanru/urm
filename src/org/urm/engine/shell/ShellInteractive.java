@@ -1,38 +1,33 @@
 package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.ShellService;
-import org.urm.meta.engine.AuthResource;
 
 public class ShellInteractive extends Shell {
 
-	AuthResource auth;
-	
-	public static ShellInteractive getShell( ActionBase action , int id , String name , ShellService pool , Account account , AuthResource auth ) throws Exception {
-		ShellInteractive shell = new ShellInteractive( id , name , pool , account , auth );
+	public static ShellInteractive getShell( ActionBase action , String name , ShellPool pool , Account account ) throws Exception {
+		ShellInteractive shell = new ShellInteractive( name , pool , account );
 		return( shell );
 	}
 
-	private ShellInteractive( int id , String name , ShellService pool , Account account , AuthResource auth ) {
-		super( id , name , pool , account );
-		this.auth = auth;
+	public ShellInteractive( String name , ShellPool pool , Account account ) {
+		super( name , pool , account );
 	}
 	
 	@Override
 	public boolean start( ActionBase action ) throws Exception {
-		String KEY = action.context.CTX_KEYRES;
+		String KEY = action.context.CTX_KEYNAME;
 		
 		ShellProcess process = new ShellProcess( this ); 
 		if( action.isLocalLinux() ) {
 			if( action.context.call != null )
-				process.runRemoteInteractiveSshLinux( action , KEY , auth );
+				process.runRemoteInteractiveSshLinux( action , KEY );
 			else
 				process.runLocalInteractiveSshLinux( action , KEY );
 		}
 		else
 		if( action.isLocalWindows() ) {
 			if( action.context.call != null )
-				process.runRemoteInteractiveSshWindows( action , KEY , auth );
+				process.runRemoteInteractiveSshWindows( action , KEY );
 			else
 				process.runLocalInteractiveSshWindows( action , KEY );
 		}
@@ -54,7 +49,7 @@ public class ShellInteractive extends Shell {
 
 	public void runInteractive( ActionBase action ) throws Exception {
 		start( action );
-		pool.engine.trace( name + " wait interactive process to finish ..." );
+		pool.engine.serverAction.trace( name + " wait interactive process to finish ..." );
 		int status = waitForInteractive( action );
 		action.trace( name + " interactive process has been finished with status=" + status );
 		pool.removeInteractive( action , this );

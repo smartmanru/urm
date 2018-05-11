@@ -192,17 +192,6 @@ public class ConfReader {
         }
         return( null );
     }
-
-    public static String[] xmlGetNamedElements( Node node , String element ) throws Exception {
-    	Node[] nodes = xmlGetChildren( node , element );
-    	if( nodes == null )
-    		return( new String[0] );
-    	
-    	String[] names = new String[ nodes.length ];
-    	for( int k = 0; k < nodes.length; k++ )
-    		names[ k ] = getAttrValue( nodes[ k ] , "name" );
-    	return( names );
-    }
     
     public static String xmlGetPathNodeText( Node node , String path ) throws Exception {
         node = xmlGetPathNode( node , path );
@@ -378,14 +367,6 @@ public class ConfReader {
     		return( defValue );
 
     	return( Integer.parseInt( value ) );
-    }
-    
-    public static long getLongAttrValue( Node node , String attrName , long defValue ) throws Exception {
-    	String value = getAttrValue( node , attrName );
-    	if( value.isEmpty() )
-    		return( defValue );
-
-    	return( Long.parseLong( value ) );
     }
     
     public static Node[] xmlGetChildren( Node node , String name ) throws Exception {

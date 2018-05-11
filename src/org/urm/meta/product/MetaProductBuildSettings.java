@@ -1,8 +1,41 @@
 package org.urm.meta.product;
 
-import org.urm.engine.properties.ObjectProperties;
+import org.urm.action.ActionBase;
+import org.urm.common.PropertyController;
+import org.urm.common.PropertySet;
+import org.urm.engine.ServerTransaction;
+import org.urm.engine.TransactionBase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
-public class MetaProductBuildSettings {
+public class MetaProductBuildSettings extends PropertyController {
+
+	public String name;
+	public Meta meta;
+	public MetaProductSettings product;
+	
+	public String CONFIG_RELEASE_LASTMAJOR;
+	public String CONFIG_RELEASE_NEXTMAJOR;
+	public String CONFIG_RELEASE_LASTMINOR;
+	public String CONFIG_RELEASE_NEXTMINOR;
+	public String CONFIG_RELEASE_VERSION;
+	public String CONFIG_APPVERSION;
+	public String CONFIG_LOGPATH;
+	
+	public String CONFIG_NEXUS_RESOURCE;
+	public String CONFIG_NEXUS_REPO;
+	public String CONFIG_NEXUS_REPO_THIRDPARTY;
+	public String CONFIG_BUILDER;
+	public String CONFIG_MAVEN_VERSION;
+	public String CONFIG_MAVEN_CFGFILE;
+	public String CONFIG_MAVEN_OPTIONS;
+	public String CONFIG_MAVEN_JAVA_VERSION;
+	public String CONFIG_ARTEFACTDIR;
+
+	public String CONFIG_COMMIT_TRACKERLIST;
+	public String CONFIG_BRANCHNAME;
+	public String CONFIG_RELEASE_GROUPFOLDER;
 
 	// version
 	public static String PROPERTY_RELEASE_LASTMAJOR = "release.lastmajor";
@@ -15,81 +48,96 @@ public class MetaProductBuildSettings {
 
 	// build operation
 	public static String PROPERTY_ARTEFACTDIR = "build.artefacts";
+	public static String PROPERTY_BUILDER = "builder";
+	public static String PROPERTY_NEXUS_RESOURCE = "nexus.resource";
 	public static String PROPERTY_NEXUS_REPO = "nexus.repo";
 	public static String PROPERTY_NEXUS_REPO_THIRDPARTY = "nexus.thirdparty";
+	public static String PROPERTY_MAVEN_VERSION = "maven.version";
 	public static String PROPERTY_MAVEN_CFGFILE = "maven.conf";
+	public static String PROPERTY_MAVEN_JAVA_VERSION = "maven.java";
 
 	// build source code
 	public static String PROPERTY_BRANCHNAME = "source.branch";
 	public static String PROPERTY_RELEASE_GROUPFOLDER = "release.group";
+	public static String PROPERTY_SOURCE_REPOSITORY = "release.repo";
 
 	public static String BUILDER_TYPE_MAVEN = "Maven";
 	public static String BUILDER_TYPE_GRADLE = "Gradle";
 	public static String BUILDER_TYPE_DOTNET = ".NET";
 	
-	public String name;
-	public Meta meta;
-	public MetaProductSettings settings;
-	
-	public String CONFIG_RELEASE_LASTMAJOR;
-	public String CONFIG_RELEASE_NEXTMAJOR;
-	public String CONFIG_RELEASE_LASTMINOR;
-	public String CONFIG_RELEASE_NEXTMINOR;
-	public String CONFIG_RELEASE_VERSION;
-	public String CONFIG_APPVERSION;
-	public String CONFIG_LOGPATH;
-	
-	public String CONFIG_ARTEFACTDIR;
-	public String CONFIG_NEXUS_REPO;
-	public String CONFIG_NEXUS_REPO_THIRDPARTY;
-	public String CONFIG_MAVEN_CFGFILE;
-
-	public String CONFIG_COMMIT_TRACKERLIST;
-	public String CONFIG_BRANCHNAME;
-	public String CONFIG_RELEASE_GROUPFOLDER;
-
-	public ObjectProperties ops;
-	
-	public MetaProductBuildSettings( String name , Meta meta , MetaProductSettings settings ) {
+	public MetaProductBuildSettings( String name , Meta meta , MetaProductSettings product ) {
+		super( product , name );
+		
 		this.name = name;
 		this.meta = meta;
-		this.settings = settings;
+		this.product = product;
 	}
 	
-	public ObjectProperties getProperties() {
-		return( ops );
+	@Override
+	public boolean isValid() {
+		if( super.isLoadFailed() )
+			return( false );
+		return( true );
 	}
-	
-	public void scatterProperties() throws Exception {
-		CONFIG_RELEASE_LASTMAJOR = ops.getStringProperty( PROPERTY_RELEASE_LASTMAJOR );
-		CONFIG_RELEASE_NEXTMAJOR = ops.getStringProperty( PROPERTY_RELEASE_NEXTMAJOR );
-		CONFIG_RELEASE_LASTMINOR = ops.getStringProperty( PROPERTY_RELEASE_LASTMINOR );
-		CONFIG_RELEASE_NEXTMINOR = ops.getStringProperty( PROPERTY_RELEASE_NEXTMINOR );
-		CONFIG_RELEASE_VERSION = ops.getStringProperty( PROPERTY_RELEASE_VERSION );
-		CONFIG_APPVERSION = ops.getStringProperty( PROPERTY_APPVERSION );
-		CONFIG_LOGPATH = ops.getPathProperty( PROPERTY_LOGPATH );
+
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+		CONFIG_RELEASE_LASTMAJOR = super.getStringProperty( action , PROPERTY_RELEASE_LASTMAJOR );
+		CONFIG_RELEASE_NEXTMAJOR = super.getStringProperty( action , PROPERTY_RELEASE_NEXTMAJOR );
+		CONFIG_RELEASE_LASTMINOR = super.getStringProperty( action , PROPERTY_RELEASE_LASTMINOR );
+		CONFIG_RELEASE_NEXTMINOR = super.getStringProperty( action , PROPERTY_RELEASE_NEXTMINOR );
+		CONFIG_RELEASE_VERSION = super.getStringProperty( action , PROPERTY_RELEASE_VERSION );
+		CONFIG_APPVERSION = super.getStringProperty( action , PROPERTY_APPVERSION );
+		CONFIG_LOGPATH = super.getPathProperty( action , PROPERTY_LOGPATH );
 		
-		CONFIG_ARTEFACTDIR = ops.getPathProperty( PROPERTY_ARTEFACTDIR );
-		CONFIG_NEXUS_REPO = ops.getStringProperty( PROPERTY_NEXUS_REPO );
-		CONFIG_NEXUS_REPO_THIRDPARTY = ops.getStringProperty( PROPERTY_NEXUS_REPO_THIRDPARTY );
-		CONFIG_MAVEN_CFGFILE = ops.getPathProperty( PROPERTY_MAVEN_CFGFILE );
+		CONFIG_NEXUS_RESOURCE = super.getStringProperty( action , PROPERTY_NEXUS_RESOURCE );
+		CONFIG_NEXUS_REPO = super.getStringProperty( action , PROPERTY_NEXUS_REPO );
+		CONFIG_NEXUS_REPO_THIRDPARTY = super.getStringProperty( action , PROPERTY_NEXUS_REPO_THIRDPARTY );
+		CONFIG_BUILDER = super.getStringProperty( action , PROPERTY_BUILDER );
+		CONFIG_MAVEN_VERSION = super.getStringProperty( action , PROPERTY_MAVEN_VERSION );
+		CONFIG_MAVEN_CFGFILE = super.getStringProperty( action , PROPERTY_MAVEN_CFGFILE );
+		CONFIG_MAVEN_JAVA_VERSION = super.getStringProperty( action , PROPERTY_MAVEN_JAVA_VERSION );
+		CONFIG_ARTEFACTDIR = super.getStringProperty( action , PROPERTY_ARTEFACTDIR );
 
-		CONFIG_BRANCHNAME = ops.getStringProperty( PROPERTY_BRANCHNAME );
-		CONFIG_RELEASE_GROUPFOLDER = ops.getStringProperty( PROPERTY_RELEASE_GROUPFOLDER );
+		CONFIG_BRANCHNAME = super.getStringProperty( action , PROPERTY_BRANCHNAME );
+		CONFIG_RELEASE_GROUPFOLDER = super.getStringProperty( action , PROPERTY_RELEASE_GROUPFOLDER );
 	}
 
-	public void createSettings( ObjectProperties ops ) throws Exception {
-		this.ops = ops;
-		ops.updateProperties();
-		ops.initFinished();
-		scatterProperties();
+	public void createSettings( TransactionBase transaction , PropertySet src , PropertySet parent ) throws Exception {
+		if( !super.initCreateStarted( parent ) )
+			return;
+
+		if( src != null )
+			super.copyOriginalPropertiesToRaw( src );
+		
+		super.updateProperties( transaction.action );
+		super.initFinished();
 	}
 	
-	public MetaProductBuildSettings copy( Meta meta , MetaProductSettings product , ObjectProperties rparent ) throws Exception {
+	public MetaProductBuildSettings copy( ActionBase action , Meta meta , MetaProductSettings product , PropertySet parent ) throws Exception {
 		MetaProductBuildSettings r = new MetaProductBuildSettings( name , meta , product );
-		r.ops = ops.copy( rparent );
-		r.scatterProperties();
+		r.initCopyStarted( this , parent );
+		r.updateProperties( action );
+		r.initFinished();
+		
 		return( r );
 	}
 	
+	public void load( ActionBase action , Node root , PropertySet parent ) throws Exception {
+		if( !initCreateStarted( parent ) )
+			return;
+
+		super.loadFromNodeElements( action , root , false );
+		super.updateProperties( action );
+		super.initFinished();
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		super.saveAsElements( doc , root , false );
+	}
+
+	public void setProperties( ServerTransaction transaction , PropertySet props ) throws Exception {
+		super.updateProperties( transaction , props , true );
+	}
+
 }

@@ -1,70 +1,33 @@
 package org.urm.engine.action;
 
-import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.common.RunContext;
 import org.urm.common.RunError;
 
 public class CommandOutput {
 
-	class OutputFile {
-		String fname;
-		FileOutputStream outstream;
-		PrintWriter outfile;
-		int channelBase;
-		boolean stopped;
-		
-		public OutputFile( RunContext execrc , String fname , int channelBase ) throws Exception {
-			this.fname = fname;
-			this.outstream = new FileOutputStream( execrc.getLocalPath( fname ) );
-			this.outfile = new PrintWriter( outstream );
-			this.channelBase = channelBase;
-			this.stopped = false;
-		}
-
-		public void close() throws Exception {
-			outfile.flush();
-			outfile.close();
-			outstream.flush();
-			outstream.close();
-			stopped = true;
-		}
-		
-		public void printStackTrace( Throwable e ) {
-			e.printStackTrace( outfile );
-			outfile.flush();
-		}
-		
-		public void println( String s ) {
-			outfile.println( s );
-			outfile.flush();
-		}
-		
-	};
-	
-	List<OutputFile> channels;
-	OutputFile outtee;
+	PrintWriter outchild = null;
+	PrintWriter outtee = null;
 	int logActionLevelLimit;
 	int logServerLevelLimit;
 
 	public static Object syncStatic = new Object(); 
 	
-	public static int LOGLEVEL_EXACT = -2; 
 	public static int LOGLEVEL_INTERNAL = -1;
 	public static int LOGLEVEL_ERROR = 0;
 	public static int LOGLEVEL_INFO = 1;
 	public static int LOGLEVEL_DEBUG = 2;
 	public static int LOGLEVEL_TRACE = 3;
 	
+	List<PrintWriter> parentOutputs = new LinkedList<PrintWriter>();
+	
 	public CommandOutput() {
 		logActionLevelLimit = LOGLEVEL_ERROR;
 		logServerLevelLimit = LOGLEVEL_ERROR;
-		channels = new LinkedList<OutputFile>(); 
 	}
 
 	public synchronized void setLogLevel( ActionBase action , int logActionLevelLimit ) {
@@ -82,36 +45,9 @@ public class CommandOutput {
 		}
 	}
 
-	private boolean logDisabled( int logLevel ) {
-		if( logLevel < 0 ) {
-			if( logLevel == LOGLEVEL_EXACT )
-				return( false );
-			if( logActionLevelLimit < 0 || logServerLevelLimit < 0 )
-				return( false );
-			return( true );
-		}
-		
-		if( logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
-			return( true );
-		return( false );
-	}
-
-	private boolean logActionDisabled( int logLevel ) {
-		if( logLevel < 0 ) {
-			if( logLevel == LOGLEVEL_EXACT )
-				return( false );
-			if( logActionLevelLimit < 0 )
-				return( false );
-			return( true );
-		}
-		
-		if( logLevel > logActionLevelLimit )
-			return( true );
-		return( false );
-	}
-	
-	private void log( CommandContext context , int channel , String s , int logLevel ) {
-		if( logDisabled( logLevel ) )
+	private void log( CommandContext context , String s , int logLevel ) {
+		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
+			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
 		
 		String prefix = null;
@@ -127,47 +63,51 @@ public class CommandOutput {
 		if( logLevel == LOGLEVEL_TRACE )
 			prefix = "[TRACE] ";
 		else
-			outExact( context , channel , "unexpected log level=" + logLevel + ", msg=" + s );
+			outExact( context , "unexpected log level=" + logLevel + ", msg=" + s );
 
 		String ts = Common.getLogTimeStamp() + " " + prefix + s;
-		outExact( context , channel , ts + " " + context.streamLog );
+		outExact( context , ts + " " + context.streamLog );
 		
 		if( context.call != null ) {
-			if( logActionDisabled( logLevel ) )
+			if( logActionLevelLimit >= 0 &&  
+				logLevel > logActionLevelLimit )
 				return;
 		
 			context.call.addLog( ts );
 		}
 	}
 	
-	public synchronized void logExact( CommandContext context , int channel , String s , int logLevel ) {
-		if( logDisabled( logLevel ) )
+	public synchronized void logExact( CommandContext context , String s , int logLevel ) {
+		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
+			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
 		
-		outExact( context , channel , s );
+		outExact( context , s );
 		
 		if( context.call != null ) {
-			if( logActionDisabled( logLevel ) )
+			if( logActionLevelLimit >= 0 &&  
+				logLevel > logActionLevelLimit )
 				return;
 		
 			context.call.addLog( s );
 		}
 	}
 	
-	public synchronized void logExactInteractive( CommandContext context , int channel , String s , int logLevel ) {
+	public synchronized void logExactInteractive( CommandContext context , String s , int logLevel ) {
 		if( context.call != null )
 			context.call.addLog( s );
 		
-		if( logDisabled( logLevel ) )
+		if( logActionLevelLimit >= 0 && logServerLevelLimit >= 0 && 
+			logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return;
 		
-		outExact( context , channel , s );
+		outExact( context , s );
 	}
 	
-	public synchronized void log( CommandContext context , int channel , String prompt , Throwable e ) {
+	public synchronized void log( CommandContext context , String prompt , Throwable e ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
 			synchronized( syncStatic ) {
-				System.out.println( "INNER: " + prompt );
+				System.out.println( "TRACEINTERNAL: " + prompt );
 				e.printStackTrace();
 				System.out.flush();
 			}
@@ -184,59 +124,64 @@ public class CommandOutput {
 		}
 		else {
 			s += "exception: " + e.getClass().getName();
-			String msg = e.toString();
+			String msg = e.getMessage();
 			if( msg != null )
 				s += " - " + msg;
 		}
 		
 		synchronized( syncStatic ) {
-			log( context , channel , s , LOGLEVEL_ERROR );
+			log( context , s , LOGLEVEL_ERROR );
 			if( logActionLevelLimit >= LOGLEVEL_DEBUG || logServerLevelLimit >= LOGLEVEL_DEBUG ) {
-				if( channel >= 0 && channel < channels.size() ) {
-					OutputFile outchild = channels.get( channel );
-					outchild.printStackTrace( e );
+				if( outchild != null ) {
+					e.printStackTrace( outchild );
+					outchild.flush();
 				}
 				else {
-					if( outtee != null )
-						outtee.printStackTrace( e );
+					if( outtee != null ) {
+						e.printStackTrace( outtee );
+						outtee.flush();
+					}
 					
 					e.printStackTrace();
-					System.out.flush();
 				}
+				System.out.flush();
 			}
 		}
 	}
 	
-	public synchronized void error( CommandContext context , int channel , String s ) {
-		log( context , channel , s , LOGLEVEL_ERROR );
+	public synchronized void error( CommandContext context , String s ) {
+		log( context , s , LOGLEVEL_ERROR );
 	}
 	
-	public synchronized void info( CommandContext context , int channel , String s ) {
-		log( context , channel , s , LOGLEVEL_INFO );
+	public synchronized void info( CommandContext context , String s ) {
+		log( context , s , LOGLEVEL_INFO );
 	}
 	
-	public synchronized void debug( CommandContext context , int channel , String s ) {
-		log( context , channel , s , LOGLEVEL_DEBUG );
+	public synchronized void debug( CommandContext context , String s ) {
+		log( context , s , LOGLEVEL_DEBUG );
 	}
 	
-	public synchronized void trace( CommandContext context , int channel , String s ) {
-		log( context , channel , s , LOGLEVEL_TRACE );
+	public synchronized void trace( CommandContext context , String s ) {
+		log( context , s , LOGLEVEL_TRACE );
 	}
 
-	private synchronized void outExact( CommandContext context , int channel , String s ) {
+	private void outExact( CommandContext context , String s ) {
 		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 ) {
-			outExactStatic( "INNER: line=" + s.replaceAll("\\p{C}", "?") );
+			outExactStatic( "TRACEINTERNAL: line=" + s.replaceAll("\\p{C}", "?") );
 			return;
 		}
 		
 		context.outExact( s );
-		if( channel >= 0 && channel < channels.size() ) {
-			OutputFile outchild = channels.get( channel );
+		
+		if( outchild != null ) {
 			outchild.println( s );
+			outchild.flush();
 		}
 		else {
-			if( outtee != null )
+			if( outtee != null ) {
 				outtee.println( s );
+				outtee.flush();
+			}
 			
 			outExactStatic( s );
 		}
@@ -248,63 +193,42 @@ public class CommandOutput {
 		return( fname );
 	}
 	
-	public synchronized void tee( RunContext execrc , String title , String file ) throws Exception {
-		outtee = new OutputFile( execrc , file , 0 );
+	public synchronized void tee( String title , String file ) throws Exception {
+		outtee = Common.createOutfileFile( file );
 		outtee.println( "############# start logging on " + Common.getNameTimeStamp() );
+		outtee.flush();
+	}
+	
+	public synchronized void createOutputFile( CommandContext context , String title , String file ) throws Exception {
+		// add current to stack
+		if( outchild != null )
+			parentOutputs.add( outchild );
+		
+		outchild = Common.createOutfileFile( file );
+		log( context , title , LOGLEVEL_INFO );
+	}
+	
+	public synchronized void stopOutputFile() throws Exception {
+		outchild.flush();
+		outchild.close();
+		
+		if( parentOutputs.isEmpty() )
+			outchild = null;
+		else {
+			outchild = parentOutputs.get( parentOutputs.size() - 1 );
+			parentOutputs.remove( parentOutputs.size() - 1 );
+		}
 	}
 	
 	public synchronized void stopAllOutputs() throws Exception {
-		for( int index = channels.size() - 1; index >= 0; index-- ) {
-			OutputFile outchild = channels.get( index );
-			if( !outchild.stopped )
-				stopOutputFile( outchild );
-		}
-		channels.clear();
+		while( outchild != null )
+			stopOutputFile();
 		
 		if( outtee != null ) {
 			outtee.println( "############# stop logging on " + Common.getNameTimeStamp() );
+			outtee.flush();
 			outtee.close();
 			outtee = null;
 		}
 	}
-	
-	public synchronized int startRedirect( CommandContext context , int channel , String file , String msg , String title ) throws Exception {
-		OutputFile outchild = new OutputFile( context.engine.execrc , file , channel );
-		int newChannel = channels.size();
-		channels.add( outchild );
-		
-		log( context , channel , msg , LOGLEVEL_INFO );
-		info( context , newChannel , title );
-		return( newChannel );
-	}
-	
-	public synchronized int stopRedirect( int channel ) throws Exception {
-		if( channel >= 0 && channel < channels.size() ) {
-			OutputFile outchild = channels.get( channel );
-			if( !outchild.stopped )
-				stopOutputFile( outchild );
-			
-			int index = channels.size() - 1;
-			if( channel == index ) {
-				// remove closed tail
-				for( ; index >= 0; index-- ) {
-					outchild = channels.get( index );
-					if( !outchild.stopped )
-						break;
-					
-					channels.remove( index );
-				}
-			}
-			
-			if( outchild.channelBase < channels.size() )
-				return( outchild.channelBase );
-		}
-		
-		return( -1 );
-	}
-	
-	private void stopOutputFile( OutputFile outchild ) throws Exception {
-		outchild.close();
-	}
-	
 }

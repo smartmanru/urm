@@ -7,22 +7,19 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.MetaSources;
+import org.urm.meta.product.MetaSource;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.Types.*;
 
 public class SpecificPGU {
 
@@ -62,9 +59,8 @@ public class SpecificPGU {
 	}
 	
 	public String getPguServiceCallExt() throws Exception {
-		MetaProductSettings settings = meta.getProductSettings();
-		ObjectProperties ops = settings.getParameters();
-		String custom = ops.getStringProperty( "CUSTOM_SERVICECALL_EXT" );
+		MetaProductSettings product = meta.getProductSettings( action );
+		String custom = product.getPropertyValue( action , "CUSTOM_SERVICECALL_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
 		
@@ -72,9 +68,8 @@ public class SpecificPGU {
 	}
 	
 	public String getPguStorageServiceExt() throws Exception {
-		MetaProductSettings settings = meta.getProductSettings();
-		ObjectProperties ops = settings.getParameters();
-		String custom = ops.getStringProperty( "CUSTOM_STORAGESERVICE_EXT" );
+		MetaProductSettings product = meta.getProductSettings( action );
+		String custom = product.getPropertyValue( action , "CUSTOM_STORAGESERVICE_EXT" );
 		if( custom != null && !custom.isEmpty() )
 			return( custom );
 		
@@ -83,16 +78,16 @@ public class SpecificPGU {
 
 	private MetaDistrBinaryItem getWarItem( MetaSourceProject project , int pos ) throws Exception {
 		MetaSourceProjectItem item = project.getItems()[ pos ];
-		return( item.distItem );
+		MetaDistr distr = meta.getDistr( action );
+		return( distr.getBinaryItem( action , item.ITEMNAME ) );
 	}
 	
 	public void downloadWarCopyDistr( boolean copyDistr , Dist release , String VERSION_TAGNAME , ActionScopeTarget scopeProject ) throws Exception {
 		MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 0 );
 		
-		ProjectBuilder builder = scopeProject.sourceProject.getBuilder( action );
-		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE_ID , meta , downloadFolder );
-		NexusDownloadInfo WAR = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.BASENAME_DIST , VERSION , "war" , "" , distItem );
-		NexusDownloadInfo STATIC = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.BASENAME_DIST , VERSION , "tar.gz" , "webstatic" , distItem );
+		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , downloadFolder );
+		NexusDownloadInfo WAR = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "war" , "" , distItem );
+		NexusDownloadInfo STATIC = nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , distItem.DISTBASENAME , VERSION , "tar.gz" , "webstatic" , distItem );
 		nexusStorage.repackageStatic( action , scopeProject.sourceProject.NAME , VERSION , WAR.DOWNLOAD_FILENAME , STATIC.DOWNLOAD_FILENAME , VERSION_TAGNAME , distItem );
 
 		if( copyDistr ) {
@@ -119,9 +114,9 @@ public class SpecificPGU {
 		downloadFolder.removeFolder( action , "pgu-services-lib" );
 		downloadFolder.removeFolder( action , "servicecall-prod-libs" );
 
-		MetaDistr distr = meta.getDistr();
-		servicecallItem = distr.getBinaryItem( C_ITEMSERVICECALL );
-		storageserviceItem = distr.getBinaryItem( C_ITEMSTORAGESERVICE );
+		MetaDistr distr = meta.getDistr( action );
+		servicecallItem = distr.getBinaryItem( action , C_ITEMSERVICECALL );
+		storageserviceItem = distr.getBinaryItem( action , C_ITEMSTORAGESERVICE );
 		
 		getAllWarAppDownloadCore();
 	
@@ -142,8 +137,7 @@ public class SpecificPGU {
 		if( srcRelease == null ) {
 			action.info( "downloading core servicecall and storageservice from Nexus - to " + artefactory.workFolder.folderPath + " ..." );
 			
-			ProjectBuilder builder = servicecallItem.sourceProjectItem.project.getBuilder( action );
-			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE_ID , meta , downloadFolder );
+			NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , downloadFolder );
 			nexusStorage.downloadNexus( action , C_SERVICECALLGROUPID , "servicecall" , VERSION , SERVICECALL_EXT , "" , servicecallItem );
 			nexusStorage.downloadNexus( action , C_STORAGESERVICEGROUPID , "storageservice" , VERSION , STORAGESERVICE_EXT , "" , storageserviceItem );
 		}
@@ -169,8 +163,7 @@ public class SpecificPGU {
 	}
 	
 	private void getAllWarAppCopyProd() throws Exception {
-		AppProduct product = meta.getProduct();
-		Dist distStorage = action.getMasterDist( product );
+		Dist distStorage = artefactory.getDistProdStorage( action , meta );
 
 		action.debug( "copy libraries from " + distStorage.RELEASEDIR + "/servicecall." + SERVICECALL_EXT + " to servicecall-prod-libs ..." );
 		distStorage.unzipDistFileToFolder( action , downloadFolder , "servicecall-*." + SERVICECALL_EXT , servicecallItem.delivery.FOLDER , Common.getQuoted( SERVICECALL_DIR + "/lib/*" ) , "servicecall-prod-libs" );
@@ -179,11 +172,11 @@ public class SpecificPGU {
 	private void getAllWarAppDownloadLibs( Dist release ) throws Exception {
 		// create directory for libs and "cd" to it
 		LocalFolder libFolder = downloadFolder.getSubFolder( action , "pgu-services-lib" );
-		ProjectBuilder builder = servicecallItem.sourceProjectItem.project.getBuilder( action );
-		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE_ID , meta , libFolder );
+		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , libFolder );
 
 		// download latest API libs - pfr, fed-common-util
-		if( meta.name.equals( "fedpgu" ) ) {
+		MetaProductSettings product = meta.getProductSettings( action );
+		if( product.CONFIG_PRODUCT.equals( "fedpgu" ) ) {
 			action.debug( "download API libs for pfr and fed-common-util from Nexus - to pgu-services-lib ..." );
 			nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , "pfr-api" , VERSION , "jar" , "" , servicecallItem );
 			nexusStorage.downloadNexus( action , C_PGUFEDGROUPID , "pgu-fed-common-util" , VERSION , "jar" , "" , servicecallItem );
@@ -191,11 +184,11 @@ public class SpecificPGU {
 
 		// download latest built libs for all microportals
 		action.debug( "download last built libs for all microportals from Nexus - to pgu-services-lib ..." );
-		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , DBEnumScopeCategoryType.SEARCH_SOURCEBUILDABLE );
+		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , VarCATEGORY.BUILDABLE );
 		
 		for( ActionScopeTarget scopeProject : projects.values() ) {
 			MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 1 );
-			String LIB = distItem.NAME;
+			String LIB = distItem.KEY;
 			nexusStorage.downloadNexus( action , C_PGUWARNEXUSGROUPID , LIB , VERSION , "jar" , "" , servicecallItem );
 		}
 	}
@@ -205,15 +198,16 @@ public class SpecificPGU {
 		//   current release - if microportal exists in current release distributive
 		//   previous release (prod) - otherwise
 
-		if( meta.name.equals( "fedpgu" ) ) {
+		MetaProductSettings product = meta.getProductSettings( action );
+		if( product.CONFIG_PRODUCT.equals( "fedpgu" ) ) {
 			// pgu-fed-common-util - always use last built
 			if( srcRelease == null )
 				getAllWarAppCopySpecificBuilt( "pgu-fed-common" );
 		}
 
 		action.debug( "copy libs to servicecall and storageservice from pgu-services-lib and servicecall-prod-libs ..." );
-		MetaSources sources = meta.getSources();
-		List<MetaSourceProject> list = sources.getAllProjectList( true );
+		MetaSource sources = meta.getSources( action );
+		List<MetaSourceProject> list = sources.getAllProjectList( action , true );
 		Dist releaseStorage = release;
 		
 		for( MetaSourceProject sourceProject : list ) {
@@ -223,7 +217,7 @@ public class SpecificPGU {
 	
 	private void getAllWarAppGetProjectLib( MetaSourceProject sourceProject , Dist release ) throws Exception {
 		MetaDistrBinaryItem libItem = getWarItem( sourceProject , 1 );
-		String lib = libItem.NAME + "-" + VERSION + ".jar";
+		String lib = libItem.KEY + "-" + VERSION + ".jar";
 
 		boolean RELEASED_TO_PROD = false;
 		if( USE_PROD_DISTR ) {
@@ -234,7 +228,7 @@ public class SpecificPGU {
 		// check if $lib exists in $P_DISTR_DSTDIR/$P_PROJECT ...
 		boolean copyFromProd = false;
 		if( USE_PROD_DISTR == true && RELEASED_TO_PROD == true )
-			if( !release.checkFileExists( action , libItem.NAME + "*war" ) )
+			if( !release.checkFileExists( action , libItem.KEY + "*war" ) )
 				copyFromProd = true;
 		
 		if( copyFromProd ) {
@@ -296,20 +290,20 @@ public class SpecificPGU {
 	}
 	
 	private void getAllWarAppDownloadDeps( boolean copyDistr , Dist release ) throws Exception {
-		MetaSources sources = meta.getSources();
-		MetaSourceProject sourceProject = sources.getProject( "pgu-portal" );
-		MetaSourceProjectItem sourceItem = sourceProject.getItem( "pgu-dependencies" );
-		MetaDistrBinaryItem distItem = sourceItem.distItem;
+		MetaSource sources = meta.getSources( action );
+		MetaDistr distr = meta.getDistr( action );
+		MetaSourceProject sourceProject = sources.getProject( action , "pgu-portal" );
+		MetaSourceProjectItem sourceItem = sourceProject.getItem( action , "pgu-dependencies" );
+		MetaDistrBinaryItem distItem = distr.getBinaryItem( action , sourceItem.ITEMNAME );
 		
-		String GROUPID = sourceItem.PATH.replace( '/' , '.' );
-		String EXT = sourceItem.EXT.substring( 1 );
+		String GROUPID = sourceItem.NEXUS_ITEMPATH.replace( '/' , '.' );
+		String EXT = sourceItem.ITEMEXTENSION.substring( 1 );
 		
-		ProjectBuilder builder = sourceProject.getBuilder( action );
-		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , builder.TARGET_RESOURCE_ID , meta , downloadFolder );
-		nexusStorage.downloadNexus( action , GROUPID , sourceItem.BASENAME , VERSION , EXT , "" , distItem );
+		NexusStorage nexusStorage = artefactory.getDefaultNexusStorage( action , meta , downloadFolder );
+		nexusStorage.downloadNexus( action , GROUPID , sourceItem.ITEMBASENAME , VERSION , EXT , "" , distItem );
 		if( copyDistr ) {
 			Dist releaseStorage = release;
-			releaseStorage.copyVFileToDistr( action , distItem , downloadFolder , sourceItem.BASENAME + "-" + VERSION + "." + EXT , sourceItem.BASENAME , EXT );
+			releaseStorage.copyVFileToDistr( action , distItem , downloadFolder , sourceItem.ITEMBASENAME + "-" + VERSION + "." + EXT , sourceItem.ITEMBASENAME , EXT );
 		}
 	}
 
@@ -346,7 +340,10 @@ public class SpecificPGU {
 
 	public String getWarMRId( ActionBase action , String P_WAR ) throws Exception {
 		// get war from distributive info
-		String S_WAR_MRID = "";
+		MetaDistr distr = meta.getDistr( action );
+		MetaDistrBinaryItem item = distr.getBinaryItem( action , P_WAR );
+
+		String S_WAR_MRID = item.WAR_MRID;
 		if( S_WAR_MRID.isEmpty() )
 			S_WAR_MRID = "00";
 		
@@ -355,7 +352,7 @@ public class SpecificPGU {
 
 	public boolean checkWarMRId( ActionBase action , String P_WAR ) throws Exception {
 		// get war from distributive info
-		MetaDistr distr = meta.getDistr();
+		MetaDistr distr = meta.getDistr( action );
 		MetaDistrBinaryItem item = distr.findBinaryItem( P_WAR );
 		if( item == null )
 			return( false );

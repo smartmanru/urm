@@ -1,35 +1,19 @@
 package org.urm.action.main;
 
 import org.urm.action.ActionBase;
-import org.urm.client.ClientEngine;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.jmx.RemoteCall;
-import org.urm.engine.action.CommandOutput;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 
 public class ActionServer extends ActionBase {
 
 	String OP;
 	
-	class ActionServerClient extends ClientEngine {
-
-		@Override
-		public void output( Throwable e ) {
-			ActionServer.this.log( "remove call" , e );
-		}
-		
-		@Override
-		public void println( String s ) {
-			ActionServer.this.logExact( s , CommandOutput.LOGLEVEL_EXACT );
-		}
-	}
-	
 	public ActionServer( ActionBase action , String stream , String OP ) {
-		super( action , stream , "Server operation, cmd=" + OP );
+		super( action , stream );
 		this.OP = OP;
 	}
 
-	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		if( OP.equals( "start" ) )
 			executeServerStart();
 		else if( OP.equals( "stop" ) )
@@ -56,8 +40,7 @@ public class ActionServer extends ActionBase {
 	
 	private void executeServerStop() throws Exception {
 		info( "stopping server ..." );
-		ActionServerClient client = new ActionServerClient();
-		RemoteCall call = new RemoteCall( client , context.options );
+		RemoteCall call = new RemoteCall( context.options );
 		if( !serverConnect( call ) )
 			info( "server is not running on url=" + call.URL );
 		else {
@@ -79,8 +62,7 @@ public class ActionServer extends ActionBase {
 	
 	private void executeServerStatus() throws Exception {
 		info( "check server status ..." );
-		ActionServerClient client = new ActionServerClient();
-		RemoteCall call = new RemoteCall( client , context.options );
+		RemoteCall call = new RemoteCall( context.options );
 		if( !serverConnect( call ) )
 			info( "server not running on url=" + call.URL );
 		else {

@@ -52,9 +52,5 @@ public class _Error {
 	public static final int UnableCreateDirectory1 = ErrorBase + 43;
 	public static final int UnknownDatacenter1 = ErrorBase + 44;
 	public static final int AccessTypeNotSupported1 = ErrorBase + 45;
-	public static final int UnableCreateRemoteShell0 = ErrorBase + 46;
-	public static final int MissingDatacenter0 = ErrorBase + 47;
-	public static final int UnableConnectAccount1 = ErrorBase + 48;
-	public static final int ShellUnavailable1 = ErrorBase + 49;
 	
 }

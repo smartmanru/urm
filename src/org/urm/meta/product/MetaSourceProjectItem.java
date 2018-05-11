@@ -1,35 +1,33 @@
 package org.urm.meta.product;
 
-import org.urm.db.core.DBEnums.*;
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.common.ConfReader;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class MetaSourceProjectItem {
 
-	public static String PROPERTY_NAME = "name";
-	public static String PROPERTY_DESC = "desc";
-	public static String PROPERTY_SRCTYPE = "type";
-	public static String PROPERTY_BASENAME = "basename";
-	public static String PROPERTY_EXT = "extension";
-	public static String PROPERTY_STATICEXT = "staticextension";
-	public static String PROPERTY_PATH = "itempath";
-	public static String PROPERTY_VERSION = "version";
-	public static String PROPERTY_NODIST = "internal";
-	
-	public int ID;
-	public String NAME;
-	public String DESC;
-	public DBEnumSourceItemType SOURCEITEM_TYPE;
-	public String BASENAME;
-	public String EXT;
-	public String STATICEXT;
-	public String PATH;
-	public String FIXED_VERSION;
+	public String ITEMNAME;
+	public String ITEMBASENAME;
+	public VarITEMSRCTYPE ITEMSRCTYPE;
+	public String ITEMEXTENSION;
+	public String ITEMVERSION;
+	public String ITEMSTATICEXTENSION;
 	public boolean INTERNAL;
-	public int PV;
-	public DBEnumChangeType CHANGETYPE;
 	
-	public MetaDistrBinaryItem distItem;
+	public String SVN_ITEMPATH;
+	
+	public String NEXUS_ITEMPATH;
+	
+	public String NUGET_ITEMPATH;
+	public String NUGET_PLATFORM;
+	public String NUGET_LIBNAME;
 
-	public Meta meta;
+	protected Meta meta;
 	public MetaSourceProject project;
 	
 	public MetaSourceProjectItem( Meta meta , MetaSourceProject project ) {
@@ -37,99 +35,112 @@ public class MetaSourceProjectItem {
 		this.project = project;
 	}
 	
-	public MetaSourceProjectItem copy( Meta rmeta , MetaSourceProject rproject ) throws Exception {
-		MetaSourceProjectItem r = new MetaSourceProjectItem( rmeta , rproject );
+	public void load( ActionBase action , Node node ) throws Exception {
+		ITEMNAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOT );
 		
-		r.ID = ID;
-		r.NAME = NAME;
-		r.DESC = DESC;
-		r.SOURCEITEM_TYPE = SOURCEITEM_TYPE;
-		r.BASENAME = BASENAME;
-		r.EXT = EXT;
-		r.STATICEXT = STATICEXT;
-		r.PATH = PATH;
-		r.FIXED_VERSION = FIXED_VERSION;
+		ITEMSRCTYPE = Types.getItemSrcType( ConfReader.getRequiredAttrValue( node , "type" ) , false );
+		ITEMBASENAME = ConfReader.getAttrValue( node , "basename" );
+		if( ITEMBASENAME.isEmpty() )
+			ITEMBASENAME = ITEMNAME;
+
+		INTERNAL = ConfReader.getBooleanAttrValue( node , "internal" , false );
+		ITEMEXTENSION = ConfReader.getAttrValue( node , "extension" );
+		ITEMVERSION = ConfReader.getAttrValue( node , "version" );
+
+		if( isStoredInSvn( action ) ) {
+			SVN_ITEMPATH = ConfReader.getAttrValue( node , "svn.path" );
+		}
+
+		if( isStoredInNexus( action ) ) {
+			NEXUS_ITEMPATH = ConfReader.getAttrValue( node , "nexus.path" );
+		}
+
+		if( isStoredInNuget( action ) ) {
+			NUGET_ITEMPATH = ConfReader.getAttrValue( node , "nuget.path" );
+			NUGET_PLATFORM = ConfReader.getAttrValue( node , "nuget.platform" );
+			NUGET_LIBNAME = ConfReader.getAttrValue( node , "nuget.libname" );
+		}
+
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.STATICWAR ) {
+			ITEMSTATICEXTENSION = ConfReader.getAttrValue( node , "staticextension" );
+			NEXUS_ITEMPATH = ConfReader.getAttrValue( node , "nexus.path" );
+
+			if( ITEMSTATICEXTENSION.isEmpty() )
+				ITEMSTATICEXTENSION="-webstatic.tar.gz";
+		}
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , ITEMNAME );
+		
+		Common.xmlSetElementAttr( doc , root , "type" , Common.getEnumLower( ITEMSRCTYPE ) );
+		Common.xmlSetElementAttr( doc , root , "basename" , ITEMBASENAME );
+
+		Common.xmlSetElementAttr( doc , root , "internal" , Common.getBooleanValue( INTERNAL ) );
+		Common.xmlSetElementAttr( doc , root , "extension" , ITEMEXTENSION );
+		Common.xmlSetElementAttr( doc , root , "version" , ITEMVERSION );
+		Common.xmlSetElementAttr( doc , root , "svn.path" , SVN_ITEMPATH );
+
+		Common.xmlSetElementAttr( doc , root , "nexus.path" , NEXUS_ITEMPATH );
+
+		Common.xmlSetElementAttr( doc , root , "nuget.path" , NUGET_ITEMPATH );
+		Common.xmlSetElementAttr( doc , root , "nuget.platform" , NUGET_PLATFORM );
+		Common.xmlSetElementAttr( doc , root , "nuget.libname" , NUGET_LIBNAME );
+
+		Common.xmlSetElementAttr( doc , root , "staticextension" , ITEMSTATICEXTENSION );
+	}
+	
+	public MetaSourceProjectItem copy( ActionBase action , Meta meta , MetaSourceProject project ) throws Exception {
+		MetaSourceProjectItem r = new MetaSourceProjectItem( meta , project );
+		r.ITEMNAME = ITEMNAME;
+		
+		r.ITEMSRCTYPE = ITEMSRCTYPE;
+		r.ITEMBASENAME = ITEMBASENAME;
+
 		r.INTERNAL = INTERNAL;
-		r.PV = PV;
-		r.CHANGETYPE = CHANGETYPE;
-		
+		r.ITEMEXTENSION = ITEMEXTENSION;
+		r.ITEMVERSION = ITEMVERSION;
+		r.SVN_ITEMPATH = SVN_ITEMPATH;
+
+		r.NEXUS_ITEMPATH = NEXUS_ITEMPATH;
+
+		r.NUGET_ITEMPATH = NUGET_ITEMPATH;
+		r.NUGET_PLATFORM = NUGET_PLATFORM;
+		r.NUGET_LIBNAME = NUGET_LIBNAME;
+
+		r.ITEMSTATICEXTENSION = ITEMSTATICEXTENSION;
+		r.NEXUS_ITEMPATH = NEXUS_ITEMPATH;
 		return( r );
 	}
 	
-	public void createItem( String name , String desc ) throws Exception {
-		modifyItem( name , desc );
+	public boolean isStoredInSvn( ActionBase action ) throws Exception {
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.SVN || ITEMSRCTYPE == VarITEMSRCTYPE.SVNOLD || ITEMSRCTYPE == VarITEMSRCTYPE.SVNNEW )
+			return( true );
+		return( false );
 	}
 	
-	public void modifyItem( String name , String desc ) throws Exception {
-		this.NAME = name;
-		this.DESC = desc;
-	}
-	
-	public void setSourceData( DBEnumSourceItemType srcType , String basename , String ext , String staticext , String path , String version , boolean internal ) throws Exception {
-		this.SOURCEITEM_TYPE = srcType;
-		this.BASENAME = basename;
-		this.EXT = ext;
-		this.STATICEXT = staticext;
-		this.PATH = path;
-		this.FIXED_VERSION = version;
-		this.INTERNAL = internal;
-	}
-	
-	public void setDistItem( MetaDistrBinaryItem distItem ) throws Exception {
-		this.distItem = distItem;
-		this.INTERNAL = ( distItem == null )? true : false;
-	}
-	
-	public boolean isInternal() {
-		if( INTERNAL )
+	public boolean isStoredInSvnOld( ActionBase action ) throws Exception {
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.SVN || ITEMSRCTYPE == VarITEMSRCTYPE.SVNOLD )
 			return( true );
 		return( false );
 	}
 
-	public boolean isTargetLocal() {
-		if( isSourceDirectory() )
+	public boolean isStoredInSvnNew( ActionBase action ) throws Exception {
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.SVNNEW )
 			return( true );
 		return( false );
 	}
-	
-	public boolean isSourceDirectory() {
-		if( SOURCEITEM_TYPE == DBEnumSourceItemType.DIRECTORY )
+
+	public boolean isStoredInNexus( ActionBase action ) throws Exception {
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.NEXUS || ITEMSRCTYPE == VarITEMSRCTYPE.STATICWAR )
 			return( true );
 		return( false );
 	}
-	
-	public boolean isSourceBasic() {
-		if( SOURCEITEM_TYPE == DBEnumSourceItemType.BASIC )
+
+	public boolean isStoredInNuget( ActionBase action ) throws Exception {
+		if( ITEMSRCTYPE == VarITEMSRCTYPE.NUGET || ITEMSRCTYPE == VarITEMSRCTYPE.NUGET_PLATFORM )
 			return( true );
 		return( false );
 	}
-	
-	public boolean isSourcePackage() {
-		if( SOURCEITEM_TYPE == DBEnumSourceItemType.PACKAGE )
-			return( true );
-		return( false );
-	}
-	
-	public boolean isSourceStaticWar() {
-		if( SOURCEITEM_TYPE == DBEnumSourceItemType.STATICWAR )
-			return( true );
-		return( false );
-	}
-	
-	public String getArtefactSampleFile() {
-		String value = BASENAME;
-		if( SOURCEITEM_TYPE == DBEnumSourceItemType.BASIC || SOURCEITEM_TYPE == DBEnumSourceItemType.PACKAGE || SOURCEITEM_TYPE == DBEnumSourceItemType.CUSTOM ) {
-			if( !FIXED_VERSION.isEmpty() )
-				value += "-" + FIXED_VERSION;
-			value += EXT;
-		}
-		else
-		if( SOURCEITEM_TYPE == DBEnumSourceItemType.DIRECTORY )
-			value = BASENAME;
-		else
-		if( SOURCEITEM_TYPE == DBEnumSourceItemType.STATICWAR )
-			value = BASENAME + EXT + "/" + BASENAME + STATICEXT;
-		return( value );
-	}
-	
+
 }

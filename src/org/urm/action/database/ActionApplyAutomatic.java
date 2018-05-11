@@ -1,53 +1,46 @@
 package org.urm.action.database;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLTYPE;
-import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDistScope;
-import org.urm.engine.dist.ReleaseDistScopeDelivery;
-import org.urm.engine.dist.ReleaseDistScopeSet;
-import org.urm.engine.shell.Shell;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
+import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.LogStorage;
-import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
-import org.urm.meta.product.MetaProductCoreSettings;
+import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaProductSettings;
 
 public class ActionApplyAutomatic extends ActionBase {
 
 	Dist dist;
-	ReleaseDistScopeDelivery optDelivery;
+	ReleaseDelivery optDelivery;
 	String indexScope;
 	LogStorage logs;
 	
 	boolean applyFailed;
 
-	public ActionApplyAutomatic( ActionBase action , String stream , Dist dist , ReleaseDistScopeDelivery optDelivery , String indexScope ) {
-		super( action , stream , "Apply database changes, release=" + dist.RELEASEDIR );
+	public ActionApplyAutomatic( ActionBase action , String stream , Dist dist , ReleaseDelivery optDelivery , String indexScope ) {
+		super( action , stream );
 		this.dist = dist;
 		this.optDelivery = optDelivery;
 		this.indexScope = indexScope;
 	}
 
-	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		logs = artefactory.getDatabaseLogStorage( this , scope.meta , dist.release.RELEASEVER );
 		info( "log to " + logs.logFolder.folderPath );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
@@ -56,7 +49,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		info( "apply changes to database=" + server.NAME + " ..." );
 		
 		applyFailed = false;
-		if( applyDatabase( target.set.scope.releaseDistScope , server , client ) )
+		if( applyDatabase( server , client ) )
 			info( "apply done." );
 		
 		if( applyFailed )
@@ -65,35 +58,26 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private boolean applyDatabase( ReleaseDistScope scope , MetaEnvServer server , DatabaseClient client ) throws Exception {
+	private boolean applyDatabase( MetaEnvServer server , DatabaseClient client ) throws Exception {
 		boolean done = false;
-		String[] versions = dist.release.getApplyVersions();
+		String[] versions = dist.release.getApplyVersions( this );
 		for( String version : versions )
-			if( applyDatabaseVersion( scope , server , client , logs , version ) )
+			if( applyDatabaseVersion( server , client , logs , version ) )
 				done = true;
 		
 		return( done );
 	}
 
-	private boolean applyDatabaseVersion( ReleaseDistScope scope , MetaEnvServer server , DatabaseClient client , LogStorage logs , String version ) throws Exception {
+	private boolean applyDatabaseVersion( MetaEnvServer server , DatabaseClient client , LogStorage logs , String version ) throws Exception {
 		info( version + " " + getMode() + ": apply database changes ..." );
 		
-		ReleaseDistScopeSet set = scope.findCategorySet( DBEnumScopeCategoryType.DB );
-		if( set == null || set.isEmpty() ) {
-			info( version + " " + getMode() + ": nothing to apply." );
-			return( true );
-		}
-			
 		DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 		if( !registry.startApplyRelease( this , dist.release ) )
 			return( false );
 
 		boolean done = false;
-		Map<String,MetaDatabaseSchema> schemaSet = new HashMap<String,MetaDatabaseSchema>();
-		for( MetaDatabaseSchema schema : server.getSchemaSet() )
-			schemaSet.put( schema.NAME , schema );
-		
-		for( ReleaseDistScopeDelivery releaseDelivery : set.getDeliveries() ) {
+		Map<String,MetaDatabaseSchema> schemaSet = server.getSchemaSet( this );
+		for( ReleaseDelivery releaseDelivery : dist.release.getDeliveries( this ).values() ) {
 			if( optDelivery == null || optDelivery == releaseDelivery )
 				if( applyDelivery( server , client , registry , version , releaseDelivery , schemaSet , logs ) )
 					done = true;
@@ -116,7 +100,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( done );
 	}
 	
-	private boolean applyDelivery( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , String version , ReleaseDistScopeDelivery releaseDelivery , Map<String,MetaDatabaseSchema> schemaSet , LogStorage logs ) throws Exception {
+	private boolean applyDelivery( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , String version , ReleaseDelivery releaseDelivery , Map<String,MetaDatabaseSchema> schemaSet , LogStorage logs ) throws Exception {
 		LocalFolder logReleaseCopy = logs.getDatabaseLogReleaseCopyFolder( this , server , releaseDelivery , version );
 		LocalFolder logReleaseExecute = logs.getDatabaseLogExecuteFolder( this , server , releaseDelivery , version );
 		
@@ -129,7 +113,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( true );
 	}
 
-	private boolean createRunSet( MetaEnvServer server , ReleaseDistScopeDelivery releaseDelivery , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , Map<String,MetaDatabaseSchema> schemaSet , String version ) throws Exception {
+	private boolean createRunSet( MetaEnvServer server , ReleaseDelivery releaseDelivery , LocalFolder logReleaseCopy , LocalFolder logReleaseExecute , Map<String,MetaDatabaseSchema> schemaSet , String version ) throws Exception {
 		String distFolder = dist.getDeliveryDatabaseScriptFolder( this , releaseDelivery.distDelivery , version );
 		FileSet files = dist.getFiles( this );
 		FileSet deliveryFiles = files.getDirByPath( this , distFolder );
@@ -144,7 +128,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		scriptFolder.ensureExists( this );
 		logReleaseExecute.ensureExists( this );
 		
-		for( String file : deliveryFiles.getAllFiles() ) {
+		for( String file : deliveryFiles.files.keySet() ) {
 			if( checkApplicable( server , file , schemaSet ) ) {
 				prepareFile( server , scriptFolder , logReleaseExecute , distFolder , file );
 				copy = true;
@@ -163,9 +147,8 @@ public class ActionApplyAutomatic extends ActionBase {
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
 		ConfBuilder builder = new ConfBuilder( this , server.meta );
-		MetaProductSettings settings = server.meta.getProductSettings();
-		MetaProductCoreSettings core = settings.getCoreSettings();
-		builder.configureFile( logReleaseExecute , file , server , null , core.charset );
+		MetaProductSettings settings = server.meta.getProductSettings( this );
+		builder.configureFile( logReleaseExecute , file , server , null , settings.charset );
 		
 		if( !dsf.REGIONALINDEX.equals( "RR" ) )
 			return;
@@ -187,7 +170,7 @@ public class ActionApplyAutomatic extends ActionBase {
 				String newName = dsf.getDistFile();
 				
 				shell.customCheckStatus( this , logReleaseExecute.folderPath , "sed " + Common.getQuoted( "s/@region@/" + region + "/g" ) + 
-						" " + file + " > " + newName , Shell.WAIT_DEFAULT ); 
+						" " + file + " > " + newName ); 
 			}
 		}
 		
@@ -199,9 +182,9 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		
-		MetaDatabase database = server.meta.getDatabase();
-		MetaDatabaseSchema schema = database.getSchema( dsf.SRCSCHEMA );
-		if( !schemaSet.containsKey( schema.NAME ) ) {
+		MetaDatabase database = server.meta.getDatabase( this );
+		MetaDatabaseSchema schema = database.getSchema( this , dsf.SRCSCHEMA );
+		if( !schemaSet.containsKey( schema.SCHEMA ) ) {
 			trace( "script " + file + " is filtered by schema" );
 			return( false );
 		}
@@ -230,12 +213,12 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( true );
 	}
 
-	private boolean executeRunSet( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , ReleaseDistScopeDelivery releaseDelivery , LocalFolder logReleaseExecute , String version ) throws Exception {
+	private boolean executeRunSet( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , ReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute , String version ) throws Exception {
 		registry.readDeliveryState( this , releaseDelivery.distDelivery );
 
 		FileSet files = logReleaseExecute.getFileSet( this );
 		boolean ok = true;
-		for( String file : files.getAllFiles() ) {
+		for( String file : Common.getSortedKeys( files.files ) ) {
 			if( !executeRunSetScript( server , client , registry , releaseDelivery , logReleaseExecute , file ) )
 				ok = false;
 		}
@@ -243,7 +226,7 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( ok );
 	}
 
-	private boolean executeRunSetScript( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , ReleaseDistScopeDelivery releaseDelivery , LocalFolder logReleaseExecute , String file ) throws Exception {
+	private boolean executeRunSetScript( MetaEnvServer server , DatabaseClient client , DatabaseRegistry registry , ReleaseDelivery releaseDelivery , LocalFolder logReleaseExecute , String file ) throws Exception {
 		if( !registry.checkNeedApply( this , releaseDelivery.distDelivery , file ) )
 			return( true );
 		
@@ -257,8 +240,8 @@ public class ActionApplyAutomatic extends ActionBase {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		String schemaName = dsf.SRCSCHEMA;
-		MetaDatabase database = server.meta.getDatabase();
-		MetaDatabaseSchema schema = database.getSchema( schemaName );
+		MetaDatabase database = server.meta.getDatabase( this );
+		MetaDatabaseSchema schema = database.getSchema( this , schemaName );
 		if( !client.applyScript( this , schema , logReleaseExecute , file , logReleaseExecute , log ) ) {
 			ifexit( _Error.ErrorApplyingScript1 , "error applying script " + file + ", see logs" , new String[] { file } );
 			return( false );

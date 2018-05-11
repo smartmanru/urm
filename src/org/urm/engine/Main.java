@@ -5,7 +5,6 @@ import org.urm.common.RunError;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandOptions;
-import org.urm.common.action.OptionsMeta;
 import org.urm.engine.executor.MainExecutor;
 
 public class Main {
@@ -37,13 +36,12 @@ public class Main {
 		if( !execrc.isMain() )
 			Common.exit0( _Error.MainExecutorExpected0 , "only main executor id expected" );
 
-		Engine engine = new Engine( execrc );
+		ServerEngine engine = new ServerEngine( execrc );
 		engine.init();
 		MainExecutor serverExecutor = MainExecutor.createExecutor( engine );
 		
 		// server run options
-		OptionsMeta meta = new OptionsMeta();
-		CommandBuilder builder = new CommandBuilder( execrc , execrc , meta );
+		CommandBuilder builder = new CommandBuilder( execrc , execrc );
 		CommandOptions options = serverExecutor.createOptionsByArgs( builder , args );
 		if( options == null )
 			return( false );

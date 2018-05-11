@@ -2,11 +2,9 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
-import org.urm.engine.shell.Shell;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 
 public class ActionChangeHosts extends ActionBase {
 
@@ -15,14 +13,14 @@ public class ActionChangeHosts extends ActionBase {
 	String opAddress;
 	
 	public ActionChangeHosts( ActionBase action , String stream , String cmd , String opHost , String opAddress ) {
-		super( action , stream , "Change hosts, cmd=" + cmd + ", host=" + opHost + ", address=" + opAddress );
+		super( action , stream );
 		
 		this.cmd = cmd;
 		this.opHost = opHost;
 		this.opAddress = opAddress;
 	}
 
-	@Override protected SCOPESTATE executeAccount( ScopeState state , ActionScopeSet set , Account account ) throws Exception {
+	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {
 		if( cmd.equals( "set" ) )
 			executeSet( account );
 		
@@ -38,21 +36,21 @@ public class ActionChangeHosts extends ActionBase {
 	private void executeSet( Account account ) throws Exception {
 		super.executeCmdLive( account , "cat /etc/hosts | grep -v " + opHost + " | grep -v " + opAddress + 
 			" > /etc/hosts.new; echo " + Common.getQuoted( opHost + " " + opAddress ) + 
-			" >> /etc/hosts.new; mv /etc/hosts.new /etc/hosts" , Shell.WAIT_DEFAULT );
+			" >> /etc/hosts.new; mv /etc/hosts.new /etc/hosts" );
 	}
 
 	private void executeDelete( Account account ) throws Exception {
 		if( !opAddress.isEmpty() )
 			super.executeCmdLive( account , "cat /etc/hosts | grep -v " + opHost + " | grep -v " + opAddress +
-				" > /etc/hosts.new; mv /etc/hosts.new /etc/hosts" , Shell.WAIT_DEFAULT );
+				" > /etc/hosts.new; mv /etc/hosts.new /etc/hosts" );
 		else
 			super.executeCmdLive( account , "cat /etc/hosts | grep -v " + opHost + 
-				" > /etc/hosts.new; mv /etc/hosts.new /etc/hosts" , Shell.WAIT_DEFAULT );
+				" > /etc/hosts.new; mv /etc/hosts.new /etc/hosts" );
 	}
 
 	private void executeCheck( Account account ) throws Exception {
 		if( opAddress.isEmpty() ) {
-			String res = super.executeCmdGetValue( account , "cat /etc/hosts | grep " + opHost , Shell.WAIT_DEFAULT );
+			String res = super.executeCmdGetValue( account , "cat /etc/hosts | grep " + opHost );
 			if( res.isEmpty() ) {
 				error( account.getPrintName() + ": missing " + opHost );
 				return;
@@ -67,7 +65,7 @@ public class ActionChangeHosts extends ActionBase {
 		}	
 		else {
 			String res = super.executeCmdGetValue( account , "cat /etc/hosts | egrep " + 
-				Common.getQuoted( opHost + "|" + opAddress ) , Shell.WAIT_DEFAULT );
+				Common.getQuoted( opHost + "|" + opAddress ) );
 			if( res.isEmpty() ) {
 				info( account.getPrintName() + ": missing " + opHost );
 				return;

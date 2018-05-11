@@ -5,28 +5,26 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerDeployment;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionSaveConfigs extends ActionBase {
 
 	public ActionSaveConfigs( ActionBase action , String stream ) {
-		super( action , stream , "Save environment configuration" );
+		super( action , stream );
 	}
 
-	@Override protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {
+	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scope.meta );
-		if( scope.isPartialEnv() == false && isForced() )
+		if( scope.scopeFull && context.CTX_FORCE )
 			deleteOldConfServers( scope );
 		
 		// check need to tag configuration
@@ -36,10 +34,10 @@ public class ActionSaveConfigs extends ActionBase {
 		}
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer; 
 		if( !server.isConfigurable() ) {
-			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName() );
+			debug( "ignore server=" + server.NAME + ", type=" + server.getServerTypeName( this ) );
 			return( SCOPESTATE.NotRun );
 		}
 
@@ -56,7 +54,7 @@ public class ActionSaveConfigs extends ActionBase {
 		}
 
 		// delete old
-		if( isForced() && target.itemFull )
+		if( context.CTX_FORCE && target.itemFull )
 			deleteOldConfItems( server , F_REDIST_SAVEITEMS );
 		
 		return( SCOPESTATE.RunSuccess );
@@ -70,20 +68,18 @@ public class ActionSaveConfigs extends ActionBase {
 		String vcsCompList = "";
 		
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.isConfItem() ) {
-				MetaDistrConfItem confItem = deployment.getConfItem();
-				String name = sourceStorage.getConfItemLiveName( this , node , confItem );
-				executeNodeConf( sourceStorage , server , node , deployment , confItem , name );
+			if( deployment.confItem != null ) {
+				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
+				executeNodeConf( sourceStorage , server , node , deployment , deployment.confItem , name );
 				vcsCompList = Common.addItemToUniqueSpacedList( vcsCompList , name );
 				continue;
 			}
 			
 			// deployments
-			if( !deployment.isComponent() )
+			if( deployment.comp == null )
 				continue;
 			
-			MetaDistrComponent comp = deployment.getComponent();
-			for( MetaDistrComponentItem compItem : comp.getConfItems() ) {
+			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( sourceStorage , server , node , deployment , compItem.confItem , name );
@@ -153,7 +149,7 @@ public class ActionSaveConfigs extends ActionBase {
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		if( !redist.getConfigItem( this , folder , confItem , LOCATION ) ) {
-			ifexit( _Error.UnableGetApplicationConf1 , "unable to get configuration item=" + confItem.NAME , new String[] { confItem.NAME } );
+			ifexit( _Error.UnableGetApplicationConf1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
 			return;
 		}
 		

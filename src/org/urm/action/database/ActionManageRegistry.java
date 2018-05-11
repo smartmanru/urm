@@ -6,11 +6,10 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaEnvServer;
 
 public class ActionManageRegistry extends ActionBase {
 
@@ -20,14 +19,14 @@ public class ActionManageRegistry extends ActionBase {
 	String indexScope;
 	
 	public ActionManageRegistry( ActionBase action , String stream , String RELEASEVER , String CMD , MetaDistrDelivery delivery , String indexScope ) {
-		super( action , stream , "Change database registry, release=" + RELEASEVER + ", CMD=" + CMD );
+		super( action , stream );
 		this.RELEASEVER = RELEASEVER;
 		this.CMD = CMD;
 		this.delivery = delivery;
 		this.indexScope = ( indexScope == null )? "" : indexScope;
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )

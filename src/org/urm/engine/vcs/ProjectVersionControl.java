@@ -3,27 +3,25 @@ package org.urm.engine.vcs;
 import org.urm.action.ActionBase;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaSourceProject;
 
 public class ProjectVersionControl {
 
 	ActionBase action;
 	Artefactory artefactory;
+	public boolean build;
 	
-	public ProjectVersionControl( ActionBase action ) {
+	public ProjectVersionControl( ActionBase action , boolean build ) {
 		this.action = action;
 		this.artefactory = action.artefactory;
-	}
-
-	private GenericVCS getVCS( MetaSourceProject project ) throws Exception {
-		return( getVCS( project , null ) );
+		this.build = build;
 	}
 	
-	private GenericVCS getVCS( MetaSourceProject project , ProjectBuilder builder ) throws Exception {
-		MirrorRepository repo = project.getMirror( action );
-		return( GenericVCS.getVCS( action , project.meta , repo.RESOURCE_ID , false , builder ) );
+	private GenericVCS getVCS( MetaSourceProject project ) throws Exception {
+		if( !build )
+			return( GenericVCS.getVCS( action , project.meta , project.getVCS( action ) ) );
+		String BUILDER = project.getBuilder( action );
+		return( GenericVCS.getVCS( action , project.meta , project.getVCS( action ) , BUILDER , false ) );
 	}
 
 	public String checkDefaultBranch( GenericVCS vcs , String BRANCH ) {
@@ -31,18 +29,9 @@ public class ProjectVersionControl {
 			return( vcs.getMainBranch() );
 		return( BRANCH );
 	}
-
-	public String[] listBranches( MetaSourceProject project ) throws Exception {
-		GenericVCS vcs = getVCS( project );
-		return( vcs.getBranches( project ) );
-	}
-	
-	public String[] listTags( MetaSourceProject project ) throws Exception {
-		GenericVCS vcs = getVCS( project );
-		return( vcs.getTags( project ) );
-	}
 	
 	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) {
+		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
 			action.info( "checkout PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + " ..." );
@@ -53,14 +42,15 @@ public class ProjectVersionControl {
 		catch( Throwable e ) {
 			action.handle( e );
 		}
+		action.setTimeout( timeout );
 		return( res );
 	}
 	
-	public boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHFOLDER , String MESSAGE ) {
+	public boolean commit( LocalFolder PATCHFOLDER , MetaSourceProject project , String MESSAGE ) {
 		try {
 			action.info( "commit PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.NAME + ", MESSAGE=" + MESSAGE + " ..." );
 			GenericVCS vcs = getVCS( project );
-			return( vcs.commit( project , BRANCH , PATCHFOLDER , MESSAGE ) );
+			return( vcs.commit( project , PATCHFOLDER , MESSAGE ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -170,17 +160,19 @@ public class ProjectVersionControl {
 		return( false );
 	}
 
-	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE , ProjectBuilder builder ) {
+	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE ) {
+		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
 			action.info( "export PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
-			GenericVCS vcs = getVCS( project , builder );
+			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
 			res = vcs.export( project , PATCHFOLDER , BRANCH , TAG , SINGLEFILE );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
 		}
+		action.setTimeout( timeout );
 		return( res );
 	}
 

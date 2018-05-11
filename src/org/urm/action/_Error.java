@@ -27,11 +27,5 @@ public class _Error {
 	public static final int BuildVersionNotSet0 = ErrorBase + 18;
 	public static final int InternalActionError1 = ErrorBase + 19;
 	public static final int MissingMirrorConfig0 = ErrorBase + 20;
-	public static final int AccessDenied0 = ErrorBase + 21;
-	public static final int MissingEnvironment0 = ErrorBase + 22;
-	public static final int MissingBuildMode0 = ErrorBase + 23;
-	public static final int ActionStopped0 = ErrorBase + 24;
-	public static final int MissingDocItems0 = ErrorBase + 25;
-	public static final int UnableToUpgrade2 = ErrorBase + 26;
 
 }

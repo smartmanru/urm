@@ -1,74 +1,40 @@
 package org.urm.action.monitor;
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-import java.util.Date;
-
 import org.rrd4j.ConsolFun;
 import org.rrd4j.DsType;
 import org.rrd4j.core.RrdDb;
 import org.rrd4j.core.RrdDef;
-import org.rrd4j.core.Sample;
 import org.rrd4j.core.Util;
-import org.rrd4j.graph.RrdGraph;
-import org.rrd4j.graph.RrdGraphDef;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
-import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env.MetaMonitoringTarget;
-import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaMonitoringTarget;
 
 public class MonitorTargetInfo {
 
-	public Meta meta;
-	public MetaMonitoringTarget target;
-	public MonitoringStorage storage;
+	MetaMonitoringTarget target;
 	
-	public long timeLastMajor;
-	public long timeLastMinor;
+	public long timeMajor;
 	public boolean statusMajor;
 	public boolean statusMinor;
-	public boolean validMajor;
-	public boolean validMinor;
 	
 	RrdDb rrdDb;
 	boolean rrdDbFail;
 	String F_RRDFILE;
 	
-	public MonitorTargetInfo( MetaMonitoringTarget target , MonitoringStorage storage ) {
+	public MonitorTargetInfo( MetaMonitoringTarget target ) {
 		this.target = target;
-		this.meta = target.envs.meta;
-		this.storage = storage;
 		rrdDbFail = false;
-		validMajor = false;
-		validMinor = false;
-		statusMajor = false;
-		statusMinor = false;
-	}
-
-	public boolean isAvailable() {
-		if( target.MAJOR_ENABLED || target.MINOR_ENABLED ) {
-			if( target.MAJOR_ENABLED && !validMajor )
-				return( false );
-			if( target.MINOR_ENABLED && !validMinor )
-				return( false );
-			return( true );
-		}
-		return( false );
 	}
 	
-	private void setLastMajor( boolean statusMajor , long timeMillis ) throws Exception {
+	public void setLastMajor( boolean statusMajor , long timeMajor ) throws Exception {
 		this.statusMajor = statusMajor;
-		this.timeLastMajor = timeMillis;
-		validMajor = true;
+		this.timeMajor = timeMajor; 
 	}
 	
-	private void setLastMinor( boolean statusMinor , long timeMillis ) throws Exception {
+	public void setLastMinor( boolean statusMinor ) throws Exception {
 		this.statusMinor = statusMinor;
-		this.timeLastMinor = timeMillis;
-		validMinor = true;
 	}
 
 	public void stop( ActionBase action ) {
@@ -135,191 +101,6 @@ public class MonitorTargetInfo {
 		}
 		
 		return( true );
-	}
-	
-	public void addCheckEnvData( ActionBase action , long timeMillis , boolean status ) throws Exception {
-		MetaEnvSegment sg = target.getSegment();
-		action.info( "addCheckEnvData: product=" + target.envs.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
-				", timeMillis=" + timeMillis + ", succeeded:" + Common.getBooleanValue( status ) );
-		setLastMajor( status , timeMillis );
-	}
-
-	public void addCheckMinorsData( ActionBase action , long timeMillis , boolean status ) throws Exception {
-		MetaEnvSegment sg = target.getSegment();
-		action.info( "addCheckMinorsData: product=" + target.envs.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
-				", succeeded:" + Common.getBooleanValue( status ) );
-		setLastMinor( status , timeMillis );
-	}
-
-	public void addHistoryGraph( ActionBase action ) throws Exception {
-		// add to totals, update reports
-		long timeLimit = 0;
-		if( target.MAJOR_ENABLED )
-			timeLimit += target.MAJOR_MAXTIME;
-		if( target.MINOR_ENABLED )
-			timeLimit += target.MINOR_MAXTIME;
-		addRrdRecord( action );
-		createHistoryGraph( action , timeLimit );
-		updateReport( action );
-	}
-	
-	private RrdGraph createHistoryGraph( ActionBase action , long timeLimit ) throws Exception {
-		if( rrdDbFail )
-			return( null );
-		
-		LocalFolder dataFolder = storage.getDataFolder( action , target );
-		String relativeDataFile = storage.getRrdFile( target );
-		dataFolder.ensureFolderExists( action , Common.getDirName( relativeDataFile ) );
-		String rrdfile = action.getLocalPath( dataFolder.getFilePath( action , relativeDataFile ) );
-		
-		LocalFolder reportsFolder = storage.getReportsFolder( action , target );
-		String relativeReportFile = storage.getHistoryImageFile( target );
-		reportsFolder.ensureFolderExists( action , Common.getDirName( relativeReportFile ) );
-		String F_CREATEFILE = action.getLocalPath( reportsFolder.getFilePath( action , relativeReportFile ) );
-		
-		/*
-		 * OLD COMMAND SYNTAX
-		// form graph
-		String DELAYS_GRAPH_SCALE = "-l 0 -u " + target.MAXTIME + " -r";
-		String NOW = "now";
-
-		String scale = DELAYS_GRAPH_SCALE;
-		String geometry = "-w 1024 -h 200 -i";
-
-		String now = NOW;
-		String max_color = "#FF0000";
-		String min_color = "#0000FF";
-		String avg_color = "#00FF00";
-		String color = "--color GRID#C0C0C0";
-
-		action.shell.custom( action , "rrdtool graph " + F_CREATEFILE +
-			" " + scale + " -v " + Common.getQuoted( "secs" ) + 
-			" -t " + Common.getQuoted( target.ENV + ", sg=" + target.SG + " checkenv.sh execution time (0 if not running)" ) +
-			" " + geometry + " " + color + 
-			" --color BACK#E4E4E4" +
-			" --end " + now +
-			" --start end-1d" +
-			" --x-grid MINUTE:1:HOUR:1:HOUR:1:0:%H" + 
-			" DEF:linec=" + rrdfile + ":checkenv-time:MIN:step=60 LINE1:linec" + min_color + ":" + Common.getQuoted( "Min" ) +
-			" DEF:linea=" + rrdfile + ":checkenv-time:AVERAGE:step=60 LINE1:linea" + avg_color + ":" + Common.getQuoted( "Avg" ) +
-			" DEF:lineb=" + rrdfile + ":checkenv-time:MAX:step=60 LINE1:lineb" + max_color + ":" + Common.getQuoted( "Max" ) ); 
-		 */
-		
-		MetaEnvSegment sg = target.getSegment();
-		
-		RrdGraphDef gDef = new RrdGraphDef();
-		long endTime = Util.getTime();
-		long startTime = endTime - 86400;
-		gDef.setTimeSpan( startTime , endTime );
-		gDef.setMinValue( 0 );
-		gDef.setMaxValue( timeLimit );
-		gDef.setRigid( true );
-		gDef.setWidth( 1024 );
-		gDef.setHeight( 200 );
-		gDef.setVerticalLabel( "Milliseconds" );
-		gDef.setAltYGrid( true );
-		gDef.setTitle( sg.env.NAME + ", sg=" + sg.NAME + " check segment execution time (0 if not running) - " + Common.getRefDate( new Date() ) );
-		gDef.setColor( RrdGraphDef.COLOR_GRID , Color.decode( "0xC0C0C0" ) );
-		gDef.setColor( RrdGraphDef.COLOR_BACK , Color.decode( "0xE4E4E4" ) );
-		gDef.setTimeAxis( RrdGraphDef.MINUTE , 30 , RrdGraphDef.HOUR , 1 , RrdGraphDef.HOUR , 1 , 0 , "%H" );
-		gDef.datasource( "linec" , rrdfile , "checkenv-time" , ConsolFun.MIN );
-		gDef.datasource( "linea" , rrdfile , "checkenv-time" , ConsolFun.AVERAGE );
-		gDef.datasource( "lineb" , rrdfile , "checkenv-time" , ConsolFun.MAX );
-		gDef.line( "linea" , Color.decode( "0x0000FF" ) , "Avg" );
-		gDef.line( "lineb" , Color.decode( "0xFF0000" ) , "Max" );
-		gDef.line( "linec" , Color.decode( "0x00FF00" ) , "Min" );
-		gDef.setImageFormat( "png" );
-		gDef.setFilename( F_CREATEFILE );
-		RrdGraph graph = new RrdGraph( gDef );
-		BufferedImage bi = new BufferedImage( 1024 , 200 , BufferedImage.TYPE_INT_RGB );
-		graph.render( bi.getGraphics() );
-		
-		return( graph );
-	}
-
-	private void updateReport( ActionBase action ) throws Exception {
-		MetaEnvSegment sg = target.getSegment();
-		
-		LocalFolder resourceFolder = storage.getResourceFolder( action );
-		if( !resourceFolder.checkExists( action ) ) {
-			action.trace( "environment " + sg.env.NAME + ", sg=" + sg.NAME + " - ignore create report due to missing resource folder: " + resourceFolder.folderPath );
-			return;
-		}
-		
-		// calculate status
-		boolean F_STATUS = ( statusMajor && statusMinor )? true : false;
-		
-		// form report
-		String F_IMAGEFILE;
-		String F_IMAGETEXT;
-		if( F_STATUS ) {
-			F_IMAGEFILE = storage.getRunningImageBasename();
-			F_IMAGETEXT = "environment " + sg.env.NAME + ", sg=" + sg.NAME + " is up and running";
-		}
-		else {
-			F_IMAGEFILE = storage.getFailedImageBasename();
-			F_IMAGETEXT = "environment " + sg.env.NAME + ", sg=" + sg.NAME + " is not working";
-		}
-
-		LocalFolder reportsFolder = storage.getReportsFolder( action , target );
-		String F_REPFILE = reportsFolder.getFilePath( action , storage.getStatusReportFile( target ) );
-		
-		String F_RESFILE = resourceFolder.getFilePath( action , storage.getStatusReportTemplateFile() );
-		String F_RESCONTEXT = storage.getMonitoringUrl();
-		
-		String template = action.readFile( F_RESFILE );
-		template = Common.replace( template , "@IMAGE@" , F_RESCONTEXT + "/" + F_IMAGEFILE );  
-		template = Common.replace( template , "@TEXT@" , F_IMAGETEXT );  
-		
-		Common.createFileFromString( action.execrc , F_REPFILE , template );
-	}
-
-	private void addRrdRecord( ActionBase action ) throws Exception {
-		if( !openRrdFile( action , storage ) ) {
-			action.trace( "unable to open RRD database file: " + F_RRDFILE );
-			return;
-		}
-
-		String F_RRDFILE_LOG = F_RRDFILE + ".log"; 
-
-		long timeLast = 0;
-		if( validMajor )
-			timeLast += timeLastMajor;
-		if( validMinor )
-			timeLast += timeLastMinor;
-		
-		int F_STATUSTOTAL = 100;
-		int F_ENVTOTAL = 100;
-		if( !statusMajor )
-			F_ENVTOTAL = 1;
-		if( statusMajor == false || statusMinor == false )
-			F_STATUSTOTAL = 1;
-		
-		String X_VALUES = F_STATUSTOTAL + ":" + F_ENVTOTAL + ":" + timeLast;
-		long F_TS = System.currentTimeMillis();
-		long X_TS = F_TS / 1000;
-
-		/*
-		 * OLD COMMAND SYNTAX 
-		if( !action.shell.checkFileExists( action , F_RRDFILE ) )
-			createRrdFile( F_RRDFILE );
-		 */
-
-		action.trace( "add record to RRD database file: " + F_RRDFILE + " (" + X_TS + ":" + X_VALUES + ")" );
-		action.shell.appendFileWithString( action , F_RRDFILE_LOG , 
-				"rrdtool update: " + Common.getTimeStamp( F_TS ) + "=" + X_TS + ":" + X_VALUES );
-		
-		/*
-		 * OLD COMMAND SYNTAX
-		action.shell.custom( action , "rrdtool update " + F_RRDFILE + " " + X_TS + ":" + X_VALUES );
-		 */
-		
-		long t = Util.getTime();
-		Sample sample = rrdDb.createSample( t );
-		sample.setValue( "total" , F_STATUSTOTAL );
-		sample.setValue( "checkenv" , F_ENVTOTAL );
-		sample.setValue( "checkenv-time" , timeLast );
-		sample.update();
 	}
 	
 }

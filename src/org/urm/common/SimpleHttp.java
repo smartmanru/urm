@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.xml.bind.DatatypeConverter;
 
 import org.urm.action.ActionBase;
 
@@ -18,13 +17,9 @@ public class SimpleHttp {
 	public String response;
 
 	public static boolean check( ActionBase action , String url ) {
-		return( check( action , url , null , null ) );
-	}
-	
-	public static boolean check( ActionBase action , String url , String user , String password ) {
 		SimpleHttp http = new SimpleHttp();
 		try {
-			http.checkURL( action , url , user , password );
+			http.checkURL( action , url );
 			return( http.valid( action ) );
 		}
 		catch( Throwable e ) {
@@ -33,15 +28,11 @@ public class SimpleHttp {
 		}
 		return( false );
 	}
-
-	public static SimpleHttp get( ActionBase action , String url ) {
-		return( get( action , url , null , null ) );
-	}
 	
-	public static SimpleHttp get( ActionBase action , String url , String user , String password ) {
+	public static SimpleHttp get( ActionBase action , String url ) {
 		SimpleHttp http = new SimpleHttp();
 		try {
-			http.sendGet( action , url , user , password );
+			http.sendGet( action , url );
 		}
 		catch( Throwable e ) {
 			http.responseCode = -1;
@@ -71,16 +62,9 @@ public class SimpleHttp {
 	private final String USER_AGENT = "Mozilla/5.0";
 
 	// HTTP check URL
-	private void checkURL( ActionBase action , String url , String user , String password ) throws Exception {
+	private void checkURL( ActionBase action , String url ) throws Exception {
 		HttpURLConnection.setFollowRedirects(false);
 		HttpURLConnection con = ( HttpURLConnection )new URL( url ).openConnection();
-		
-		if( user != null && !user.isEmpty() ) {
-			String userpass = user + ":" + password;
-			String encoded = DatatypeConverter.printBase64Binary( userpass.getBytes() );
-			String basicAuth = "Basic " + encoded;
-			con.setRequestProperty ("Authorization", basicAuth);
-		}
 		
 		con.setRequestMethod( "GET" );
 		con.setConnectTimeout( 2000 );
@@ -92,16 +76,9 @@ public class SimpleHttp {
 	}
 	
 	// HTTP GET request
-	private void sendGet( ActionBase action , String url , String user , String password ) throws Exception {
+	private void sendGet( ActionBase action , String url ) throws Exception {
 		URL obj = new URL( url );
 		HttpURLConnection con = ( HttpURLConnection )obj.openConnection();
-		
-		if( user != null && !user.isEmpty() ) {
-			String userpass = user + ":" + password;
-			String encoded = DatatypeConverter.printBase64Binary( userpass.getBytes() );
-			String basicAuth = "Basic " + encoded;
-			con.setRequestProperty ("Authorization", basicAuth);
-		}
 
 		// optional default is GET
 		con.setRequestMethod( "GET" );
@@ -114,7 +91,6 @@ public class SimpleHttp {
 		responseCode = con.getResponseCode();
 		action.trace( "response code: " + responseCode );
 
-		// read data
 		BufferedReader in = new BufferedReader( new InputStreamReader( con.getInputStream() ) );
 		String inputLine;
 		StringBuffer responseBuffer = new StringBuffer();

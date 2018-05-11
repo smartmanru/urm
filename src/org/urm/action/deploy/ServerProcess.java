@@ -2,42 +2,17 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.FACTVALUE;
-import org.urm.meta.engine.HostAccount;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.Types.*;
 
 public class ServerProcess {
 
-	public enum Facts {
-		PROCESSSTATE ,
-		PROCESSACTION
-	};
-	
-	public enum ProcessAction {
-		UNKNOWN ,
-		ALREADYSTARTED ,
-		ALREADYSTOPPED ,
-		PROCESSSTOP ,
-		PROCESSKILL ,
-		PROCESSSTART ,
-		UNABLETOSTART ,
-		UNABLETOSTOP ,
-		KILLED ,
-		UNABLETOKILL ,
-		STARTED ,
-		STOPPED
-	};
-	
 	MetaEnvServer srv;
 	MetaEnvServerNode node;
-	ScopeState state;
 	
-	public EnumProcessMode mode;
+	public VarPROCESSMODE mode;
 	public String pids;
 	public String cmdValue;
 	
@@ -45,60 +20,53 @@ public class ServerProcess {
 	public static int defaultStartServerTimeSecs = 60;
 	public static int defaultStopServerTimeSecs = 60;
 	
-	public ServerProcess( MetaEnvServer srv , MetaEnvServerNode node , ScopeState state ) {
+	public ServerProcess( MetaEnvServer srv , MetaEnvServerNode node ) {
 		this.srv = srv;
 		this.node = node;
-		this.state = state;
-		this.mode = EnumProcessMode.UNKNOWN;
+		this.mode = VarPROCESSMODE.UNKNOWN;
 		this.pids = "ignore";
 	}
 
 	public boolean isGeneric( ActionBase action ) throws Exception {
-		return( srv.isAccessGeneric() );
+		return( srv.isGeneric() );
 	}
 
 	public boolean isService( ActionBase action ) throws Exception {
-		return( srv.isAccessService() );
+		return( srv.isService() );
 	}
 
 	public boolean isDocker( ActionBase action ) throws Exception {
-		return( srv.isAccessDocker() );
+		return( srv.isDocker() );
 	}
 
 	public boolean isPacemaker( ActionBase action ) throws Exception {
-		return( srv.isAccessPacemaker() );
+		return( srv.isPacemaker() );
 	}
 
-	public boolean gatherStatus( ActionBase action ) throws Exception {
-		HostAccount hostAccount = node.getHostAccount();
-		action.debug( hostAccount.getFinalAccount() + ": check status srv=" + srv.NAME + " ..." );
+	public void gatherStatus( ActionBase action ) throws Exception {
+		action.debug( node.HOSTLOGIN + ": check status srv=" + srv.NAME + " ..." );
 		
-		mode = EnumProcessMode.UNKNOWN;
-		boolean res = false;
+		mode = VarPROCESSMODE.UNKNOWN;
 		if( isService( action ) )
-			res = gatherServiceStatus( action );
+			gatherServiceStatus( action );
 		else
 		if( isPacemaker( action ) )
-			res = gatherPacemakerStatus( action );
+			gatherPacemakerStatus( action );
 		else
 		if( isDocker( action ) )
-			res = gatherDockerStatus( action );
+			gatherDockerStatus( action );
 		else
 		if( isGeneric( action ) )
-			res = gatherGenericStatus( action );
+			gatherGenericStatus( action );
 		else
 			action.exitUnexpectedState();
-		
-		state.addFact( Facts.PROCESSSTATE , FACTVALUE.PROCESSMODE , mode.name() );
-		return( res );
 	}
 
 	public boolean isStarted( ActionBase action ) throws Exception {
-		HostAccount hostAccount = node.getHostAccount();
-		if( mode == EnumProcessMode.UNKNOWN )
-			action.exit1( _Error.UnknownHostState1 , "state is unknown for node=" + hostAccount.getFinalAccount() , hostAccount.getFinalAccount() );
+		if( mode == VarPROCESSMODE.UNKNOWN )
+			action.exit1( _Error.UnknownHostState1 , "state is unknown for node=" + node.HOSTLOGIN , node.HOSTLOGIN );
 		
-		if( mode == EnumProcessMode.STARTED )
+		if( mode == VarPROCESSMODE.STARTED )
 			return( true );
 		
 		return( false );
@@ -130,67 +98,48 @@ public class ServerProcess {
 		return( false );
 	}
 
-	private ShellExecutor getShell( ActionBase action ) throws Exception {
-		HostAccount hostAccount = node.getHostAccount();
-		try {
-			ShellExecutor shell = action.getShell( node );
-			return( shell );
-		}
-		catch( Throwable e ) {
-			mode = EnumProcessMode.UNREACHABLE;
-			action.error( hostAccount.getFinalAccount() + ": account is unreachable" );
-			return( null );
-		}
-	}
-	
-	private boolean gatherPacemakerStatus( ActionBase action ) throws Exception {
+	private void gatherPacemakerStatus( ActionBase action ) throws Exception {
 		if( !srv.isLinux() )
 			action.exitNotImplemented();
 		
-		ShellExecutor shell = getShell( action );
-		if( shell == null )
-			return( false );
+		ShellExecutor shell = action.getShell( node );
 		
 		try {
-			cmdValue = shell.customGetValue( action , "crm_resource -W -r " + srv.SYSNAME + " 2>&1 | grep `hostname`" , Shell.WAIT_DEFAULT );
+			cmdValue = shell.customGetValue( action , "crm_resource -W -r " + srv.SYSNAME + " 2>&1 | grep `hostname`" );
 			String check = cmdValue.toUpperCase();
 			if( isStoppedStatus( action , check ) ) {
-				mode = EnumProcessMode.STOPPED;
-				return( true );
+				mode = VarPROCESSMODE.STOPPED;
+				return;
 			}
 			
 			if( isStartedStatus( action , check ) ) {
-				mode = EnumProcessMode.STARTED;
-				return( true );
+				mode = VarPROCESSMODE.STARTED;
+				return;
 			}
 			
 			if( check.indexOf( "not found" ) >= 0 )
 				action.error( "unknown pacemaker resource: " + srv.SYSNAME );
 			
-			mode = EnumProcessMode.ERRORS;
+			mode = VarPROCESSMODE.ERRORS;
 		}
 		finally {
 			shell.release( action );
 		}
-		
-		return( true );
 	}
 	
-	private boolean gatherDockerStatus( ActionBase action ) throws Exception {
+	private void gatherDockerStatus( ActionBase action ) throws Exception {
 		if( !srv.isLinux() )
 			action.exitNotImplemented();
 		
-		ShellExecutor shell = getShell( action );
-		if( shell == null )
-			return( false );
+		ShellExecutor shell = action.getShell( node );
 		
 		try {
-			cmdValue = shell.customGetValue( action , "docker inspect " + srv.SYSNAME + " | grep Status" , Shell.WAIT_DEFAULT );
+			cmdValue = shell.customGetValue( action , "docker inspect " + srv.SYSNAME + " | grep Status" );
 			cmdValue = cmdValue.trim();
 			if( !cmdValue.startsWith( Common.getQuoted( "Status" ) + ":" ) ) {
-				mode = EnumProcessMode.ERRORS;
+				mode = VarPROCESSMODE.ERRORS;
 				action.error( "unknown docker resource: " + srv.SYSNAME );
-				return( true );
+				return;
 			}
 			
 			String check = Common.getListItem( cmdValue , ":" , 1 );
@@ -198,65 +147,57 @@ public class ServerProcess {
 			check = check.toUpperCase();
 			
 			if( isStoppedStatus( action , check ) ) {
-				mode = EnumProcessMode.STOPPED;
-				return( true );
+				mode = VarPROCESSMODE.STOPPED;
+				return;
 			}
 			
 			if( isStartedStatus( action , check ) ) {
-				mode = EnumProcessMode.STARTED;
-				return( true );
+				mode = VarPROCESSMODE.STARTED;
+				return;
 			}
 			
 			if( check.indexOf( "not found" ) >= 0 )
 				action.error( "unknown docker resource: " + srv.SYSNAME );
 			
-			mode = EnumProcessMode.ERRORS;
+			mode = VarPROCESSMODE.ERRORS;
 		}
 		finally {
 			shell.release( action );
 		}
-		
-		return( true );
 	}
 	
-	private boolean gatherServiceStatus( ActionBase action ) throws Exception {
-		ShellExecutor shell = getShell( action );
-		if( shell == null )
-			return( false );
+	private void gatherServiceStatus( ActionBase action ) throws Exception {
+		ShellExecutor shell = action.getShell( node );
 		
 		// linux operations
 		try {
 			if( srv.isLinux() ) {
-				cmdValue = shell.customGetValue( action , "service " + srv.SYSNAME + " status 2>&1" , Shell.WAIT_DEFAULT );
+				cmdValue = shell.customGetValue( action , "service " + srv.SYSNAME + " status 2>&1" );
 				
 				String check = cmdValue.toUpperCase();
 				if( isStoppedStatus( action , check ) ) {
-					mode = EnumProcessMode.STOPPED;
-					state.addFact( mode );
-					return( true );
+					mode = VarPROCESSMODE.STOPPED;
+					return;
 				}
 				
 				if( isStartedStatus( action , check ) ) {
-					mode = EnumProcessMode.STARTED;
-					state.addFact( mode );
-					return( true );
+					mode = VarPROCESSMODE.STARTED;
+					return;
 				}
 		
 				if( isStartingStatus( action , check ) ) {
-					mode = EnumProcessMode.STARTING;
-					state.addFact( mode );
-					return( true );
+					mode = VarPROCESSMODE.STARTING;
+					return;
 				}
 				
-				mode = EnumProcessMode.ERRORS;
-				state.addFact( mode );
-				return( true );
+				mode = VarPROCESSMODE.ERRORS;
+				return;
 			}
 			
 			// windows operations
 			if( srv.isWindows() ) {
 				action.exitNotImplemented();
-				return( false );
+				return;
 			}
 			
 			action.exitUnexpectedState();
@@ -264,35 +205,28 @@ public class ServerProcess {
 		finally {
 			shell.release( action );
 		}
-		
-		return( false );
 	}
 
-	private boolean gatherGenericStatus( ActionBase action ) throws Exception {
-		mode = EnumProcessMode.UNKNOWN;
+	private void gatherGenericStatus( ActionBase action ) throws Exception {
+		mode = VarPROCESSMODE.UNKNOWN;
 		
 		if( !srv.NOPIDS ) {
-			if( !getPids( action ) )
-				return( false );
+			getPids( action );
 			
 			if( pids.isEmpty() ) {
-				if( mode == EnumProcessMode.UNKNOWN )
-					mode = EnumProcessMode.STOPPED;
-				return( true );
+				mode = VarPROCESSMODE.STOPPED;
+				return;
 			}
 		}
 
 		// check process status
-		ShellExecutor shell = getShell( action );
-		if( shell == null )
-			return( false );
-		
+		ShellExecutor shell = action.getShell( node );
 		try {
 			if( srv.isLinux() )
-				cmdValue = shell.customGetValue( action , srv.getFullBinPath() , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS , Shell.WAIT_DEFAULT );
+				cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
 			else
 			if( srv.isWindows() )
-				cmdValue = shell.customGetValue( action , srv.getFullBinPath() , "call server.status.cmd " + srv.NAME + " " + action.context.CTX_EXTRAARGS , Shell.WAIT_DEFAULT );
+				cmdValue = shell.customGetValue( action , srv.getFullBinPath( action ) , "call server.status.cmd " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
 			else
 				action.exitUnexpectedState();
 		}
@@ -302,47 +236,43 @@ public class ServerProcess {
 
 		String check = cmdValue.toUpperCase();
 		if( isStartingStatus( action , check ) ) {
-			mode = EnumProcessMode.STARTING;
-			return( true );
+			mode = VarPROCESSMODE.STARTING;
+			return;
 		}
 		
 		if( srv.NOPIDS ) {
 			if( isStoppedStatus( action , check  ) ) {
-				mode = EnumProcessMode.STOPPED;
-				return( true );
+				mode = VarPROCESSMODE.STOPPED;
+				return;
 			}
 		}
 		
 		if( isStartedStatus( action , check ) ) {
-			mode = EnumProcessMode.STARTED;
-			return( true );
+			mode = VarPROCESSMODE.STARTED;
+			return;
 		}
 		
-		mode = EnumProcessMode.ERRORS;
-		return( true );
+		mode = VarPROCESSMODE.ERRORS;
 	}
 
-	private boolean getPids( ActionBase action ) throws Exception {
+	private void getPids( ActionBase action ) throws Exception {
 		pids = "";
 		
 		// find program process
-		ShellExecutor shell = getShell( action );
-		if( shell == null )
-			return( false );
-		
+		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				String value = shell.customGetValue( action , "pgrep -f \"Dprogram.name=" + srv.NAME + " \"" , Shell.WAIT_DEFAULT );
+				String value = shell.customGetValue( action , "pgrep -f \"Dprogram.name=" + srv.NAME + " \"" );
 				if( !value.isEmpty() )
 					pids = value.replace( '\n' ,  ' ' );
-				return( true );
+				return;
 			}
 			
 			// windows operations
 			if( srv.isWindows() ) {
 				action.exitNotImplemented();
-				return( false );
+				return;
 			}
 			
 			action.exitUnexpectedState();
@@ -350,13 +280,10 @@ public class ServerProcess {
 		finally {
 			shell.release( action );
 		}
-		
-		return( false );
 	}
 
 	public boolean stop( ActionBase action ) throws Exception {
-		HostAccount hostAccount = node.getHostAccount();
-		action.debug( hostAccount.getFinalAccount() + ": stop srv=" + srv.NAME + " ..." );
+		action.debug( node.HOSTLOGIN + ": stop srv=" + srv.NAME + " ..." );
 		
 		boolean res = false;
 		if( isService( action ) )
@@ -380,20 +307,16 @@ public class ServerProcess {
 			action.exitNotImplemented();
 			
 		// check status
-		if( !gatherStatus( action ) )
-			return( false );
+		gatherStatus( action );
 
-		HostAccount hostAccount = node.getHostAccount();
-		if( mode == EnumProcessMode.STOPPED ) {
-			action.debug( hostAccount.getFinalAccount() + ": pacemaker resource=" + srv.SYSNAME + " already stopped" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
+		if( mode == VarPROCESSMODE.STOPPED ) {
+			action.debug( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " already stopped" );
 			return( true );
 		}
 
 		ShellExecutor shell = action.getShell( node );
 		try {
-			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --ban --quiet" , Shell.WAIT_DEFAULT );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
+			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --ban --quiet" );
 			return( true );
 		}
 		finally {
@@ -406,20 +329,16 @@ public class ServerProcess {
 			action.exitNotImplemented();
 			
 		// check status
-		if( !gatherStatus( action ) )
-			return( false );
+		gatherStatus( action );
 
-		HostAccount hostAccount = node.getHostAccount();
-		if( mode == EnumProcessMode.STOPPED ) {
-			action.debug( hostAccount.getFinalAccount() + ": docker resource=" + srv.SYSNAME + " already stopped" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
+		if( mode == VarPROCESSMODE.STOPPED ) {
+			action.debug( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " already stopped" );
 			return( true );
 		}
 
 		ShellExecutor shell = action.getShell( node );
 		try {
-			shell.customCritical( action , "docker stop " + srv.SYSNAME , Shell.WAIT_DEFAULT );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
+			shell.customCritical( action , "docker stop " + srv.SYSNAME );
 			return( true );
 		}
 		finally {
@@ -429,13 +348,10 @@ public class ServerProcess {
 	
 	private boolean stopService( ActionBase action ) throws Exception {
 		// check status
-		if( !gatherStatus( action ) )
-			return( false );
+		gatherStatus( action );
 
-		HostAccount hostAccount = node.getHostAccount();
-		if( mode == EnumProcessMode.STOPPED ) {
-			action.debug( hostAccount.getFinalAccount() + ": service=" + srv.SYSNAME + " already stopped" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
+		if( mode == VarPROCESSMODE.STOPPED ) {
+			action.debug( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " already stopped" );
 			return( true );
 		}
 
@@ -443,8 +359,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "service " + srv.SYSNAME + " stop > /dev/null 2>&1" , Shell.WAIT_DEFAULT );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
+				shell.customCritical( action , "service " + srv.SYSNAME + " stop > /dev/null 2>&1" );
 				return( true );
 			}
 			
@@ -463,39 +378,30 @@ public class ServerProcess {
 	}
 	
 	private boolean stopGeneric( ActionBase action ) throws Exception {
-		HostAccount hostAccount = node.getHostAccount();
-		
 		// check status
 		if( srv.NOPIDS ) {
-			if( !gatherStatus( action ) )
-				return( false );
-			
-			if( mode == EnumProcessMode.STOPPED ) {
-				action.debug( hostAccount.getFinalAccount() + ": server already stopped" );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
+			gatherStatus( action );
+			if( mode == VarPROCESSMODE.STOPPED ) {
+				action.debug( node.HOSTLOGIN + ": server already stopped" );
 				return( true );
 			}
 		}
 		else {
-			if( !getPids( action ) )
-				return( false );
-			
+			getPids( action );
 			if( pids.isEmpty() ) {
-				action.debug( hostAccount.getFinalAccount() + ": server already stopped" );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTOPPED.name() );
+				action.debug( node.HOSTLOGIN + ": server already stopped" );
 				return( true );
 			}
 		}
 
 		// stop kindly
-		String F_FULLBINPATH = srv.getFullBinPath();
+		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
-						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" , Shell.WAIT_DEFAULT );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
+						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
 				shell.checkErrors( action );
 				return( true );
 			}
@@ -503,8 +409,7 @@ public class ServerProcess {
 			// windows operations
 			if( srv.isWindows() ) {
 				shell.customCritical( action , F_FULLBINPATH , "call server.stop.cmd " + srv.NAME + " " +
-						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS , Shell.WAIT_DEFAULT );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
+						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS );
 				shell.checkErrors( action );
 				return( true );
 			}
@@ -518,8 +423,7 @@ public class ServerProcess {
 	}
 
 	public boolean waitStopped( ActionBase action , long startMillis ) throws Exception {
-		HostAccount hostAccount = node.getHostAccount();
-		action.debug( hostAccount.getFinalAccount() + ": wait stopped srv=" + srv.NAME + " ..." );
+		action.debug( node.HOSTLOGIN + ": wait stopped srv=" + srv.NAME + " ..." );
 		
 		boolean res = false;
 		if( isService( action ) )
@@ -554,17 +458,15 @@ public class ServerProcess {
 		if( srv.NOPIDS )
 			return( waitStoppedAny( action , startMillis , "generic server=" + srv.NAME ) );
 			
-		HostAccount hostAccount = node.getHostAccount();
-		action.debug( hostAccount.getFinalAccount() + ": wait for stop generic server=" + srv.NAME + " ..." );
+		action.debug( node.HOSTLOGIN + ": wait for stop generic server=" + srv.NAME + " ..." );
 	
 		int stoptime = srv.STOPTIME;
 		if( stoptime == 0 )
 			stoptime = defaultStopServerTimeSecs;
 		long stopMillis = startMillis + stoptime * 1000;
 		
-		mode = EnumProcessMode.UNKNOWN;
-		if( !getPids( action ) )
-			return( false );
+		mode = VarPROCESSMODE.UNKNOWN;
+		getPids( action );
 		
 		while( true ) {
 			if( pids.isEmpty() )
@@ -575,21 +477,18 @@ public class ServerProcess {
 		    }
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( hostAccount.getFinalAccount() + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTOP.name() );
+				action.error( node.HOSTLOGIN + ": failed to stop generic server=" + srv.NAME + " within " + stoptime + " seconds. Killing ..." );
 				
 				// enforced stop
 				killServer( action );
 				getPids( action );
 				
 				if( pids.isEmpty() ) {
-					action.info( hostAccount.getFinalAccount() + ": server successfully killed" );
-					state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.KILLED.name() );
+					action.info( node.HOSTLOGIN + ": server successfully killed" );
 					return( true );
 				}
 				
-				action.info( hostAccount.getFinalAccount() + ": generic server=" + srv.NAME + " - unable to kill" );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOKILL.name() );
+				action.info( node.HOSTLOGIN + ": generic server=" + srv.NAME + " - unable to kill" );
 				return( false );
 			}
 			
@@ -597,39 +496,33 @@ public class ServerProcess {
 			getPids( action );
 		}
 	
-		action.info( hostAccount.getFinalAccount() + ": generic server=" + srv.NAME + " successfully stopped" );
-		state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.STOPPED.name() );
+		action.info( node.HOSTLOGIN + ": generic server=" + srv.NAME + " successfully stopped" );
 		return( true );
 	}
 
 	public boolean waitStoppedAny( ActionBase action , long startMillis , String title ) throws Exception {
 		// wait for stop for a while
-		HostAccount hostAccount = node.getHostAccount();
-		action.debug( hostAccount.getFinalAccount() + ": wait for " + title + " ..." );
+		action.debug( node.HOSTLOGIN + ": wait for " + title + " ..." );
 		
 		int stoptime = srv.STOPTIME;
 		if( stoptime == 0 )
 			stoptime = defaultStopServerTimeSecs;
 		long stopMillis = startMillis + stoptime * 1000;
 		
-		while( mode != EnumProcessMode.STOPPED ) {
+		while( mode != VarPROCESSMODE.STOPPED ) {
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( hostAccount.getFinalAccount() + ": failed to stop " + title + " within " + stoptime + " seconds" );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTOP.name() );
+				action.error( node.HOSTLOGIN + ": failed to stop " + title + " within " + stoptime + " seconds" );
 				return( false );
 			}
 						
 			// check stopped
-			if( !gatherStatus( action ) )
-				return( false );
-			
+			gatherStatus( action );
 		    synchronized( this ) {
 		    	Thread.sleep( 1000 );
 		    }
 		}
 
-		action.info( hostAccount.getFinalAccount() + " " + title + " successfully stopped" );
-		state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.STOPPED.name() );
+		action.info( node.HOSTLOGIN + " " + title + " successfully stopped" );
 		return( true );
 	}
 	
@@ -638,8 +531,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "kill -9 " + pids , Shell.WAIT_DEFAULT );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSKILL.name() );
+				shell.customCritical( action , "kill -9 " + pids );
 				return;
 			}
 			
@@ -658,8 +550,7 @@ public class ServerProcess {
 	}
 	
 	public boolean start( ActionBase action ) throws Exception {
-		HostAccount hostAccount = node.getHostAccount();
-		action.debug( hostAccount.getFinalAccount() + ": start srv=" + srv.NAME + " ..." );
+		action.debug( node.HOSTLOGIN + ": start srv=" + srv.NAME + " ..." );
 		
 		boolean res = false;
 		if( isService( action ) )
@@ -683,26 +574,21 @@ public class ServerProcess {
 			action.exitNotImplemented();
 			
 		// check status
-		if( !gatherStatus( action ) )
-			return( false );
+		gatherStatus( action );
 
-		HostAccount hostAccount = node.getHostAccount();
-		if( mode == EnumProcessMode.STARTED ) {
-			action.debug( hostAccount.getFinalAccount() + ": pacemaker resource=" + srv.SYSNAME + " already started" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
+		if( mode == VarPROCESSMODE.STARTED ) {
+			action.debug( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " already started" );
 			return( true );
 		}
 
-		if( mode != EnumProcessMode.STOPPED ) {
-			action.error( hostAccount.getFinalAccount() + ": pacemaker resource=" + srv.SYSNAME + " is in unexpected state" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
+		if( mode != VarPROCESSMODE.STOPPED ) {
+			action.error( node.HOSTLOGIN + ": pacemaker resource=" + srv.SYSNAME + " is in unexpected state" );
 			return( false );
 		}
 
 		ShellExecutor shell = action.getShell( node );
 		try {
-			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --clear --quiet" , Shell.WAIT_DEFAULT );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
+			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --clear --quiet" );
 			return( true );
 		}
 		finally {
@@ -715,26 +601,21 @@ public class ServerProcess {
 			action.exitNotImplemented();
 			
 		// check status
-		if( !gatherStatus( action ) )
-			return( false );
+		gatherStatus( action );
 
-		HostAccount hostAccount = node.getHostAccount();
-		if( mode == EnumProcessMode.STARTED ) {
-			action.debug( hostAccount.getFinalAccount() + ": docker resource=" + srv.SYSNAME + " already started" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
+		if( mode == VarPROCESSMODE.STARTED ) {
+			action.debug( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " already started" );
 			return( true );
 		}
 
-		if( mode != EnumProcessMode.STOPPED ) {
-			action.error( hostAccount.getFinalAccount() + ": docker resource=" + srv.SYSNAME + " is in unexpected state" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
+		if( mode != VarPROCESSMODE.STOPPED ) {
+			action.error( node.HOSTLOGIN + ": docker resource=" + srv.SYSNAME + " is in unexpected state" );
 			return( false );
 		}
 
 		ShellExecutor shell = action.getShell( node );
 		try {
-			shell.customCritical( action , "docker start " + srv.SYSNAME , Shell.WAIT_DEFAULT );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
+			shell.customCritical( action , "docker start " + srv.SYSNAME );
 			return( true );
 		}
 		finally {
@@ -744,19 +625,15 @@ public class ServerProcess {
 	
 	private boolean startService( ActionBase action ) throws Exception {
 		// check status
-		if( !gatherStatus( action ) )
-			return( false );
+		gatherStatus( action );
 
-		HostAccount hostAccount = node.getHostAccount();
-		if( mode == EnumProcessMode.STARTED ) {
-			action.debug( hostAccount.getFinalAccount() + ": service=" + srv.SYSNAME + " already started" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
+		if( mode == VarPROCESSMODE.STARTED ) {
+			action.debug( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " already started" );
 			return( true );
 		}
 
-		if( mode != EnumProcessMode.STOPPED ) {
-			action.error( hostAccount.getFinalAccount() + ": service=" + srv.SYSNAME + " is in unexpected state" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
+		if( mode != VarPROCESSMODE.STOPPED ) {
+			action.error( node.HOSTLOGIN + ": service=" + srv.SYSNAME + " is in unexpected state" );
 			return( false );
 		}
 
@@ -764,8 +641,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "service " + srv.SYSNAME + " start > /dev/null 2>&1" , Shell.WAIT_DEFAULT );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
+				shell.customCritical( action , "service " + srv.SYSNAME + " start > /dev/null 2>&1" );
 				return( true );
 			}
 			
@@ -785,39 +661,34 @@ public class ServerProcess {
 	
 	private boolean startGeneric( ActionBase action ) throws Exception {
 		// check status
-		if( !gatherStatus( action ) )
-			return( false );
+		gatherStatus( action );
 
-		HostAccount hostAccount = node.getHostAccount();
-		if( mode == EnumProcessMode.STARTED ) {
-			action.debug( hostAccount.getFinalAccount() + ": server=" + srv.NAME + " already started (pids=" + pids + ")" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.ALREADYSTARTED.name() );
+		if( mode == VarPROCESSMODE.STARTED ) {
+			action.debug( node.HOSTLOGIN + ": server=" + srv.NAME + " already started (pids=" + pids + ")" );
 			return( true );
 		}
 
-		if( mode != EnumProcessMode.STOPPED ) {
-			action.error( hostAccount.getFinalAccount() + ": server=" + srv.NAME + " is in unexpected state (pids=" + pids + ")" );
-			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
+		if( mode != VarPROCESSMODE.STOPPED ) {
+			action.error( node.HOSTLOGIN + ": server=" + srv.NAME + " is in unexpected state (pids=" + pids + ")" );
 			return( false );
 		}
 		
 		// proceed with startup
-		String F_FULLBINPATH = srv.getFullBinPath();
+		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
-					action.context.CTX_EXTRAARGS + " > /dev/null" , Shell.WAIT_DEFAULT );
+					action.context.CTX_EXTRAARGS + " > /dev/null" );
 				shell.checkErrors( action );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
 				return( true );
 			}
 			
 			// windows operations
 			if( srv.isWindows() ) {
 				shell.customCritical( action , F_FULLBINPATH , "call server.start.cmd " + srv.NAME + " " +
-					action.context.CTX_EXTRAARGS , Shell.WAIT_DEFAULT );
+					action.context.CTX_EXTRAARGS );
 					shell.checkErrors( action );
 				return( true );
 			}
@@ -831,8 +702,7 @@ public class ServerProcess {
 	}
 
 	public boolean waitStarted( ActionBase action , long startMillis ) throws Exception {
-		HostAccount hostAccount = node.getHostAccount();
-		action.debug( hostAccount.getFinalAccount() + ": wait started srv=" + srv.NAME + " ..." );
+		action.debug( node.HOSTLOGIN + ": wait started srv=" + srv.NAME + " ..." );
 		
 		boolean res = false;
 		if( isService( action ) )
@@ -869,8 +739,7 @@ public class ServerProcess {
 
 	public boolean waitStartedAny( ActionBase action , long startMillis , String title ) throws Exception {
 		// wait for stop for a while
-		HostAccount hostAccount = node.getHostAccount();
-		action.debug( hostAccount.getFinalAccount() + ": wait for start " + title + " ..." );
+		action.debug( node.HOSTLOGIN + ": wait for start " + title + " ..." );
 		
 		int starttime = srv.STARTTIME;
 		if( starttime == 0 )
@@ -878,36 +747,30 @@ public class ServerProcess {
 		long stopMillis = startMillis + starttime * 1000;
 		long startTimeoutMillis = startMillis + defaultStartProcessTimeSecs * 1000;
 				
-		if( !gatherStatus( action ) )
-			return( false );
-		
-		while( mode != EnumProcessMode.STARTED ) {
+		gatherStatus( action );
+		while( mode != VarPROCESSMODE.STARTED ) {
 			Common.sleep( 1000 );
 		    
 			if( System.currentTimeMillis() > stopMillis ) {
-				action.error( hostAccount.getFinalAccount() + ": failed to start " + title + " within " + starttime + " seconds" );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
+				action.error( node.HOSTLOGIN + ": failed to start " + title + " within " + starttime + " seconds" );
 				return( false );
 			}
 
-			if( mode == EnumProcessMode.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
-				action.info( hostAccount.getFinalAccount() + ": failed to start " + title + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
+			if( mode == VarPROCESSMODE.STOPPED && System.currentTimeMillis() > startTimeoutMillis ) {
+				action.info( node.HOSTLOGIN + ": failed to start " + title + " - process launch timeout is " + defaultStartProcessTimeSecs + " seconds" );
 				return( false );
 			}
 
-			if( mode != EnumProcessMode.STOPPED && mode != EnumProcessMode.STARTING ) {
-				action.info( hostAccount.getFinalAccount() + ": failed to start " + title + " - process is in unexpected state (" + cmdValue + ")" );
-				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.UNABLETOSTART.name() );
+			if( mode != VarPROCESSMODE.STOPPED && mode != VarPROCESSMODE.STARTING ) {
+				action.info( node.HOSTLOGIN + ": failed to start " + title + " - process is in unexpected state (" + cmdValue + ")" );
 				return( false );
 			}
 			
 			// check stopped
-			if( !gatherStatus( action ) )
-				return( false );
+			gatherStatus( action );
 		}
 
-		action.info( hostAccount.getFinalAccount() + " " + title + " successfully started" );
+		action.info( node.HOSTLOGIN + " " + title + " successfully started" );
 		return( true );
 	}
 	
@@ -915,6 +778,7 @@ public class ServerProcess {
 		action.info( "prepare server ..." );
 		
 		boolean res = false;
+		int timeout = action.setTimeoutUnlimited();
 		
 		if( isService( action ) )
 			res = prepareService( action );
@@ -930,6 +794,7 @@ public class ServerProcess {
 		else
 			action.exitUnexpectedState();
 		
+		action.setTimeout( timeout );
 		return( res );
 	}
 
@@ -948,7 +813,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "service " + srv.SYSNAME + " prepare" , Shell.WAIT_LONG );
+				shell.customCritical( action , "service " + srv.SYSNAME + " prepare" );
 				shell.checkErrors( action );
 				return( true );
 			}
@@ -969,13 +834,13 @@ public class ServerProcess {
 	
 	private boolean prepareGeneric( ActionBase action ) throws Exception {
 		// prepare instance
-		String F_FULLBINPATH = srv.getFullBinPath();
+		String F_FULLBINPATH = srv.getFullBinPath( action );
 		ShellExecutor shell = action.getShell( node );
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.prepare.sh " + srv.NAME + " " +
-						srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS + " > /dev/null" , Shell.WAIT_LONG );
+						srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
 				shell.checkErrors( action );
 				return( true );
 			}
@@ -984,7 +849,7 @@ public class ServerProcess {
 			if( srv.isWindows() ) {
 				String wpath = Common.getWinPath( srv.ROOTPATH ); 
 				shell.customCritical( action , F_FULLBINPATH , "call server.prepare.cmd " + srv.NAME + " " +
-						wpath + " " + action.context.CTX_EXTRAARGS , Shell.WAIT_LONG );
+						wpath + " " + action.context.CTX_EXTRAARGS );
 				shell.checkErrors( action );
 				return( true );
 			}

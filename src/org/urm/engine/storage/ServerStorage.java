@@ -4,10 +4,10 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.Types.*;
 
 public class ServerStorage {
 
@@ -63,10 +63,7 @@ public class ServerStorage {
 	
 	public RemoteFolder getRedistTmpFolder( ActionBase action ) throws Exception {
 		String path = action.getContextRedistPath( account );
-		if( path == null )
-			return( null );
-		
-		path = Common.getPath( path , "tmp" , account.USER );
+		path = Common.getPath( path , "tmp" );
 		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
@@ -76,21 +73,21 @@ public class ServerStorage {
 		return( rf.getSubFolder( action , folder ) );
 	}
 	
-	public RemoteFolder getRedistLocationFolder( ActionBase action , VersionInfo version , String LOCATION , EnumContentType CONTENTTYPE , boolean rollout ) throws Exception {
+	public RemoteFolder getRedistLocationFolder( ActionBase action , VersionInfo version , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		String path = getPathRedistReleaseRoot( action , version , CONTENTTYPE , rollout );
 		path = Common.getPath( path , LOCATION );
 		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
 
-	protected RemoteFolder getStateLocationFolder( ActionBase action , String LOCATION , EnumContentType CONTENTTYPE ) throws Exception {
+	protected RemoteFolder getStateLocationFolder( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
 		String path = getPathStateLocation( action , LOCATION , CONTENTTYPE );
 		RemoteFolder rf = new RemoteFolder( account , path );
 		return( rf );
 	}
 	
 	public RemoteFolder getRedistHostRootFolder( ActionBase action ) throws Exception {
-		Account rootAccount = account.getRootAccount();
+		Account rootAccount = account.getRootAccount( action );
 		String path = action.getEnvRedistPath( server );
 		RemoteFolder rf = new RemoteFolder( rootAccount , path );
 		return( rf );
@@ -111,7 +108,7 @@ public class ServerStorage {
 		return( folder.getSubFolder( action , "state" ) );
 	}
 
-	public String getRedistFolderByContent( ActionBase action , EnumContentType CONTENTTYPE , boolean rollout ) throws Exception {
+	public String getRedistFolderByContent( ActionBase action , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		String rolloutDir = Common.getEnumLower( CONTENTTYPE );
 		if( rollout )
 			return( rolloutDir );
@@ -120,7 +117,7 @@ public class ServerStorage {
 		return( rollbackDir );
 	}
 	
-	protected String getPathRedistReleaseRoot( ActionBase action , VersionInfo version , EnumContentType CONTENTTYPE , boolean rollout ) throws Exception {
+	protected String getPathRedistReleaseRoot( ActionBase action , VersionInfo version , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		String C_COMMON_DIRPATH = getRedistFolderRootPath( action );
 		C_COMMON_DIRPATH = Common.getPath( C_COMMON_DIRPATH , "releases" , version.getReleaseName() );
 		
@@ -128,7 +125,7 @@ public class ServerStorage {
 		return( Common.getPath( C_COMMON_DIRPATH , folder ) );
 	}
 	
-	protected String getPathRedistStateRoot( ActionBase action , EnumContentType CONTENTTYPE ) throws Exception {
+	protected String getPathRedistStateRoot( ActionBase action , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
 		String C_COMMON_DIRPATH = getRedistFolderRootPath( action );
 		C_COMMON_DIRPATH = Common.getPath( C_COMMON_DIRPATH , "state" );
 		
@@ -136,13 +133,13 @@ public class ServerStorage {
 		return( Common.getPath( C_COMMON_DIRPATH , folder ) );
 	}
 	
-	public String getPathRedistLocation( ActionBase action , VersionInfo version , String LOCATION , EnumContentType CONTENTTYPE , boolean rollout ) throws Exception {
+	public String getPathRedistLocation( ActionBase action , VersionInfo version , String LOCATION , VarCONTENTTYPE CONTENTTYPE , boolean rollout ) throws Exception {
 		checkRelativeDir( action , LOCATION );
 		String C_COMMON_DIRPATH = getPathRedistReleaseRoot( action , version , CONTENTTYPE , rollout );
 		return( Common.getPath( C_COMMON_DIRPATH , LOCATION ) );
 	}
 
-	public String getPathStateLocation( ActionBase action , String LOCATION , EnumContentType CONTENTTYPE ) throws Exception {
+	public String getPathStateLocation( ActionBase action , String LOCATION , VarCONTENTTYPE CONTENTTYPE ) throws Exception {
 		checkRelativeDir( action , LOCATION );
 		String C_COMMON_DIRPATH = getPathRedistStateRoot( action , CONTENTTYPE );
 		return( Common.getPath( C_COMMON_DIRPATH , LOCATION ) );
@@ -163,13 +160,7 @@ public class ServerStorage {
 	
 	protected String getRedistFolderRootPath( ActionBase action ) throws Exception {
 		String path = action.getContextRedistPath( account );
-		if( path == null )
-			return( null );
-
-		if( node != null )
-			path = Common.getPath( path , server.NAME + "-node" + node.POS );
-		else
-			path = Common.getPath( path , account.USER + "-account" );
+		path = Common.getPath( path , server.NAME + "-node" + node.POS );
 		return( path );
 	}
 

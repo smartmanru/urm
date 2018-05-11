@@ -10,7 +10,10 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.ServerAuthResource;
+import org.urm.meta.engine.ServerDatacenter;
+import org.urm.meta.engine.ServerHostAccount;
+import org.urm.meta.engine.ServerInfrastructure;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
@@ -20,8 +23,6 @@ import com.jcraft.jsch.Session;
 
 public class ShellJssh {
 
-	public static int CONNECT_TIMEOUT = 5000;
-	
 	ShellProcess process;
 	boolean interactive;
 	Account account;
@@ -39,86 +40,72 @@ public class ShellJssh {
 		jsch = new JSch();
 	}
 
-	public ShellJssh( Account account ) {
-		this.account = account;
-		this.interactive = false;
-		jsch = new JSch();
-	}
-	
-	private AuthResource getAuthResource( ActionBase action , Account account ) throws Exception {
-		AuthResource res = account.getResource( action );
-		res.loadAuthData();
-		return( res );
-	}
-	
-	public void startJsshProcess( ActionBase action , String rootPath , AuthResource res ) throws Exception {
+	public void startJssh( ActionBase action , String rootPath ) throws Exception {
 		Account account = process.shell.account;
-		if( res == null )
-			res = getAuthResource( action , account );
-		
-		action.debug( "jssh shell=" + process.shell.name + " - connecting to " + account.USER + "@" + account.HOST + ":" + account.PORT + " ..." );		
-		startJsshInternal( action , account , res );
+		startJssh( action , account );
 		action.debug( "jssh shell=" + process.shell.name + " - successfully connected" );		
 	}
 
-	private void startJsshInternal( ActionBase action , Account account , AuthResource res ) throws Exception {
-		startJsshSession( action , account , res );
+	public void startJssh( ActionBase action , Account account ) throws Exception {
+		startJsshSession( action , account );
 		startJsshCommandChannel( action );
 	}
 	
-	private void startJsshSession( ActionBase action , Account account , AuthResource res ) throws Exception {
-		String hostLogin = account.getHostLogin();
-		action.debug( "connecting to account=" + hostLogin + " ..." );
+	public void startJsshSession( ActionBase action , Account account ) throws Exception {
 		this.account = account;
 		
-		String ADDRESS = account.IP;
-		if( ADDRESS.isEmpty() )
-			ADDRESS = account.HOST;
-		jsession = jsch.getSession( account.USER , ADDRESS , account.PORT );
+		String hostLogin = account.getHostLogin();
+		ServerInfrastructure infra = action.getServerInfrastructure();
+		ServerDatacenter dc = infra.findDatacenter( account.DC );
+		if( dc == null )
+			action.exit1( _Error.UnknownDatacenter1 , "Unknown datacenter=" + account.DC , account.DC );
 		
-		String keyRes = action.context.CTX_KEYRES;
-		if( keyRes.isEmpty() ) {
+		ServerHostAccount hostAccount = dc.getFinalAccount( action , hostLogin );
+		if( hostAccount.AUTHRES.isEmpty() )
+			action.exit1( _Error.MissingAuthKey1 , "Missing auth resource to login to " + hostLogin , hostLogin );
+		
+		ServerAuthResource res = action.getResource( hostAccount.AUTHRES );
+		res.loadAuthData( action );
+		
+		jsession = jsch.getSession( account.USER , account.HOST , account.PORT );
+		
+		String keyFile = action.context.CTX_KEYNAME;
+		if( keyFile.isEmpty() ) {
 			if( action.context.env != null ) {
-				AuthResource resEnv = action.context.env.getEnvKey();
-				if( resEnv != null ) {
-					action.trace( "using key file from environment resource: " + resEnv.NAME );
-					res = resEnv;
-				}
+				keyFile = action.context.env.KEYFILE;
+				if( !keyFile.isEmpty() )
+					action.trace( "using key file from environment settings: " + keyFile );
 			}
 		}
 		else {
-			action.trace( "using key resource from parameter: " + keyRes );
-			res = action.getResource( keyRes );
+			action.trace( "using key file from parameter: " + keyFile );
 		}
 		
-		if( res.ac.isCommon() ) {
-			String password = res.ac.getPassword( action );
-			if( password.isEmpty() )
-				action.exit1( _Error.MissingAuthPasswordData1 , "Missing password data of auth resource: " + res.NAME , res.NAME );
-			
-			action.trace( "using password from resource=" + res.NAME );
-			jsession.setPassword( password );
+		if( !keyFile.isEmpty() )
+			jsch.addIdentity( action.context.CTX_KEYNAME );
+		else {		
+			if( res.ac.isCommon() ) {
+				String password = res.ac.getPassword( action );
+				if( password.isEmpty() )
+					action.exit1( _Error.MissingAuthPasswordData1 , "Missing password data of auth resource: " + res.NAME , res.NAME );
+				
+				action.trace( "using password from resource=" + res.NAME );
+				jsession.setPassword( password );
+			}
+			else
+			if( res.ac.isSshKey() ) {
+				if( res.ac.PRIVATEKEY.isEmpty() )
+					action.exit1( _Error.MissingAuthKeyData1 , "Missing key data of auth resource: " + res.NAME , res.NAME );
+				
+				action.trace( "using key pair from resource=" + res.NAME );
+				jsch.addIdentity( "main" , res.ac.PRIVATEKEY.getBytes() , res.ac.PUBLICKEY.getBytes() , null );
+			}
+			else
+				action.exit1( _Error.InvalidAuthData1 , "Invalid data of auth resource: " + res.NAME , res.NAME );
 		}
-		else
-		if( res.ac.isSshKey() ) {
-			if( res.ac.PRIVATEKEY.isEmpty() )
-				action.exit1( _Error.MissingAuthKeyData1 , "Missing key data of auth resource: " + res.NAME , res.NAME );
-			
-			action.trace( "using key pair from resource=" + res.NAME );
-			jsch.addIdentity( "main" , res.ac.PRIVATEKEY.getBytes() , res.ac.PUBLICKEY.getBytes() , null );
-		}
-		else
-			action.exit1( _Error.InvalidAuthData1 , "Invalid data of auth resource: " + res.NAME , res.NAME );
 		
 		jsession.setConfig( "StrictHostKeyChecking" , "no" );
-		
-		try {
-			jsession.connect( CONNECT_TIMEOUT );
-		}
-		catch( Throwable e ) {
-			action.log( "ssh connect" , e );
-			action.exit1( _Error.UnableConnectAccount1 , "Unable to connect to account=" + hostLogin , hostLogin );
-		}
+		jsession.connect( 30000 );
 	}
 	
 	public void startJsshCommandChannel( ActionBase action ) throws Exception {
@@ -182,8 +169,8 @@ public class ShellJssh {
 		return( channel.getExitStatus() );
 	}
 	
-	public boolean scpFilesRemoteToLocal( ActionBase action , String srcPath , String dstPath ) throws Exception {
-		scpConnect( action );
+	public boolean scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+		scpConnect( action , account );
 		
 		boolean res = false;
 		try {
@@ -218,14 +205,11 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirContentLocalToRemote( ActionBase action , String srcDirPath , String baseDstDir ) throws Exception {
-		scpConnect( action );
+	public boolean scpDirContentLocalToRemote( ActionBase action , String srcDirPath , Account account , String dstDir ) throws Exception {
+		scpConnect( action , account );
 		
 		boolean res = false;
 		try {
-			LocalFolder srcDirFolder = action.getLocalFolder( srcDirPath );
-			RemoteFolder dstFolder = action.getRemoteFolder( account , baseDstDir );
-			executeScpDirContentLocalToRemote( action , srcDirFolder , dstFolder );
 	    }
 		finally {
 			kill( action );
@@ -234,8 +218,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirContentRemoteToLocal( ActionBase action , String srcPath , String dstPath ) throws Exception {
-		scpConnect( action );
+	public boolean scpDirContentRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+		scpConnect( action , account );
 		
 		boolean res = false;
 		try {
@@ -250,8 +234,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirLocalToRemote( ActionBase action , String srcDirPath , String baseDstDir ) throws Exception {
-		scpConnect( action );
+	public boolean scpDirLocalToRemote( ActionBase action , String srcDirPath , Account account , String baseDstDir ) throws Exception {
+		scpConnect( action , account );
 		
 		boolean res = false;
 		try {
@@ -266,8 +250,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpDirRemoteToLocal( ActionBase action , String srcPath , String dstPath ) throws Exception {
-		scpConnect( action );
+	public boolean scpDirRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+		scpConnect( action , account );
 		
 		boolean res = false;
 		try {
@@ -287,8 +271,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	public boolean scpFilesLocalToRemote( ActionBase action , String srcPath , String dstPath ) throws Exception {
-		scpConnect( action );
+	public boolean scpFilesLocalToRemote( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
+		scpConnect( action , account );
 		
 		boolean res = false;
 		try {
@@ -307,13 +291,13 @@ public class ShellJssh {
 				else {
 					res = true;
 					for( String file : maskFiles ) {
-						if( !executeScpNameLocalToRemote( action , srcDirFolder , file , dstPath ) )
+						if( !executeScpNameLocalToRemote( action , srcDirFolder , file , account , dstPath ) )
 							res = false;
 					}
 				}
 			}
 			else {
-				res = executeScpNameLocalToRemote( action , srcDirFolder , srcNames , dstPath );
+				res = executeScpNameLocalToRemote( action , srcDirFolder , srcNames , account , dstPath );
 			}
 	    }
 		finally {
@@ -323,9 +307,8 @@ public class ShellJssh {
 		return( res );
 	}
 
-	private void scpConnect( ActionBase action ) throws Exception {
-		AuthResource res = getAuthResource( action , account );
-		startJsshSession( action , account , res );
+	private void scpConnect( ActionBase action , Account account ) throws Exception {
+		startJsshSession( action , account );
 		startJsshScpChannel( action );
 	}
 
@@ -350,7 +333,7 @@ public class ShellJssh {
 				}
 			}
 		}
-		else
+		
 		if( srcDirFolder.checkFolderExists( action , srcName ) ) {
 			if( !fileDstDir.isDirectory() ) {
 				action.exit1( _Error.ScpMissingDestinationDirectory1 , "scp: missing destination directory=" + dstDir , dstDir );
@@ -382,7 +365,7 @@ public class ShellJssh {
 		return( res );
 	}
 	
-	private boolean executeScpNameLocalToRemote( ActionBase action , LocalFolder srcDirFolder , String srcName , String dstPath ) throws Exception {
+	private boolean executeScpNameLocalToRemote( ActionBase action , LocalFolder srcDirFolder , String srcName , Account account , String dstPath ) throws Exception {
 		String dstDir = Common.getDirName( dstPath );
 		String dstName = Common.getBaseName( dstPath );
 		RemoteFolder fileDstDir = action.getRemoteFolder( account , dstDir );
@@ -403,7 +386,7 @@ public class ShellJssh {
 				}
 			}
 		}
-		else
+		
 		if( srcDirFolder.checkFolderExists( action , srcName ) ) {
 			if( !fileDstDir.checkExists( action ) ) {
 				action.exit1( _Error.ScpMissingDestinationDirectory1 , "scp: missing destination directory=" + dstDir , dstDir );

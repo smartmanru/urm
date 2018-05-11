@@ -8,9 +8,9 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLMODE;
-import org.urm.meta.env.MetaEnvServer;
+import org.urm.engine.dist.Release;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.release.Release;
+import org.urm.meta.product.MetaEnvServer;
 
 public class DatabaseRegistry {
 
@@ -44,7 +44,7 @@ public class DatabaseRegistry {
 	}
 
 	public static DatabaseRegistry getRegistry( ActionBase action , DatabaseClient client ) throws Exception {
-		if( client.admSchema == null )
+		if( client.specific.server.admSchema == null )
 			action.exit1( _Error.MissingAdmSchema1 , "Missing administrative schema in database server=" + client.specific.server.NAME , client.specific.server.NAME );
 		DatabaseRegistry registry = new DatabaseRegistry( client );
 		return( registry );
@@ -64,7 +64,7 @@ public class DatabaseRegistry {
 	}
 
 	private void readReleaseStatus( ActionBase action ) throws Exception {
-		releaseStatus = client.readCellValue( action , client.admSchema , TABLE_RELEASES , "zrel_status" , 
+		releaseStatus = client.readCellValue( action , server.admSchema , TABLE_RELEASES , "zrel_status" , 
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) ); 
 	}
 
@@ -76,7 +76,7 @@ public class DatabaseRegistry {
 	}
 	
 	public void readIncompleteScripts( ActionBase action ) throws Exception {
-		List<String[]> rows = client.readTableData( action , client.admSchema , TABLE_SCRIPTS , 
+		List<String[]> rows = client.readTableData( action , server.admSchema , TABLE_SCRIPTS , 
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) + 
 				" and zscript_status = " + Common.getSQLQuoted( RELEASE_STATUS_STARTED ) , 
 				new String[] { "zdelivery" , "zfilename" } );
@@ -127,7 +127,7 @@ public class DatabaseRegistry {
 		parseReleaseNumber( action , release.RELEASEVER );
 		
 		// check last release if not forced
-		if( !action.isForced() ) {
+		if( !action.context.CTX_FORCE ) {
 			if( !checkLastRelease( action , release ) )
 				return( false );
 		}
@@ -135,14 +135,14 @@ public class DatabaseRegistry {
 		// check current release state
 		readReleaseStatus( action );
 		if( isReleaseUnknown( action ) ) {
-			client.insertRow( action , client.admSchema , TABLE_RELEASES ,
+			client.insertRow( action , server.admSchema , TABLE_RELEASES ,
 				new String[] { "zrelease" , "zrel_p1" , "zrel_p2" , "zrel_p3" , "zrel_p4" , "zbegin_apply_time" , "zrel_status" } , 
 				new String[] { Common.getSQLQuoted( RELEASEVER ) , Common.getSQLQuoted( major1 ) , Common.getSQLQuoted( major2 ) , Common.getSQLQuoted( minor1 ) , Common.getSQLQuoted( minor2 ) , "TIMESTAMP" , Common.getSQLQuoted( RELEASE_STATUS_STARTED ) } , 
 				true );
 		}
 		else
 		if( isReleaseStarted( action ) ) {
-			client.updateRow( action , client.admSchema , TABLE_RELEASES ,
+			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
 					new String[] { "zend_apply_time" } , 
 					new String[] { "NULL" } ,
 					"zrelease = " + Common.getSQLQuoted( RELEASEVER ) ,
@@ -150,13 +150,13 @@ public class DatabaseRegistry {
 		}
 		else
 		if( isReleaseFinished( action ) ) {
-			if( !action.isForced() ) {
+			if( !action.context.CTX_FORCE ) {
 				action.error( "release is completely done, use -force to reapply" );
 				return( false );
 			}
 			
 			releaseStatus = RELEASE_STATUS_STARTED;
-			client.updateRow( action , client.admSchema , TABLE_RELEASES ,
+			client.updateRow( action , server.admSchema , TABLE_RELEASES ,
 					new String[] { "zrel_status" , "zend_apply_time" } , 
 					new String[] { Common.getSQLQuoted( releaseStatus ) , "NULL" } ,
 					"zrelease = " + Common.getSQLQuoted( RELEASEVER ) ,
@@ -190,8 +190,8 @@ public class DatabaseRegistry {
 		}
 		
 		// check compatibility
-		if( !release.isCompatible( last.version ) ) {
-			action.error( "last release=" + last.version + " is not compatible with current, compatibility list={" + release.COMPATIBILITY + "}" );
+		if( !release.isCompatible( action , last.version ) ) {
+			action.error( "last release=" + last.version + " is not compatible with current, compatibility list={" + release.PROPERTY_COMPATIBILITY + "}" );
 			return( false );
 		}
 	
@@ -200,7 +200,7 @@ public class DatabaseRegistry {
 	
 	public void finishApplyRelease( ActionBase action ) throws Exception {
 		releaseStatus = RELEASE_STATUS_APPLIED;
-		client.updateRow( action , client.admSchema , TABLE_RELEASES ,
+		client.updateRow( action , server.admSchema , TABLE_RELEASES ,
 				new String[] { "zrel_status" , "zend_apply_time" } , 
 				new String[] { Common.getSQLQuoted( releaseStatus ) , "TIMESTAMP" } ,
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) ,
@@ -220,7 +220,7 @@ public class DatabaseRegistry {
 		
 		// check connect to admin schema
 		String[] columns = { "zkey" , "zscript_status" };
-		List<String[]> rows = client.readTableData( action , client.admSchema , TABLE_SCRIPTS  , 
+		List<String[]> rows = client.readTableData( action , server.admSchema , TABLE_SCRIPTS  , 
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) + " and " +
 				"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) , columns ); 
 		
@@ -277,13 +277,13 @@ public class DatabaseRegistry {
 		String schema = dsf.SRCSCHEMA;
 		boolean res = false;
 		if( status == null ) {
-			res = client.insertRow( action , client.admSchema , TABLE_SCRIPTS ,
+			res = client.insertRow( action , server.admSchema , TABLE_SCRIPTS ,
 					new String[] { "zrelease" , "zdelivery" , "zkey" , "zschema" , "zfilename" , "zbegin_apply_time" , "zscript_status" } , 
 					new String[] { Common.getSQLQuoted( RELEASEVER ) , Common.getSQLQuoted( delivery.NAME ) , Common.getSQLQuoted( key ) , Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , Common.getSQLQuoted( SCRIPT_STATUS_STARTED ) } ,
 					true );
 		}
 		else {
-			res = client.updateRow( action , client.admSchema , TABLE_SCRIPTS ,
+			res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
 					new String[] { "zschema" , "zfilename" , "zbegin_apply_time" , "zend_apply_time" , "zscript_status" } , 
 					new String[] { Common.getSQLQuoted( schema ) , Common.getSQLQuoted( file ) , "TIMESTAMP" , "NULL" , Common.getSQLQuoted( SCRIPT_STATUS_STARTED ) } ,
 					"zrelease = " + Common.getSQLQuoted( RELEASEVER ) + " and " +
@@ -315,7 +315,7 @@ public class DatabaseRegistry {
 	}
 		
 	private void finishApplyScript( ActionBase action , String delivery , String key , String status ) throws Exception {
-		boolean res = client.updateRow( action , client.admSchema , TABLE_SCRIPTS ,
+		boolean res = client.updateRow( action , server.admSchema , TABLE_SCRIPTS ,
 				new String[] { "zend_apply_time" , "zscript_status" } , 
 				new String[] { "TIMESTAMP" , Common.getSQLQuoted( status ) } ,
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) + " and " +
@@ -324,7 +324,7 @@ public class DatabaseRegistry {
 				true );
 		if( !res ) {
 			String msg = "unable to register script execution: " + key ;
-			if( action.isForced() )
+			if( action.context.CTX_FORCE )
 				action.error( msg + ", ignored." );
 			else
 				action.exit1( _Error.UnableRegisterExecution1 , msg , key );
@@ -359,7 +359,7 @@ public class DatabaseRegistry {
 			query = "select 'c=' || zrelease || '|c=' || zrel_status from " + TABLE_RELEASES +
 				" where zrelease = '" + version + "'";
 		
-		List<String[]> rows = client.readSelectData( action , client.admSchema , query );
+		List<String[]> rows = client.readSelectData( action , server.admSchema , query );
 		
 		DatabaseRegistryRelease release = new DatabaseRegistryRelease();  
 		if( rows.isEmpty() ) {
@@ -378,14 +378,14 @@ public class DatabaseRegistry {
 	}
 
 	public void dropRelease( ActionBase action ) throws Exception {
-		client.deleteRows( action , client.admSchema , TABLE_SCRIPTS , 
+		client.deleteRows( action , server.admSchema , TABLE_SCRIPTS , 
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) , false );
-		client.deleteRows( action , client.admSchema , TABLE_RELEASES , 
+		client.deleteRows( action , server.admSchema , TABLE_RELEASES , 
 				"zrelease = " + Common.getSQLQuoted( RELEASEVER ) , true );
 	}
 
 	public void dropReleaseDelivery( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
-		client.deleteRows( action , client.admSchema , TABLE_SCRIPTS , 
+		client.deleteRows( action , server.admSchema , TABLE_SCRIPTS , 
 				"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) , true );
 	}
 	
@@ -394,7 +394,7 @@ public class DatabaseRegistry {
 		for( String key : keys )
 			list = Common.addToList( list , Common.getSQLQuoted( key ) , " , " );
 		
-		client.deleteRows( action , client.admSchema , TABLE_SCRIPTS , 
+		client.deleteRows( action , server.admSchema , TABLE_SCRIPTS , 
 				"zdelivery = " + Common.getSQLQuoted( delivery.NAME ) + " and " +
 				"zkey in ( " + list + " )" , 
 				true );

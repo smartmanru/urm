@@ -1,30 +1,26 @@
 package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.ShellService;
 import org.urm.engine.storage.Folder;
-import org.urm.meta.engine.AuthResource;
+import org.urm.meta.Types.*;
 
 public class RemoteShellExecutor extends ShellExecutor {
 	
-	AuthResource auth;
-	
-	public RemoteShellExecutor( int id , String name , ShellService pool , Account account , Folder tmpFolder , AuthResource auth , boolean dedicated ) {
-		super( id , name , pool , account , "" , tmpFolder , dedicated );
-		this.auth = auth;
+	public RemoteShellExecutor( String name , ShellPool pool , Account account , Folder tmpFolder ) {
+		super( name , pool , account , "" , tmpFolder );
 	}
 
 	@Override
 	public boolean start( ActionBase action ) throws Exception {
 		ShellProcess process = new ShellProcess( this );
-		if( super.isWindowsFromUnix() )
-			return( process.createRemoteWindowsProcessFromLinux( action , auth ) );
+		if( core.sessionType == VarSESSIONTYPE.WINDOWSFROMUNIX )
+			return( process.createRemoteWindowsProcessFromLinux( action ) );
 			
-		if( super.isUnixFromWindows() )
-			return( process.createRemoteLinuxProcessFromWindows( action , auth ) );
+		if( core.sessionType == VarSESSIONTYPE.UNIXFROMWINDOWS )
+			return( process.createRemoteLinuxProcessFromWindows( action ) );
 		
-		if( super.isUnixRemote() )
-			return( process.createRemoteLinuxProcessFromLinux( action , auth ) );
+		if( core.sessionType == VarSESSIONTYPE.UNIXREMOTE )
+			return( process.createRemoteLinuxProcessFromLinux( action ) );
 
 		action.exitUnexpectedState();
 		return( false );

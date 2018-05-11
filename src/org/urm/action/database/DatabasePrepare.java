@@ -51,12 +51,12 @@ public class DatabasePrepare {
 		this.dstFolder = dst;
 		
 		meta = distStorage.meta;
-		distr = meta.getDistr();
-		database = meta.getDatabase();
+		distr = meta.getDistr( action );
+		database = meta.getDatabase( action );
 		errorFolder = "db-" + Common.getNameTimeStamp();
 		
 		S_CHECK_FAILED = false;
-		ALL_SCHEMA_LIST = Common.getList( dbDelivery.getDatabaseSchemaNames() );
+		ALL_SCHEMA_LIST = dbDelivery.SCHEMASET;
 		
 		action.debug( "prepare from " + src.folderPath + " to " + dst.folderPath + " (permitted schema list={" + ALL_SCHEMA_LIST + "}) ..." );
 		
@@ -70,12 +70,12 @@ public class DatabasePrepare {
 		FileSet[] F_ALIGNEDDIRLIST = null;
 		FileSet aligned = srcFileSet.getDirByPath( action , ALIGNED_FOLDER );
 		if( aligned != null )
-			F_ALIGNEDDIRLIST = aligned.getAllDirs();
+			F_ALIGNEDDIRLIST = aligned.dirs.values().toArray( new FileSet[0] );
 
 		// check scripts from SVN (exit on errors if no -s option)
 		checkAll( action , F_ALIGNEDDIRLIST );
 		if( S_CHECK_FAILED ) {
-			if( !action.isForced() ) {
+			if( !action.context.CTX_FORCE ) {
 				action.error( "script set check failed, cancelled" );
 				return( false );
 			}
@@ -110,7 +110,7 @@ public class DatabasePrepare {
 		S_CHECK_FAILED = false;
 
 		// check folders
-		for( String dir : P_ALIGNEDSET.getAllDirNames() ) {
+		for( String dir : Common.getSortedKeys( P_ALIGNEDSET.dirs ) ) {
 			if( dir.equals( COREDDL_FOLDER ) || 
 				dir.equals( COREDML_FOLDER ) || 
 				dir.equals( COREPRODONLY_FOLDER ) || 
@@ -204,7 +204,7 @@ public class DatabasePrepare {
 			F_REGIONALINDEX = "RR";
 
 		// add registration index
-		for( String x : P_CTLFROM.getAllFiles() ) {
+		for( String x : Common.getSortedKeys( P_CTLFROM.files ) ) {
 			if( !x.endsWith( ".ctl" ) )
 				continue;
 		
@@ -228,7 +228,7 @@ public class DatabasePrepare {
 
 	private boolean checkDuplicateIndex( ActionBase action , FileSet dir , String index , String ext ) throws Exception {
 		int count = 0;
-		for( String s : dir.getAllFiles() ) {
+		for( String s : dir.files.keySet() ) {
 			if( s.startsWith( index + "-" ) && s.endsWith( "." + ext ) ) {
 				count++;
 				if( count > 1 )
@@ -241,7 +241,7 @@ public class DatabasePrepare {
 	private void checkDir( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , String P_DIR , String P_TYPE , String P_SCHEMALIST ) throws Exception {
 		FileSet dir = P_ALIGNEDSET.getDirByPath( action , P_DIR );
 		action.trace( "check dir=" + P_DIR + " ..." );
-		for( String xbase : dir.getAllFiles() ) {
+		for( String xbase : Common.getSortedKeys( dir.files ) ) {
 			action.trace( "check file=" + xbase + " ..." );
 			
 			boolean F_ONEFAILED = false;
@@ -373,7 +373,7 @@ public class DatabasePrepare {
 
 		// process apply scripts
 		SQL_DST_DIR.ensureExists( action );
-		for( String x : SQL_SRC_DIR.getAllFiles() ) {
+		for( String x : Common.getSortedKeys( SQL_SRC_DIR.files ) ) {
 			if( !x.endsWith( ".sql" ) )
 				continue;
 			
@@ -401,7 +401,7 @@ public class DatabasePrepare {
 			LocalFolder dstRollback = SQL_DST_DIR.getSubFolder( action , Dist.ROLLBACK_FOLDER );
 			dstRollback.ensureExists( action );
 
-			for( String x : srcRollback.getAllFiles() ) {
+			for( String x : Common.getSortedKeys( srcRollback.files ) ) {
 				if( !x.endsWith( ".sql" ) )
 					continue;
 			
@@ -425,7 +425,7 @@ public class DatabasePrepare {
 	}
 
 	private void moveErrors( ActionBase action , FileSet P_ALIGNEDSET , String P_ALIGNEDID , String P_PATH , String P_COMMENT ) throws Exception {
-		if( !action.context.CTX_DBMOVE ) {
+		if( !action.context.CTX_MOVE_ERRORS ) {
 			action.error( "errors in " + P_PATH + ": " + P_COMMENT );
 			return;
 		}
@@ -440,17 +440,16 @@ public class DatabasePrepare {
 	private boolean checkSql( ActionBase action , FileSet P_ALIGNEDSET , String P_SCRIPT ) throws Exception {
 		LocalFolder scriptFolder = srcFolder.getSubFolder( action , P_ALIGNEDSET.dirPath );
 		String schemaName = Common.getListItem( P_SCRIPT , "-" , 1 );
-		MetaDatabaseSchema schema = database.getSchema( schemaName );
+		MetaDatabaseSchema schema = database.getSchema( action , schemaName );
 		
-		DatabaseSpecific specific = new DatabaseSpecific( meta , schema.DBMS_TYPE );
-		if( !specific.validateScriptContent( action , scriptFolder , P_SCRIPT ) ) {
+		if( !schema.specific.validateScriptContent( action , scriptFolder , P_SCRIPT ) ) {
 			S_ERROR_MSG = "invalid script content";
 			return( false );
 		}
 		
 		// check if regional
 		if( P_ALIGNEDSET.dirName.equals( REGIONAL_FOLDER ) ) {
-			String S_SPECIFIC_COMMENT = specific.getComments( action , "REGIONS " , scriptFolder , P_SCRIPT ); 
+			String S_SPECIFIC_COMMENT = schema.specific.getComments( action , "REGIONS " , scriptFolder , P_SCRIPT ); 
 			if( S_SPECIFIC_COMMENT.isEmpty() ) {
 				S_ERROR_MSG = "script should have REGIONS header property - " + P_SCRIPT;
 				return( false );

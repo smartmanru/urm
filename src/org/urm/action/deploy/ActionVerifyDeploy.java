@@ -6,32 +6,28 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfDiffSet;
 import org.urm.action.database.DatabaseClient;
 import org.urm.action.database.DatabaseRegistry;
 import org.urm.action.database.DatabaseRegistryRelease;
 import org.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.common.Common;
-import org.urm.common.action.CommandMethodMeta.SecurityAction;
-import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
-import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.VersionInfo;
-import org.urm.engine.shell.Shell;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileInfo;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerLocation;
-import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerLocation;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionVerifyDeploy extends ActionBase {
 
@@ -48,45 +44,34 @@ public class ActionVerifyDeploy extends ActionBase {
 	static String MD5FILE = "md5sum.txt";
 	
 	public ActionVerifyDeploy( ActionBase action , String stream , Dist dist ) {
-		super( action , stream , "Verify deployment, release=" + dist.RELEASEDIR );
+		super( action , stream );
 		this.dist = dist;
 	}
 
-	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		tobeFolder = artefactory.getWorkFolder( this , "tobe" );
-		if( super.context.CTX_CONFDEPLOY ) {
-			tobeConfigFolder = tobeFolder.getSubFolder( this , "config" );
-			tobeConfigFolder.ensureExists( this );
-		}
-		if( super.context.CTX_DEPLOYBINARY ) {
-			tobeBinaryFolder = tobeFolder.getSubFolder( this , "binary" );
-			tobeBinaryFolder.ensureExists( this );
-		}
+		tobeConfigFolder = tobeFolder.getSubFolder( this , "config" );
+		tobeConfigFolder.ensureExists( this );
+		tobeBinaryFolder = tobeFolder.getSubFolder( this , "binary" );
+		tobeBinaryFolder.ensureExists( this );
 		
-		if( super.context.CTX_CONFDEPLOY ) {
-			if( dist.isMaster() )
-				configure = new ActionConfigure( this , null , tobeConfigFolder );
-			else
-				configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
-			configure.context.CTX_HIDDEN = true;
-			if( !configure.runAll( state , scope , context.env , SecurityAction.ACTION_DEPLOY , false ) )
-				exit0( _Error.UnablePrepareConfiguration0 , "unable to prepare configuration files for comparison" );
-		}
+		if( dist.prod )
+			configure = new ActionConfigure( this , null , tobeConfigFolder );
+		else
+			configure = new ActionConfigure( this , null , dist , tobeConfigFolder );
+		configure.context.CTX_HIDDEN = true;
+		if( !configure.runAll( scope , context.env , SecurityAction.ACTION_DEPLOY , false ) )
+			exit0( _Error.UnablePrepareConfiguration0 , "unable to prepare configuration files for comparison" );
 		
 		asisFolder = artefactory.getWorkFolder( this , "asis" );
-		
-		if( super.context.CTX_CONFDEPLOY ) {
-			asisConfigFolder = asisFolder.getSubFolder( this , "config" );
-			asisConfigFolder.ensureExists( this );
-		}
-		if( super.context.CTX_DEPLOYBINARY ) {
-			asisBinaryFolder = asisFolder.getSubFolder( this , "binary" );
-			asisBinaryFolder.ensureExists( this );
-		}
+		asisConfigFolder = asisFolder.getSubFolder( this , "config" );
+		asisConfigFolder.ensureExists( this );
+		asisBinaryFolder = asisFolder.getSubFolder( this , "binary" );
+		asisBinaryFolder.ensureExists( this );
 		verifyOk = true;
 	}
 
-	@Override protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {
+	@Override protected void runAfter( ActionScope scope ) throws Exception {
 		if( super.isFailed() )
 			error( "errors checking environment" );
 		else {
@@ -97,7 +82,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		// ignore database and unreachable
 		MetaEnvServer server = target.envServer;
 		if( !server.isDeployPossible() ) {
@@ -110,33 +95,28 @@ public class ActionVerifyDeploy extends ActionBase {
 			return( SCOPESTATE.NotRun );
 		}
 
-		executeServer( target , target.set.scope.releaseDistScope );
-		if( !verifyOk ) {
-			super.fail1( _Error.VerifyDeployFailed1 , "failed verification of deployment, server=" + server.NAME , server.NAME );
-			return( SCOPESTATE.RunFail );
-		}
-		
+		executeServer( target );
 		return( SCOPESTATE.RunSuccess );
 	}
 	
-	private void executeServer( ActionScopeTarget target , ReleaseDistScope scope ) throws Exception {
+	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		
-		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
+		info( "============================================ execute server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
-		if( server.isRunDatabase() )
-			executeServerDatabase( scope , server );
+		if( server.isDatabase() )
+			executeServerDatabase( server );
 		else
-			executeServerApp( scope , target , server );
+			executeServerApp( target , server );
 	}
 
-	private void executeServerDatabase( ReleaseDistScope scope , MetaEnvServer server ) throws Exception {
+	private void executeServerDatabase( MetaEnvServer server ) throws Exception {
 		DatabaseClient client = new DatabaseClient();
 		if( !client.checkConnect( this , server ) )
 			exit1( _Error.UnableConnectServer1 , "unable to connect to server=" + server.NAME , server.NAME );
 
 		boolean verifyServer = true; 
-		for( String version : dist.release.getApplyVersions() ) {
+		for( String version : dist.release.getApplyVersions( this ) ) {
 			DatabaseRegistry registry = DatabaseRegistry.getRegistry( this , client );
 			DatabaseRegistryRelease release = registry.getReleaseInfo( this , version );
 			
@@ -159,7 +139,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 	}
 	
-	private void executeServerApp( ReleaseDistScope scope , ActionScopeTarget target , MetaEnvServer server ) throws Exception {
+	private void executeServerApp( ActionScopeTarget target , MetaEnvServer server ) throws Exception {
 		MetaEnvServerLocation[] F_ENV_LOCATIONS_BINARY = new MetaEnvServerLocation[0];
 		if( context.CTX_DEPLOYBINARY )
 			F_ENV_LOCATIONS_BINARY = server.getLocations( this , true , false );
@@ -174,29 +154,20 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 
 		// iterate by nodes
-		LocalFolder tobeBinaryServerFolder = null;
-		LocalFolder asisBinaryServerFolder = null;
-		if( context.CTX_DEPLOYBINARY ) {
-			tobeBinaryServerFolder = tobeBinaryFolder.getSubFolder( this , server.NAME );
-			asisBinaryServerFolder = asisBinaryFolder.getSubFolder( this , server.NAME );
-		}
+		LocalFolder tobeConfigServerFolder = configure.getLiveFolder( server );
+		LocalFolder asisConfigServerFolder = asisConfigFolder.getSubFolder( this , server.NAME );
+		LocalFolder tobeBinaryServerFolder = tobeBinaryFolder.getSubFolder( this , server.NAME );
+		LocalFolder asisBinaryServerFolder = asisBinaryFolder.getSubFolder( this , server.NAME );
+		tobeConfigServerFolder.ensureExists( this );
+		asisConfigServerFolder.ensureExists( this );
 
-		LocalFolder tobeConfigServerFolder = null;
-		LocalFolder asisConfigServerFolder = null;
-		if( context.CTX_CONFDEPLOY ) {
-			tobeConfigServerFolder = configure.getLiveFolder( server );
-			asisConfigServerFolder = asisConfigFolder.getSubFolder( this , server.NAME );
-			tobeConfigServerFolder.ensureExists( this );
-			asisConfigServerFolder.ensureExists( this );
-		}
-	
 		boolean verifyServer = true;
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
 			info( "execute server=" + server.NAME + " node=" + node.POS + " ..." );
 
 			// verify configs to each node
-			if( !executeNode( scope , server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeConfigServerFolder , asisConfigServerFolder , tobeBinaryServerFolder , asisBinaryServerFolder ) )
+			if( !executeNode( server , node , F_ENV_LOCATIONS_CONFIG , F_ENV_LOCATIONS_BINARY , tobeConfigServerFolder , asisConfigServerFolder , tobeBinaryServerFolder , asisBinaryServerFolder ) )
 				verifyServer = false;
 		}
 		
@@ -208,48 +179,44 @@ public class ActionVerifyDeploy extends ActionBase {
 		}
 	}
 
-	private boolean executeNode( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeConfigServerFolder , LocalFolder asisConfigServerFolder , LocalFolder tobeBinaryServerFolder , LocalFolder asisBinaryServerFolder ) throws Exception {
+	private boolean executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation[] confLocations , MetaEnvServerLocation[] binaryLocations , LocalFolder tobeConfigServerFolder , LocalFolder asisConfigServerFolder , LocalFolder tobeBinaryServerFolder , LocalFolder asisBinaryServerFolder ) throws Exception {
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		redist.recreateTmpFolder( this );
 		
 		boolean verifyNode = true;
-		MetaDistr distr = dist.meta.getDistr();
 		
 		// binaries
-		if( super.context.CTX_DEPLOYBINARY ) {
-			info( "verify binaries ..." );
-			for( MetaEnvServerLocation location : binaryLocations ) {
-				String[] items = location.getNodeBinaryItems( node );
-				for( String item : items ) {
-					MetaDistrBinaryItem binaryItem = distr.getBinaryItem( item );
-					if( !executeNodeBinary( server , node , location , binaryItem , tobeBinaryServerFolder , asisBinaryServerFolder ) )
-						verifyNode = false;
-				}
+		MetaDistr distr = dist.meta.getDistr( this );
+		info( "verify binaries ..." );
+		for( MetaEnvServerLocation location : binaryLocations ) {
+			String[] items = location.getNodeBinaryItems( this , node );
+			for( String item : items ) {
+				MetaDistrBinaryItem binaryItem = distr.getBinaryItem( this , item );
+				if( !executeNodeBinary( server , node , location , binaryItem , tobeBinaryServerFolder , asisBinaryServerFolder ) )
+					verifyNode = false;
 			}
 		}
 	
 		// configuration
-		if( super.context.CTX_CONFDEPLOY ) {
-			info( "verify configuration ..." );
-			for( MetaEnvServerLocation location : confLocations ) {
-				String[] items = location.getNodeConfItems( node );
-				for( String item : items ) {
-					MetaDistrConfItem confItem = distr.getConfItem( item );
-					executeNodeConf( scope , server , node , location , confItem , asisConfigServerFolder );
-				}
+		info( "verify configuration ..." );
+		for( MetaEnvServerLocation location : confLocations ) {
+			String[] items = location.getNodeConfItems( this , node );
+			for( String item : items ) {
+				MetaDistrConfItem confItem = distr.getConfItem( this , item );
+				executeNodeConf( server , node , location , confItem , asisConfigServerFolder );
 			}
+		}
 			
-			// compare configuration tobe and as is
-			if( confLocations.length > 0 ) {
-				String nodePrefix = "node" + node.POS + "-";
-				if( context.CTX_CHECK ) {
-					if( !showConfDiffs( scope , server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
-						verifyNode = false;
-				}
-				else {
-					if( !checkConfDiffs( scope , server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
-						verifyNode = false;
-				}
+		// compare configuration tobe and as is
+		if( confLocations.length > 0 ) {
+			String nodePrefix = "node" + node.POS + "-";
+			if( context.CTX_CHECK ) {
+				if( !showConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
+					verifyNode = false;
+			}
+			else {
+				if( !checkConfDiffs( server , node , tobeConfigServerFolder , asisConfigServerFolder , nodePrefix ) )
+					verifyNode = false;
 			}
 		}
 		
@@ -261,7 +228,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		return( verifyNode );
 	}
 		
-	private boolean showConfDiffs( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
+	private boolean showConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
 		boolean verifyNode = true;
 		
 		FileSet releaseSet = tobeServerFolder.getFileSet( this );
@@ -269,12 +236,12 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		debug( "calculate diff between: " + tobeServerFolder.folderPath + " and " + asisServerFolder.folderPath + " (prefix=" + nodePrefix + ") ..." );
 		ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , nodePrefix , true );
-		if( !dist.isMaster() )
+		if( !dist.prod )
 			diff.calculate( this , dist.release );
 		else
 			diff.calculate( this , null );
 		
-		if( diff.isDifferent() ) {
+		if( diff.isDifferent( this ) ) {
 			verifyNode = false;
 			String diffFile = asisServerFolder.getFilePath( this , "confdiff.txt" );
 			diff.save( this , diffFile );
@@ -292,7 +259,7 @@ public class ActionVerifyDeploy extends ActionBase {
 		return( verifyNode );
 	}
 
-	private boolean checkConfDiffs( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
+	private boolean checkConfDiffs( MetaEnvServer server , MetaEnvServerNode node , LocalFolder tobeServerFolder , LocalFolder asisServerFolder , String nodePrefix ) throws Exception {
 		boolean verifyNode = true;
 		
 		Map<String,String> tobeDirs = Common.copyListToMap( tobeServerFolder.getTopDirs( this ) ); 
@@ -340,10 +307,10 @@ public class ActionVerifyDeploy extends ActionBase {
 		return( verifyNode );
 	}
 	
-	private void executeNodeConf( ReleaseDistScope scope , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder asisConfigServerFolder ) throws Exception {
-		if( !dist.isMaster() ) {
-			if( scope.findCategoryDeliveryItem( DBEnumScopeCategoryType.CONFIG , confItem.NAME ) == null ) {
-				trace( "ignore non-release conf item=" + confItem.NAME );
+	private void executeNodeConf( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrConfItem confItem , LocalFolder asisConfigServerFolder ) throws Exception {
+		if( !dist.prod ) {
+			if( dist.release.findConfComponent( this , confItem.KEY ) == null ) {
+				trace( "ignore non-release conf item=" + confItem.KEY );
 				return;
 			}
 		}
@@ -357,58 +324,58 @@ public class ActionVerifyDeploy extends ActionBase {
 		
 		if( context.CTX_CHECK ) {
 			if( !redist.getConfigItem( this , asisConfFolder , confItem , location.DEPLOYPATH ) )
-				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.NAME , new String[] { confItem.NAME } );
+				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
 		}
 		else {
 			String asisMD5 = redist.getConfigItemMD5( this , confItem , location.DEPLOYPATH );
 			if( asisMD5 == null )
-				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.NAME , new String[] { confItem.NAME } );
+				ifexit( _Error.UnableGetConfigurationItem1 , "unable to get configuration item=" + confItem.KEY , new String[] { confItem.KEY } );
 			asisConfFolder.createFileFromString( this , MD5FILE , asisMD5 );
 		}
 	}
 
 	private boolean executeNodeBinary( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem binaryItem , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
-		if( binaryItem.isArchive() )
+		if( binaryItem.isArchive( this ) )
 			return( executeNodeArchive( server , node , location , binaryItem , tobeServerFolder , asisServerFolder ) );
 		
-		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true , false , false );
-		if( !distInfo.isFound() ) {
-			debug( "ignore non-release item=" + binaryItem.NAME );
+		DistItemInfo distInfo = dist.getDistItemInfo( this , binaryItem , true );
+		if( !distInfo.found ) {
+			debug( "ignore non-release item=" + binaryItem.KEY );
 			return( true );
 		}
 		
-		String deployBaseName = location.getDeployName( binaryItem.NAME );
+		String deployBaseName = location.getDeployName( this , binaryItem.KEY );
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		FileInfo runInfo = redist.getRuntimeItemInfo( this , binaryItem , location.DEPLOYPATH , deployBaseName );
 		if( runInfo.md5value == null ) {
-			error( "dist item=" + binaryItem.NAME + " is not found in location=" + location.DEPLOYPATH );
+			error( "dist item=" + binaryItem.KEY + " is not found in location=" + location.DEPLOYPATH );
 			return( false );
 		}
 		
-		if( !distInfo.checkMD5( runInfo ) ) {
-			error( "dist item=" + binaryItem.NAME + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
-				runInfo.md5value + " != " + distInfo.getMD5() + ")" );
+		if( !runInfo.md5value.equals( distInfo.md5value ) ) {
+			error( "dist item=" + binaryItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
+				runInfo.md5value + " != " + distInfo.md5value + ")" );
 			return( false );
 		}
 		
-		VersionInfo version = VersionInfo.getDistVersion( dist );
+		VersionInfo version = VersionInfo.getDistVersion( this , dist );
 		String runtimeName = redist.getDeployVersionedName( this , location , binaryItem , deployBaseName , version );
 		if( !runInfo.deployFinalName.equals( runtimeName ) ) {
-			info( "dist item=" + binaryItem.NAME + " is the same in location=" + location.DEPLOYPATH + 
+			info( "dist item=" + binaryItem.KEY + " is the same in location=" + location.DEPLOYPATH + 
 					", but name differs from expected (" + 
-					runInfo.deployFinalName + " != " + runtimeName + ")" );
+					runInfo.deployFinalName + " != " + distInfo.fileName + ")" );
 			return( true );
 		}
 		
-		debug( "exactly matched item=" + binaryItem.NAME );
+		debug( "exactly matched item=" + binaryItem.KEY );
 		return( true );
 	}
 
 	private boolean executeNodeArchive( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerLocation location , MetaDistrBinaryItem archiveItem , LocalFolder tobeServerFolder , LocalFolder asisServerFolder ) throws Exception {
 		boolean getMD5 = ( context.CTX_CHECK )? false : true;
-		DistItemInfo distInfo = dist.getDistItemInfo( this , archiveItem , getMD5 , false , false );
-		if( !distInfo.isFound() ) {
-			debug( "ignore non-release item=" + archiveItem.NAME );
+		DistItemInfo distInfo = dist.getDistItemInfo( this , archiveItem , getMD5 );
+		if( !distInfo.found ) {
+			debug( "ignore non-release item=" + archiveItem.KEY );
 			return( true );
 		}
 		
@@ -416,13 +383,13 @@ public class ActionVerifyDeploy extends ActionBase {
 		if( !context.CTX_CHECK ) {
 			FileInfo runInfo = redist.getRuntimeItemInfo( this , archiveItem , location.DEPLOYPATH , "" );
 			if( runInfo.md5value == null ) {
-				error( "dist item=" + archiveItem.NAME + " is not found in location=" + location.DEPLOYPATH );
+				error( "dist item=" + archiveItem.KEY + " is not found in location=" + location.DEPLOYPATH );
 				return( false );
 			}
 			
-			if( !distInfo.checkMD5( runInfo ) ) {
-				error( "dist item=" + archiveItem.NAME + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
-					runInfo.md5value + " != " + distInfo.getMD5() + ")" );
+			if( !runInfo.md5value.equals( distInfo.md5value ) ) {
+				error( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (" +
+					runInfo.md5value + " != " + distInfo.md5value + ")" );
 				return( false );
 			}
 		}
@@ -439,12 +406,12 @@ public class ActionVerifyDeploy extends ActionBase {
 			// copy file from dist area and extract
 			LocalFolder distFolder = tobeServerFolder.getSubFolder( this , "archive.dist" );
 			distFolder.recreateThis( this );
-			dist.copyDistFileToFolderRename( this , distFolder , distInfo.getDistItemFolder() , distInfo.getFinalName() , fileName );
+			dist.copyDistFileToFolderRename( this , distFolder , distInfo.subPath , distInfo.fileName , fileName );
 			distFolder.extractArchive( this , archiveItem.getArchiveType( this ), fileName , "" );
 			distFolder.removeFiles( this , fileName );
 			
 			// compare using diff
-			String name = "node" + node.POS + "-" + archiveItem.NAME + ".diff";
+			String name = "node" + node.POS + "-" + archiveItem.KEY + ".diff";
 			String diffFile = asisServerFolder.getFilePath( this , name );
 			
 			boolean isdiff = false;
@@ -456,29 +423,29 @@ public class ActionVerifyDeploy extends ActionBase {
 				ConfDiffSet diff = new ConfDiffSet( server.meta , releaseSet , prodSet , "" , false );
 				diff.calculate( this , null );
 				
-				if( diff.isDifferent() ) {
+				if( diff.isDifferent( this ) ) {
 					diff.save( this , diffFile );
 					isdiff = true;
 				}
 			}
 			else {
-				int status = shell.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile , Shell.WAIT_LONG );
+				int status = shell.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile );
 				if( status != 0 )
 					isdiff = true;
 			}
 			
 			if( isdiff ) {
 				if( context.CTX_SHOWALL )
-					error( "dist item=" + archiveItem.NAME + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
+					error( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive (see " + diffFile + ")" );
 				else {
-					error( "dist item=" + archiveItem.NAME + " in location=" + location.DEPLOYPATH + " differs from distributive:" );
+					error( "dist item=" + archiveItem.KEY + " in location=" + location.DEPLOYPATH + " differs from distributive:" );
 					info( "see differences at " + diffFile );
 				}
 				return( false );
 			}
 		}
 		
-		debug( "exactly matched item=" + archiveItem.NAME );
+		debug( "exactly matched item=" + archiveItem.KEY );
 		return( true );
 	}
 	

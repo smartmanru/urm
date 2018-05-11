@@ -30,6 +30,30 @@
   - messaging integrations
   - urm is 1.7 java application launching parallel local and remote sessions for execution of specific command streams
   
+## Installation
+
+  - download all files to temporary folder
+  - choose local home directory for your instance
+  - run one of
+	install.cmd <home directory> [standalone] - standalone version (by default)
+	install.sh <home directory> [standalone] - standalone version (by default)
+	install.cmd <home directory> server - enterprise version
+	install.sh <home directory> server - enterprise version
+  - it will create initial strucutre where you can define your products
+  - define your products
+  - to run in console mode go to bin folder and execute configure (run configure help)
+  	run congugure.cmd to create Windows helper scripts in all specified products and environments
+  	run congugure.sh to create Linux helper scripts in all specified products and environments
+  - see "Using svn..." below to bring URM under version control
+
+## Upgrade
+
+  - download all files to temporary folder on host where home directory for your URM instance resides
+  - run one of
+	upgrade.cmd <home directory>
+	upgrade.sh <home directory>
+  - see "Using svn..." below to bring URM under version control
+
 ## Using svn
   - when need to redistribute URM instance to other adminstration hosts
   - when need to setup version control of product specifications

@@ -7,9 +7,9 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.product.MetaProductDoc;
 
 public class FileSet {
 
@@ -19,9 +19,9 @@ public class FileSet {
 	public String dirPath;
 	public String dirName;
 	// map basename to dir
-	private Map<String,FileSet> dirs = new HashMap<String,FileSet>();
+	public Map<String,FileSet> dirs = new HashMap<String,FileSet>();
 	// map basename to path relative to rootFolder
-	private Map<String,String> files = new HashMap<String,String>();
+	public Map<String,String> files = new HashMap<String,String>();
 	// find content
 	public List<String> dirList;
 	public List<String> fileList;
@@ -52,61 +52,6 @@ public class FileSet {
 
 	public void addFile( String baseName ) throws Exception {
 		files.put( baseName , Common.getPath( dirPath , baseName ) );
-	}
-	
-	public String[] getAllDirNames() {
-		return( Common.getSortedKeys( dirs ) );
-	}
-	
-	public FileSet[] getAllDirs() {
-		List<FileSet> sorted = new LinkedList<FileSet>();
-		for( String dir : Common.getSortedKeys( dirs ) )
-			sorted.add( dirs.get( dir ) );
-		return( sorted.toArray( new FileSet[0] ) );
-	}
-	
-	public FileSet findDirByName( String name ) {
-		return( dirs.get( name ) );
-	}
-	
-	public boolean findFileByName( String name ) {
-		return( files.containsKey( name ) );
-	}
-	
-	public String findFileMatched( String regexp ) {
-		for( String s : files.keySet() ) {
-			if( s.matches( regexp ) )
-				return( files.get( s ) );
-		}
-		for( FileSet dir : dirs.values() ) {
-			String f = dir.findFileMatched( regexp );
-			if( f != null )
-				return( f );
-		}
-		return( null );
-	}
-	
-	public String[] getFilesMatched( String regexp ) {
-		List<String> files = new LinkedList<String>();
-		getFilesMatchedInternal( files , regexp );
-		return( Common.getSortedList( files ) );
-	}
-	
-	private void getFilesMatchedInternal( List<String> list , String regexp ) {
-		for( String s : files.keySet() ) {
-			if( s.matches( regexp ) )
-				list.add( files.get( s ) );
-		}
-		for( FileSet dir : dirs.values() )
-			dir.getFilesMatchedInternal( list , regexp );
-	}
-	
-	public String[] getAllFiles() {
-		return( Common.getSortedKeys( files ) );
-	}
-	
-	public String getFilePath( String name ) {
-		return( files.get( name ) );
 	}
 	
 	public FileSet createDir( String dir ) throws Exception {
@@ -179,18 +124,14 @@ public class FileSet {
 		return( findDistItem( action , distItem , "" ) );
 	}
 	
-	public String findDistItem( ActionBase action , MetaProductDoc doc ) throws Exception {
-		return( findDistItem( action , doc , "" ) );
-	}
-	
 	public String findDistItem( ActionBase action , MetaDistrBinaryItem distItem , String subPath ) throws Exception {
 		FileSet delivery = getDirByPath( action , subPath );
 		if( delivery == null ) {
-			action.trace( "missing delivery folder=" + subPath + " for distItem=" + distItem.NAME );
+			action.trace( "missing delivery folder=" + subPath + " for distItem=" + distItem.KEY );
 			return( "" );
 		}
 		
-		String[] patterns = distItem.getVersionPatterns();
+		String[] patterns = Meta.getVersionPatterns( action , distItem );
 		for( String baseName : delivery.files.keySet() ) {
 			for( String pattern : patterns ) {
 				if( baseName.matches( pattern ) )
@@ -198,39 +139,22 @@ public class FileSet {
 			}
 		}
 		
-		action.trace( "missing distItem=" + distItem.NAME + " (path=" + subPath + ", search using " + Common.getList( patterns) + ")" );
-		return( "" );
-	}
-
-	public String findDistItem( ActionBase action , MetaProductDoc doc , String subPath ) throws Exception {
-		FileSet delivery = getDirByPath( action , subPath );
-		if( delivery == null ) {
-			action.trace( "missing delivery folder=" + subPath + " for doc=" + doc.NAME );
-			return( "" );
-		}
-
-		String docname = doc.NAME + doc.EXT;
-		for( String baseName : delivery.files.keySet() ) {
-			if( baseName.equals( docname ) )
-				return( baseName );
-		}
-		
-		action.trace( "missing doc=" + doc.NAME + " (path=" + subPath + ")" );
+		action.trace( "missing distItem=" + distItem.KEY + " (path=" + subPath + ", search using " + Common.getList( patterns) + ")" );
 		return( "" );
 	}
 
 	public String findDistItem( ActionBase action , MetaDistrConfItem distItem , String subPath ) throws Exception {
 		FileSet delivery = getDirByPath( action , subPath );
 		if( delivery == null ) {
-			action.trace( "missing delivery folder=" + subPath + " for distItem=" + distItem.NAME );
+			action.trace( "missing delivery folder=" + subPath + " for distItem=" + distItem.KEY );
 			return( "" );
 		}
 
-		FileSet comp = delivery.getDirByPath( action , distItem.NAME );
+		FileSet comp = delivery.getDirByPath( action , distItem.KEY );
 		if( comp != null )
-			return( distItem.NAME );
+			return( distItem.KEY );
 		
-		action.trace( "missing distItem=" + distItem.NAME + " (path=" + subPath + ")" );
+		action.trace( "missing distItem=" + distItem.KEY + " (path=" + subPath + ")" );
 		return( "" );
 	}
 

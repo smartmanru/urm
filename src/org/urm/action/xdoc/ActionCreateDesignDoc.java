@@ -6,21 +6,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
-import org.urm.engine.shell.Shell;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.engine.storage.ProductStorage;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.ProductEnvs;
+import org.urm.engine.storage.MetadataStorage;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDesignDiagram;
+import org.urm.meta.product.MetaDesign;
 import org.urm.meta.product.MetaDesignElement;
 import org.urm.meta.product.MetaDesignLink;
-import org.urm.meta.product.MetaDocs;
+import org.urm.meta.product.MetaEnv;
+import org.urm.meta.product.MetaEnvSegment;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaProductSettings;
 
 public class ActionCreateDesignDoc extends ActionBase {
 
@@ -29,21 +25,18 @@ public class ActionCreateDesignDoc extends ActionBase {
 	String OUTDIR;
 	Map<String,List<MetaEnvServer>> prodServers;
 	
-	public ActionCreateDesignDoc( ActionBase action , String stream , Meta meta , String CMD , String OUTDIR ) {
-		super( action , stream , "Create diagram, cmd=" + CMD );
-		this.meta = meta;
+	public ActionCreateDesignDoc( ActionBase action , Meta meta , String stream , String CMD , String OUTDIR ) {
+		super( action , stream );
 		this.CMD = CMD;
 		this.OUTDIR = OUTDIR;
 	}
 
-	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		getProdServers();
 		
-		AppProduct product = meta.findProduct();
-		ProductStorage ms = artefactory.getMetadataStorage( this , product );
-		MetaDocs docs = meta.getDocs();
+		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
 		for( String designFile : ms.getDesignFiles( this ) ) {
-			MetaDesignDiagram design = docs.findDiagram( designFile );
+			MetaDesign design = meta.getDesignData( this , designFile );
 			
 			String designBase = Common.getPath( OUTDIR , Common.getPartBeforeLast( designFile , ".xml" ) );
 			createDesignDocs( design , designBase );
@@ -52,7 +45,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		return( SCOPESTATE.RunSuccess );
 	}
 		
-	private void createDesignDocs( MetaDesignDiagram design , String designBase ) throws Exception {
+	private void createDesignDocs( MetaDesign design , String designBase ) throws Exception {
 		verifyConfiguration( design );
 		
 		String dotFile = designBase + ".dot";
@@ -70,9 +63,10 @@ public class ActionCreateDesignDoc extends ActionBase {
 	private void getProdServers() throws Exception {
 		prodServers = new HashMap<String,List<MetaEnvServer>>();
 		
-		ProductEnvs envs = meta.getEnviroments();
-		for( String envName : envs.getEnvNames() ) {
-			MetaEnv env = envs.findMetaEnv( envName );
+		MetadataStorage ms = artefactory.getMetadataStorage( this , meta );
+		String[] files = ms.getEnvFiles( this );
+		for( String envFile : files ) {
+			MetaEnv env = meta.getEnvData( this , envFile , false );
 			if( !env.isProd() )
 				continue;
 			
@@ -90,7 +84,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 		}
 	}
 	
-	private void verifyConfiguration( MetaDesignDiagram design ) throws Exception {
+	private void verifyConfiguration( MetaDesign design ) throws Exception {
 		Map<String,List<MetaEnvServer>> designServers = new HashMap<String,List<MetaEnvServer>>();
 		
 		// verify all design servers are mentioned in prod environment
@@ -114,27 +108,27 @@ public class ActionCreateDesignDoc extends ActionBase {
 		}
 	}
 
-	private void createDot( MetaDesignDiagram design , String fileName ) throws Exception {
+	private void createDot( MetaDesign design , String fileName ) throws Exception {
 		List<String> lines = new LinkedList<String>();
 		
 		createDotHeading( lines );
 		
 		// add top-level elements
 		for( String elementName : Common.getSortedKeys( design.childs ) ) {
-			MetaDesignElement element = design.getElement( elementName );
+			MetaDesignElement element = design.getElement( this , elementName );
 			createDotElement( lines , element , false );
 		}
 		lines.add( "" );
 		
 		// add subgraphs
 		for( String elementName : Common.getSortedKeys( design.groups ) ) {
-			MetaDesignElement element = design.getElement( elementName );
+			MetaDesignElement element = design.getElement( this , elementName );
 			createDotSubgraph( lines , element );
 		}
 		lines.add( "" );
 		
 		for( String elementName : Common.getSortedKeys( design.elements ) ) {
-			MetaDesignElement element = design.getElement( elementName );
+			MetaDesignElement element = design.getElement( this , elementName );
 			for( String linkName : Common.getSortedKeys( element.links ) ) {
 				MetaDesignLink link = element.getLink( this , linkName );
 				createDotLink( lines , element , link );
@@ -142,11 +136,12 @@ public class ActionCreateDesignDoc extends ActionBase {
 		}
 
 		createDotFooter( lines );
-		Common.createFileFromStringList( execrc , fileName ,  lines );
+		Common.createFileFromStringList( fileName ,  lines );
 	}
 
 	private void createDotHeading( List<String> lines ) throws Exception {
-		lines.add( "digraph " + Common.getQuoted( meta.name ) + " {" );
+		MetaProductSettings product = meta.getProductSettings( this );
+		lines.add( "digraph " + Common.getQuoted( product.CONFIG_PRODUCT ) + " {" );
 		lines.add( "\tcharset=" + Common.getQuoted( "utf8" ) + ";" );
 		lines.add( "\tsplines=false;" );
 		lines.add( "\tnode [shape=box, style=" + Common.getQuoted( "filled" ) + ", fontsize=10];" );
@@ -234,7 +229,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 
 	private void createPng( String fileDot , String filePng ) throws Exception {
 		String cmd = "dot -Tpng " + fileDot + " -o " + filePng;
-		shell.customCheckStatus( this , cmd , Shell.WAIT_LONG );
+		shell.customCheckStatus( this , cmd );
 	}
 	
 }

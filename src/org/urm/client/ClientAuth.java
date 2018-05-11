@@ -54,7 +54,7 @@ public class ClientAuth {
 		
 	};
 	
-	ClientEngineConsole client;
+	ClientEngine client;
 	
 	public static String signatureData = "Fa0LSuhEyLbZDdBqGPDjTTDyUP9kiX34234$#34234"; 
 	
@@ -67,7 +67,7 @@ public class ClientAuth {
 	public String authUser;
 	public String authPassword;
 
-	public ClientAuth( ClientEngineConsole client ) {
+	public ClientAuth( ClientEngine client ) {
 		this.client = client;
 	}
 	
@@ -103,7 +103,7 @@ public class ClientAuth {
 			folder.setExecutable( true , true );
 		}
 		
-		Common.createFileFromString( execrc , authFile , "" );
+		Common.createFileFromString( authFile , "" );
 		File file = new File( authFile );
 		file.setReadable( true , true );
 		file.setWritable( true , true );
@@ -118,11 +118,8 @@ public class ClientAuth {
 		String key = options.getParamValue( OptionsMeta.OPT_KEY );
 		String password = options.getParamValue( OptionsMeta.OPT_PASSWORD );
 		if( user.isEmpty() ) {
-			user = readConsole( "Please enter user name: " , false );
-			if( user.isEmpty() ) {
-				builder.out( "User parameter is required" );
-				return( null );
-			}
+			builder.out( "User parameter is required" );
+			return( null );
 		}
 		
 		Properties props = new Properties();

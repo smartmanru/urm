@@ -1,50 +1,49 @@
 package org.urm.action;
 
-import org.urm.engine.EventService;
-import org.urm.engine.events.EngineEventsSource;
-import org.urm.engine.events.EngineEventsState;
-import org.urm.engine.status.ObjectState;
-import org.urm.engine.status.ScopeState;
+import org.urm.engine.ServerEventsSource;
+import org.urm.engine.ServerEventsState;
 
-public class ActionEventsSource extends EngineEventsSource {
+public class ActionEventsSource extends ServerEventsSource {
 
 	ActionEventsState rootState;
 
+	public static int EVENT_FINISHSTATE = 1;
+	
 	public ActionEventsSource( ActionCore action ) {
 		super( action.engine.getEvents() , action.getClass().getSimpleName() + "-" + action.ID );
 	}
 
 	@Override
-	public EngineEventsState getState() {
+	public ServerEventsState getState() {
 		return( rootState );
 	}
 
-	public void setRootState( ScopeState state ) {
-		rootState = new ActionEventsState( this , state );
+	public void setRootState( ScopeState scopeState ) {
+		rootState = new ActionEventsState( this , scopeState );
 	}
 	
 	public void finishScopeItem( ScopeState state ) {
-		super.notify( EventService.OWNER_ENGINE , EventService.EVENT_FINISHSTATE , state );
+		super.trigger( EVENT_FINISHSTATE , state );
 	}
 	
-	public void startScopeItem( ScopeState state ) {
-		super.notify( EventService.OWNER_ENGINE , EventService.EVENT_STARTSTATE , state );
+	public void finishScopeItem( int event , ScopeState state ) {
+		super.trigger( event , state );
 	}
 	
-	public void finishScopeItem( int eventOwner , int eventType , ScopeState state ) {
-		super.notify( eventOwner , eventType , state );
+	public void forwardScopeItem( int eventType , ScopeState state ) {
+		super.trigger( eventType , state );
 	}
 
-	public void startScopeItem( int eventOwner , int eventType , ScopeState state ) {
-		super.notify( eventOwner , eventType , state );
-	}
-	
-	public void forwardState( int eventOwner , int eventType , ObjectState state ) {
-		super.notify( eventOwner , eventType , state );
+	public ScopeState findSetState( ActionScopeSet set ) {
+		return( rootState.scopeState.findSetState( set ) );
 	}
 
-	public void customEvent( int eventOwner , int eventType , Object data ) {
-		super.notify( eventOwner , eventType , data );
+	public ScopeState findTargetState( ActionScopeTarget target ) {
+		return( rootState.scopeState.findTargetState( target ) );
+	}
+
+	public void customEvent( int eventType , Object data ) {
+		super.trigger( eventType , data );
 	}
 
 }

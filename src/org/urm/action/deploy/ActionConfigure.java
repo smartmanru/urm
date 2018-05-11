@@ -8,21 +8,18 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDistScope;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerDeployment;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.Types.*;
 
 public class ActionConfigure extends ActionBase {
 
@@ -31,12 +28,12 @@ public class ActionConfigure extends ActionBase {
 	LocalFolder templateFolder;
 	
 	public ActionConfigure( ActionBase action , String stream , LocalFolder baseFolder ) {
-		super( action , stream , "Create product configuration files" );
+		super( action , stream );
 		this.baseFolder = baseFolder;
 	}
 	
 	public ActionConfigure( ActionBase action , String stream , Dist dist , LocalFolder baseFolder ) {
-		super( action , stream , "Create configuration files, release=" + dist.RELEASEDIR );
+		super( action , stream );
 		this.dist = dist;
 		this.baseFolder = baseFolder;
 	}
@@ -59,7 +56,7 @@ public class ActionConfigure extends ActionBase {
 		return( live );
 	}
 	
-	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		baseFolder.recreateThis( this );
 		templateFolder = baseFolder.getSubFolder( this , "templates" );
 		info( "prepare configuraton files in " + baseFolder.folderPath + " ..." );
@@ -67,37 +64,29 @@ public class ActionConfigure extends ActionBase {
 		
 		// collect components
 		Map<String, MetaDistrConfItem> confs = new HashMap<String, MetaDistrConfItem>(); 
-		for( ActionScopeSet set : scope.getSets( this ) ) {
-			for( ActionScopeTarget target : set.getTargets() ) {
-				for( MetaDistrConfItem item : target.envServer.getConfItems() )
-					confs.put( item.NAME , item );
-			}
-		}
+		for( ActionScopeSet set : scope.getSets( this ) )
+			for( ActionScopeTarget target : set.getTargets( this ).values() )
+				confs.putAll( target.envServer.getConfItems( this ) );
 		
 		// export/copy to template folder
 		for( MetaDistrConfItem conf : confs.values() )
-			fillTemplateFolder( conf , scope.releaseDistScope );
+			fillTemplateFolder( conf );
 	}
 
-	private void fillTemplateFolder( MetaDistrConfItem conf , ReleaseDistScope scope ) throws Exception {
+	private void fillTemplateFolder( MetaDistrConfItem conf ) throws Exception {
 		if( dist == null ) {
 			// download configuration templates
 			SourceStorage sourceStorage = artefactory.getSourceStorage( this , conf.meta );
-			sourceStorage.exportTemplateConfigItem( this , null , conf.NAME , "" , templateFolder );
+			sourceStorage.exportTemplateConfigItem( this , null , conf.KEY , "" , templateFolder );
 			return;
 		}
 		
 		// copy from release
-		if( scope.findCategoryDeliveryItem( DBEnumScopeCategoryType.CONFIG , conf.NAME ) != null ) {
-			LocalFolder folder = templateFolder.getSubFolder( this , conf.NAME );
-			if( folder.checkExists( this ) )
-				dist.copyDistConfToFolder( this , conf , folder );
-			else
-				super.debug( "missing configuration component=" + conf.NAME );
-		}
+		if( dist.release.findCategoryTarget( this , VarCATEGORY.CONFIG , conf.KEY ) != null )
+			dist.copyDistConfToFolder( this , conf , templateFolder.getSubFolder( this , conf.KEY ) );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
 		
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , target.meta );
@@ -112,19 +101,17 @@ public class ActionConfigure extends ActionBase {
 
 	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , SourceStorage sourceStorage , LocalFolder parent ) throws Exception {
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( deployment.isConfItem() ) {
-				MetaDistrConfItem confItem = deployment.getConfItem(); 
-				String name = sourceStorage.getConfItemLiveName( this , node , confItem );
-				executeNodeConf( parent , sourceStorage , server , node , deployment , confItem , name );
+			if( deployment.confItem != null ) {
+				String name = sourceStorage.getConfItemLiveName( this , node , deployment.confItem );
+				executeNodeConf( parent , sourceStorage , server , node , deployment , deployment.confItem , name );
 				continue;
 			}
 			
 			// deployments
-			if( !deployment.isComponent() )
+			if( deployment.comp == null )
 				continue;
 			
-			MetaDistrComponent comp = deployment.getComponent();
-			for( MetaDistrComponentItem compItem : comp.getConfItems() ) {
+			for( MetaDistrComponentItem compItem : deployment.comp.getConfItems() ) {
 				if( compItem.confItem != null ) {
 					String name = sourceStorage.getConfItemLiveName( this , node , compItem.confItem );
 					executeNodeConf( parent , sourceStorage , server , node , deployment , compItem.confItem , name );
@@ -134,7 +121,7 @@ public class ActionConfigure extends ActionBase {
 	}
 	
 	private void executeNodeConf( LocalFolder parent , SourceStorage sourceStorage , MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerDeployment deployment , MetaDistrConfItem confItem , String name ) throws Exception {
-		LocalFolder template = templateFolder.getSubFolder( this , confItem.NAME );
+		LocalFolder template = templateFolder.getSubFolder( this , confItem.KEY );
 		if( !template.checkExists( this ) ) {
 			if( dist == null )
 				this.exitUnexpectedState();
@@ -142,7 +129,7 @@ public class ActionConfigure extends ActionBase {
 			return;
 		}
 		
-		info( "server=" + server.NAME + ", node" + node.POS + ": prepare configuraton item=" + confItem.NAME );
+		info( "server=" + server.NAME + ", node" + node.POS + ": prepare configuraton item=" + confItem.KEY );
 		LocalFolder live = parent.getSubFolder( this , name );
 		live.recreateThis( this );
 		

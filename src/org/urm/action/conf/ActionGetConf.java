@@ -2,29 +2,25 @@ package org.urm.action.conf;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.SourceStorage;
 
 public class ActionGetConf extends ActionBase {
 
-	public Dist dist;
-	public LocalFolder downloadFolder;
-	public boolean copyDist;
+	Dist release;
 	
-	public ActionGetConf( ActionBase action , String stream , Dist dist , LocalFolder downloadFolder , boolean copyDist ) {
-		super( action , stream , "Get configuration files, " + 
-				( ( dist == null )? "default built" : "release=" + dist.RELEASEDIR ) + 
-				", change distr=" + copyDist );
-		this.dist = dist;
-		this.downloadFolder = downloadFolder;
-		this.copyDist = copyDist;
+	public ActionGetConf( ActionBase action , String stream , Dist release ) {
+		super( action , stream );
+		this.release = release;
 	}
 
 	protected SCOPESTATE executeScopeTarget( ActionScopeTarget scopeItem ) throws Exception {
+		LocalFolder downloadFolder = artefactory.getDownloadFolder( this , scopeItem.meta );
+		
 		// export from source
-		String KEY = scopeItem.confItem.NAME;
+		String KEY = scopeItem.confItem.KEY;
 		SourceStorage sourceStorage = artefactory.getSourceStorage( this , scopeItem.meta , downloadFolder );
 		info( "get configuration item " + KEY + " ..." );
 		
@@ -33,9 +29,9 @@ public class ActionGetConf extends ActionBase {
 		
 		ConfSourceFolder sourceFolder = new ConfSourceFolder( scopeItem.meta );
 		boolean res = false;
-		if( dist != null ) {
-			sourceFolder.createReleaseConfigurationFolder( this , scopeItem.releaseDistScopeDeliveryItem );
-			res = sourceStorage.downloadReleaseConfigItem( this , dist , sourceFolder , confFolder );
+		if( release != null ) {
+			sourceFolder.createReleaseConfigurationFolder( this , scopeItem.releaseTarget );
+			res = sourceStorage.downloadReleaseConfigItem( this , release , sourceFolder , confFolder );
 		}
 		else {
 			sourceFolder.createProductConfigurationFolder( this , scopeItem.confItem );
@@ -43,8 +39,9 @@ public class ActionGetConf extends ActionBase {
 		}
 
 		// copy to distributive 
-		if( copyDist && res )
-			dist.copyConfToDistr( this , confFolder.getSubFolder( this , KEY ) , sourceFolder.distrComp );
+		boolean copyDistr = context.CTX_DIST;
+		if( copyDistr && res )
+			release.copyConfToDistr( this , confFolder.getSubFolder( this , KEY ) , sourceFolder.distrComp );
 		
 		return( SCOPESTATE.RunSuccess );
 	}

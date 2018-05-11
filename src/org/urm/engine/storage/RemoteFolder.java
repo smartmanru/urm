@@ -1,7 +1,5 @@
 package org.urm.engine.storage;
 
-import java.util.Date;
-
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
@@ -21,21 +19,21 @@ public class RemoteFolder extends Folder {
 		return( session );
 	}
 	
-	public void copyVFileFromLocal( ActionBase action , LocalFolder localFolder , String SNAME , String DFOLDER , String DNAME , String DBASENAME , String DEXT ) throws Exception {
+	public void copyVFileFromLocal( ActionBase action , LocalFolder localFolder , String FNAME , String FOLDER , String BASENAME , String EXT ) throws Exception {
 		String srcDir = localFolder.folderPath;
-		String dstDir = Common.getPath( folderPath , DFOLDER );
+		String dstDir = Common.getPath( folderPath , FOLDER );
 
 		ShellExecutor session = getSession( action );
 		if( !session.checkDirExists( action , dstDir ) )
 			action.exit1( _Error.MissingTargetDirectory1 , "target directory " + dstDir + " does not exist" , dstDir );
 			
-		if( !DBASENAME.isEmpty() )
-			deleteVOld( action , session , DFOLDER , DBASENAME , DEXT );
+		if( !BASENAME.isEmpty() )
+			deleteVOld( action , session , FOLDER , BASENAME , EXT );
 		
-		String srcPath = Common.getPath( srcDir , SNAME );
+		String finalName = Common.getPath( srcDir , FNAME );
 		
-		action.shell.copyFileLocalToTargetRename( action , account , srcPath , dstDir , DNAME );
-		action.shell.copyFileLocalToTargetRename( action , account , srcPath + ".md5" , dstDir , DNAME + ".md5" );
+		action.shell.copyFileLocalToTarget( action , account , finalName , dstDir );
+		action.shell.copyFileLocalToTarget( action , account , finalName + ".md5" , dstDir );
 	}
 
 	public void deleteVOld( ActionBase action , ShellExecutor session , String FOLDER , String BASENAME , String EXT ) throws Exception {
@@ -177,24 +175,6 @@ public class RemoteFolder extends Folder {
 			action.exitNotImplemented();
 		
 		return( action.shell.getFileContentAsString( action , getFilePath( action , file ) ) );
-	}
-
-	public Date getFileChangeTime( ActionBase action , String file ) throws Exception {
-		if( account.local )
-			return( super.getFileChangeTime( action , file ) );
-		
-		String path = getFilePath( action , file );
-		ShellExecutor shell = action.getShell( account );
-		return( shell.getFileChangeTime( action , path ) );
-	}
-	
-	public long getFileSize( ActionBase action , String file ) throws Exception {
-		if( account.local )
-			return( super.getFileSize( action ,  file ) );
-		
-		String path = getFilePath( action , file );
-		ShellExecutor shell = action.getShell( account );
-		return( shell.getFileSize( action , path ) );
 	}
 	
 }

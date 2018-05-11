@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<auth>
+
+	<localusers>
+		<user name="admin" admin="yes"/>
+	</localusers>
+
+	<groups/>
+
+</auth>

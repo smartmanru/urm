@@ -2,11 +2,9 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeSet;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
-import org.urm.engine.shell.Shell;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 
 public class ActionChangeKeys extends ActionBase {
 
@@ -15,23 +13,19 @@ public class ActionChangeKeys extends ActionBase {
 	String S_AUTHFILE = ".ssh/authorized_keys";
 	
 	public ActionChangeKeys( ActionBase action , String stream , String cmd ) {
-		super( action , stream , "Change ssh keys, cmd=" + cmd );
+		super( action , stream );
 		
 		this.cmd = cmd;
 	}
 
-	@Override protected SCOPESTATE executeAccount( ScopeState state , ActionScopeSet set , Account account ) throws Exception {
-		// not implemented
-		super.exitNotImplemented();
-		
-		// NEEDS REWORK - still non-engine implementation
-		String F_NEWKEY = "TBD"; // context.env.ENVKEY.FKNAME;
+	@Override protected SCOPESTATE executeAccount( ActionScopeSet set , Account account ) throws Exception {
+		String F_NEWKEY = context.env.KEYFILE;
 		String F_OLDKEY = F_NEWKEY;
 
-		if( !context.CTX_NEWKEYRES.isEmpty() )
-			F_NEWKEY = context.CTX_NEWKEYRES;
-		if( !context.CTX_KEYRES.isEmpty() )
-			F_OLDKEY = context.CTX_KEYRES;
+		if( !context.CTX_NEWKEY.isEmpty() )
+			F_NEWKEY = context.CTX_NEWKEY;
+		if( !context.CTX_KEYNAME.isEmpty() )
+			F_OLDKEY = context.CTX_KEYNAME;
 		
 		String P_KEYFILENEXT = F_NEWKEY;
 		String P_KEYACCESS = F_OLDKEY;
@@ -85,7 +79,7 @@ public class ActionChangeKeys extends ActionBase {
 		String F_HOSTUSER = account.USER;
 		Account F_TARGETACCOUNT = account;
 		if( F_HOSTUSER.equals( "root" ) == false && context.CTX_SUDO )
-			F_TARGETACCOUNT = account.getRootAccount();
+			F_TARGETACCOUNT = account.getRootAccount( this );
 			
 		if( cmd.equals( "delete" ) == false && cmd.equals( "list" ) == false ) {
 			if( !tryConnect( F_TARGETACCOUNT , F_ACCESSOPTION ) ) {
@@ -102,7 +96,7 @@ public class ActionChangeKeys extends ActionBase {
 		String F_SETUPAUTH;
 		Account F_BEHALFACCOUNT = account;
 		if( F_HOSTUSER.equals( "root" ) == false && context.CTX_ROOTUSER ) {
-			F_BEHALFACCOUNT = account.getRootAccount();
+			F_BEHALFACCOUNT = account.getRootAccount( this );
 
 			if( !checkHostUser( F_BEHALFACCOUNT , F_ACCESSOPTION , F_HOSTUSER ) )
 				exit1( _Error.UnknownHostuser1 , "unknown hostuser=" + F_HOSTUSER , F_HOSTUSER );
@@ -158,7 +152,7 @@ public class ActionChangeKeys extends ActionBase {
 
 	private boolean tryConnect( Account account , String ACCESSOPTION ) throws Exception {
 		String F_CHECK = shell.customGetValueNoCheck( this , "ssh -n " + ACCESSOPTION + 
-				" -o PasswordAuthentication=no " + account.getSshAddr() + " " + Common.getQuoted( "echo ok" ) , Shell.WAIT_DEFAULT );
+				" -o PasswordAuthentication=no " + account.getSshAddr() + " " + Common.getQuoted( "echo ok" ) );
 		if( F_CHECK.equals( "ok" ) )
 			return( true );
 		return( false );
@@ -169,7 +163,7 @@ public class ActionChangeKeys extends ActionBase {
 			exitNotImplemented();
 		
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
-			Common.getQuoted( "cd ~" + user ) , Shell.WAIT_DEFAULT );
+			Common.getQuoted( "cd ~" + user ) );
 		if( status != 0 )
 			return( false );
 		return( true );
@@ -223,11 +217,13 @@ public class ActionChangeKeys extends ActionBase {
 		if( context.CTX_SUDO )
 			exit0( _Error.NotSupportedWithSudo0 , "unsupported with sudo" );
 		
+		int timeout = setTimeoutUnlimited();
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
 			Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + 
 				" | grep -v " + KEYOWNER + "\\$ > " + S_AUTHFILE + ".2; echo " + Common.getQuoted( KEYDATA ) + 
 				" >> " + S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + 
-				"; rm -rf " + S_AUTHFILE + ".2;" ) , Shell.WAIT_DEFAULT );
+				"; rm -rf " + S_AUTHFILE + ".2;" ) );
+		setTimeout( timeout );
 		
 		if( status != 0 )
 			return( false );
@@ -240,14 +236,16 @@ public class ActionChangeKeys extends ActionBase {
 		
 		int status;
 		
+		int timeout = setTimeoutUnlimited();
 		if( context.CTX_SUDO ) {
 			status = shell.customGetStatus( this , "ssh -n -t -t " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
-				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) , Shell.WAIT_DEFAULT );
+				Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " | sudo tee ~root/" + S_AUTHFILE ) );
 		}
 		else {
 			status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " + 
-					Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " > " + S_AUTHFILE ) , Shell.WAIT_DEFAULT );
+					Common.getQuoted( SETUPAUTH + "; echo " + Common.getQuoted( KEYDATA ) + " > " + S_AUTHFILE ) );
 		}
+		setTimeout( timeout );
 		
 		if( status != 0 )
 			return( false );
@@ -263,7 +261,7 @@ public class ActionChangeKeys extends ActionBase {
 		
 		int status = shell.customGetStatus( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
 		Common.getQuoted( SETUPAUTH + "; cat " + S_AUTHFILE + " | grep -v " + KEYOWNER + "\\$ > " +
-			S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + "; rm -rf " + S_AUTHFILE + ".2;" ) , Shell.WAIT_DEFAULT );
+			S_AUTHFILE + ".2; cp " + S_AUTHFILE + ".2 " + S_AUTHFILE + "; rm -rf " + S_AUTHFILE + ".2;" ) );
 		if( status != 0 )
 			return( false );
 		return( true );
@@ -276,8 +274,10 @@ public class ActionChangeKeys extends ActionBase {
 		if( context.CTX_SUDO )
 			exit0( _Error.NotSupportedWithSudo0 , "not supported with sudo" );
 		
+		int timeout = setTimeoutUnlimited();
 		String[] list = shell.customGetLines( this , "ssh -n " + ACCESSOPTION + " " + account.getSshAddr() + " " +
-				Common.getQuoted( SETUPAUTH ) , Shell.WAIT_DEFAULT );
+				Common.getQuoted( SETUPAUTH ) );
+		setTimeout( timeout );
 		if( list.length > 0 && list[0].equals( "NOAUTHFILE" ) )
 			exit1( _Error.AuthFileNotFound1 , S_AUTHFILE + " is not found" , S_AUTHFILE );
 		

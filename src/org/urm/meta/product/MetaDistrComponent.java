@@ -2,246 +2,305 @@ package org.urm.meta.product;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumChangeType;
-import org.urm.db.core.DBEnums.DBEnumCompItemType;
+import org.urm.common.ConfReader;
+import org.urm.engine.ServerTransaction;
+import org.urm.meta.Types.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 public class MetaDistrComponent {
 
-	public static String PROPERTY_NAME = "name";
-	public static String PROPERTY_DESC = "desc";
-	
 	public Meta meta;
 	public MetaDistr dist;
 
-	public int ID;
 	public String NAME;
 	public String DESC;
-	public int PV;
-	public DBEnumChangeType CHANGETYPE;
+	public boolean OBSOLETE;
 
-	private Map<Integer,MetaDistrComponentItem> mapBinaryItemsById;
-	private Map<Integer,MetaDistrComponentItem> mapConfItemsById;
-	private Map<Integer,MetaDistrComponentItem> mapSchemaItemsById;
-	private Map<Integer,MetaDistrComponentItem> mapWSByItemId;
+	private Map<String,MetaDistrComponentItem> mapBinaryItems;
+	private Map<String,MetaDistrComponentItem> mapConfItems;
+	private Map<String,MetaDistrComponentItem> mapSchemaItems;
+	private Map<String,MetaDistrComponentWS> mapWS;
 	
 	public MetaDistrComponent( Meta meta , MetaDistr dist ) {
 		this.meta = meta;
 		this.dist = dist;
 		
-		mapBinaryItemsById = new HashMap<Integer,MetaDistrComponentItem>();
-		mapConfItemsById = new HashMap<Integer,MetaDistrComponentItem>();
-		mapSchemaItemsById = new HashMap<Integer,MetaDistrComponentItem>();
-		mapWSByItemId = new HashMap<Integer,MetaDistrComponentItem>();
+		mapBinaryItems = new HashMap<String,MetaDistrComponentItem>();
+		mapConfItems = new HashMap<String,MetaDistrComponentItem>();
+		mapSchemaItems = new HashMap<String,MetaDistrComponentItem>();
+		mapWS = new HashMap<String,MetaDistrComponentWS>();
 	}
 
-	public MetaDistrComponent copy( Meta rmeta , MetaDistr rdistr , boolean all ) throws Exception {
-		MetaDistrComponent r = new MetaDistrComponent( rmeta , rdistr );
-		r.ID = ID;
+	public void createComponent( ServerTransaction transaction , String name ) throws Exception {
+		this.NAME = name;
+	}
+	
+	public void setData( ServerTransaction transaction , String desc ) throws Exception {
+		this.DESC = desc;
+	}
+	
+	public MetaDistrComponent copy( ActionBase action , Meta meta , MetaDistr distr ) throws Exception {
+		MetaDistrComponent r = new MetaDistrComponent( meta , distr );
 		r.NAME = NAME;
 		r.DESC = DESC;
-		r.PV = PV;
-		r.CHANGETYPE = CHANGETYPE;
+		r.OBSOLETE = OBSOLETE;
 		
-		if( all ) {
-			for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
-				MetaDistrComponentItem ritem = item.copy( rmeta , r );
-				r.addBinaryItem( ritem );
-			}
-			
-			for( MetaDistrComponentItem item : mapConfItemsById.values() ) {
-				MetaDistrComponentItem ritem = item.copy( rmeta , r );
-				r.addConfItem( ritem );
-			}
-			
-			for( MetaDistrComponentItem item : mapSchemaItemsById.values() ) {
-				MetaDistrComponentItem ritem = item.copy( rmeta , r );
-				r.addSchemaItem( ritem );
-			}
-	
-			for( MetaDistrComponentItem item : mapWSByItemId.values() ) {
-				MetaDistrComponentItem ritem = item.copy( rmeta , r );
-				r.addWebService( ritem );
-			}
+		for( MetaDistrComponentItem item : mapBinaryItems.values() ) {
+			MetaDistrComponentItem ritem = item.copy( action , meta , r );
+			r.mapBinaryItems.put( ritem.binaryItem.KEY , ritem );
+		}
+		
+		for( MetaDistrComponentItem item : mapConfItems.values() ) {
+			MetaDistrComponentItem ritem = item.copy( action , meta , r );
+			r.mapConfItems.put( ritem.confItem.KEY , ritem );
+		}
+		
+		for( MetaDistrComponentItem item : mapSchemaItems.values() ) {
+			MetaDistrComponentItem ritem = item.copy( action , meta , r );
+			r.mapSchemaItems.put( ritem.schema.SCHEMA , ritem );
+		}
+
+		for( MetaDistrComponentWS item : mapWS.values() ) {
+			MetaDistrComponentWS ritem = item.copy( action , meta , r );
+			r.mapWS.put( ritem.NAME , ritem );
 		}
 		
 		return( r );
 	}
 	
-	public void createComponent( String name , String desc ) throws Exception {
-		modifyComponent( name , desc );
+	public void load( ActionBase action , Node node ) throws Exception {
+		NAME = action.getNameAttr( node , VarNAMETYPE.ALPHANUMDOTDASH );
+		DESC = ConfReader.getAttrValue( node , "desc" );
+		OBSOLETE = ConfReader.getBooleanAttrValue( node , "obsolete" , false );
+		
+		Node[] items = ConfReader.xmlGetChildren( node , "distitem" );
+		if( items != null ) {
+			for( Node itemNode : items ) {
+				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
+				item.loadBinary( action , itemNode );
+				mapBinaryItems.put( item.binaryItem.KEY , item );
+			}
+		}
+		
+		items = ConfReader.xmlGetChildren( node , "confitem" );
+		if( items != null ) {
+			for( Node itemNode : items ) {
+				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
+				item.loadConf( action , itemNode );
+				mapConfItems.put( item.confItem.KEY , item );
+			}
+		}
+		
+		items = ConfReader.xmlGetChildren( node , "database" );
+		if( items != null ) {
+			for( Node itemNode : items ) {
+				MetaDistrComponentItem item = new MetaDistrComponentItem( meta , this );
+				item.loadSchema( action , itemNode );
+				mapSchemaItems.put( item.schema.SCHEMA , item );
+			}
+		}
+		
+		items = ConfReader.xmlGetChildren( node , "webservice" );
+		if( items == null )
+			return;
+		
+		for( Node itemNode : items ) {
+			MetaDistrComponentWS item = new MetaDistrComponentWS( meta , this );
+			item.load( action , itemNode );
+			mapWS.put( item.NAME , item );
+		}
 	}
 	
-	public void modifyComponent( String name , String desc ) throws Exception {
-		this.NAME = name;
-		this.DESC = desc;
-	}
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlSetElementAttr( doc , root , "name" , NAME );
+		Common.xmlSetElementAttr( doc , root , "desc" , DESC );
+		Common.xmlSetElementAttr( doc , root , "obsolete" , Common.getBooleanValue( OBSOLETE ) );
+		
+		for( MetaDistrComponentItem item : mapBinaryItems.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "distitem" );
+			item.save( action , doc , itemElement );
+		}
+		
+		for( MetaDistrComponentItem item : mapConfItems.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "confitem" );
+			item.save( action , doc , itemElement );
+		}
+		
+		for( MetaDistrComponentItem item : mapSchemaItems.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "database" );
+			item.save( action , doc , itemElement );
+		}
 
-	public void addItem( MetaDistrComponentItem item ) throws Exception {
-		if( item.COMPITEM_TYPE == DBEnumCompItemType.BINARY )
-			addBinaryItem( item );
-		else
-		if( item.COMPITEM_TYPE == DBEnumCompItemType.CONF )
-			addConfItem( item );
-		else
-		if( item.COMPITEM_TYPE == DBEnumCompItemType.SCHEMA )
-			addSchemaItem( item );
-		else
-		if( item.COMPITEM_TYPE == DBEnumCompItemType.WSDL )
-			addWebService( item );
-		else
-			Common.exitUnexpected();
-	}
+		for( MetaDistrComponentWS item : mapWS.values() ) {
+			Element itemElement = Common.xmlCreateElement( doc , root , "webservice" );
+			item.save( action , doc , itemElement );
+		}
+	}	
 	
-	public void addBinaryItem( MetaDistrComponentItem item ) {
-		mapBinaryItemsById.put( item.ID , item );
-	}
-	
-	public void addConfItem( MetaDistrComponentItem item ) {
-		mapConfItemsById.put( item.ID , item );
-	}
-	
-	public void addSchemaItem( MetaDistrComponentItem item ) {
-		mapSchemaItemsById.put( item.ID , item );
-	}
-	
-	public void addWebService( MetaDistrComponentItem item ) {
-		mapWSByItemId.put( item.ID , item );
-	}
-	
-	public boolean hasWebServices() {
-		if( mapWSByItemId.isEmpty() )
+	public boolean hasWebServices() throws Exception {
+		if( mapWS.isEmpty() )
 			return( false );
 		return( true );
 	}
 
-	public MetaDistrComponentItem[] getWebServices() {
-		return( mapWSByItemId.values().toArray( new MetaDistrComponentItem[0] ) );
+	public MetaDistrComponentWS[] getWebServices() {
+		return( mapWS.values().toArray( new MetaDistrComponentWS[0] ) );
 	}
 
 	public boolean hasBinaryItems() {
-		if( mapBinaryItemsById.isEmpty() )
+		if( mapBinaryItems.isEmpty() )
 			return( false );
 		return( true );
 	}
 
 	public boolean hasConfItems() {
-		if( mapConfItemsById.isEmpty() )
+		if( mapConfItems.isEmpty() )
 			return( false );
 		return( true );
 	}
 
 	public String[] getBinaryItemNames() {
-		Map<String,MetaDistrComponentItem> map = new HashMap<String,MetaDistrComponentItem>();
-		for( MetaDistrComponentItem item : mapBinaryItemsById.values() )
-			map.put( item.binaryItem.NAME , item );
-		return( Common.getSortedKeys( map ) );
+		return( Common.getSortedKeys( mapBinaryItems ) );
 	}
 	
 	public MetaDistrComponentItem[] getBinaryItems() {
-		return( mapBinaryItemsById.values().toArray( new MetaDistrComponentItem[0] ) );
+		return( mapBinaryItems.values().toArray( new MetaDistrComponentItem[0] ) );
 	}
 	
 	public String[] getConfItemNames() {
-		Map<String,MetaDistrComponentItem> map = new HashMap<String,MetaDistrComponentItem>();
-		for( MetaDistrComponentItem item : mapConfItemsById.values() )
-			map.put( item.confItem.NAME , item );
-		return( Common.getSortedKeys( map ) );
+		return( Common.getSortedKeys( mapConfItems ) );
 	}
 	
 	public MetaDistrComponentItem[] getConfItems() {
-		return( mapConfItemsById.values().toArray( new MetaDistrComponentItem[0] ) );
+		return( mapConfItems.values().toArray( new MetaDistrComponentItem[0] ) );
 	}
 	
 	public String[] getSchemaItemNames() {
-		Map<String,MetaDistrComponentItem> map = new HashMap<String,MetaDistrComponentItem>();
-		for( MetaDistrComponentItem item : mapSchemaItemsById.values() )
-			map.put( item.schema.NAME , item );
-		return( Common.getSortedKeys( map ) );
+		return( Common.getSortedKeys( mapSchemaItems ) );
 	}
 	
 	public MetaDistrComponentItem[] getSchemaItems() {
-		return( mapSchemaItemsById.values().toArray( new MetaDistrComponentItem[0] ) );
+		return( mapSchemaItems.values().toArray( new MetaDistrComponentItem[0] ) );
 	}
 
 	public MetaDistrComponentItem findBinaryItem( String name ) {
-		for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
-			if( item.binaryItem.NAME.equals( name ) )
-				return( item );
-		}
-		return( null );
+		return( mapBinaryItems.get( name ) );
 	}
 	
-	public MetaDistrComponentItem getBinaryItem( String name ) throws Exception {
-		MetaDistrComponentItem item = findBinaryItem( name );
+	public MetaDistrComponentItem getBinaryItem( ActionBase action , String name ) throws Exception {
+		MetaDistrComponentItem item = mapBinaryItems.get( name );
 		if( item == null )
-			Common.exit1( _Error.UnknownCompBinaryItem1 , "Unknown component binary item=" + name , name );
+			action.exit1( _Error.UnknownCompBinaryItem1 , "Unknown component binary item=" + name , name );
 		return( item );
 	}
 	
 	public MetaDistrComponentItem findConfItem( String name ) {
-		for( MetaDistrComponentItem item : mapConfItemsById.values() ) {
-			if( item.confItem.NAME.equals( name ) )
-				return( item );
-		}
-		return( null );
+		return( mapConfItems.get( name ) );
 	}
 	
-	public MetaDistrComponentItem getConfItem( String name ) throws Exception {
-		MetaDistrComponentItem item = findConfItem( name );
+	public MetaDistrComponentItem getConfItem( ActionBase action , String name ) throws Exception {
+		MetaDistrComponentItem item = mapConfItems.get( name );
 		if( item == null )
-			Common.exit1( _Error.UnknownCompConfItem1 , "Unknown component configuration item=" + name , name );
+			action.exit1( _Error.UnknownCompConfItem1 , "Unknown component configuration item=" + name , name );
 		return( item );
-	}
-
-	public MetaDistrComponentItem findSchemaItem( int id ) {
-		return( mapSchemaItemsById.get( id ) );
 	}
 	
 	public MetaDistrComponentItem findSchemaItem( String name ) {
-		for( MetaDistrComponentItem item : mapSchemaItemsById.values() ) {
-			if( item.schema.NAME.equals( name ) )
-				return( item );
-		}
-		return( null );
+		return( mapSchemaItems.get( name ) );
 	}
 	
-	public MetaDistrComponentItem getSchemaItem( String name ) throws Exception {
-		MetaDistrComponentItem item = findSchemaItem( name );
+	public MetaDistrComponentItem getSchemaItem( ActionBase action , String name ) throws Exception {
+		MetaDistrComponentItem item = mapSchemaItems.get( name );
 		if( item == null )
-			Common.exit1( _Error.UnknownCompSchemaItem1 , "Unknown component databce schema item=" + name , name );
+			action.exit1( _Error.UnknownCompSchemaItem1 , "Unknown component databce schema item=" + name , name );
 		return( item );
 	}
 
-	public MetaDistrComponentItem findWebService( String name ) {
-		for( MetaDistrComponentItem item : mapWSByItemId.values() ) {
-			if( item.WSDL_REQUEST.equals( name ) )
-				return( item );
-		}
-			
-		return( null );
+	public MetaDistrComponentWS findWebService( String name ) {
+		return( mapWS.get( name ) );
 	}
 	
-	public MetaDistrComponentItem getWebService( String name ) throws Exception {
-		MetaDistrComponentItem service = findWebService( name );
+	public MetaDistrComponentWS getWebService( ActionBase action , String name ) throws Exception {
+		MetaDistrComponentWS service = mapWS.get( name );
 		if( service == null )
-			Common.exit1( _Error.UnknownCompWebService1 , "Unknown component web service=" + name , name );
+			action.exit1( _Error.UnknownCompWebService1 , "Unknown component web service=" + name , name );
 		return( service );
 	}
 	
-	public void removeCompItem( MetaDistrComponentItem item ) throws Exception {
+	public void removeCompItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
 		if( item.binaryItem != null )
-			mapBinaryItemsById.remove( item.binaryItem.ID );
+			mapBinaryItems.remove( item.binaryItem.KEY );
 		else
 		if( item.confItem != null )
-			mapConfItemsById.remove( item.confItem.ID );
+			mapConfItems.remove( item.confItem.KEY );
 		else
 		if( item.schema != null )
-			mapSchemaItemsById.remove( item.schema.ID );
-		else
-		if( !item.WSDL_REQUEST.isEmpty() )
-			mapWSByItemId.remove( item.ID );
+			mapSchemaItems.remove( item.schema.SCHEMA );
 	}
 
+	public void createItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+		if( item.type == VarCOMPITEMTYPE.BINARY )
+			mapBinaryItems.put( item.NAME , item );
+		else
+		if( item.type == VarCOMPITEMTYPE.CONF )
+			mapConfItems.put( item.NAME , item );
+		else
+		if( item.type == VarCOMPITEMTYPE.SCHEMA )
+			mapSchemaItems.put( item.NAME , item );
+	}
+
+	private void removeCompItemByRef( MetaDistrComponentItem ref ) throws Exception {
+		for( Entry<String,MetaDistrComponentItem> entry : mapBinaryItems.entrySet() ) {
+			if( entry.getValue() == ref ) {
+				mapBinaryItems.remove( entry.getKey() );
+				return;
+			}
+		}
+		for( Entry<String,MetaDistrComponentItem> entry : mapConfItems.entrySet() ) {
+			if( entry.getValue() == ref ) {
+				mapConfItems.remove( entry.getKey() );
+				return;
+			}
+		}
+		for( Entry<String,MetaDistrComponentItem> entry : mapSchemaItems.entrySet() ) {
+			if( entry.getValue() == ref ) {
+				mapSchemaItems.remove( entry.getKey() );
+				return;
+			}
+		}
+	}
+
+	public void modifyItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+		removeCompItemByRef( item );
+		createItem( transaction , item );
+	}
+
+	public void deleteItem( ServerTransaction transaction , MetaDistrComponentItem item ) throws Exception {
+		removeCompItem( transaction , item );
+	}
+
+	public void createWebService( ServerTransaction transaction , MetaDistrComponentWS service ) throws Exception {
+		mapWS.put( service.NAME , service );
+	}
+	
+	public void modifyWebService( ServerTransaction transaction , MetaDistrComponentWS service ) throws Exception {
+		for( Entry<String,MetaDistrComponentWS> entry : mapWS.entrySet() ) {
+			if( entry.getValue() == service ) {
+				mapWS.remove( entry.getKey() );
+				break;
+			}
+		}
+		mapWS.put( service.NAME , service );
+	}
+
+	public void deleteWebService( ServerTransaction transaction , MetaDistrComponentWS service ) throws Exception {
+		mapWS.remove( service.NAME );
+	}
+	
 }

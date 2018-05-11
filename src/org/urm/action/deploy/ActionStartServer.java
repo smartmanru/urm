@@ -6,53 +6,50 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.action.ScopeState.SCOPESTATE;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class ActionStartServer extends ActionBase {
 	
-	public ActionScopeTarget target;
-	public MetaEnvServer server;
+	ActionScopeTarget target;
+	MetaEnvServer server;
 	
 	public ActionStartServer( ActionBase action , String stream , ActionScopeTarget target ) {
-		super( action , stream , "Start server=" + target.envServer.NAME );
+		super( action , stream );
 		this.target = target;
 		this.server = target.envServer;
 	}
 
-	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		List<ActionScopeTargetItem> nodes = target.getItems( this );
 		if( nodes.isEmpty() ) {
 			debug( "server=" + server.NAME + " has no nodes specified to start. Skipped." );
 			return( SCOPESTATE.NotRun );
 		}
 		
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 
 		// first start childs
-		MetaEnvServer[] subordinateServers = server.getSubordinateServers();
-		if( target.itemFull && subordinateServers.length != 0 ) {
+		if( target.itemFull && server.subordinateServers != null && server.subordinateServers.length != 0 ) {
 			info( "start subordinate servers ..." );
-			for( MetaEnvServer sub : subordinateServers )
-				executeServerSingle( sub , state , null );
+			for( MetaEnvServer sub : server.subordinateServers )
+				executeServerSingle( sub , null );
 		}
 		
 		// start main
 		info( "start main server ..." );
-		executeServerSingle( server , state , nodes );
+		executeServerSingle( server , nodes );
 
-		MetaEnvServer proxyServer = server.getProxyServer();
-		if( target.itemFull && proxyServer != null ) {
-			info( "start proxy server=" + proxyServer.NAME + " ..." );
-			executeServerSingle( proxyServer , state , null );
+		if( target.itemFull && server.proxyServer != null ) {
+			info( "start proxy server=" + server.proxyServer.NAME + " ..." );
+			executeServerSingle( server.proxyServer , null );
 		}
 
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	public MetaEnvServerNode[] getActionServerNodes( MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {
+	public List<MetaEnvServerNode> getActionServerNodes( MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {
 		if( targetNodes == null )
 			return( actionServer.getNodes() );
 		
@@ -60,18 +57,18 @@ public class ActionStartServer extends ActionBase {
 		for( ActionScopeTargetItem item : targetNodes )
 			nodes.add( item.envServerNode );
 
-		return( nodes.toArray( new MetaEnvServerNode[0] ) ); 
+		return( nodes ); 
 	}
 	
-	private void executeServerSingle( MetaEnvServer actionServer , ScopeState state , List<ActionScopeTargetItem> targetNodes ) throws Exception {
-		MetaEnvServerNode[] nodes = getActionServerNodes( actionServer , targetNodes );
-		if( nodes.length == 0 ) {
+	public void executeServerSingle( MetaEnvServer actionServer , List<ActionScopeTargetItem> targetNodes ) throws Exception {
+		List<MetaEnvServerNode> nodes = getActionServerNodes( actionServer , targetNodes );
+		if( nodes.isEmpty() ) {
 			debug( "server=" + actionServer.NAME + " has no nodes specified to start. Skipped." );
 			return;
 		}
 	
-		if( actionServer.isRunCommand() ) {
-			if( !isForced() ) {
+		if( actionServer.isCommand() ) {
+			if( !context.CTX_FORCE ) {
 				debug( "server=" + actionServer.NAME + " is command server. Skipped." );
 				return;
 			}
@@ -79,13 +76,13 @@ public class ActionStartServer extends ActionBase {
 		
 		if( actionServer.isStartable() ) {
 			ServerCluster cluster = new ServerCluster( actionServer , nodes );
-			if( !cluster.start( this , state ) ) {
+			if( !cluster.start( this ) ) {
 				trace( "server cluster failed" );
 				super.fail1( _Error.ServerClusterStartFailed1 , "server cluster start failed, server=" + actionServer.NAME , actionServer.NAME );
 			}
 		}
 		else
-			debug( "server=" + actionServer.NAME + ", type=" + actionServer.getServerTypeName() + " is not supported for start. Skipped." );
+			debug( "server=" + actionServer.NAME + ", type=" + actionServer.getServerTypeName( this ) + " is not supported for start. Skipped." );
 	}
 	
 }

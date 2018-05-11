@@ -7,26 +7,23 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.MetaDatabaseSchema;
-import org.urm.meta.product.MetaProductCoreSettings;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.Types.*;
 
 public class DatabaseSpecific {
 
 	Meta meta;
-	DBEnumDbmsType dbmsType;
+	VarDBMSTYPE dbmsType;
 	MetaEnvServer server;
 	MetaEnvServerNode node;
 
@@ -39,7 +36,7 @@ public class DatabaseSpecific {
 		this.meta = meta;
 	}
 	
-	public DatabaseSpecific( Meta meta , DBEnumDbmsType dbmsType ) {
+	public DatabaseSpecific( Meta meta , VarDBMSTYPE dbmsType ) {
 		this.meta = meta;
 		this.dbmsType = dbmsType; 
 	}
@@ -47,10 +44,20 @@ public class DatabaseSpecific {
 	public DatabaseSpecific( MetaEnvServer server , MetaEnvServerNode node ) {
 		this.server = server;
 		this.node = node;
-		this.dbmsType = server.DBMS_TYPE;
+		this.dbmsType = server.dbType;
 		this.meta = server.meta;
 	}
 
+	public String getAdmUser( ActionBase action ) throws Exception {
+		return( server.admSchema.DBUSER );
+	}
+	
+	public String getAdmSchema( ActionBase action ) throws Exception {
+		if( server.admSchema == null )
+			return( "" );
+		return( server.admSchema.DBNAME );
+	}
+	
 	public boolean checkConnect( ActionBase action , String dbschema , String user , String password ) throws Exception {
 		String ctxScript = getContextScript( action , dbschema , user , password );
 		int status = runScriptCmd( action , ctxScript , "checkconnect" , "" );
@@ -84,7 +91,7 @@ public class DatabaseSpecific {
 		else
 			cmd = applyName + " " + file + " " + fileLog;
 		
-		int status = shell.customGetStatus( action , execFolder.folderPath , cmd , Shell.WAIT_INFINITE );
+		int status = shell.customGetStatus( action , execFolder.folderPath , cmd );
 		if( status != 0 ) {
 			action.error( "errors, status=" + status + " (see log at " + fileLog + ")" );
 			return( false );
@@ -92,10 +99,10 @@ public class DatabaseSpecific {
 		
 		String err = "";
 		if( shell.isLinux() ) {
-			err = shell.customGetValue( action , "cat " + fileLog + " | grep ^ERROR: | head -1" , Shell.WAIT_DEFAULT );
+			err = shell.customGetValue( action , "cat " + fileLog + " | grep ^ERROR: | head -1" );
 		}
 		else {
-			String[] lines = shell.customGetLines( action , "type " + fileLog + " | findstr ^ERROR:" , Shell.WAIT_DEFAULT );
+			String[] lines = shell.customGetLines( action , "type " + fileLog + " | findstr ^ERROR:" );
 			if( lines.length > 0 )
 				err = lines[0];
 		}
@@ -123,9 +130,8 @@ public class DatabaseSpecific {
 			return( false );
 		}
 		
-		MetaProductSettings settings = server.meta.getProductSettings();
-		MetaProductCoreSettings core = settings.getCoreSettings();
-		List<String> data = action.readFileLines( fileLog , core.charset );
+		MetaProductSettings settings = server.meta.getProductSettings( action );
+		List<String> data = action.readFileLines( fileLog , settings.charset );
 		String[] lines = data.toArray( new String[0] );
 		String[] errors = Common.grep( lines , "^ERROR" );
 		if( errors.length > 0 ) {
@@ -146,15 +152,14 @@ public class DatabaseSpecific {
 			fileLog = Common.getWinPath( fileLog );
 		}
 		
-		Common.createFileFromString( action.execrc , file , query );
+		Common.createFileFromString( file , query );
 		
 		int status = runScriptCmd( action , ctxScript , "queryscript" , file + " " + fileLog );
 		if( status != 0 )
 			action.exit1( _Error.ScriptApplyError1 , "error: (see logs)" , file );
 
-		MetaProductSettings settings = server.meta.getProductSettings();
-		MetaProductCoreSettings core = settings.getCoreSettings();
-		List<String> data = action.readFileLines( fileLog , core.charset );
+		MetaProductSettings settings = server.meta.getProductSettings( action );
+		List<String> data = action.readFileLines( fileLog , settings.charset );
 		String[] lines = data.toArray( new String[0] );
 		for( int k = 0; k < lines.length; k++ )
 			lines[ k ] = lines[ k ].trim();
@@ -167,10 +172,10 @@ public class DatabaseSpecific {
 	}
 
 	public String getTableName( ActionBase action , String dbschema , String table ) throws Exception {
-		if( server.DBMS_TYPE == DBEnumDbmsType.ORACLE )
+		if( server.dbType == VarDBMSTYPE.ORACLE )
 			return( dbschema + "." + table );
-		if( server.DBMS_TYPE == DBEnumDbmsType.FIREBIRD ||
-			server.DBMS_TYPE == DBEnumDbmsType.POSTGRESQL )
+		if( server.dbType == VarDBMSTYPE.FIREBIRD ||
+			server.dbType == VarDBMSTYPE.POSTGRESQL )
 			return( table );
 		
 		action.exitUnexpectedState();
@@ -260,7 +265,7 @@ public class DatabaseSpecific {
 		String query = "drop table " + getTableName( action , dbschema , table ) + ";";
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromString( action.execrc , scriptFile , query );
+		Common.createFileFromString( scriptFile , query );
 
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
@@ -295,13 +300,13 @@ public class DatabaseSpecific {
 		
 		String scriptFile = work.getFilePath( action , "run.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromStringList( action.execrc , scriptFile , lines );
+		Common.createFileFromStringList( scriptFile , lines );
 
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
 
 	private void beginTransaction( ActionBase action , List<String> lines ) throws Exception {
-		if( server.DBMS_TYPE == DBEnumDbmsType.POSTGRESQL )
+		if( server.dbType == VarDBMSTYPE.POSTGRESQL )
 			lines.add( "begin;" );
 	}
 	
@@ -349,7 +354,7 @@ public class DatabaseSpecific {
 		String query = getInsertRowString( action , dbschema , table , columns , values );
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromString( action.execrc , scriptFile , query );
+		Common.createFileFromString( scriptFile , query );
 
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
@@ -376,7 +381,7 @@ public class DatabaseSpecific {
 
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromString( action.execrc , scriptFile , query );
+		Common.createFileFromString( scriptFile , query );
 		
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
@@ -388,19 +393,19 @@ public class DatabaseSpecific {
 
 		String scriptFile = work.getFilePath( action , "control.sql" );
 		String outFile = scriptFile + ".out";
-		Common.createFileFromString( action.execrc , scriptFile , query );
+		Common.createFileFromString( scriptFile , query );
 		
 		return( applyScript( action , dbschema , user , password , scriptFile , outFile ) );
 	}
 	
 	private String getTimestampValue( ActionBase action ) throws Exception {
-		if( server.DBMS_TYPE == DBEnumDbmsType.POSTGRESQL )
+		if( server.dbType == VarDBMSTYPE.POSTGRESQL )
 			return( "now()" );
 		else
-		if( server.DBMS_TYPE == DBEnumDbmsType.ORACLE )
+		if( server.dbType == VarDBMSTYPE.ORACLE )
 			return( "SYSDATE" );
 		else
-		if( server.DBMS_TYPE == DBEnumDbmsType.FIREBIRD )
+		if( server.dbType == VarDBMSTYPE.FIREBIRD )
 			return( "CURRENT_TIMESTAMP" );
 		
 		action.exitUnexpectedState();
@@ -417,46 +422,32 @@ public class DatabaseSpecific {
 		List<String> lines = new LinkedList<String>();
 		String name = null;
 		
-		addSpecificLine( action , lines , "CONF_DBNAME" , dbschema );
-		addSpecificLine( action , lines , "CONF_USER" , user );
-		addSpecificLine( action , lines , "CONF_PWD" , password );
-		addSpecificConf( action , lines );
-		
-		if( action.isLocalLinux() )
+		Account account = action.getNodeAccount( node );
+		String DBHOST = ( account.isLocal() )? "localhost" : server.DBMSADDR;
+		MetaProductSettings settings = server.meta.getProductSettings( action );
+		if( action.isLocalLinux() ) {
+			lines.add( "export URMDB_USER=" + user );
+			lines.add( "export URMDB_PWD=" + password );
+			lines.add( "export URMDB_DBHOST=" + DBHOST );
+			lines.add( "export URMDB_DBNAME=" + dbschema );
+			lines.add( "export URMDB_CHARSET=" + settings.charset.name() );
 			name = "urmdb." + key + ".sh"; 
+		}
 		else
-		if( action.isLocalWindows() )
+		if( action.isLocalWindows() ) {
+			lines.add( "set URMDB_USER=" + user );
+			lines.add( "set URMDB_PWD=" + password );
+			lines.add( "set URMDB_DBHOST=" + DBHOST );
+			lines.add( "set URMDB_DBNAME=" + dbschema );
+			lines.add( "set URMDB_CHARSET=" + settings.charset.name() );
 			name = "urmdb." + key + ".cmd"; 
+		}
 		else
 			action.exitUnexpectedState();
 		
 		String file = work.getFilePath( action , name );
-		Common.createFileFromStringList( action.execrc , file , lines );
+		Common.createFileFromStringList( file , lines );
 		return( file );
-	}
-	
-	public void addSpecificConf( ActionBase action , List<String> lines ) throws Exception {
-		Account account = action.getNodeAccount( node );
-		String DBMSADDR = ( account.isLocal() )? "localhost" : server.DBMSADDR;
-		MetaProductSettings settings = server.meta.getProductSettings();
-		addSpecificLine( action , lines , "CONF_DBADDR" , DBMSADDR );
-		if( DBMSADDR.contains( ":" ) ) {
-			addSpecificLine( action , lines , "CONF_DBHOST" , Common.getPartBeforeLast( DBMSADDR , ":" ) );
-			addSpecificLine( action , lines , "CONF_DBPORT" , Common.getPartAfterLast( DBMSADDR , ":" ) );
-		}
-		else
-			addSpecificLine( action , lines , "CONF_DBHOST" , DBMSADDR );
-
-		MetaProductCoreSettings core = settings.getCoreSettings();
-		if( core.charset != null )
-			addSpecificLine( action , lines , "CONF_CHARSET" , core.charset.name() );
-	}
-	
-	public void addSpecificLine( ActionBase action , List<String> lines , String var , String value ) {
-		if( action.isLocalLinux() )
-			lines.add( "export " + var + "=" + value );
-		else
-			lines.add( "set " + var + "=" + value );
 	}
 
 	private int runScriptCmd( ActionBase action , String ctxFile , String cmd , String params ) throws Exception {
@@ -472,7 +463,7 @@ public class DatabaseSpecific {
 		else
 			action.exitUnexpectedState();
 		
-		int status = action.shell.customGetStatusCheckErrors( action , scripts.folderPath , ctxCmd , Shell.WAIT_INFINITE );
+		int status = action.shell.customGetStatusCheckErrors( action , scripts.folderPath , ctxCmd );
 		return( status );
 	}
 
@@ -490,12 +481,4 @@ public class DatabaseSpecific {
 	public void addComment( ActionBase action , String comment , LocalFolder dstDir , String outfile ) throws Exception {
 	}
 
-	public String getSchemaDBName( MetaDatabaseSchema schema ) throws Exception {
-		return( server.getSchemaDBName( schema ) );
-	}
-	
-	public String getSchemaDBUser( MetaDatabaseSchema schema ) throws Exception {
-		return( server.getSchemaDBUser( schema ) );
-	}
-	
 }

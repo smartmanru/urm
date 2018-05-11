@@ -12,13 +12,11 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.urm.client.ClientAuth;
-import org.urm.client.ClientEngine;
 import org.urm.common.RunContext;
 import org.urm.common.action.ActionData;
 import org.urm.common.action.CommandBuilder;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandOptions;
-import org.urm.common.action.OptionsMeta;
 
 public class RemoteCall implements NotificationListener {
 
@@ -32,7 +30,6 @@ public class RemoteCall implements NotificationListener {
 	
 	public static int DEFAULT_SERVER_PORT = 8800;
 
-	ClientEngine client;
 	CommandOptions options;
 	
 	public String URL;
@@ -54,13 +51,12 @@ public class RemoteCall implements NotificationListener {
 	private int timeout;
 	private long tsEvent = 0;
 	
-	public RemoteCall( ClientEngine client , CommandOptions options ) {
-		this.client = client;
+	public RemoteCall( CommandOptions options ) {
 		this.options = options;
 		
-		String var = OptionsMeta.OPT_TRACE;
+		String var = options.meta.getTraceVar();
 		trace = options.getFlagValue( var , false );
-		var = OptionsMeta.OPT_TIMEOUT;
+		var = options.meta.getTimeoutVar();
 		timeout = options.getIntParamValue( var , options.optDefaultCommandTimeout );
 	}
 	
@@ -73,7 +69,7 @@ public class RemoteCall implements NotificationListener {
 	}
 	
 	private synchronized void println( String s ) {
-		client.println( s );
+		System.out.println( s );
 	}
 	
 	public boolean runClient( CommandBuilder builder , CommandMeta commandInfo , ClientAuth auth ) throws Exception {
@@ -120,7 +116,7 @@ public class RemoteCall implements NotificationListener {
 				return( false );
 		}
 		catch( Throwable e ) {
-			println( e.toString() );
+			println( e.getMessage() );
 			return( false );
 		}
 
@@ -135,26 +131,26 @@ public class RemoteCall implements NotificationListener {
 			return( res );
 		}
 		catch( Throwable e ) {
-			return( "error: " + e.toString() );
+			return( "error: " + e.getMessage() );
 		}
 	}
 	
 	private boolean serverCommandCall( CommandBuilder builder , String name ) {
 		String sessionId;
 		try {
-			String clientId = options.method + "-" + System.currentTimeMillis();
+			String clientId = options.action + "-" + System.currentTimeMillis();
 			mbeanName = new ObjectName( name );
 			RemoteCallFilter filter = new RemoteCallFilter( clientId );
 			
 			stopwait = false;
 			mbsc.addNotificationListener( mbeanName , this , filter , clientId );
 			sessionId = ( String )mbsc.invoke( mbeanName , GENERIC_ACTION_NAME , 
-					new Object[] { options.method , options.data , clientId , auth.authUser , auth.authPassword } , 
+					new Object[] { options.action , options.data , clientId , auth.authUser , auth.authPassword } , 
 					new String[] { String.class.getName() , ActionData.class.getName() , String.class.getName() , String.class.getName() , String.class.getName() } );
 		}
 		catch( Throwable e ) {
-			println( "unable to call operation: " + name );
-			client.output( e );
+			System.out.println( "unable to call operation: " + name );
+			e.printStackTrace();
 			return( false );
 		}
 
@@ -283,7 +279,7 @@ public class RemoteCall implements NotificationListener {
 			}
 			catch( Throwable e ) {
 				if( trace )
-					client.output( e );
+					e.printStackTrace();
 			}
 			
 			synchronized( this ) {

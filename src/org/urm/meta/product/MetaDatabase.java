@@ -3,138 +3,146 @@ package org.urm.meta.product;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.meta.loader.MatchItem;
+import org.urm.common.ConfReader;
+import org.urm.common.PropertyController;
+import org.urm.engine.ServerTransaction;
+import org.urm.engine.TransactionBase;
+import org.urm.meta.ServerProductMeta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
-public class MetaDatabase {
+public class MetaDatabase extends PropertyController {
 
-	public Meta meta;
+	protected Meta meta;
 
 	public MetaDatabaseAdministration admin;
 	public Map<String,MetaDatabaseSchema> mapSchema;
-	public Map<Integer,MetaDatabaseSchema> mapSchemaById;
 	
 	public String ALIGNEDMAPPING;
 	
-	public MetaDatabase( ProductMeta storage , Meta meta ) {
+	public MetaDatabase( ServerProductMeta storage , Meta meta ) {
+		super( storage , "database" );
+		
 		this.meta = meta;
 		meta.setDatabase( this );
 		admin = new MetaDatabaseAdministration( meta , this );
 		mapSchema = new HashMap<String,MetaDatabaseSchema>();
-		mapSchemaById = new HashMap<Integer,MetaDatabaseSchema>();
 	}
 
-	public MetaDatabase copy( Meta rmeta ) throws Exception {
-		MetaDatabase r = new MetaDatabase( rmeta.getStorage() , rmeta );
+	@Override
+	public boolean isValid() {
+		if( super.isLoadFailed() )
+			return( false );
+		return( true );
+	}
+	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+	}
+	
+	public MetaDatabase copy( ActionBase action , Meta meta ) throws Exception {
+		MetaDatabase r = new MetaDatabase( meta.getStorage( action ) , meta );
+		MetaProductSettings product = meta.getProductSettings( action );
+		r.initCopyStarted( this , product.getProperties() );
 		
-		r.admin = admin.copy( rmeta , r );
+		r.admin = admin.copy( action , meta , r );
 		for( MetaDatabaseSchema schema : mapSchema.values() ) {
-			MetaDatabaseSchema rschema = schema.copy( rmeta , r );
-			r.addSchema( rschema );
+			MetaDatabaseSchema rschema = schema.copy( action , meta , r );
+			r.mapSchema.put( rschema.SCHEMA , rschema );
 		}
-		
+		r.initFinished();
 		return( r );
 	}
 	
-	public void addSchema( MetaDatabaseSchema schema ) {
-		mapSchema.put( schema.NAME , schema );
-		mapSchemaById.put( schema.ID , schema );
+	public void createDatabase( TransactionBase transaction ) throws Exception {
+		MetaProductSettings product = meta.getProductSettings( transaction.action );
+		if( !initCreateStarted( product.getProperties() ) )
+			return;
+
+		initFinished();
 	}
 	
-	public void updateSchema( MetaDatabaseSchema schema ) throws Exception {
-		Common.changeMapKey( mapSchema , schema , schema.NAME );
-	}
-	
-	public boolean isEmpty() {
-		return( mapSchema.isEmpty() );
-	}
-	
-	public String[] getSchemaNames() {
-		return( Common.getSortedKeys( mapSchema ) );
+	public void load( ActionBase action , Node root ) throws Exception {
+		MetaProductSettings product = meta.getProductSettings( action );
+		if( !initCreateStarted( product.getProperties() ) )
+			return;
+
+		if( !loadAdministration( action , root ) )
+			return;
+		
+		loadSchemaSet( action , root );
+		initFinished();
 	}
 
-	public MetaDatabaseSchema[] getSchemaList() {
-		return( mapSchema.values().toArray( new MetaDatabaseSchema[0] ) );
-	}
-
-	public MetaDatabaseSchema findSchema( String name ) {
-		return( mapSchema.get( name ) );
-	}
-
-	public MetaDatabaseSchema findSchema( int id ) {
-		return( mapSchemaById.get( id ) );
-	}
-
-	public MetaDatabaseSchema findSchema( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( mapSchemaById.get( item.FKID ) );
-		return( mapSchema.get( item.FKNAME ) );
-	}
-	
-	public MetaDatabaseSchema getSchema( String name ) throws Exception {
-		MetaDatabaseSchema schema = mapSchema.get( name );
-		if( schema == null )
-			Common.exit1( _Error.UnknownSchema1 , "unknown schema=" + name , name );
-		return( schema );
-	}
-
-	public MetaDatabaseSchema getSchema( int id ) throws Exception {
-		MetaDatabaseSchema schema = mapSchemaById.get( id );
-		if( schema == null )
-			Common.exit1( _Error.UnknownSchema1 , "unknown schema=" + id , "" + id );
-		return( schema );
-	}
-
-	public MetaDatabaseSchema getSchema( MatchItem item ) throws Exception {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( getSchema( item.FKID ) );
-		return( getSchema( item.FKNAME ) );
-	}
-	
-	public String getSchemaName( MatchItem item ) throws Exception {
-		if( item == null )
-			return( "" );
-		MetaDatabaseSchema schema = getSchema( item.FKID );
-		return( schema.NAME );
-	}
-	
-	public boolean checkAligned( String id ) {
+	private boolean loadAdministration( ActionBase action , Node node ) throws Exception {
+		Node administration = ConfReader.xmlGetFirstChild( node , "administration" );
+		if( administration == null ) {
+			action.debug( "database administration is missing, ignore database information." );
+			return( false );
+		}
+		
 		return( true );
 	}
 
-	public void removeSchema( MetaDatabaseSchema schema ) throws Exception {
-		mapSchema.remove( schema.NAME );
-		mapSchemaById.remove( schema.ID );
+	private void saveAdministration( ActionBase action , Document doc , Element root ) throws Exception {
+		Common.xmlCreateElement( doc , root , "administration" );
+	}
+	
+	private void loadSchemaSet( ActionBase action , Node node ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( node , "schema" );
+		if( items == null )
+			return;
+		
+		for( Node schemaNode : items ) {
+			MetaDatabaseSchema item = new MetaDatabaseSchema( meta , this );
+			item.load( action , schemaNode );
+			mapSchema.put( item.SCHEMA , item );
+		}
 	}
 
-	public MatchItem getSchemaMatchItem( Integer id , String name ) throws Exception {
-		if( id == null && name.isEmpty() )
-			return( null );
-		MetaDatabaseSchema schema = ( id == null )? findSchema( name ) : getSchema( id );
-		MatchItem match = ( schema == null )? new MatchItem( name ) : new MatchItem( schema.ID );
-		return( match );
+	private void saveSchemaSet( ActionBase action , Document doc , Element root ) throws Exception {
+		for( MetaDatabaseSchema schema : mapSchema.values() ) {
+			Element schemaElement = Common.xmlCreateElement( doc , root , "schema" );
+			schema.save( action , doc , schemaElement );
+		}
 	}
 
-	public boolean matchSchema( MatchItem item ) throws Exception {
-		if( item == null )
-			return( true );
-		
-		MetaDatabaseSchema schema = null;
-		if( item.MATCHED ) {
-			schema = getSchema( item.FKID );
-			return( true );
-		}
-		
-		schema = findSchema( item.FKNAME );
-		if( schema != null ) {
-			item.match( schema.ID );
-			return( true );
-		}
-		return( false );
+	public String[] getSchemaSet() {
+		return( Common.getSortedKeys( mapSchema ) );
+	}
+	
+	public MetaDatabaseSchema getSchema( ActionBase action , String name ) throws Exception {
+		MetaDatabaseSchema schema = mapSchema.get( name );
+		if( schema == null )
+			action.exit1( _Error.UnknownSchema1 , "unknown schema=" + name , name );
+		return( schema );
+	}
+
+	public boolean checkAligned( ActionBase action , String id ) throws Exception {
+		return( true );
+	}
+
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		super.saveAsElements( doc , root , false );
+		saveAdministration( action , doc , root );
+		saveSchemaSet( action , doc , root );
+	}
+
+	public void createDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		mapSchema.put( schema.SCHEMA , schema );
+	}
+	
+	public void modifyDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+	}
+	
+	public void deleteDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		meta.deleteDatabaseSchemaFromEnvironments( transaction , schema );
+		MetaDistr distr = schema.meta.getDistr( transaction.getAction() );
+		distr.deleteDatabaseSchema( transaction , schema );
+		mapSchema.remove( schema.SCHEMA );
 	}
 	
 }

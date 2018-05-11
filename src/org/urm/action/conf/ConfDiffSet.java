@@ -8,21 +8,18 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
-import org.urm.engine.dist.ReleaseDistScope;
-import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
-import org.urm.engine.dist.ReleaseDistScopeSet;
+import org.urm.engine.dist.Release;
+import org.urm.engine.dist.ReleaseTarget;
 import org.urm.engine.storage.FileSet;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrConfItem;
-import org.urm.meta.release.Release;
 
 public class ConfDiffSet {
 	
 	Meta meta;
 	FileSet releaseSet;
-	FileSet masterSet;
+	FileSet prodSet;
 	String dirPrefix;
 	boolean confComps;
 	
@@ -37,15 +34,15 @@ public class ConfDiffSet {
 	Map<String,MetaDistrConfItem> fileMatched;
 	Map<String,MetaDistrConfItem> topMatched;
 	
-	public ConfDiffSet( Meta meta , FileSet releaseSet , FileSet masterSet , String dirPrefix , boolean confComps ) {
+	public ConfDiffSet( Meta meta , FileSet releaseSet , FileSet prodSet , String dirPrefix , boolean confComps ) {
 		this.meta = meta;
 		this.releaseSet = releaseSet;
-		this.masterSet = masterSet;
+		this.prodSet = prodSet;
 		this.dirPrefix = dirPrefix;
 		this.confComps = confComps;
 	}
 	
-	public boolean isDifferent() {
+	public boolean isDifferent( ActionBase action ) throws Exception {
 		return( diffs.size() > 0 );
 	}
 	
@@ -60,17 +57,13 @@ public class ConfDiffSet {
 		fileMatched = new HashMap<String,MetaDistrConfItem>();  
 		topMatched = new HashMap<String,MetaDistrConfItem>(); 
 		
-		ReleaseDistScope scope = null;
-		if( release != null )
-			scope = ReleaseDistScope.createScope( release );
-		
-		getFileSetDiffs( action , scope );
+		getFileSetDiffs( action , release );
 		getFileContentDiffs( action );
 	}
 
-	private void getFileSetDiffs( ActionBase action , ReleaseDistScope scope ) throws Exception {
-		compareDirSet( action , scope );
-		compareFileSet( action , scope );
+	private void getFileSetDiffs( ActionBase action , Release release ) throws Exception {
+		compareDirSet( action , release );
+		compareFileSet( action , release );
 	}
 
 	private Map<String,String> getMap( ActionBase action , List<String> items ) throws Exception {
@@ -86,15 +79,11 @@ public class ConfDiffSet {
 		return( map );
 	}
 
-	private void compareDirSet( ActionBase action , ReleaseDistScope scope ) throws Exception {
+	private void compareDirSet( ActionBase action , Release release ) throws Exception {
 		Map<String,String> dirRel = getMap( action , releaseSet.dirList );
-		Map<String,String> dirMaster = getMap( action , masterSet.dirList );
+		Map<String,String> dirProd = getMap( action , prodSet.dirList );
 		
-		ReleaseDistScopeSet set = null;
-		if( scope != null )
-			set = scope.findCategorySet( DBEnumScopeCategoryType.CONFIG );
-		
-		MetaDistr distr = meta.getDistr();
+		MetaDistr distr = meta.getDistr( action );
 		for( String key : releaseSet.dirList ) {
 			if( dirPrefix != null ) {
 				if( !key.startsWith( dirPrefix ) )
@@ -108,12 +97,12 @@ public class ConfDiffSet {
 
 			MetaDistrConfItem comp = null;
 			if( confComps )
-				comp = distr.getConfItem( topName );
+				comp = distr.getConfItem( action , topName );
 			
 			if( !topMatched.containsKey( topName ) )
 				topMatched.put( topName , comp );
 			
-			if( !dirMaster.containsKey( key ) ) {
+			if( !dirProd.containsKey( key ) ) {
 				// if parent directory is new then do not add new diff, but add new dir
 				if( Common.hasDirPart( key ) ) {
 					String dir = Common.getDirName( key );
@@ -130,20 +119,20 @@ public class ConfDiffSet {
 			}
 		}
 
-		for( String key : masterSet.dirList ) {
+		for( String key : prodSet.dirList ) {
 			if( dirPrefix != null ) {
 				if( !key.startsWith( dirPrefix ) )
 					continue;
 			}
 			
 			// ignore check for partial component
-			if( confComps && scope != null ) {
+			if( confComps && release != null ) {
 				String compName = Common.getTopDir( key );
 				if( dirPrefix != null )
 					compName = Common.getPartAfterFirst( compName , dirPrefix );
 				
-				ReleaseDistScopeDeliveryItem comp = set.findDeliveryItem( compName );
-				if( comp.partial )
+				ReleaseTarget comp = release.getConfComponent( action , compName );
+				if( !comp.ALL )
 					continue;
 			}
 			
@@ -165,15 +154,11 @@ public class ConfDiffSet {
 		}
 	}
 
-	private void compareFileSet( ActionBase action , ReleaseDistScope scope ) throws Exception {
+	private void compareFileSet( ActionBase action , Release release ) throws Exception {
 		Map<String,String> fileRel = getMap( action , releaseSet.fileList );
-		Map<String,String> fileProd = getMap( action , masterSet.fileList );
+		Map<String,String> fileProd = getMap( action , prodSet.fileList );
 		
-		ReleaseDistScopeSet set = null;
-		if( scope != null )
-			set = scope.findCategorySet( DBEnumScopeCategoryType.CONFIG );
-		
-		MetaDistr distr = meta.getDistr();
+		MetaDistr distr = meta.getDistr( action );
 		for( String key : fileRel.keySet() ) {
 			if( !fileProd.containsKey( key ) ) {
 				String dir = Common.getDirName( key );
@@ -195,20 +180,20 @@ public class ConfDiffSet {
 					topName = Common.getPartAfterFirst( topName , dirPrefix );
 				
 				if( confComps )
-					comp = distr.getConfItem( topName );
+					comp = distr.getConfItem( action , topName );
 				fileMatched.put( key , comp );
 			}
 		}
 
 		for( String key : fileProd.keySet() ) {
-			if( confComps && scope != null ) {
+			if( confComps && release != null ) {
 				// ignore check for partial component
 				String compName = Common.getTopDir( key );
 				if( dirPrefix != null )
 					compName = Common.getPartAfterFirst( compName , dirPrefix );
 				
-				ReleaseDistScopeDeliveryItem comp = set.findDeliveryItem( compName );
-				if( comp.partial )
+				ReleaseTarget comp = release.getConfComponent( action , compName );
+				if( !comp.ALL )
 					continue;
 			}
 			
@@ -229,7 +214,7 @@ public class ConfDiffSet {
 
 	private void getFileContentDiffs( ActionBase action ) throws Exception {
 		for( String file : fileMatched.keySet() ) {
-			ConfFileDiff fileDiff = new ConfFileDiff( file , releaseSet.rootFolder , masterSet.rootFolder );
+			ConfFileDiff fileDiff = new ConfFileDiff( file , releaseSet.rootFolder , prodSet.rootFolder );
 			
 			action.trace( "get diff - " + file + " ..." );
 			if( fileDiff.getDiff( action ) ) {

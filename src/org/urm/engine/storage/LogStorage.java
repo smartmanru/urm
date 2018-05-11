@@ -2,9 +2,9 @@ package org.urm.engine.storage;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.dist.ReleaseDistScopeDelivery;
-import org.urm.meta.env.MetaEnvServer;
+import org.urm.engine.dist.ReleaseDelivery;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaEnvServer;
 import org.urm.meta.product.MetaProductBuildSettings;
 
 public class LogStorage {
@@ -30,7 +30,7 @@ public class LogStorage {
 
 	public void prepareDatabaseLogFolder( ActionBase action , String release ) throws Exception {
 		MetaProductBuildSettings build = action.getBuildSettings( meta );
-		String dir = build.CONFIG_LOGPATH + "/db/" + action.context.env.NAME + "/" + release + "-" + Common.getNameTimeStamp();  
+		String dir = build.CONFIG_LOGPATH + "/db/" + action.context.env.ID + "/" + release + "-" + Common.getNameTimeStamp();  
 		logFolder = artefactory.getAnyFolder( action , dir );
 		logFolder.ensureExists( action );
 	}
@@ -39,11 +39,11 @@ public class LogStorage {
 		return( logFolder.getSubFolder( action , "dist" ) );
 	}
 	
-	public LocalFolder getDatabaseLogReleaseCopyFolder( ActionBase action , ReleaseDistScopeDelivery releaseDelivery ) throws Exception {
+	public LocalFolder getDatabaseLogReleaseCopyFolder( ActionBase action , ReleaseDelivery releaseDelivery ) throws Exception {
 		return( logFolder.getSubFolder( action , "dist-" + releaseDelivery.distDelivery.NAME ) );
 	}
 	
-	public LocalFolder getDatabaseLogReleaseCopyFolder( ActionBase action , MetaEnvServer server , ReleaseDistScopeDelivery releaseDelivery , String version ) throws Exception {
+	public LocalFolder getDatabaseLogReleaseCopyFolder( ActionBase action , MetaEnvServer server , ReleaseDelivery releaseDelivery , String version ) throws Exception {
 		return( logFolder.getSubFolder( action , "dist-" + server.sg.NAME + "-" + server.NAME + "-" + releaseDelivery.distDelivery.NAME + "-" + version ) );
 	}
 	
@@ -51,7 +51,7 @@ public class LogStorage {
 		return( logFolder.getSubFolder( action , "run-" + server.sg.NAME + "-" + server.NAME ) );
 	}
 	
-	public LocalFolder getDatabaseLogExecuteFolder( ActionBase action , MetaEnvServer server , ReleaseDistScopeDelivery releaseDelivery , String version ) throws Exception {
+	public LocalFolder getDatabaseLogExecuteFolder( ActionBase action , MetaEnvServer server , ReleaseDelivery releaseDelivery , String version ) throws Exception {
 		return( logFolder.getSubFolder( action , "run-" + server.sg.NAME + "-" + server.NAME + "-" + releaseDelivery.distDelivery.NAME  + "-" + version ) );
 	}
 	

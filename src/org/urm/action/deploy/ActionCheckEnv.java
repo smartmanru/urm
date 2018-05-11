@@ -5,22 +5,20 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.database.DatabaseClient;
+import org.urm.action.monitor.SegmentStatus;
+import org.urm.action.monitor.NodeStatus;
+import org.urm.action.monitor.ServerStatus;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
-import org.urm.engine.StateService;
-import org.urm.engine.status.NodeStatus;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.SegmentStatus;
-import org.urm.engine.status.ServerStatus;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.engine.HostAccount;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerDeployment;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types.*;
-import org.urm.meta.product.MetaDistrComponent;
-import org.urm.meta.product.MetaDistrComponentItem;
+import org.urm.meta.engine.ServerMonitoring;
+import org.urm.meta.product.MetaDistrComponentWS;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.Types.*;
 
 public class ActionCheckEnv extends ActionBase {
 
@@ -42,41 +40,35 @@ public class ActionCheckEnv extends ActionBase {
 	int sgCaptureIndex;
 	
 	public ActionCheckEnv( ActionBase action , String stream ) {
-		super( action , stream , "Check environment status" );
+		super( action , stream );
 	}
 
-	@Override protected void runBefore( ScopeState state , ActionScope scope ) throws Exception {
+	@Override protected void runBefore( ActionScope scope ) throws Exception {
 		// check all processes
-		infoAction( "check environment=" + context.env.NAME + " ..." );
-		StateService status = super.getEngineStatus();
-		status.updateRunTime( this , scope.env );
+		infoAction( "check environment=" + context.env.ID + " ..." );
 	}
 
-	@Override protected void runAfter( ScopeState state , ActionScope scope ) throws Exception {
-		String value = "SUCCESSFUL";
+	@Override protected void runAfter( ActionScope scope ) throws Exception {
+		String status = "SUCCESSFUL";
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
 			super.fail0( _Error.CheckenvFailed0 , "Checkenv failed" );
 	
 		if( super.isFailed() ) {
-			value = "FAILED";
-			errorAction( "total status is " + value );
+			status = "FAILED";
+			errorAction( "total status is " + status );
 		}
 		else {
-			infoAction( "total status is " + value );
+			infoAction( "total status is " + status );
 		}
-		StateService status = super.getEngineStatus();
-		status.finishUpdate( this , scope.env );
 	}
 	
-	@Override protected void runBefore( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
-		sgStatus = new SegmentStatus( set.sg );
+	@Override protected void runBefore( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+		sgStatus = new SegmentStatus( this , set.sg );
 		sgCaptureIndex = super.logStartCapture();
 		info( "execute segment=" + set.sg.NAME + " ..." );
-		StateService status = super.getEngineStatus();
-		status.updateRunTime( this , set.sg );
 	}
 
-	@Override protected void runAfter( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override protected void runAfter( ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		String F_STATUSOBJECT = set.sg.NAME;
 		if( !S_CHECKENV_TOTAL_SERVERS_FAILED.isEmpty() )
 			error( "## sg " + F_STATUSOBJECT + " check FAILED: issues on servers - {" + S_CHECKENV_TOTAL_SERVERS_FAILED + "}" );
@@ -84,17 +76,14 @@ public class ActionCheckEnv extends ActionBase {
 			info( "## sg " + F_STATUSOBJECT + " check OK" );
 		
 		sgStatus.setLog( super.logFinishCapture( sgCaptureIndex ) );
-		StateService status = super.getEngineStatus();
-		status.setSegmentStatus( this , set.sg , sgStatus );
-		status.finishUpdate( this , set.sg );
+		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_SEGMENT , sgStatus );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
 		ActionScopeSet set = target.set;
-		StateService status = super.getEngineStatus();
-		status.updateRunTime( this , target.envServer );
 		
-		ServerStatus serverStatus = new ServerStatus( target.envServer );
+		ScopeState parent = super.eventSource.findSetState( target.set );
+		ServerStatus serverStatus = new ServerStatus( parent , target );
 		int captureIndex = super.logStartCapture();
 		try {
 			S_CHECKENV_TARGET_FAILED = false;
@@ -105,19 +94,18 @@ public class ActionCheckEnv extends ActionBase {
 			// execute server
 			info( "============================================ check server=" + target.envServer.NAME + " ..." );
 	
-			checkOneServer( target , state , target.envServer , true , "main" , serverStatus );
+			checkOneServer( target , target.envServer , true , "main" , serverStatus );
 			
 			// check associated if specific servers and not specific nodes 
 			if( set.setFull == false && target.itemFull == true ) {
-				MetaEnvServer nlbServer = target.envServer.getNlbServer();
-				if( nlbServer != null ) 
-					checkOneServer( target , state , nlbServer , false , "nlb" , serverStatus );
-				MetaEnvServer staticServer = target.envServer.getStaticServer();
-				if( staticServer != null ) 
-					checkOneServer( target , state , staticServer , false , "static" , serverStatus );
-				MetaEnvServer[] subordinateServers = target.envServer.getSubordinateServers();
-				for( MetaEnvServer server : subordinateServers ) 
-					checkOneServer( target , state , server , false , "subordinate" , serverStatus );
+				if( target.envServer.nlbServer != null ) 
+					checkOneServer( target , target.envServer.nlbServer , false , "nlb" , serverStatus );
+				if( target.envServer.staticServer != null ) 
+					checkOneServer( target , target.envServer.staticServer , false , "static" , serverStatus );
+				if( target.envServer.subordinateServers != null ) {
+					for( MetaEnvServer server : target.envServer.subordinateServers ) 
+						checkOneServer( target , server , false , "subordinate" , serverStatus );
+				}
 			}
 		}
 		catch( Throwable e ) {
@@ -145,25 +133,24 @@ public class ActionCheckEnv extends ActionBase {
 		
 		String[] log = super.logFinishCapture( captureIndex );
 		serverStatus.setLog( log );
-		status.setServerStatus( this , target.envServer , serverStatus );
-		status.finishUpdate( this , target.envServer );
+		super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_SERVER , serverStatus );
 		
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void checkOneServer( ActionScopeTarget target , ScopeState state , MetaEnvServer server , boolean main , String role , ServerStatus serverStatus ) throws Exception {
+	private void checkOneServer( ActionScopeTarget target , MetaEnvServer server , boolean main , String role , ServerStatus serverStatus ) throws Exception {
 		S_CHECKENV_SERVER_FAILED = false;
 		S_CHECKENV_SERVER_NODES_FAILED = "";
 		S_CHECKENV_SERVER_COMPS_FAILED = "";
 
 		// ignore offline server
-		if( server.OFFLINE ) {
+		if( server.isOffline() ) {
 			debug( "ignore offline server=" + server.NAME );
 			return;
 		}
 		
 		// ignore command servers except when specifically called 
-		if( server.isRunCommand() ) {
+		if( server.isCommand() ) {
 			if( context.CTX_ALL == false || main == false ) {
 				debug( "ignore command server=" + server.NAME );
 				return;
@@ -174,14 +161,9 @@ public class ActionCheckEnv extends ActionBase {
 
 		if( main ) {
 			debug( "check nodes ..." );
-			StateService status = super.getEngineStatus();
-			
 			boolean someNodeAvailable = false;
 			for( ActionScopeTargetItem node : target.getItems( this ) ) {
-				ScopeState nodeState = new ScopeState( state , node );
-				status.updateRunTime( this , node.envServerNode );
-				checkOneServerNode( node , server , node.envServerNode , nodeState , main , role , serverStatus );
-				status.finishUpdate( this , node.envServerNode );
+				checkOneServerNode( node , server , node.envServerNode , main , role , serverStatus );
 				if( !S_CHECKENV_NODE_STOPPED )
 					someNodeAvailable = true;
 			}
@@ -189,15 +171,13 @@ public class ActionCheckEnv extends ActionBase {
 			S_CHECKENV_TARGET_NODES_FAILED = S_CHECKENV_SERVER_NODES_FAILED;
 			
 			if( target.itemFull && someNodeAvailable )
-				checkOneServerWhole( server , state , serverStatus );
+				checkOneServerWhole( server , serverStatus );
 			
 			S_CHECKENV_TARGET_COMPS_FAILED = S_CHECKENV_SERVER_COMPS_FAILED;
 		}
 		else {
-			for( MetaEnvServerNode node : server.getNodes() ) {
-				ScopeState nodeState = new ScopeState( state , node );
-				checkOneServerNode( null , server , node , nodeState , false , role , serverStatus );
-			}
+			for( MetaEnvServerNode node : server.getNodes() )
+				checkOneServerNode( null , server , node , false , role , serverStatus );
 		}
 		
 		// add server status to target
@@ -209,24 +189,24 @@ public class ActionCheckEnv extends ActionBase {
 			S_CHECKENV_TARGET_SERVERS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_TARGET_SERVERS_FAILED , server.NAME );
 	}
 
-	private void checkOneServerWhole( MetaEnvServer server , ScopeState state , ServerStatus serverStatus ) throws Exception {
+	private void checkOneServerWhole( MetaEnvServer server , ServerStatus serverStatus ) throws Exception {
 		debug( "check whole server ..." );
 		
 		boolean wholeOk = true;
 		
-		if( server.isRunWebUser() ) {
+		if( server.isWebUser() ) {
 			if( !server.WEBMAINURL.isEmpty() )
-				if( !checkOneServerWholeUrl( server.WEBMAINURL , "main web url" , state , null , serverStatus ) )
+				if( !checkOneServerWholeUrl( server.WEBMAINURL , "main web url" , null , serverStatus ) )
 					wholeOk = false;
 		}
 
 		if( server.isCallable() ) {
-			if( !checkOneServerWholeComps( server , state , serverStatus ) )
+			if( !checkOneServerWholeComps( server , serverStatus ) )
 				wholeOk = false;
 		}
 
-		if( server.isRunDatabase() ) {
-			if( !checkOneServerWholeDatabase( server , state , serverStatus ) )
+		if( server.isDatabase() ) {
+			if( !checkOneServerWholeDatabase( server , serverStatus ) )
 				wholeOk = false;
 		}
 		
@@ -236,7 +216,7 @@ public class ActionCheckEnv extends ActionBase {
 		S_CHECKENV_SERVER_FAILED = true;
 	}
 	
-	private boolean checkOneServerWholeUrl( String URL , String role , ScopeState state , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
+	private boolean checkOneServerWholeUrl( String URL , String role , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
 		super.trace( role + ": check url=" + URL + " ..." );
 		
 		boolean res = SimpleHttp.check( this , URL );
@@ -253,29 +233,28 @@ public class ActionCheckEnv extends ActionBase {
 		return( res );
 	}
 
-	private boolean checkOneServerWholeComps( MetaEnvServer server , ScopeState state , ServerStatus serverStatus ) throws Exception {
+	private boolean checkOneServerWholeComps( MetaEnvServer server , ServerStatus serverStatus ) throws Exception {
 		if( server.WEBSERVICEURL.isEmpty() )
 			return( true );
 		
-		return( checkOneServerWebServices( server , state , server.WEBSERVICEURL , null , serverStatus ) );
+		return( checkOneServerWebServices( server , server.WEBSERVICEURL , null , serverStatus ) );
 	}
 	
-	private boolean checkOneServerWebServices( MetaEnvServer server , ScopeState state , String ACCESSPOINT , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
-		if( !server.hasWebServices() )
+	private boolean checkOneServerWebServices( MetaEnvServer server , String ACCESSPOINT , NodeStatus nodeStatus , ServerStatus serverStatus ) throws Exception {
+		if( !server.hasWebServices( this ) )
 			return( true );
 		
 		// by comps
 		boolean ok = true;
 		for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-			if( !deployment.isComponent() )
+			if( deployment.comp == null )
 				continue;
 			
-			MetaDistrComponent comp = deployment.getComponent();
-			for( MetaDistrComponentItem ws : comp.getWebServices() ) {
+			for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
 				String URL = ws.getURL( ACCESSPOINT ); 
-				if( !checkOneServerWholeUrl( URL , "web service" , state , nodeStatus , serverStatus ) ) {
+				if( !checkOneServerWholeUrl( URL , "web service" , nodeStatus , serverStatus ) ) {
 					ok = false;
-					S_CHECKENV_SERVER_COMPS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_COMPS_FAILED , comp.NAME );
+					S_CHECKENV_SERVER_COMPS_FAILED = Common.addItemToUniqueSpacedList( S_CHECKENV_SERVER_COMPS_FAILED , deployment.comp.NAME );
 				}
 			}
 		}
@@ -287,7 +266,7 @@ public class ActionCheckEnv extends ActionBase {
 		return( false );
 	}
 	
-	private boolean checkOneServerWholeDatabase( MetaEnvServer server , ScopeState state , ServerStatus serverStatus ) throws Exception {
+	private boolean checkOneServerWholeDatabase( MetaEnvServer server , ServerStatus serverStatus ) throws Exception {
 		DatabaseClient process = new DatabaseClient();
 		
 		boolean res = true;
@@ -300,23 +279,22 @@ public class ActionCheckEnv extends ActionBase {
 		return( res );
 	}
 	
-	private void checkOneServerNode( ActionScopeTargetItem item , MetaEnvServer server , MetaEnvServerNode node , ScopeState state , boolean main , String role , ServerStatus serverStatus ) {
+	private void checkOneServerNode( ActionScopeTargetItem item , MetaEnvServer server , MetaEnvServerNode node , boolean main , String role , ServerStatus serverStatus ) {
 		S_CHECKENV_NODE_FAILED = false;
 		S_CHECKENV_NODE_STOPPED = false;
 
 		NodeStatus nodeStatus = null;
 		int captureIndex = 0;
 		if( main ) {
-			nodeStatus = new NodeStatus( node );
+			nodeStatus = new NodeStatus( serverStatus , item );
 			captureIndex = super.logStartCapture();
 		}
+		
+		info( "node " + node.POS + "=" + node.HOSTLOGIN );
 
 		try {
-			HostAccount account = node.getHostAccount();
-			info( "node " + node.POS + "=" + account.getFinalAccount() );
-
-			if( checkOneServerNodeStatus( server , node , state , nodeStatus ) ) {
-				if( !checkOneServerNodeComps( server , node , state , nodeStatus ) ) {
+			if( checkOneServerNodeStatus( server , node , nodeStatus ) ) {
+				if( !checkOneServerNodeComps( server , node , nodeStatus ) ) {
 					nodeStatus.setCompsFailed();
 					S_CHECKENV_NODE_FAILED = true;
 				}
@@ -327,14 +305,11 @@ public class ActionCheckEnv extends ActionBase {
 			}
 			
 			// check proxy node
-			if( main ) {
-				MetaEnvServer proxyServer = server.getProxyServer();
-				if( proxyServer != null ) {
-					info( "check proxy node ..." );
-					if( !checkOneServerNodeStatus( proxyServer , node.getProxyNode() , state , null ) ) {
-						S_CHECKENV_NODE_FAILED = true;
-						nodeStatus.setProxyFailed( proxyServer );
-					}
+			if( main && server.proxyServer != null ) { 
+				info( "check proxy node ..." );
+				if( !checkOneServerNodeStatus( server.proxyServer , node.getProxyNode( this ) , null ) ) {
+					S_CHECKENV_NODE_FAILED = true;
+					nodeStatus.setProxyFailed( server.proxyServer );
 				}
 			}
 		}
@@ -357,28 +332,27 @@ public class ActionCheckEnv extends ActionBase {
 		if( main ) {
 			String[] log = super.logFinishCapture( captureIndex );
 			nodeStatus.setLog( log );
-			StateService status = super.getEngineStatus();
-			status.setServerNodeStatus( this , node , nodeStatus );
+			super.eventSource.finishScopeItem( ServerMonitoring.EVENT_MONITORING_NODE , nodeStatus );
 			serverStatus.addNodeStatus( nodeStatus ); 
 		}
 		else
 			serverStatus.addRoleStatus( role , node , S_CHECKENV_NODE_FAILED );
 	}
 	
-	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , NodeStatus mainState ) throws Exception {
-		if( server.isAccessManual() ) {
+	private boolean checkOneServerNodeStatus( MetaEnvServer server , MetaEnvServerNode node , NodeStatus mainState ) throws Exception {
+		if( server.isManual() ) {
 			debug( "skip check process for manual server=" + server.NAME );
 			if( mainState != null )
 				mainState.setSkipManual();
 			return( true );
 		}
 		
-		ServerProcess process = new ServerProcess( server , node , state );
+		ServerProcess process = new ServerProcess( server , node );
 		try {
 			process.gatherStatus( this );
 		}
 		catch( Throwable e ) {
-			mainState.setUnknown( e.toString() );
+			mainState.setUnknown( e.getMessage() );
 			handle( e );
 			return( false );
 		}
@@ -389,27 +363,22 @@ public class ActionCheckEnv extends ActionBase {
 		if( process.isStarted( this ) )
 			return( true );
 		
-		HostAccount account = node.getHostAccount();
-
-		if( process.mode == EnumProcessMode.ERRORS )
-			error( account.getFinalAccount() + ": status=errors (" + process.cmdValue + ")" ); 
+		if( process.mode == VarPROCESSMODE.ERRORS )
+			error( node.HOSTLOGIN + ": status=errors (" + process.cmdValue + ")" ); 
 		else
-		if( process.mode == EnumProcessMode.STARTING )
-			error( account.getFinalAccount() + ": status=starting" );
+		if( process.mode == VarPROCESSMODE.STARTING )
+			error( node.HOSTLOGIN + ": status=starting" );
 		else
-		if( process.mode == EnumProcessMode.STOPPED )
-			error( account.getFinalAccount() + ": status=stopped" );
-		else
-		if( process.mode == EnumProcessMode.UNREACHABLE )
-			error( account.getFinalAccount() + ": status=unreachable" );
+		if( process.mode == VarPROCESSMODE.STOPPED )
+			error( node.HOSTLOGIN + ": status=stopped" );
 		else
 			this.exitUnexpectedState();
 		return( false );
 	}
 	
-	private boolean checkOneServerNodeComps( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , NodeStatus status ) throws Exception {
+	private boolean checkOneServerNodeComps( MetaEnvServer server , MetaEnvServerNode node , NodeStatus state ) throws Exception {
 		String ACCESSPOINT = node.getAccessPoint( this );
-		return( checkOneServerWebServices( server , state , ACCESSPOINT , status , null ) );
+		return( checkOneServerWebServices( server , ACCESSPOINT , state , null ) );
 	}
 	
 }

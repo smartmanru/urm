@@ -3,36 +3,28 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.engine.Engine;
-import org.urm.engine.DataService;
-import org.urm.engine.products.EngineProduct;
-import org.urm.engine.session.EngineSession;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.Types.*;
-import org.urm.meta.release.ReleaseRepository;
-import org.urm.meta.env.MetaMonitoring;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
+import org.urm.engine.ServerSession;
+import org.urm.engine.ServerTransaction;
+import org.urm.meta.ServerLoader;
+import org.urm.meta.ServerObject;
+import org.urm.meta.ServerProductMeta;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Node;
 
-public class Meta extends EngineObject {
+public class Meta extends ServerObject {
 
 	public String name;
-	public Engine engine;
-	public EngineSession session;
-	public EngineProduct ep;
+	public ServerSession session;
 	
-	private ProductMeta storage;
+	private ServerLoader loader;
+	private ServerProductMeta storage;
 
-	private MetaProductSettings settings;
-	private MetaUnits units;
+	private MetaProductVersion version;
+	private MetaProductSettings product;
 	private MetaDatabase database;
-	private MetaDocs docs;
 	private MetaDistr distr;
-	private MetaSources sources;
+	private MetaSource sources;
 	private MetaMonitoring monitoring;
 	
 	static String[] configurableExtensions = {
@@ -44,69 +36,37 @@ public class Meta extends EngineObject {
 	static String S_REDIST_ARCHIVE_TYPE_SUBDIR = "subdir";
 	
 	private static String configurableExtensionsFindOptions = createConfigurableExtensions();
-
-	public static String PROPERTY_NAME = "name";
 	
-	public Meta( Engine engine , EngineProduct ep , ProductMeta storage , EngineSession session ) {
+	public Meta( ServerProductMeta storage , ServerSession session ) {
 		super( null );
-		this.ep = ep;
 		this.storage = storage;
+		this.loader = storage.loader;
 		this.session = session;
-		this.engine = ep.engine;
-		name = storage.NAME;
+		name = storage.name;
+	}
+	
+	public void replaceStorage( ActionBase action , ServerProductMeta storage ) throws Exception {
+		loader.releaseSessionProductMetadata( action , this , false );
 		
-		if( session != null )
-			engine.trace( "new run session meta object, id=" + super.objectId + ", session=" + session.objectId );
-		else
-			engine.trace( "new run revision meta object, id=" + super.objectId );
-	}
-	
-	@Override
-	public String getName() {
-		return( name );
-	}
-
-	public Integer getId() {
-		return( storage.ID );
-	}
-	
-	public EngineProduct getEngineProduct() {
-		return( ep );
-	}
-	
-	public AppProduct getProduct() throws Exception {
-		return( ep.getProduct() );
-	}
-
-	public AppProduct findProduct() {
-		return( ep.findProduct() );
-	}
-
-	public boolean isPrimary() {
-		return( storage.isPrimary() );
-	}
-
-	public boolean isDraft() {
-		return( storage.isDraft() );
-	}
-	
-	public String getRevision() {
-		return( storage.REVISION );
-	}
-	
-	public void setStorage( ProductMeta storage ) {
 		// clear old refs
-		settings = null;
-		units = null;
+		version = null;
+		product = null;
 		database = null;
-		docs = null;
 		distr = null;
 		sources = null;
 		monitoring = null;
 		
 		this.storage = storage;
+		storage.addSessionMeta( this );
+		session.addProductMeta( this );
 	}
 
+	public boolean isCorrect() {
+		if( storage.loadFailed )
+			return( false );
+		return( true );
+	}
+	
 	private static String createConfigurableExtensions() {
 		String configurableExtensionsFindOptions = "";
 		for( int k = 0; k < configurableExtensions.length; k++ ) {
@@ -117,16 +77,12 @@ public class Meta extends EngineObject {
 		return( configurableExtensionsFindOptions );
 	}
 	
-	public void setSettings( MetaProductSettings settings ) {
-		this.settings = settings;
+	public void setVersion( MetaProductVersion version ) {
+		this.version = version;
 	}
 	
-	public void setUnits( MetaUnits units ) {
-		this.units = units;
-	}
-	
-	public void setDocs( MetaDocs docs ) {
-		this.docs = docs;
+	public void setProduct( MetaProductSettings product ) {
+		this.product = product;
 	}
 	
 	public void setDistr( MetaDistr distr ) {
@@ -137,69 +93,69 @@ public class Meta extends EngineObject {
 		this.database = database;
 	}
 	
-	public void setSources( MetaSources sources ) {
+	public void setSources( MetaSource sources ) {
 		this.sources = sources;
 	}
 
-	public synchronized ProductMeta getStorage() {
+	public synchronized ServerProductMeta getStorage( ActionBase action ) throws Exception {
 		return( storage );
 	}
 
-	public synchronized MetaProductCoreSettings getProductCoreSettings() {
-		MetaProductSettings settings = getProductSettings();
-		return( settings.core );
+	public synchronized MetaProductVersion getVersion( ActionBase action ) throws Exception {
+		if( version == null )
+			version = loader.loadVersion( action.actionInit , storage );
+		return( version );
 	}
 	
-	public synchronized MetaProductSettings getProductSettings() {
-		if( settings == null )
-			settings = storage.getSettings();
-		return( settings );
+	public synchronized MetaProductSettings getProductSettings( ActionBase action ) throws Exception {
+		if( product == null )
+			product = loader.loadProduct( action.actionInit , storage );
+		return( product );
 	}
 	
-	public synchronized MetaUnits getUnits() {
-		if( units == null )
-			units = storage.getUnits();
-		return( units );
-	}
-
-	public synchronized MetaDatabase getDatabase() {
+	public synchronized MetaDatabase getDatabase( ActionBase action ) throws Exception {
 		if( database == null )
-			database = storage.getDatabase();
+			database = loader.loadDatabase( action.actionInit , storage );
 		return( database );
 	}
 
-	public synchronized MetaDocs getDocs() {
-		if( docs == null )
-			docs = storage.getDocs();
-		return( docs );
-	}
-
-	public synchronized MetaDistr getDistr() {
+	public synchronized MetaDistr getDistr( ActionBase action ) throws Exception {
 		if( distr == null )
-			distr = storage.getDistr();
+			distr = loader.loadDistr( action.actionInit , storage );
 		return( distr );
 	}
 
-	public synchronized MetaSources getSources() {
+	public synchronized MetaSource getSources( ActionBase action ) throws Exception {
 		if( sources == null )
-			sources = storage.getSources();
+			sources = loader.loadSources( action.actionInit , storage );
 		return( sources );
 	}
 
-	public synchronized MetaMonitoring getMonitoring() {
-		if( monitoring == null ) {
-			ProductEnvs envs = storage.getEnviroments();
-			monitoring = envs.getMonitoring();
-		}
+	public synchronized MetaMonitoring getMonitoring( ActionBase action ) throws Exception {
+		if( monitoring == null )
+			monitoring = loader.loadMonitoring( action.actionInit , storage );
 		return( monitoring );
 	}
 	
-	public ProductEnvs getEnviroments() {
-		return( storage.getEnviroments() );
+	public synchronized MetaDesign getDesignData( ActionBase action , String fileName ) throws Exception {
+		return( loader.loadDesignData( action.actionInit , storage , fileName ) );
 	}
 	
-	public ReleaseRepository getReleases() {
-		return( storage.getReleaseRepository() );
+	public String[] getEnvList() {
+		return( storage.getEnvironmentNames() );
+	}
+	
+	public synchronized MetaEnv getEnvData( ActionBase action , String envFile , boolean loadProps ) throws Exception {
+		return( loader.loadEnvData( action.actionInit , storage , envFile , loadProps ) );
+	}
+	
+	public MetaEnv findEnv( String envId ) {
+		return( storage.findEnvironment( envId ) );
+	}
+	
+	public synchronized MetaEnv getEnv( ActionBase action , String envId ) throws Exception {
+		getStorage( action );
+		return( storage.findEnvironment( envId ) );
 	}
 	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
@@ -218,72 +174,176 @@ public class Meta extends EngineObject {
 		return( configurableExtensions );
 	}
 
-	public static String getMask( ActionBase action , EnumNameType nameType ) throws Exception {
+	public static VarCATEGORY readCategoryAttr( Node node ) throws Exception {
+		String value = ConfReader.getAttrValue( node , "category" );
+		return( Types.getCategory( value , true ) );
+	}
+	
+	public static boolean isSourceCategory( VarCATEGORY value ) {
+		if( value == VarCATEGORY.PROJECT )
+			return( true );
+		return( false );
+	}
+	
+	public static VarCATEGORY[] getAllCategories() {
+		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
+		return( categories );
+	}
+
+	public static VarCATEGORY[] getAllReleaseCategories() {
+		VarCATEGORY[] categories = { VarCATEGORY.PROJECT , VarCATEGORY.CONFIG , VarCATEGORY.DB };
+		return( categories );
+	}
+
+	public static VarCATEGORY[] getAllSourceCategories() {
+		VarCATEGORY[] categories = { VarCATEGORY.PROJECT };
+		return( categories );
+	}
+
+	public static boolean checkCategoryProperty( VarCATEGORY part , VarCATEGORY property ) {
+		if( part == property )
+			return( true );
+		if( property == VarCATEGORY.BUILDABLE ) {
+			if( part == VarCATEGORY.PROJECT )
+				return( true );
+		}
+		return( false );
+	}
+	
+	public static String getVersionPattern( ActionBase action , VarITEMVERSION version , String basename , String ext ) throws Exception {
+		String value = "";
+		if( version == VarITEMVERSION.NONE || version == VarITEMVERSION.IGNORE )
+			value = basename + ext;
+		else if( version == VarITEMVERSION.MIDPOUND )
+			value = Common.getLiteral( basename ) + "##[0-9.]+" + Common.getLiteral( ext );
+		else if( version == VarITEMVERSION.MIDDASH )
+			value = basename + "-[0-9.]+" + ext;
+		else if( version == VarITEMVERSION.PREFIX )
+			value = "[0-9.]+-" + Common.getLiteral( basename + ext );
+		else
+			action.exitUnexpectedState();
+		
+		return( value );
+	}
+	
+	public static String[] getVersionPatterns( ActionBase action , MetaDistrBinaryItem distItem ) throws Exception {
+		String basename = distItem.DISTBASENAME;
+		String ext = distItem.EXT;
+		if( distItem.deployVersion == VarITEMVERSION.IGNORE ) {
+			String[] values = new String[1];
+			values[0] = getVersionPattern( action , distItem.deployVersion , basename , ext );
+			return( values );
+		}
+
+		String[] values = new String[4];
+		values[0] = getVersionPattern( action , VarITEMVERSION.NONE , basename , ext );
+		values[1] = getVersionPattern( action , VarITEMVERSION.MIDPOUND , basename , ext );
+		values[2] = getVersionPattern( action , VarITEMVERSION.MIDDASH , basename , ext );
+		values[3] = getVersionPattern( action , VarITEMVERSION.PREFIX , basename , ext );
+		return( values );
+	}
+	
+	public static boolean isBinaryContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
+		if( c == VarCONTENTTYPE.BINARYCOLDDEPLOY || c == VarCONTENTTYPE.BINARYCOPYONLY || c == VarCONTENTTYPE.BINARYHOTDEPLOY )
+			return( true );
+		return( false );
+	}
+	
+	public static boolean isConfContent( ActionBase action , VarCONTENTTYPE c ) throws Exception {
+		if( c == VarCONTENTTYPE.CONFCOLDDEPLOY || c == VarCONTENTTYPE.CONFCOPYONLY || c == VarCONTENTTYPE.CONFHOTDEPLOY )
+			return( true );
+		return( false );
+	}
+	
+    public static String getNameAttr( ActionBase action , Node node , VarNAMETYPE nameType ) throws Exception {
+    	String name = ConfReader.getRequiredAttrValue( node , "name" );
+    	if( nameType == VarNAMETYPE.ANY )
+    		return( name );
+    	
     	String mask = null;
-    	if( nameType == EnumNameType.ALPHANUM )
+    	if( nameType == VarNAMETYPE.ALPHANUM )
     		mask = "[0-9a-zA-Z_]+";
     	else
-    	if( nameType == EnumNameType.ALPHANUMDOT )
+    	if( nameType == VarNAMETYPE.ALPHANUMDOT )
     		mask = "[0-9a-zA-Z_.]+";
     	else
-    	if( nameType == EnumNameType.ALPHANUMDOTDASH )
+    	if( nameType == VarNAMETYPE.ALPHANUMDOTDASH )
     		mask = "[0-9a-zA-Z_.-]+";
     	else
     		action.exitUnexpectedState();
-    	return( mask );
-	}
-	
-    public static String getNameAttr( ActionBase action , Node node , EnumNameType nameType ) throws Exception {
-    	String name = ConfReader.getRequiredAttrValue( node , PROPERTY_NAME );
-    	if( nameType == EnumNameType.ANY )
-    		return( name );
-    	
-    	String mask = getMask( action , nameType );
+    		
     	if( !name.matches( mask ) )
     		action.exit1( _Error.WrongNameAttribute1 , "name attribute should contain only alphanumeric or dot characters, value=" + name , name );
     	return( name );	
     }
 
-    public static void setNameAttr( ActionBase action , Document doc , Element element , EnumNameType nameType , String value ) throws Exception {
-    	if( nameType != EnumNameType.ANY ) {
-        	String mask = getMask( action , nameType );
-        	if( !value.matches( mask ) )
-        		action.exit1( _Error.WrongNameAttribute1 , "name attribute should contain only alphanumeric or dot characters, value=" + value , value );
-    	}
-    	
-    	Common.xmlSetElementAttr( doc , element , PROPERTY_NAME , value );
+    public static boolean isArchive( VarDISTITEMTYPE distItemType ) {
+		if( distItemType == VarDISTITEMTYPE.ARCHIVE_CHILD || 
+			distItemType == VarDISTITEMTYPE.ARCHIVE_DIRECT || 
+			distItemType == VarDISTITEMTYPE.ARCHIVE_SUBDIR )
+			return( true );
+		return( false );
     }
 
-    public MetaEnv findEnv( String name ) {
-    	ProductEnvs envs = storage.getEnviroments();
-    	return( envs.findMetaEnv( name ) );
+    public MetaEnv findMetaEnv( MetaEnv env ) {
+    	if( env == null )
+    		return( null );
+    	return( findEnv( env.ID ) );
+    }
+    
+    public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {
+    	if( sg == null )
+    		return( null );
+    	MetaEnv env = findMetaEnv( sg.env );
+    	if( env == null )
+    		return( null );
+    	return( env.findSG( sg.NAME ) );
+    }
+    
+    public MetaEnvServer findMetaEnvServer( MetaEnvServer server ) {
+    	if( server == null )
+    		return( null );
+    	MetaEnvSegment sg = findMetaEnvSegment( server.sg );
+    	if( sg == null )
+    		return( null );
+    	return( sg.findServer( server.NAME ) );
     }
 
-    public MetaEnv findEnv( int id ) {
-    	ProductEnvs envs = storage.getEnviroments();
-    	return( envs.findMetaEnv( id ) );
+    public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) {
+    	if( node == null )
+    		return( null );
+    	MetaEnvServer server = findMetaEnvServer( node.server );
+    	if( server == null )
+    		return( null );
+    	return( server.findNode( node.POS ) );
     }
 
-	public static Integer getObject( MetaDistrBinaryItem item ) {
-		if( item == null )
-			return( null );
-		return( item.ID );
-	}
-	
-	public static Integer getObject( MetaDistrConfItem item ) {
-		if( item == null )
-			return( null );
-		return( item.ID );
-	}
-	
-	public static Integer getObject( MetaDatabaseSchema schema ) {
-		if( schema == null )
-			return( null );
-		return( schema.ID );
+	public void deleteBinaryItemFromEnvironments( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		for( MetaEnv env : storage.getEnvironments() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.reflectDeleteBinaryItem( transaction , item );
 	}
 
-	public DataService getEngineData() {
-		return( engine.getData() );
+	public void deleteConfItemFromEnvironments( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+		for( MetaEnv env : storage.getEnvironments() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.reflectDeleteConfItem( transaction , item );
 	}
-	
+
+	public void deleteComponentFromEnvironments( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+		for( MetaEnv env : storage.getEnvironments() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.reflectDeleteComponent( transaction , item );
+	}
+
+	public void deleteDatabaseSchemaFromEnvironments( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
+		for( MetaEnv env : storage.getEnvironments() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.reflectDeleteSchema( transaction , schema );
+	}
+
 }

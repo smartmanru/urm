@@ -1,203 +1,193 @@
 package org.urm.action.deploy;
 
-import java.nio.charset.Charset;
-
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
-import org.urm.engine.data.EngineBase;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.BaseRepository;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.RuntimeStorage;
 import org.urm.engine.storage.VersionInfoStorage;
-import org.urm.meta.engine.BaseItem;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.engine.ServerBaseItemData;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerBase;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.Types.*;
 
 public class ActionBaseInstall extends ActionBase {
 
-	BaseRepository repo;
-	
 	public ActionBaseInstall( ActionBase action , String stream ) {
-		super( action , stream , "Install base software" );
+		super( action , stream );
 	}
 
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
-		repo = artefactory.getBaseRepository( this );
-		executeServer( target , state );
+	@Override protected SCOPESTATE executeScopeTarget( ActionScopeTarget target ) throws Exception {
+		executeServer( target );
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private void executeServer( ActionScopeTarget target , ScopeState state ) throws Exception {
+	private void executeServer( ActionScopeTarget target ) throws Exception {
 		MetaEnvServer server = target.envServer;
-		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName() + " ..." );
+		MetaEnvServerBase base = server.basesw;
+		info( "============================================ " + getMode() + " server=" + server.NAME + ", type=" + server.getServerTypeName( this ) + " ..." );
 		
-		BaseItem baseItem = server.getBaseItem();
-		if( baseItem == null ) {
+		if( base == null ) {
 			info( "server has no base defined. Skipped" );
 			return;
 		}
 			
-		info( "rootpath=" + server.ROOTPATH + ", base=" + baseItem.NAME );
+		info( "rootpath=" + server.ROOTPATH + ", base=" + base.ID );
 
 		for( ActionScopeTargetItem item : target.getItems( this ) ) {
 			MetaEnvServerNode node = item.envServerNode;
-			ScopeState nodeState = new ScopeState( state , item );
 			info( "install server=" + server.NAME + " node=" + node.POS + " ..." );
-			executeNode( server , node , nodeState , baseItem );
+			executeNode( server , node , base );
 		}
 	}
 
-	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , BaseItem baseItem ) throws Exception {
-		if( baseItem.SERVERACCESS_TYPE != server.getServerAccessType() ) {
-			String baseType = Common.getEnumLower( baseItem.SERVERACCESS_TYPE );
+	private void executeNode( MetaEnvServer server , MetaEnvServerNode node , MetaEnvServerBase base ) throws Exception {
+		BaseRepository repo = artefactory.getBaseRepository( this );
+		ServerBaseItemData info = repo.getBaseInfo( this , base.ID , node , true );
+		if( info.serverAccessType != server.getServerAccessType() ) {
+			String baseType = Common.getEnumLower( info.serverAccessType );
 			String serverType = Common.getEnumLower( server.getServerAccessType() );
 			exit2( _Error.BaseServerTypeMismatched2 , "base server type mismatched: " + baseType + " <> " + serverType , baseType , serverType );
 		}
 		
 		// install dependencies
-		EngineBase base = super.getEngineBase();
-		for( String name : baseItem.getDepItemNames() ) {
-			BaseItem depItem = base.getItem( name );
-			executeNodeInstall( server , node , state , repo , depItem );
+		for( String depBase : info.dependencies ) {
+			ServerBaseItemData depInfo = repo.getBaseInfo( this , depBase , node , false );
+			executeNodeInstall( server , node , depInfo );
 		}
 
 		// install main
-		executeNodeInstall( server , node , state , repo , baseItem );
+		executeNodeInstall( server , node , info );
 	}
 
-	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , ScopeState state , BaseRepository repo , BaseItem baseItem ) throws Exception {
+	private void executeNodeInstall( MetaEnvServer server , MetaEnvServerNode node , ServerBaseItemData info ) throws Exception {
 		if( !isExecute() )
 			return;
 
 		RedistStorage redist = artefactory.getRedistStorage( this , server , node );
 		redist.recreateTmpFolder( this );
-		RuntimeStorage runtime = artefactory.getRootRuntimeStorage( this , server , node , false );
+		RuntimeStorage runtime = artefactory.getRootRuntimeStorage( this , server , node , info.adm );
 		VersionInfoStorage vis = artefactory.getVersionInfoStorage( this , redist.account );
 
-		if( !startUpdate( baseItem , runtime , vis ) )
+		if( !startUpdate( info , runtime , vis ) )
 			return;
 			
-		if( baseItem.isPackage() )
-			executeNodeLinuxPackage( server , node , baseItem , redist , runtime );
+		if( info.isArchiveLink() )
+			executeNodeLinuxArchiveLink( server , node , info , redist , runtime );
 		else
-		if( baseItem.isArchiveLink() )
-			executeNodeLinuxArchiveLink( server , node , baseItem , redist , runtime );
+		if( info.isArchiveDirect() )
+			executeNodeLinuxArchiveDirect( server , node , info , redist , runtime );
 		else
-		if( baseItem.isArchiveDirect() )
-			executeNodeLinuxArchiveDirect( server , node , baseItem , redist , runtime );
+		if( info.isNoDist() )
+			executeNodeNoDist( server , node , info , redist , runtime );
 		else
-		if( baseItem.isNoDist() )
-			executeNodeNoDist( server , node , baseItem , redist , runtime );
-		else
-		if( baseItem.isInstaller() )
-			executeNodeInstaller( server , node , baseItem , redist , runtime );
+		if( info.isInstaller() )
+			executeNodeInstaller( server , node , info , redist , runtime );
 		else
 			exitUnexpectedState();
 		
 		// prepare
-		if( baseItem.SERVERACCESS_TYPE != null ) {
-			ServerProcess process = new ServerProcess( server , node , state );
+		if( info.serverAccessType != null ) {
+			ServerProcess process = new ServerProcess( server , node );
 			process.prepare( this );
 		}
 		
-		finishUpdate( baseItem , redist , vis );
+		finishUpdate( info , redist , vis );
+	}
+	
+	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , ServerBaseItemData info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		String localPath = copySourceToLocal( server , info );
+		String redistPath = copyLocalToRedist( info , localPath , redist );
+		String runtimePath = info.INSTALLPATH;
+		
+		extractArchiveFromRedist( info , redistPath , runtimePath , runtime );
+		linkNewBase( info , runtime , runtimePath );
+		copySystemFiles( info , redist , runtime );
+	}
+	
+	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , ServerBaseItemData info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		String localPath = copySourceToLocal( server , info );
+		String redistPath = copyLocalToRedist( info , localPath , redist );
+		String runtimePath = info.INSTALLPATH;
+		
+		extractArchiveFromRedist( info , redistPath , runtimePath , runtime );
+		copySystemFiles( info , redist , runtime );
 	}
 
-	private void executeNodeLinuxPackage( MetaEnvServer server , MetaEnvServerNode node , BaseItem baseItem , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		super.exitNotImplemented();
+	private void executeNodeNoDist( MetaEnvServer server , MetaEnvServerNode node , ServerBaseItemData info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		copySystemFiles( info , redist , runtime );
 	}
 	
-	private void executeNodeLinuxArchiveLink( MetaEnvServer server , MetaEnvServerNode node , BaseItem baseItem , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		String localPath = copySourceToLocal( server , baseItem );
-		String redistPath = copyLocalToRedist( baseItem , localPath , redist );
-		String runtimePath = baseItem.INSTALLPATH;
-		
-		extractArchiveFromRedist( baseItem , redistPath , runtimePath , runtime );
-		linkNewBase( baseItem , runtime , runtimePath );
-		copySystemFiles( baseItem , redist , runtime );
-	}
-	
-	private void executeNodeLinuxArchiveDirect( MetaEnvServer server , MetaEnvServerNode node , BaseItem baseItem , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		String localPath = copySourceToLocal( server , baseItem );
-		String redistPath = copyLocalToRedist( baseItem , localPath , redist );
-		String runtimePath = baseItem.INSTALLPATH;
-		
-		extractArchiveFromRedist( baseItem , redistPath , runtimePath , runtime );
-		copySystemFiles( baseItem , redist , runtime );
-	}
-
-	private void executeNodeNoDist( MetaEnvServer server , MetaEnvServerNode node , BaseItem baseItem , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		copySystemFiles( baseItem , redist , runtime );
-	}
-	
-	private void executeNodeInstaller( MetaEnvServer server , MetaEnvServerNode node , BaseItem baseItem , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		LocalFolder workBase = getSystemFiles( baseItem , redist.server , redist.node );
-		String installerFile = copySourceToLocal( server , baseItem );
+	private void executeNodeInstaller( MetaEnvServer server , MetaEnvServerNode node , ServerBaseItemData info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
+		String installerFile = copySourceToLocal( server , info );
 		RemoteFolder redistFolder = redist.getRedistTmpFolder( this );
 		
 		String redistFile = redistFolder.copyFileFromLocal( this , installerFile );
 		
-		if( baseItem.isArchive() )
-			extractArchiveFromRedist( baseItem , redistFile , redistFolder.folderPath , runtime );
+		if( info.isArchive() )
+			extractArchiveFromRedist( info , redistFile , redistFolder.folderPath , runtime );
 		
 		redistFolder.copyDirContentFromLocal( this , workBase , "" );
 		
 		ShellExecutor shell = super.getShell( node );
 		if( server.isLinux() )
-			shell.customCheckErrorsDebug( this , redistFolder.folderPath , "chmod 777 server.*.sh" , Shell.WAIT_DEFAULT );
+			shell.customCheckErrorsDebug( this , redistFolder.folderPath , "chmod 777 server.*.sh" );
 		
 		// run installer
+		int timeout = setTimeoutUnlimited();
 		String cmd = ( server.isLinux() )? "./server.prepare.sh" : "call server.prepare.cmd";
-		shell.customCheckStatus( this , redistFolder.folderPath , cmd , Shell.WAIT_LONG );
+		shell.customCheckStatus( this , redistFolder.folderPath , cmd );
+		setTimeout( timeout );
 	}
 	
-	private boolean startUpdate( BaseItem baseItem , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
-		String STATUS = vis.getBaseStatus( this , baseItem.NAME );
+	private boolean startUpdate( ServerBaseItemData info , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
+		String STATUS = vis.getBaseStatus( this , info.item.ID );
 		if( STATUS.equals( "ok" ) ) {
-			if( !isForced() ) {
-				info( "skip updating base=" + baseItem.NAME + ". Already installed." );
+			if( !context.CTX_FORCE ) {
+				info( "skip updating base=" + info.item.ID + ". Already installed." );
 				return( false );
 			}
 		}
 
 		String dowhat = ( STATUS.isEmpty() )? "install" : "reinstall";
-		info( runtime.account.getPrintName() + ": " + dowhat + " base=" + baseItem.NAME + ", type=" + Common.getEnumLower( baseItem.BASESRC_TYPE ) + " ..." );
-		vis.setBaseStatus( this , baseItem.NAME , "upgrading" );
+		info( runtime.account.getPrintName() + ": " + dowhat + " base=" + info.item.ID + ", type=" + Common.getEnumLower( info.type ) + " ..." );
+		vis.setBaseStatus( this , info.item.ID , "upgrading" );
 		runtime.createRootPath( this );
 		return( true );
 	}
 
-	private void finishUpdate( BaseItem baseItem , RedistStorage redist , VersionInfoStorage vis ) throws Exception {
-		vis.setBaseStatus( this , baseItem.NAME , "ok" );
+	private void finishUpdate( ServerBaseItemData info , RedistStorage redist , VersionInfoStorage vis ) throws Exception {
+		vis.setBaseStatus( this , info.item.ID , "ok" );
 	}
 
-	private String copySourceToLocal( MetaEnvServer server , BaseItem baseItem ) throws Exception {
+	private String copySourceToLocal( MetaEnvServer server , ServerBaseItemData info ) throws Exception {
+		int timeout = setTimeoutUnlimited();
+		
 		String localPath = null;
-		if( baseItem.SRCFILE.startsWith( "http:" ) || baseItem.SRCFILE.startsWith( "https:" ) ) {
-			LocalFolder folder = artefactory.getArtefactFolder( this , server.OS_TYPE , server.meta , "base" );
-			String baseName = Common.getBaseName( baseItem.SRCFILE );
+		if( info.SRCFILE.startsWith( "http:" ) || info.SRCFILE.startsWith( "https:" ) ) {
+			LocalFolder folder = artefactory.getArtefactFolder( this , server.meta , "base" );
+			String baseName = Common.getBaseName( info.SRCFILE );
 			String filePath = folder.getFilePath( this , baseName );
-			shell.downloadUnix( this , baseItem.SRCFILE , filePath , "" );
+			shell.downloadUnix( this , info.SRCFILE , filePath , "" );
 			localPath = filePath;
 		}
 		else {
 			// check absolute
-			if( baseItem.SRCFILE.startsWith( "/" ) )
-				localPath = baseItem.SRCFILE;
+			if( info.SRCFILE.startsWith( "/" ) )
+				localPath = info.SRCFILE;
 			else
-				localPath = getItemPath( baseItem , baseItem.SRCFILE );
+				localPath = info.getItemPath( this , info.SRCFILE );
 		}
+		setTimeout( timeout );
 		
 		if( !shell.checkFileExists( this , localPath ) )
 			exit1( _Error.UnableFindFile1 , "unable to find file: " + localPath , localPath );
@@ -206,7 +196,7 @@ public class ActionBaseInstall extends ActionBase {
 		return( localPath );
 	}
 
-	private String copyLocalToRedist( BaseItem baseItem , String localPath , RedistStorage redist ) throws Exception {
+	private String copyLocalToRedist( ServerBaseItemData info , String localPath , RedistStorage redist ) throws Exception {
 		RemoteFolder folder = redist.getRedistTmpFolder( this );
 		folder.copyFileFromLocal( this , localPath );
 		
@@ -216,79 +206,68 @@ public class ActionBaseInstall extends ActionBase {
 		return( redistPath );
 	}
 	
-	private void extractArchiveFromRedist( BaseItem baseItem , String redistPath , String installPath , RuntimeStorage runtime ) throws Exception {
-		if( baseItem.BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.TARGZ_SINGLEDIR ) {
-			runtime.extractBaseArchiveSingleDir( this , redistPath , baseItem.SRCFILEDIR , installPath , EnumArchiveType.TARGZ );
-			debug( "runtime path: " + baseItem.INSTALLPATH );
+	private void extractArchiveFromRedist( ServerBaseItemData info , String redistPath , String installPath , RuntimeStorage runtime ) throws Exception {
+		int timeout = setTimeoutUnlimited();
+
+		if( info.srcFormat == VarBASESRCFORMAT.TARGZ_SINGLEDIR ) {
+			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.TARGZ );
+			debug( "runtime path: " + info.INSTALLPATH );
 		}
 
-		if( baseItem.BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.ZIP_SINGLEDIR ) {
-			runtime.extractBaseArchiveSingleDir( this , redistPath , baseItem.SRCFILEDIR , installPath , EnumArchiveType.ZIP );
-			debug( "runtime path: " + baseItem.INSTALLPATH );
+		if( info.srcFormat == VarBASESRCFORMAT.ZIP_SINGLEDIR ) {
+			runtime.extractBaseArchiveSingleDir( this , redistPath , info.SRCSTOREDIR , installPath , VarARCHIVETYPE.ZIP );
+			debug( "runtime path: " + info.INSTALLPATH );
 		}
 
+		setTimeout( timeout );
 		exitUnexpectedState();
 	}
 
-	private void linkNewBase( BaseItem baseItem , RuntimeStorage runtime , String runtimePath ) throws Exception {
-		runtime.createDirLink( this , baseItem.INSTALLLINK , runtimePath );
-		debug( "link path: " + baseItem.INSTALLLINK );
+	private void linkNewBase( ServerBaseItemData info , RuntimeStorage runtime , String runtimePath ) throws Exception {
+		runtime.createDirLink( this , info.INSTALLLINK , runtimePath );
+		debug( "link path: " + info.INSTALLLINK );
 	}
 
-	private void copySystemFiles( BaseItem baseItem , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
-		if( baseItem.SERVERACCESS_TYPE == null )
+	private void copySystemFiles( ServerBaseItemData info , RedistStorage redist , RuntimeStorage runtime ) throws Exception {
+		if( info.serverAccessType == null )
 			return;
 		
-		LocalFolder workBase = getSystemFiles( baseItem , redist.server , redist.node );
+		LocalFolder workBase = getSystemFiles( info , redist.server , redist.node );
 		
 		// deploy
-		if( baseItem.SERVERACCESS_TYPE == DBEnumServerAccessType.GENERIC )
+		if( info.serverAccessType == VarSERVERACCESSTYPE.GENERIC )
 			runtime.createBinPath( this );
 		
 		runtime.restoreSysConfigs( this , redist , workBase );
 	}
 
-	private LocalFolder getSystemFiles( BaseItem baseItem , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
+	private LocalFolder getSystemFiles( ServerBaseItemData info , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
 		LocalFolder workBase = artefactory.getWorkFolder( this , "sysbase" );
 		workBase.recreateThis( this );
 		
 		// copy system files from base
-		RemoteFolder baseMaster = getFolder( baseItem );
-		if( baseItem.SERVERACCESS_TYPE == DBEnumServerAccessType.SERVICE ) {
+		RemoteFolder baseMaster = info.getFolder( this );
+		if( info.serverAccessType == VarSERVERACCESSTYPE.SERVICE ) {
 			if( !server.isLinux() )
 				exitUnexpectedState();
 			
 			baseMaster.copyFileToLocalRename( this , workBase , "service" , server.SYSNAME );
 		}
 		else
-		if( baseItem.SERVERACCESS_TYPE == DBEnumServerAccessType.GENERIC ) {
+		if( info.serverAccessType == VarSERVERACCESSTYPE.GENERIC ) {
 			if( server.isLinux() )
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.sh" );
 			else
 				baseMaster.copyFilesToLocal( this , workBase , "server.*.cmd" );
 		}
 		else {
-			String value = Common.getEnumLower( baseItem.SERVERACCESS_TYPE );
+			String value = Common.getEnumLower( info.serverAccessType );
 			exit1( _Error.AccTypeNotForOperation1 , "access type (" + value + ") is not supported for operation" , value );
 		}
 		
 		// configure
 		ConfBuilder builder = new ConfBuilder( this , server.meta );
-		
-		Charset charset = Charset.forName( baseItem.CHARSET );
-		if( charset == null )
-			super.exit1( _Error.UnknownSystemFilesCharset1 , "unknown system files charset=" + baseItem.CHARSET , baseItem.CHARSET );
-		
-		builder.configureFolder( this , workBase , node , node.getProperties() , charset );
+		builder.configureFolder( this , workBase , node , info.getProperties() , info.charset );
 		return( workBase );
 	}
-
-	public RemoteFolder getFolder( BaseItem baseItem ) throws Exception {
-		return( repo.getBaseFolder( this , baseItem.NAME ) );
-	}
-
-	public String getItemPath( BaseItem baseItem , String SRCFILE ) throws Exception {
-		return( repo.getBaseItemPath( this , baseItem.NAME , SRCFILE ) );
-	}
-
 }

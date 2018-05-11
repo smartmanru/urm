@@ -4,62 +4,160 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumChangeType;
-import org.urm.meta.loader.MatchItem;
+import org.urm.common.ConfReader;
+import org.urm.common.PropertyController;
+import org.urm.engine.ServerTransaction;
+import org.urm.engine.TransactionBase;
+import org.urm.meta.ServerProductMeta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
-public class MetaDistr {
+public class MetaDistr extends PropertyController {
 
-	public Meta meta;
+	protected Meta meta;
 	private Map<String,MetaDistrDelivery> mapDeliveries;
-	private Map<Integer,MetaDistrDelivery> mapDeliveriesById;
 	private Map<String,MetaDistrBinaryItem> mapBinaryItems;
-	private Map<Integer,MetaDistrBinaryItem> mapBinaryItemsById;
 	private Map<String,MetaDistrConfItem> mapConfItems;
-	private Map<Integer,MetaDistrConfItem> mapConfItemsById;
 	private Map<String,MetaDistrComponent> mapComps;
-	private Map<Integer,MetaDistrComponent> mapCompsById;
 	
-	public MetaDistr( ProductMeta storage , Meta meta ) {
+	public MetaDistr( ServerProductMeta storage , Meta meta ) {
+		super( storage , "distr" );
 		this.meta = meta;
+		meta.setDistr( this );
 		
 		mapDeliveries = new HashMap<String,MetaDistrDelivery>();
-		mapDeliveriesById = new HashMap<Integer,MetaDistrDelivery>();
 		mapBinaryItems = new HashMap<String,MetaDistrBinaryItem>();
-		mapBinaryItemsById = new HashMap<Integer,MetaDistrBinaryItem>();
 		mapConfItems = new HashMap<String,MetaDistrConfItem>();
-		mapConfItemsById = new HashMap<Integer,MetaDistrConfItem>();
 		mapComps = new HashMap<String,MetaDistrComponent>();
-		mapCompsById = new HashMap<Integer,MetaDistrComponent>();
 	}
 	
-	public MetaDistr copy( Meta rmeta ) throws Exception {
-		MetaDistr r = new MetaDistr( rmeta.getStorage() , rmeta );
-		MetaDatabase rdb = rmeta.getDatabase();
-		MetaDocs rdocs = rmeta.getDocs();
-		
+	@Override
+	public boolean isValid() {
+		if( super.isLoadFailed() )
+			return( false );
+		return( true );
+	}
+	
+	@Override
+	public void scatterProperties( ActionBase action ) throws Exception {
+	}
+	
+	public MetaDistr copy( ActionBase action , Meta meta ) throws Exception {
+		MetaDistr r = new MetaDistr( meta.getStorage( action ) , meta );
+		MetaProductSettings product = meta.getProductSettings( action );
+		r.initCopyStarted( this , product.getProperties() );
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			MetaDistrDelivery rd = delivery.copy( rmeta , r , rdb , rdocs , true );
-			r.addDelivery( rd );
+			MetaDistrDelivery rd = delivery.copy( action , meta , r );
+			r.mapDeliveries.put( rd.NAME , rd );
+		}
 		
-			for( MetaDistrBinaryItem ritem : rd.getBinaryItems() )
-				r.addBinaryItem( ritem );
-			
-			for( MetaDistrConfItem ritem : rd.getConfItems() )
-				r.addConfItem( ritem );
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
+			MetaDistrDelivery rd = r.getDelivery( action , item.delivery.NAME );
+			MetaDistrBinaryItem ritem = rd.getBinaryItem( action , item.KEY );
+			r.mapBinaryItems.put( ritem.KEY , ritem );
+		}
+		
+		for( MetaDistrConfItem item : mapConfItems.values() ) {
+			MetaDistrDelivery rd = r.getDelivery( action , item.delivery.NAME );
+			MetaDistrConfItem ritem = rd.getConfItem( action , item.KEY );
+			r.mapConfItems.put( ritem.KEY , ritem );
 		}
 		
 		for( MetaDistrComponent item : mapComps.values() ) {
-			MetaDistrComponent ritem = item.copy( rmeta , r , true );
-			r.addComponent( ritem );
+			MetaDistrComponent ritem = item.copy( action , meta , r );
+			r.mapComps.put( ritem.NAME , ritem );
 		}
 		
-		// resolve class references
-		for( MetaDistrBinaryItem ritem : r.mapBinaryItems.values() )
-			ritem.resolveReferences();
-		
+		r.resolveReferences( action );
+		r.initFinished();
 		return( r );
+	}
+	
+	public void createDistr( TransactionBase transaction ) throws Exception {
+		if( !super.initCreateStarted( null ) )
+			return;
+		
+		super.initFinished();
+	}
+	
+	public void load( ActionBase action , Node root ) throws Exception {
+		MetaProductSettings product = meta.getProductSettings( action );
+		if( !super.initCreateStarted( product.getProperties() ) )
+			return;
+
+		loadDeliveries( action , ConfReader.xmlGetPathNode( root , "deliveries" ) );
+		loadComponents( action , ConfReader.xmlGetPathNode( root , "components" ) );
+		
+		super.initFinished();
+	}
+	
+	public void loadDeliveries( ActionBase action , Node node ) throws Exception {
+		if( node == null )
+			return;
+		
+		Node[] items = ConfReader.xmlGetChildren( node , "delivery" );
+		if( items == null )
+			return;
+		
+		for( Node deliveryNode : items ) {
+			MetaDistrDelivery item = new MetaDistrDelivery( meta , this );
+			item.load( action , deliveryNode );
+			mapDeliveries.put( item.NAME , item );
+			for( MetaDistrBinaryItem binaryItem : item.getBinaryItems() )
+				mapBinaryItems.put( binaryItem.KEY , binaryItem );
+			for( MetaDistrConfItem confItem : item.getConfItems() )
+				mapConfItems.put( confItem.KEY , confItem );
+		}
+		
+		resolveReferences( action );
+	}
+	
+	private void resolveReferences( ActionBase action ) throws Exception {
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
+			item.resolveReferences( action );
+	}
+
+	public void loadComponents( ActionBase action , Node node ) throws Exception {
+		mapComps = new HashMap<String,MetaDistrComponent>();
+		if( node == null )
+			return;
+		
+		Node[] items = ConfReader.xmlGetChildren( node , "component" );
+		if( items == null )
+			return;
+		
+		for( Node compNode : items ) {
+			MetaDistrComponent item = new MetaDistrComponent( meta , this );
+			item.load( action , compNode );
+			mapComps.put( item.NAME , item );
+		}
+	}
+	
+	public void save( ActionBase action , Document doc , Element root ) throws Exception {
+		super.saveAsElements( doc , root , false );
+		Element deliveries = Common.xmlCreateElement( doc , root , "deliveries" );
+		saveDeliveries( action , doc , deliveries );
+		Element components = Common.xmlCreateElement( doc , root , "components" );
+		saveComponents( action , doc , components );
+	}
+
+	private void saveDeliveries( ActionBase action , Document doc , Element root ) throws Exception {
+		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
+			Element deliveryElement = Common.xmlCreateElement( doc , root , "delivery" );
+			delivery.save( action , doc , deliveryElement );
+		}		
+	}
+	
+	private void saveComponents( ActionBase action , Document doc , Element root ) throws Exception {
+		for( MetaDistrComponent item : mapComps.values() ) {
+			Element compElement = Common.xmlCreateElement( doc , root , "component" );
+			item.save( action , doc , compElement );
+		}
 	}
 
 	public String[] getDeliveryNames() {
@@ -73,131 +171,29 @@ public class MetaDistr {
 	public String[] getComponentNames() {
 		return( Common.getSortedKeys( mapComps ) );
 	}
-
-	public MetaDistrComponent findComponent( String name ) {
-		MetaDistrComponent comp = mapComps.get( name );
-		return( comp );
-	}
 	
-	public MetaDistrComponent getComponent( String name ) throws Exception {
-		MetaDistrComponent comp = mapComps.get( name );
+	public MetaDistrComponent getComponent( ActionBase action , String KEY ) throws Exception {
+		MetaDistrComponent comp = mapComps.get( KEY );
 		if( comp == null )
-			Common.exit1( _Error.UnknownDistributiveComponent1 , "unknown distributive component=" + name , name );
+			action.exit1( _Error.UnknownDistributiveComponent1 , "unknown distributive component=" + KEY , KEY );
 		return( comp );
 	}
 	
-	public MetaDistrComponent getComponent( int id ) throws Exception {
-		MetaDistrComponent comp = mapCompsById.get( id );
-		if( comp == null )
-			Common.exit1( _Error.UnknownDistributiveComponent1 , "unknown distributive component=" + id , "" + id );
-		return( comp );
+	public MetaDistrBinaryItem findBinaryItem( String KEY ) {
+		return( mapBinaryItems.get( KEY ) );
 	}
 	
-	public MetaDistrComponent getComponent( MatchItem item ) throws Exception {
+	public MetaDistrBinaryItem getBinaryItem( ActionBase action , String KEY ) throws Exception {
+		MetaDistrBinaryItem item = mapBinaryItems.get( KEY );
 		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( getComponent( item.FKID ) );
-		return( getComponent( item.FKNAME ) );
-	}
-	
-	public String getComponentName( MatchItem item ) throws Exception {
-		if( item == null )
-			return( "" );
-		MetaDistrComponent comp = getComponent( item );
-		return( comp.NAME );
-	}
-	
-	public MetaDistrComponent findComponent( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( mapCompsById.get( item.FKID ) );
-		return( mapComps.get( item.FKNAME ) );
-	}
-	
-	public MetaDistrBinaryItem findBinaryItem( String name ) {
-		return( mapBinaryItems.get( name ) );
-	}
-	
-	public MetaDistrBinaryItem findBinaryItem( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( mapBinaryItemsById.get( item.FKID ) );
-		return( mapBinaryItems.get( item.FKNAME ) );
-	}
-	
-	public String findBinaryItemName( MatchItem item ) {
-		MetaDistrBinaryItem binaryItem = findBinaryItem( item );
-		if( item == null )
-			return( null );
-		return( binaryItem.NAME );
-	}
-	
-	public MetaDistrBinaryItem getBinaryItem( String name ) throws Exception {
-		MetaDistrBinaryItem item = mapBinaryItems.get( name );
-		if( item == null )
-			Common.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + name , name );
+			action.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + KEY , KEY );
 		return( item );
-	}
-
-	public Integer getBinaryItemId( String name ) throws Exception {
-		if( name.isEmpty() )
-			return( null );
-		MetaDistrBinaryItem item = getBinaryItem( name );
-		return( item.ID );
-	}
-
-	public MetaDistrBinaryItem getBinaryItem( int id ) throws Exception {
-		MetaDistrBinaryItem item = mapBinaryItemsById.get( id );
-		if( item == null )
-			Common.exit1( _Error.UnknownDistributiveItem1 , "unknown distributive item=" + id , "" + id );
-		return( item );
-	}
-
-	public MetaDistrBinaryItem getBinaryItem( MatchItem item ) throws Exception {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( getBinaryItem( item.FKID ) );
-		return( getBinaryItem( item.FKNAME ) );
-	}
-	
-	public String getBinaryItemName( MatchItem item ) throws Exception {
-		if( item == null )
-			return( "" );
-		MetaDistrBinaryItem binaryItem = getBinaryItem( item );
-		return( binaryItem.NAME );
-	}
-	
-	public String getBinaryItemName( Integer id ) throws Exception {
-		if( id == null )
-			return( null );
-		MetaDistrBinaryItem item = getBinaryItem( id );
-		return( item.NAME );
 	}
 
 	public MetaDistrBinaryItem[] getBinaryItems() {
 		return( mapBinaryItems.values().toArray( new MetaDistrBinaryItem[0] ) );
 	}
 
-	public String[] getManualItemNames() {
-		List<String> list = new LinkedList<String>();
-		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
-			if( item.isManualItem() )
-				list.add( item.NAME );
-		return( list.toArray( new String[0] ) );
-	}
-	
-	public String[] getDerivedItemNames() {
-		List<String> list = new LinkedList<String>();
-		for( MetaDistrBinaryItem item : mapBinaryItems.values() )
-			if( item.isDerivedItem() )
-				list.add( item.NAME );
-		return( list.toArray( new String[0] ) );
-	}
-	
 	public String[] getBinaryItemNames() {
 		return( Common.getSortedKeys( mapBinaryItems ) );
 	}
@@ -210,45 +206,15 @@ public class MetaDistr {
 		return( Common.getSortedKeys( mapConfItems ) );
 	}
 	
-	public MetaDistrConfItem findConfItem( String name ) {
-		return( mapConfItems.get( name ) );
+	public MetaDistrConfItem findConfItem( ActionBase action , String KEY ) throws Exception {
+		return( mapConfItems.get( KEY ) );
 	}
 
-	public MetaDistrConfItem findConfItem( MatchItem item ) {
+	public MetaDistrConfItem getConfItem( ActionBase action , String KEY ) throws Exception {
+		MetaDistrConfItem item = mapConfItems.get( KEY );
 		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( mapConfItemsById.get( item.FKID ) );
-		return( mapConfItems.get( item.FKNAME ) );
-	}
-	
-	public MetaDistrConfItem getConfItem( String name ) throws Exception {
-		MetaDistrConfItem item = mapConfItems.get( name );
-		if( item == null )
-			Common.exit1( _Error.UnknownConfigurationItem1 , "unknown configuration item=" + name , name );
+			action.exit1( _Error.UnknownConfigurationItem1 , "unknown configuration item=" + KEY , KEY );
 		return( item );
-	}
-	
-	public MetaDistrConfItem getConfItem( int id ) throws Exception {
-		MetaDistrConfItem item = mapConfItemsById.get( id );
-		if( item == null )
-			Common.exit1( _Error.UnknownConfigurationItem1 , "unknown configuration item=" + id , "" + id );
-		return( item );
-	}
-	
-	public MetaDistrConfItem getConfItem( MatchItem item ) throws Exception {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( getConfItem( item.FKID ) );
-		return( getConfItem( item.FKNAME ) );
-	}
-	
-	public String getConfItemName( MatchItem item ) throws Exception {
-		if( item == null )
-			return( "" );
-		MetaDistrConfItem confItem = getConfItem( item );
-		return( confItem.NAME );
 	}
 	
 	public MetaDistrDelivery[] getDeliveries() {
@@ -263,299 +229,82 @@ public class MetaDistr {
 		return( list.toArray( new MetaDistrDelivery[0] ) );
 	}
 
-	public MetaDistrDelivery[] getDocDeliveries() {
-		List<MetaDistrDelivery> list = new LinkedList<MetaDistrDelivery>();
-		for( MetaDistrDelivery delivery : mapDeliveries.values() )
-			if( delivery.hasDocItems() )
-				list.add( delivery );
-		return( list.toArray( new MetaDistrDelivery[0] ) );
-	}
-
-	public MetaDistrDelivery findDelivery( String delivery ) {
-		return( mapDeliveries.get( delivery ) );
-	}
-
-	public MetaDistrDelivery findDelivery( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( mapDeliveriesById.get( item.FKID ) );
-		return( mapDeliveries.get( item.FKNAME ) );
+	public MetaDistrDelivery findDelivery( String DELIVERY ) {
+		return( mapDeliveries.get( DELIVERY ) );
 	}
 	
-	public MetaDistrDelivery findDeliveryByFolder( String folder ) {
-		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			if( delivery.FOLDER.equals( folder ) )
-				return( delivery );
-		}
-		return( null );
-	}
-
-	public String findDeliveryName( MatchItem item ) {
-		MetaDistrDelivery delivery = findDelivery( item );
-		if( item == null )
-			return( null );
-		return( delivery.NAME );
-	}
-	
-	public MetaDistrDelivery getDelivery( String name ) throws Exception {
-		MetaDistrDelivery delivery = mapDeliveries.get( name );
+	public MetaDistrDelivery getDelivery( ActionBase action , String DELIVERY ) throws Exception {
+		MetaDistrDelivery delivery = mapDeliveries.get( DELIVERY );
 		if( delivery == null )
-			Common.exit1( _Error.UnknownDelivery1 , "unknown delivery=" + name , name );
+			action.exit1( _Error.UnknownDelivery1 , "unknown delivery=" + DELIVERY , DELIVERY );
 		return( delivery );
 	}
 
-	public MetaDistrDelivery getDelivery( MatchItem item ) throws Exception {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( getDelivery( item.FKID ) );
-		return( getDelivery( item.FKNAME ) );
-	}
-	
-	public MetaDistrDelivery getDelivery( int id ) throws Exception {
-		MetaDistrDelivery delivery = mapDeliveriesById.get( id );
-		if( delivery == null )
-			Common.exit1( _Error.UnknownDelivery1 , "unknown delivery=" + id , "" + id );
-		return( delivery );
-	}
-
-	public String getDeliveryName( MatchItem item ) throws Exception {
-		if( item == null )
-			return( "" );
-		MetaDistrDelivery delivery = findDelivery( item );
-		if( delivery == null )
-			Common.exitUnexpected();
-		return( delivery.NAME );
-	}
-	
-	public void addComponent( MetaDistrComponent comp ) {
-		mapComps.put( comp.NAME , comp );
-		mapCompsById.put( comp.ID , comp );
-	}
-	
-	public void addDelivery( MetaDistrDelivery delivery ) {
+	public void createDelivery( ServerTransaction transaction , MetaDistrDelivery delivery ) throws Exception {
 		mapDeliveries.put( delivery.NAME , delivery );
-		mapDeliveriesById.put( delivery.ID , delivery );
 	}
 
-	public void removeDelivery( MetaDistrDelivery delivery ) {
+	public void deleteDelivery( ServerTransaction transaction , MetaDistrDelivery delivery ) throws Exception {
+		delivery.deleteAllItems( transaction );
 		mapDeliveries.remove( delivery.NAME );
-		mapDeliveriesById.remove( delivery.ID );
+	}
+
+	public void modifyDelivery( ServerTransaction transaction , MetaDistrDelivery delivery ) throws Exception {
+		for( Entry<String,MetaDistrDelivery> entry : mapDeliveries.entrySet() ) {
+			if( entry.getValue() == delivery ) {
+				mapDeliveries.remove( entry.getKey() );
+				break;
+			}
+		}
 		
-		for( MetaDistrBinaryItem item : delivery.getBinaryItems() )
-			removeBinaryItem( item );
-		for( MetaDistrConfItem item : delivery.getConfItems() )
-			removeConfItem( item );
+		mapDeliveries.put( delivery.NAME , delivery );
 	}
 
-	public void updateDelivery( MetaDistrDelivery delivery ) throws Exception {
-		Common.changeMapKey( mapDeliveries , delivery , delivery.NAME );
-	}
-
-	public void addBinaryItem( MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
-		delivery.addBinaryItem( item );
-		addBinaryItem( item );
+	public void createDistrBinaryItem( ServerTransaction transaction , MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
+		delivery.createBinaryItem( transaction , item );
+		mapBinaryItems.put( item.KEY , item );
 	}
 	
-	public void addConfItem( MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
-		delivery.addConfItem( item );
-		addConfItem( item );
+	public void createDistrConfItem( ServerTransaction transaction , MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
+		delivery.createConfItem( transaction , item );
+		mapConfItems.put( item.KEY , item );
 	}
 
-	public void addDeliverySchema( MetaDistrDelivery delivery , MetaDatabaseSchema schema , DBEnumChangeType changeType ) throws Exception {
-		delivery.addSchema( schema , changeType );
+	public void deleteBinaryItem( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		item.delivery.deleteBinaryItem( transaction , item );
+		mapBinaryItems.remove( item.KEY );
 	}
 
-	public void addDeliveryDoc( MetaDistrDelivery delivery , MetaProductDoc doc , DBEnumChangeType changeType ) throws Exception {
-		delivery.addDocument( doc , changeType );
-	}
-
-	public void addBinaryItem( MetaDistrBinaryItem item ) throws Exception {
-		mapBinaryItems.put( item.NAME , item );
-		mapBinaryItemsById.put( item.ID , item );
+	public void changeBinaryItemProjectToManual( ServerTransaction transaction , MetaDistrBinaryItem item ) throws Exception {
+		item.changeProjectToManual( transaction );
 	}
 	
-	public void updateBinaryItem( MetaDistrBinaryItem item ) throws Exception {
-		item.delivery.updateBinaryItem( item );
-		Common.changeMapKey( mapBinaryItems , item , item.NAME );
+	public void deleteConfItem( ServerTransaction transaction , MetaDistrConfItem item ) throws Exception {
+		item.delivery.deleteConfItem( transaction , item );
+		mapConfItems.remove( item.KEY );
 	}
 	
-	public void addConfItem( MetaDistrConfItem item ) throws Exception {
-		mapConfItems.put( item.NAME , item );
-		mapConfItemsById.put( item.ID , item );
-	}
-
-	public void updateConfItem( MetaDistrConfItem item ) throws Exception {
-		item.delivery.updateConfItem( item );
-		Common.changeMapKey( mapConfItems , item , item.NAME );
-	}
-	
-	public void removeBinaryItem( MetaDistrDelivery delivery , MetaDistrBinaryItem item ) throws Exception {
-		item.delivery.removeBinaryItem( item );
-		removeBinaryItem( item );
-	}
-
-	private void removeBinaryItem( MetaDistrBinaryItem item ) {
-		mapBinaryItems.remove( item.NAME );
-		mapBinaryItemsById.remove( item.ID );
-	}
-
-	public void changeBinaryItemToManual( MetaDistrBinaryItem item ) throws Exception {
-		item.changeProjectToManual();
-	}
-	
-	public void removeConfItem( MetaDistrDelivery delivery , MetaDistrConfItem item ) throws Exception {
-		item.delivery.removeConfItem( item );
-		removeConfItem( item );
-	}
-	
-	private void removeConfItem( MetaDistrConfItem item ) {
-		mapConfItems.remove( item.NAME );
-		mapConfItemsById.remove( item.ID );
-	}
-	
-	public void removeDatabaseSchema( MetaDatabaseSchema schema ) throws Exception {
+	public void deleteDatabaseSchema( ServerTransaction transaction , MetaDatabaseSchema schema ) throws Exception {
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			if( delivery.findSchema( schema.NAME ) != null )
-				delivery.removeSchema( schema );
+			if( delivery.findSchema( schema.SCHEMA ) != null )
+				delivery.deleteSchema( transaction , schema );
 		}
 		for( MetaDistrComponent comp : getComponents() ) {
-			MetaDistrComponentItem compItem = comp.findSchemaItem( schema.NAME );
+			MetaDistrComponentItem compItem = comp.findSchemaItem( schema.SCHEMA );
 			if( compItem != null )
-				comp.removeCompItem( compItem );
+				comp.removeCompItem( transaction , compItem );
 		}
 	}
 	
-	public void updateComponent( MetaDistrComponent comp ) throws Exception {
-		Common.changeMapKey( mapComps , comp , comp.NAME );
+	public void createDistrComponent( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+		mapComps.put( item.NAME , item );
 	}
 	
-	public void removeComponent( MetaDistrComponent item ) throws Exception {
+	public void modifyDistrComponent( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
+	}
+	
+	public void deleteDistrComponent( ServerTransaction transaction , MetaDistrComponent item ) throws Exception {
 		mapComps.remove( item.NAME );
-		mapCompsById.remove( item.ID );
-	}
-
-	public void removeUnit( MetaProductUnit unit ) throws Exception {
-		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			if( Common.equalsIntegers( delivery.UNIT_ID , unit.ID ) )
-				delivery.clearUnit();
-		}
-	}	
-	
-	public void removeDocument( MetaProductDoc doc ) throws Exception {
-		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			if( delivery.findDoc( doc.NAME ) != null )
-				delivery.removeDoc( doc );
-		}
-	}	
-
-	public MatchItem matchComponent( String name ) throws Exception {
-		if( name == null || name.isEmpty() )
-			return( null );
-		
-		MetaDistrComponent comp = findComponent( name );
-		if( comp == null )
-			return( new MatchItem( name ) );
-		return( new MatchItem( comp.ID ) );
-	}
-	
-	public MatchItem matchBinaryItem( String name ) throws Exception {
-		if( name == null || name.isEmpty() )
-			return( null );
-		
-		MetaDistrBinaryItem item = findBinaryItem( name );
-		if( item == null )
-			return( new MatchItem( name ) );
-		return( new MatchItem( item.ID ) );
-	}
-	
-	public MatchItem matchConfItem( String name ) throws Exception {
-		if( name == null || name.isEmpty() )
-			return( null );
-		
-		MetaDistrConfItem item = findConfItem( name );
-		if( item == null )
-			return( new MatchItem( name ) );
-		return( new MatchItem( item.ID ) );
-	}
-	
-	public boolean matchComponent( MatchItem item ) throws Exception {
-		if( item == null )
-			return( true );
-		
-		MetaDistrComponent comp = null;
-		if( item.MATCHED ) {
-			comp = getComponent( item.FKID );
-			return( true );
-		}
-		
-		comp = findComponent( item.FKNAME );
-		if( comp != null ) {
-			item.match( comp.ID );
-			return( true );
-		}
-		return( false );
-	}
-	
-	public boolean matchBinaryItem( MatchItem item ) throws Exception {
-		if( item == null )
-			return( true );
-		
-		MetaDistrBinaryItem binaryItem = null;
-		if( item.MATCHED ) {
-			binaryItem = getBinaryItem( item.FKID );
-			return( true );
-		}
-		
-		binaryItem = findBinaryItem( item.FKNAME );
-		if( binaryItem != null ) {
-			item.match( binaryItem.ID );
-			return( true );
-		}
-		return( false );
-	}
-	
-	public boolean matchConfItem( MatchItem item ) throws Exception {
-		if( item == null )
-			return( true );
-		
-		MetaDistrConfItem confItem = null;
-		if( item.MATCHED ) {
-			confItem = getConfItem( item.FKID );
-			return( true );
-		}
-		
-		confItem = findConfItem( item.FKNAME );
-		if( confItem != null ) {
-			item.match( confItem.ID );
-			return( true );
-		}
-		return( false );
-	}
-
-	public MatchItem getDeliveryMatchItem( Integer id , String name ) throws Exception {
-		if( id == null && name.isEmpty() )
-			return( null );
-		MetaDistrDelivery delivery = ( id == null )? findDelivery( name ) : getDelivery( id );
-		MatchItem match = ( delivery == null )? new MatchItem( name ) : new MatchItem( delivery.ID );
-		return( match );
-	}
-	
-	public MatchItem getBinaryMatchItem( Integer id , String name ) throws Exception {
-		if( id == null && name.isEmpty() )
-			return( null );
-		MetaDistrBinaryItem binary = ( id == null )? findBinaryItem( name ) : getBinaryItem( id );
-		MatchItem match = ( binary == null )? new MatchItem( name ) : new MatchItem( binary.ID );
-		return( match );
-	}
-	
-	public MatchItem getConfMatchItem( Integer id , String name ) throws Exception {
-		if( id == null && name.isEmpty() )
-			return( null );
-		MetaDistrConfItem conf = ( id == null )? findConfItem( name ) : getConfItem( id );
-		MatchItem match = ( conf == null )? new MatchItem( name ) : new MatchItem( conf.ID );
-		return( match );
 	}
 	
 }

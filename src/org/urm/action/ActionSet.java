@@ -3,14 +3,11 @@ package org.urm.action;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.urm.common.action.CommandMethodMeta.SecurityAction;
-import org.urm.engine.status.ScopeState;
-import org.urm.meta.env.MetaEnv;
-import org.urm.meta.product.Meta;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
+import org.urm.meta.product.MetaEnv;
 
 public class ActionSet {
 
-	ScopeState parentState;
 	ActionBase owner;
 	String name;
 	
@@ -18,8 +15,7 @@ public class ActionSet {
 	public ThreadGroup threadGroup;
 	public int threadCount;
 	
-	public ActionSet( ScopeState parentState , ActionBase owner , String name ) {
-		this.parentState = parentState;
+	public ActionSet( ActionBase owner , String name ) {
 		this.owner = owner;
 		this.name = name;
 		
@@ -61,24 +57,24 @@ public class ActionSet {
 		return( ok );
 	}
 	
-	public void runSimpleProduct( ActionBase action , Meta meta , SecurityAction sa , boolean readOnly ) throws Exception {
+	public void runSimpleProduct( ActionBase action , String productName , SecurityAction sa , boolean readOnly ) throws Exception {
 		String threadName = "AT." + actions.size();
 		ActionSetItem item = new ActionSetItem( this , threadName );
-		item.createSimpleProduct( parentState , action , meta , sa , readOnly );
+		item.createSimpleProduct( action , productName , sa , readOnly );
 		startItem( item );
 	}
 
 	public void runSimpleEnv( ActionBase action , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
 		String threadName = "AT." + actions.size();
 		ActionSetItem item = new ActionSetItem( this , threadName );
-		item.createSimpleEnv( parentState , action , env , sa , readOnly );
+		item.createSimpleEnv( action , env , sa , readOnly );
 		startItem( item );
 	}
 	
 	public void runScope( ActionBase action , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) throws Exception {
 		String threadName = "AT." + actions.size();
 		ActionSetItem item = new ActionSetItem( this , threadName );
-		item.createScope( parentState , action , scope , env , sa , readOnly );
+		item.createScope( action , scope , env , sa , readOnly );
 		startItem( item );
 	}
 

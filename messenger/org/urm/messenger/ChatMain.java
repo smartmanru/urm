@@ -30,7 +30,7 @@ public class ChatMain {
 			execute( type , props);
 		}
 		catch(Exception e) {
-			System.out.println( e.toString() );
+			System.out.println(e.getMessage());
 		}
 
 	}

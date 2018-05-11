@@ -4,22 +4,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.ScopeState.SCOPESTATE;
 import org.urm.common.SimpleHttp;
-import org.urm.db.core.DBEnums.DBEnumMonItemType;
-import org.urm.engine.status.NodeStatus;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.status.ServerStatus;
-import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerDeployment;
-import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.env.MetaMonitoringItem;
-import org.urm.meta.env.MetaMonitoringTarget;
-import org.urm.meta.product.MetaDistrComponent;
-import org.urm.meta.product.MetaDistrComponentItem;
+import org.urm.meta.product.MetaDistrComponentWS;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerDeployment;
+import org.urm.meta.product.MetaEnvServerNode;
+import org.urm.meta.product.MetaMonitoring;
+import org.urm.meta.product.MetaMonitoringItem;
+import org.urm.meta.product.MetaMonitoringTarget;
 
 public class ActionMonitorCheckItem extends ActionBase {
 
+	public MetaMonitoring mon;
 	MetaMonitoringTarget target;
 	public MetaMonitoringItem item;
 	public MetaEnvServer server;
@@ -27,20 +24,21 @@ public class ActionMonitorCheckItem extends ActionBase {
 	public ServerStatus serverStatus;
 	List<NodeStatus> nodeData;
 	
-	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
-		super( action , stream , "Monitoring, check item" );
+	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoring mon , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
+		super( action , stream );
+		this.mon = mon;
 		this.target = target;
 		this.item = item;
 		this.server = server;
 		nodeData = new LinkedList<NodeStatus>(); 
 	}
 
-	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+	@Override protected SCOPESTATE executeSimple() throws Exception {
 		if( server == null ) {
-			if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKURL )
+			if( item.monitorUrl )
 				monitorUrl( item.URL );
 			else
-			if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKWS )
+			if( item.monitorWS )
 				monitorWS( item.URL , item.WSDATA , item.WSCHECK );
 			else
 				exitUnexpectedState();
@@ -78,10 +76,10 @@ public class ActionMonitorCheckItem extends ActionBase {
 
 	private void monitorServerItems() throws Exception {
 		int serverIndex = super.logStartCapture();
-		serverStatus = new ServerStatus( server );
+		serverStatus = new ServerStatus( this , server );
 		info( "Run fast server checks, server=" + server.NAME + " ..." );
 		boolean res = monitorServerItems( null );
-		serverStatus.setItemsStatus( res );
+		serverStatus.setActionStatus( res );
 		
 		if( res )
 			info( "Fast server checks successfully finished" );
@@ -91,7 +89,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 		serverStatus.setLog( log );
 		
 		for( MetaEnvServerNode node : server.getNodes() ) {
-			NodeStatus nodeStatus = new NodeStatus( node );
+			NodeStatus nodeStatus = new NodeStatus( this , node );
 			nodeData.add( nodeStatus );
 			
 			int nodeIndex = super.logStartCapture();
@@ -107,16 +105,15 @@ public class ActionMonitorCheckItem extends ActionBase {
 	
 	private boolean monitorServerItems( NodeStatus nodeStatus ) throws Exception {
 		boolean res = true;
-		if( server.isRunWebUser() && !server.WEBMAINURL.isEmpty() ) {
+		if( server.isWebUser() && !server.WEBMAINURL.isEmpty() ) {
 			if( !monitorServerItemsWebUser( nodeStatus ) )
 				res = false;
 		}
 		else
-		if( server.isRunWebApp() && !server.WEBSERVICEURL.isEmpty() ) {
+		if( server.isWebApp() && !server.WEBSERVICEURL.isEmpty() ) {
 			for( MetaEnvServerDeployment deployment : server.getDeployments() ) {
-				if( deployment.isComponent() ) {
-					MetaDistrComponent comp = deployment.getComponent();
-					for( MetaDistrComponentItem ws : comp.getWebServices() ) {
+				if( deployment.comp != null ) {
+					for( MetaDistrComponentWS ws : deployment.comp.getWebServices() ) {
 						if( !monitorServerItemsWebApp( nodeStatus , ws ) )
 							res = false;
 					}
@@ -142,7 +139,7 @@ public class ActionMonitorCheckItem extends ActionBase {
 		return( res );
 	}		
 
-	private boolean monitorServerItemsWebApp( NodeStatus nodeStatus , MetaDistrComponentItem ws ) throws Exception {
+	private boolean monitorServerItemsWebApp( NodeStatus nodeStatus , MetaDistrComponentWS ws ) throws Exception {
 		boolean res = true; 
 		if( nodeStatus == null ) { 
 			if( !server.WEBSERVICEURL.isEmpty() ) {
@@ -161,14 +158,21 @@ public class ActionMonitorCheckItem extends ActionBase {
 	}
 
 	private boolean monitorServerItemsUrl( String URL ) throws Exception {
-		boolean res = monitorUrl( URL );
-		serverStatus.addWholeUrlStatus( URL , URL , res );
+		MetaMonitoringItem item = new MetaMonitoringItem( server.meta , target );
+		item.setUrlItem( this , URL );
+		boolean res = monitorUrl( item.URL );
+		item.setMonitorStatus( res );
+		serverStatus.addWholeUrlStatus( item.URL , item.NAME , res );
 		return( res );
 	}		
 
 	private boolean monitorNodeItemsUrl( NodeStatus nodeStatus , String URL ) throws Exception {
-		boolean res = monitorUrl( URL );
-		nodeStatus.addWholeUrlStatus( URL , URL , res );
+		MetaMonitoringItem item = new MetaMonitoringItem( server.meta , target );
+		item.setUrlItem( this , URL );
+		boolean res = monitorUrl( item.URL );
+		item.setMonitorStatus( res );
+		
+		nodeStatus.addWholeUrlStatus( item.URL , item.NAME , res );
 		return( res );
 	}		
 

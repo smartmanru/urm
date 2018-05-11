@@ -14,11 +14,15 @@ public class DistMD5 {
 		String deliveryFile = dist.getBinaryDistItemFile( action , item );
 		String md5value = dist.getDistItemMD5( action , item , deliveryFile );
 		String releaseFile = Common.getPath( item.delivery.FOLDER , deliveryFile );
-		return( item.NAME + ":" + releaseFile + ":" + md5value );
+		return( item.KEY + ":" + releaseFile + ":" + md5value );
 	}
 	
-	public static String getScopeDeliveryItemRecord( ActionBase action , Dist dist , ReleaseDistScopeDeliveryItem scopeItem ) throws Exception {
-		return( getDistItemRecord( action , dist , scopeItem.binary ) );
+	public static String getManualItemRecord( ActionBase action , Dist dist , ReleaseTarget manualItem ) throws Exception {
+		return( getDistItemRecord( action , dist , manualItem.distManualItem ) );
+	}
+
+	public static String getProjectItemRecord( ActionBase action , Dist dist , ReleaseTargetItem projectItem ) throws Exception {
+		return( getDistItemRecord( action , dist , projectItem.distItem ) );
 	}
 	
 }

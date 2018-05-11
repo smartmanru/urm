@@ -6,44 +6,36 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class DatabaseClient {
 
 	public DatabaseSpecific specific;
-	public MetaEnvServer server;
-	public MetaEnvServerNode node;
-	public MetaDatabaseSchema admSchema;
 	
 	public DatabaseClient() {
 	}
 
 	public boolean checkConnect( ActionBase action , MetaEnvServer server ) throws Exception {
-		MetaEnvServerNode node = server.getMasterNode();
+		MetaEnvServerNode node = server.getMasterNode( action );
 		return( checkConnect( action , server , node ) );
 	}
 	
 	public boolean checkConnect( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		this.server = server;
-		this.node = node;
-		
 		specific = new DatabaseSpecific( server , node );
-		admSchema = server.getAdmSchema();
 		
 		// check connect to admin schema if any
-		String schema = getAdmSchema( action );
+		String schema = specific.getAdmSchema( action );
 		if( schema.isEmpty() )
 			return( true );
 		
-		String user = getAdmUser( action );
+		String user = specific.getAdmUser( action );
 		String pwd = getUserPassword( action , user );
 		try { 
 			action.debug( "check connect to database server=" + server.NAME + ", node=" + node.POS + " ..." );
@@ -58,7 +50,7 @@ public class DatabaseClient {
 	}
 	
 	public String getUserPassword( ActionBase action , String user ) throws Exception {
-		String serverId = specific.server.getEnvObjectName();
+		String serverId = specific.server.getFullId( action );
 		
 		String S_DB_USE_SCHEMA_PASSWORD = "";
 		if( !action.context.CTX_DBPASSWORD.isEmpty() )
@@ -67,15 +59,15 @@ public class DatabaseClient {
 		if( !action.context.CTX_DBAUTH )
 			S_DB_USE_SCHEMA_PASSWORD = user;
 		else
-		if( !specific.server.sg.env.DBAUTH_FILE.isEmpty() ) {
-			String F_FNAME = specific.server.sg.env.DBAUTH_FILE;
+		if( !specific.server.sg.env.DB_AUTHFILE.isEmpty() ) {
+			String F_FNAME = specific.server.sg.env.DB_AUTHFILE;
 			if( !action.shell.checkFileExists( action , F_FNAME ) )
 				action.exit1( _Error.PasswordFileNotExist1 , "getSchemaPassword: password file " + F_FNAME + " does not exist" , F_FNAME );
 
 			// get password
 			S_DB_USE_SCHEMA_PASSWORD = action.shell.customGetValue( action , 
 					"cat " + F_FNAME + " | grep " + Common.getQuoted( "^" + serverId + "." + user + "=" ) +
-					" | cut -d \"=\" -f2 | tr -d \"\n\r\"" , Shell.WAIT_DEFAULT );
+					" | cut -d \"=\" -f2 | tr -d \"\n\r\"" );
 			
 			if( S_DB_USE_SCHEMA_PASSWORD.isEmpty() )
 				action.exit3( _Error.UnableFindPassword3 , "getSchemaPassword: unable to find password for dbms=" + serverId + ", schema=" + user + 
@@ -109,10 +101,10 @@ public class DatabaseClient {
 		logFolder.ensureExists( action );
 		
 		boolean res = true;
-		for( String file : set.getAllFiles() ) {
+		for( String file : Common.getSortedKeys( set.files ) ) {
 			if( !applyManualScript( action , shell , folder , file , logFolder ) ) {
 				res = false;
-				if( !action.isForced() ) {
+				if( !action.context.CTX_FORCE ) {
 					action.error( "error executing manual script, cancel set execution" );
 					break;
 				}
@@ -145,87 +137,78 @@ public class DatabaseClient {
 	}
 
 	public String readCellValue( ActionBase action , MetaDatabaseSchema schema , String table , String column , String ansiCondition ) throws Exception {
-		String dbuser = specific.getSchemaDBUser( schema );
-		String password = getUserPassword( action , dbuser );
-		return( specific.readCellValue( action , specific.getSchemaDBName( schema ) , dbuser , password , table , column , ansiCondition ) );
+		String password = getUserPassword( action , schema.DBUSER );
+		return( specific.readCellValue( action , schema.DBNAME , schema.DBUSER , password , table , column , ansiCondition ) );
 	}
 
 	public List<String[]> readTableData( ActionBase action , MetaDatabaseSchema schema , String table , String ansiCondition , String[] columns ) throws Exception {
 		List<String[]> list = new LinkedList<String[]>();
-		String dbuser = specific.getSchemaDBUser( schema );
-		String password = getUserPassword( action , dbuser );
-		specific.readTableData( action , specific.getSchemaDBName( schema ) , dbuser , password , table , ansiCondition , columns , list );
+		String password = getUserPassword( action , schema.DBUSER );
+		specific.readTableData( action , schema.DBNAME , schema.DBUSER , password , table , ansiCondition , columns , list );
 		return( list );
 	}
 
 	public List<String[]> readSelectData( ActionBase action , MetaDatabaseSchema schema , String select ) throws Exception {
 		List<String[]> list = new LinkedList<String[]>();
-		String dbuser = specific.getSchemaDBUser( schema );
-		String password = getUserPassword( action , dbuser );
-		specific.readSelectData( action , specific.getSchemaDBName( schema ) , dbuser , password , select , list );
+		String password = getUserPassword( action , schema.DBUSER );
+		specific.readSelectData( action , schema.DBNAME , schema.DBUSER , password , select , list );
 		return( list );
 	}
 
 	public void createTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] columntypes , List<String[]> data ) throws Exception {
-		String dbuser = specific.getSchemaDBUser( schema );
-		String password = getUserPassword( action , dbuser );
+		String password = getUserPassword( action , schema.DBUSER );
 		
 		if( !action.isExecute() )
 			return;
 		
-		specific.createTableData( action , specific.getSchemaDBName( schema ) , specific.getSchemaDBUser( schema ) , password , table , columns , columntypes , data );
+		specific.createTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , columntypes , data );
 	}
 
 	public void writeTableData( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , List<String[]> data , boolean commit ) throws Exception {
-		String dbuser = specific.getSchemaDBUser( schema );
-		String password = getUserPassword( action , dbuser );
+		String password = getUserPassword( action , schema.DBUSER );
 		if( !action.isExecute() )
 			return;
 		
-		specific.writeTableData( action , specific.getSchemaDBName( schema ) , dbuser , password , table , columns , data , commit );
+		specific.writeTableData( action , schema.DBNAME , schema.DBUSER , password , table , columns , data , commit );
 	}
 
 	public boolean insertRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , boolean commit ) throws Exception {
-		String dbuser = specific.getSchemaDBUser( schema );
-		String password = getUserPassword( action , dbuser );
+		String password = getUserPassword( action , schema.DBUSER );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.insertRow( action , specific.getSchemaDBName( schema ) , dbuser , password , table , columns , values , commit ) );
+		return( specific.insertRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , commit ) );
 	}
 	
 	public boolean updateRow( ActionBase action , MetaDatabaseSchema schema , String table , String[] columns , String[] values , String ansiCondition , boolean commit ) throws Exception {
-		String dbuser = specific.getSchemaDBUser( schema );
-		String password = getUserPassword( action , dbuser );
+		String password = getUserPassword( action , schema.DBUSER );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.updateRow( action , specific.getSchemaDBName( schema ) , dbuser , password , table , columns , values , ansiCondition , commit ) );
+		return( specific.updateRow( action , schema.DBNAME , schema.DBUSER , password , table , columns , values , ansiCondition , commit ) );
 	}
 
 	public boolean deleteRows( ActionBase action , MetaDatabaseSchema schema , String table , String ansiCondition , boolean commit ) throws Exception {
-		String dbuser = specific.getSchemaDBUser( schema );
-		String password = getUserPassword( action , dbuser );
+		String password = getUserPassword( action , schema.DBUSER );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.deleteRows( action , specific.getSchemaDBName( schema ) , dbuser , password , table , ansiCondition , commit ) );
+		return( specific.deleteRows( action , schema.DBNAME , schema.DBUSER , password , table , ansiCondition , commit ) );
 	}
 	
 	public boolean applyScript( ActionBase action , MetaDatabaseSchema schema , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {
-		String dbuser = specific.getSchemaDBUser( schema );
-		String password = getUserPassword( action , dbuser );
+		String password = getUserPassword( action , schema.DBUSER );
 		String file = scriptFolder.getFilePath( action , scriptFile );
 		String log = outFolder.getFilePath( action , outFile );
 		if( !action.isExecute() )
 			return( true );
 		
-		return( specific.applyScript( action , specific.getSchemaDBName( schema ) , dbuser , password , file , log ) );
+		return( specific.applyScript( action , schema.DBNAME , schema.DBUSER , password , file , log ) );
 	}
 	
 	public boolean applyAdmScript( ActionBase action , LocalFolder scriptFolder , String scriptFile , LocalFolder outFolder , String outFile ) throws Exception {
-		String DBUSER = getAdmUser( action );
-		String DBSCHEMA = getAdmSchema( action );
+		String DBUSER = specific.getAdmUser( action );
+		String DBSCHEMA = specific.getAdmSchema( action );
 		String password = getUserPassword( action , DBUSER );
 		String file = scriptFolder.getFilePath( action , scriptFile );
 		String log = outFolder.getFilePath( action , outFile );
@@ -233,18 +216,6 @@ public class DatabaseClient {
 			return( true );
 		
 		return( specific.applyScript( action , DBSCHEMA , DBUSER , password , file , log ) );
-	}
-	
-	public String getAdmUser( ActionBase action ) throws Exception {
-		if( admSchema == null )
-			action.exitUnexpectedState();
-		return( server.getSchemaDBUser( admSchema ) );
-	}
-	
-	public String getAdmSchema( ActionBase action ) throws Exception {
-		if( admSchema == null )
-			action.exitUnexpectedState();
-		return( server.getSchemaDBName( admSchema ) );
 	}
 	
 }

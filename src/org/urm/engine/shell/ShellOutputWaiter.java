@@ -85,7 +85,7 @@ public class ShellOutputWaiter {
 
 	protected void skipUpTo( ActionBase action , BufferedReader textreader , char endChar ) throws Exception {
 		if( action.context.CTX_TRACEINTERNAL )
-			System.out.print( "INNER: skipUpTo part=" );
+			System.out.print( "TRACEINTERNAL: skipUpTo part=" );
 
 		char[] c = new char[1];
 		while( true ) {
@@ -114,7 +114,7 @@ public class ShellOutputWaiter {
 		
 		String buffer = "";
 		if( action.context.CTX_TRACEINTERNAL )
-			action.trace( "readStream - start reading " + stream + " ..." );
+			action.trace( "readStream - start reading ..." );
 		
 		while ( true ) {
 			int index = buffer.indexOf( '\n' );
@@ -166,7 +166,7 @@ public class ShellOutputWaiter {
 		action.logExact( line , logLevel );
 	}
 
-	public boolean waitForCommandFinished( ActionBase action , int logLevel , boolean system , List<String> cmdout , List<String> cmderr , int commandTimeoutMillis ) throws Exception {
+	public void waitForCommandFinished( ActionBase action , int logLevel , boolean system , List<String> cmdout , List<String> cmderr ) throws Exception {
 		this.action = action;
 		this.logLevel = logLevel;
 		this.waitForCommandFinished = true;
@@ -174,28 +174,17 @@ public class ShellOutputWaiter {
 		this.cmdout = cmdout;
 		this.cmderr = cmderr;
 		
-		if( commandTimeoutMillis == Shell.WAIT_DEFAULT )
-			commandTimeoutMillis = action.context.CTX_TIMEOUT;
-		else
-		if( commandTimeoutMillis == Shell.WAIT_INFINITE )
-			commandTimeoutMillis = 0;
-		
-		return( waiter.wait( action , commandTimeoutMillis , logLevel , system ) );
+		if( !waiter.wait( action , action.commandTimeout , logLevel , system ) )
+			action.exit0( _Error.CommandKilled , "command has been killed" );
 	}
 	
-	public boolean waitForMarker( ActionBase action , int logLevel , boolean system , String marker , int commandTimeoutMillis ) throws Exception {
+	public boolean waitForMarker( ActionBase action , int logLevel , boolean system , String marker ) throws Exception {
 		this.action = action;
 		this.logLevel = logLevel;
 		this.waitForMarker = true;
 		this.waitMarker = marker;
 		
-		if( commandTimeoutMillis == Shell.WAIT_DEFAULT )
-			commandTimeoutMillis = action.context.CTX_TIMEOUT;
-		else
-		if( commandTimeoutMillis == Shell.WAIT_INFINITE )
-			commandTimeoutMillis = 0;
-		
-		return( waiter.wait( action , commandTimeoutMillis , logLevel , system ) );
+		return( waiter.wait( action , action.commandTimeout , logLevel , system ) );
 	}
 
 	public boolean runWaitForCommandFinished() throws Exception {

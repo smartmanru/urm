@@ -1,53 +1,47 @@
 package org.urm.action.database;
 
 import org.urm.action.ActionBase;
-import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.common.action.CommandOptions.SQLMODE;
-import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDistScopeDelivery;
-import org.urm.engine.status.ScopeState;
-import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.meta.engine.ServerAuth.SecurityAction;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaEnvServer;
+import org.urm.meta.product.MetaEnvServerNode;
 
 public class DatabaseCommand {
 
 	public DatabaseCommand() {
 	}
 
-	public void initDatabase( ScopeState parentState , ActionBase action , String SERVER , int nodePos ) throws Exception {
-		MetaEnvServer server = action.context.sg.getServer( SERVER );
+	public void initDatabase( ActionBase action , String SERVER , int nodePos ) throws Exception {
+		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
 		MetaEnvServerNode node;
 		if( nodePos < 0 )
-			node = server.getMasterNode();
+			node = server.getMasterNode( action );
 		else
-			node = server.getNodeByPos( nodePos );
+			node = server.getNode( action , nodePos );
 			
 		ActionInitDatabase ma = new ActionInitDatabase( action , null , server , node );
-		ma.runSimpleEnv( parentState , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
+		ma.runSimpleEnv( server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void getReleaseScripts( ScopeState parentState , ActionBase action , ActionScope scope , Dist dist ) throws Exception {
-		LocalFolder downloadFolder = action.artefactory.getWorkFolder( action , "download" );
-		downloadFolder.recreateThis( action );
-		ActionGetDB ma = new ActionGetDB( action , null , dist , downloadFolder , action.context.CTX_DIST );
-		ma.runAll( parentState , scope , null , SecurityAction.ACTION_CODEBASE , false );
+	public void getReleaseScripts( ActionBase action , ActionScope scope , Dist dist ) throws Exception {
+		ActionGetDB ma = new ActionGetDB( action , null , dist );
+		ma.runAll( scope , null , SecurityAction.ACTION_BUILD , false );
 	}
 
-	public void applyManual( ScopeState parentState , ActionBase action , ActionScope scope , Dist dist , MetaEnvServer server ) throws Exception {
-		dist.openForUse( action );
+	public void applyManual( ActionBase action , ActionScope scope , Dist dist , MetaEnvServer server ) throws Exception {
+		dist.open( action );
 		
 		ActionApplyManual ma = new ActionApplyManual( action , null , dist , server );
-		ma.runAll( parentState , scope , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
+		ma.runAll( scope , server.sg.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void applyAutomatic( ScopeState parentState , ActionBase action , Dist dist , ReleaseDistScopeDelivery delivery , String indexScope ) throws Exception {
-		dist.openForUse( action );
+	public void applyAutomatic( ActionBase action , Dist dist , ReleaseDelivery delivery , String indexScope ) throws Exception {
+		dist.open( action );
 		
 		String deliveryInfo = ( delivery != null )? delivery.distDelivery.NAME : "(all)";
 		String itemsInfo = ( indexScope != null )? indexScope : "(all)";
@@ -63,32 +57,27 @@ public class DatabaseCommand {
 			action.exit0( _Error.DatabaseModeNotSet0 , "database mode is not set" );
 		
 		action.info( "apply database changes (" + op + ") release=" + dist.RELEASEDIR + ", delivery=" + deliveryInfo + ", items=" + itemsInfo );
-		
-		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
-		maker.addScopeEnvDatabase( dist.release );
-		
 		ActionApplyAutomatic ma = new ActionApplyAutomatic( action , null , dist , delivery , indexScope );
-		ma.runAll( parentState , maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
+		ActionScope scope = ActionScope.getEnvDatabaseScope( action , dist.meta , dist );
+		ma.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void manageRelease( ScopeState parentState , ActionBase action , Meta meta , String RELEASEVER , MetaDistrDelivery delivery , String CMD , String indexScope ) throws Exception {
-		ActionEnvScopeMaker maker = new ActionEnvScopeMaker( action , action.context.env );
-		maker.addScopeEnvDatabase( null );
-		
+	public void manageRelease( ActionBase action , Meta meta , String RELEASEVER , MetaDistrDelivery delivery , String CMD , String indexScope ) throws Exception {
 		ActionManageRegistry ma = new ActionManageRegistry( action , null , RELEASEVER , CMD , delivery , indexScope );
-		ma.runAll( parentState , maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
+		ActionScope scope = ActionScope.getEnvDatabaseScope( action , meta , null );
+		ma.runAll( scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void importDatabase( ScopeState parentState , ActionBase action , String TASK , String CMD , String SCHEMA ) throws Exception {
-		AppProduct product = action.getContextProduct();
-		ActionImportDatabase ma = new ActionImportDatabase( action , null , product , TASK , CMD , SCHEMA );
-		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_DEPLOY , false );
+	public void importDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
+		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
+		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , CMD , SCHEMA );
+		ma.runSimpleEnv( action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void exportDatabase( ScopeState parentState , ActionBase action , String TASK , String CMD , String SCHEMA ) throws Exception {
-		AppProduct product = action.getContextProduct();
-		ActionExportDatabase ma = new ActionExportDatabase( action , null , product , TASK , CMD , SCHEMA );
-		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_SECURED , true );
+	public void exportDatabase( ActionBase action , String SERVER , String CMD , String SCHEMA ) throws Exception {
+		MetaEnvServer server = action.context.sg.getServer( action , SERVER );
+		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , CMD , SCHEMA );
+		ma.runSimpleEnv( action.context.env , SecurityAction.ACTION_SECURED , true );
 	}
 
 }

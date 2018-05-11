@@ -1,0 +1,222 @@
+package org.urm.action.monitor;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.rrd4j.ConsolFun;
+import org.rrd4j.core.Sample;
+import org.rrd4j.core.Util;
+import org.rrd4j.graph.RrdGraph;
+import org.rrd4j.graph.RrdGraphDef;
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.engine.storage.LocalFolder;
+import org.urm.engine.storage.MonitoringStorage;
+import org.urm.meta.product.MetaMonitoringTarget;
+
+public class MonitorInfo {
+
+	ActionBase action;
+	MonitoringStorage storage;
+	Map<String,MonitorTargetInfo> targets;
+
+	public MonitorInfo( ActionBase action , MonitoringStorage storage ) {
+		this.action = action;
+		this.storage = storage;
+		targets = new HashMap<String,MonitorTargetInfo>();
+	}
+
+	public void stop( ActionBase action ) {
+		for( MonitorTargetInfo mti : targets.values() )
+			mti.stop( action );
+	}
+	
+	public MonitorTargetInfo getTargetInfo( MetaMonitoringTarget target ) throws Exception {
+		MonitorTargetInfo info;
+		synchronized( this ) {
+			info = targets.get( target.NAME );
+			if( info == null ) {
+				info = new MonitorTargetInfo( target );
+				targets.put( target.NAME , info );
+			}
+		};
+		return( info );
+	}
+	
+	public void addCheckEnvData( MetaMonitoringTarget target , long timeMillis , boolean status ) throws Exception {
+		action.info( "addCheckEnvData: product=" + target.meta.name + ", env=" + target.ENV + ", sg=" + target.SG + 
+				", timeMillis=" + timeMillis + ", succeeded:" + Common.getBooleanValue( status ) );
+		MonitorTargetInfo info = getTargetInfo( target );
+		info.setLastMajor( status , timeMillis );
+	}
+
+	public void addCheckMinorsData( MetaMonitoringTarget target , boolean status ) throws Exception {
+		action.info( "addCheckMinorsData: product=" + target.meta.name + ", env=" + target.ENV + ", sg=" + target.SG + 
+				", succeeded:" + Common.getBooleanValue( status ) );
+		MonitorTargetInfo info = getTargetInfo( target );
+		info.setLastMinor( status );
+	}
+
+	public void addHistoryGraph( MetaMonitoringTarget target ) throws Exception {
+		MonitorTargetInfo info = getTargetInfo( target );
+		
+		// add to totals, update reports
+		addRrdRecord( info );
+		createHistoryGraph( info );
+		updateReport( info );
+	}
+	
+	private RrdGraph createHistoryGraph( MonitorTargetInfo info ) throws Exception {
+		if( info.rrdDbFail )
+			return( null );
+		
+		MetaMonitoringTarget target = info.target;
+		
+		LocalFolder dataFolder = storage.getDataFolder( action , info.target );
+		String relativeDataFile = storage.getRrdFile( target );
+		dataFolder.ensureFolderExists( action , Common.getDirName( relativeDataFile ) );
+		String rrdfile = action.getLocalPath( dataFolder.getFilePath( action , relativeDataFile ) );
+		
+		LocalFolder reportsFolder = storage.getReportsFolder( action , target );
+		String relativeReportFile = storage.getHistoryImageFile( target );
+		reportsFolder.ensureFolderExists( action , Common.getDirName( relativeReportFile ) );
+		String F_CREATEFILE = action.getLocalPath( reportsFolder.getFilePath( action , relativeReportFile ) );
+		
+		/*
+		 * OLD COMMAND SYNTAX
+		// form graph
+		String DELAYS_GRAPH_SCALE = "-l 0 -u " + target.MAXTIME + " -r";
+		String NOW = "now";
+
+		String scale = DELAYS_GRAPH_SCALE;
+		String geometry = "-w 1024 -h 200 -i";
+
+		String now = NOW;
+		String max_color = "#FF0000";
+		String min_color = "#0000FF";
+		String avg_color = "#00FF00";
+		String color = "--color GRID#C0C0C0";
+
+		action.shell.custom( action , "rrdtool graph " + F_CREATEFILE +
+			" " + scale + " -v " + Common.getQuoted( "secs" ) + 
+			" -t " + Common.getQuoted( target.ENV + ", sg=" + target.SG + " checkenv.sh execution time (0 if not running)" ) +
+			" " + geometry + " " + color + 
+			" --color BACK#E4E4E4" +
+			" --end " + now +
+			" --start end-1d" +
+			" --x-grid MINUTE:1:HOUR:1:HOUR:1:0:%H" + 
+			" DEF:linec=" + rrdfile + ":checkenv-time:MIN:step=60 LINE1:linec" + min_color + ":" + Common.getQuoted( "Min" ) +
+			" DEF:linea=" + rrdfile + ":checkenv-time:AVERAGE:step=60 LINE1:linea" + avg_color + ":" + Common.getQuoted( "Avg" ) +
+			" DEF:lineb=" + rrdfile + ":checkenv-time:MAX:step=60 LINE1:lineb" + max_color + ":" + Common.getQuoted( "Max" ) ); 
+		 */
+		
+		RrdGraphDef gDef = new RrdGraphDef();
+		long endTime = Util.getTime();
+		long startTime = endTime - 86400;
+		gDef.setTimeSpan( startTime , endTime );
+		gDef.setMinValue( 0 );
+		gDef.setMaxValue( target.MAXTIME );
+		gDef.setRigid( true );
+		gDef.setWidth( 1024 );
+		gDef.setHeight( 200 );
+		gDef.setVerticalLabel( "Milliseconds" );
+		gDef.setAltYGrid( true );
+		gDef.setTitle( target.ENV + ", sg=" + target.SG + " check segment execution time (0 if not running)" );
+		gDef.setColor( RrdGraphDef.COLOR_GRID , Color.decode( "0xC0C0C0" ) );
+		gDef.setColor( RrdGraphDef.COLOR_BACK , Color.decode( "0xE4E4E4" ) );
+		gDef.setTimeAxis( RrdGraphDef.MINUTE , 30 , RrdGraphDef.HOUR , 1 , RrdGraphDef.HOUR , 1 , 0 , "%H" );
+		gDef.datasource( "linec" , rrdfile , "checkenv-time" , ConsolFun.MIN );
+		gDef.datasource( "linea" , rrdfile , "checkenv-time" , ConsolFun.AVERAGE );
+		gDef.datasource( "lineb" , rrdfile , "checkenv-time" , ConsolFun.MAX );
+		gDef.line( "linea" , Color.decode( "0x0000FF" ) , "Avg" );
+		gDef.line( "lineb" , Color.decode( "0xFF0000" ) , "Max" );
+		gDef.line( "linec" , Color.decode( "0x00FF00" ) , "Min" );
+		gDef.setImageFormat( "png" );
+		gDef.setFilename( F_CREATEFILE );
+		RrdGraph graph = new RrdGraph( gDef );
+		BufferedImage bi = new BufferedImage( 1024 , 200 , BufferedImage.TYPE_INT_RGB );
+		graph.render( bi.getGraphics() );
+		
+		return( graph );
+	}
+
+	private void updateReport( MonitorTargetInfo info ) throws Exception {
+		LocalFolder resourceFolder = storage.getResourceFolder( action );
+		if( !resourceFolder.checkExists( action ) ) {
+			action.trace( "ignore create report due to missing resource folder: " + resourceFolder.folderPath );
+			return;
+		}
+		
+		// calculate status
+		boolean F_STATUS = ( info.statusMajor && info.statusMinor )? true : false;
+		
+		// form report
+		String F_IMAGEFILE;
+		String F_IMAGETEXT;
+		if( F_STATUS ) {
+			F_IMAGEFILE = storage.getRunningImageBasename();
+			F_IMAGETEXT = "Environment " + info.target.ENV + " , sg=" + info.target.SG + " is up and running";
+		}
+		else {
+			F_IMAGEFILE = storage.getFailedImageBasename();
+			F_IMAGETEXT = "Environment " + info.target.ENV + " , sg=" + info.target.SG + " is not working";
+		}
+
+		LocalFolder reportsFolder = storage.getReportsFolder( action , info.target );
+		String F_REPFILE = reportsFolder.getFilePath( action , storage.getStatusReportFile( info.target ) );
+		
+		String F_RESFILE = resourceFolder.getFilePath( action , storage.getStatusReportTemplateFile() );
+		String F_RESCONTEXT = storage.getMonitoringUrl();
+		
+		String template = action.readFile( F_RESFILE );
+		template = Common.replace( template , "@IMAGE@" , F_RESCONTEXT + "/" + F_IMAGEFILE );  
+		template = Common.replace( template , "@TEXT@" , F_IMAGETEXT );  
+		
+		Common.createFileFromString( F_REPFILE , template );
+	}
+
+	private void addRrdRecord( MonitorTargetInfo info ) throws Exception {
+		if( !info.openRrdFile( action , storage ) ) {
+			action.trace( "unable to open RRD database file: " + info.F_RRDFILE );
+			return;
+		}
+
+		String F_RRDFILE_LOG = info.F_RRDFILE + ".log"; 
+		
+		int F_STATUSTOTAL = 100;
+		int F_ENVTOTAL = 100;
+		if( !info.statusMajor )
+			F_ENVTOTAL = 1;
+		if( info.statusMajor == false || info.statusMinor == false )
+			F_STATUSTOTAL = 1;
+		
+		String X_VALUES = F_STATUSTOTAL + ":" + F_ENVTOTAL + ":" + info.timeMajor;
+		long F_TS = System.currentTimeMillis();
+		long X_TS = F_TS / 1000;
+
+		/*
+		 * OLD COMMAND SYNTAX 
+		if( !action.shell.checkFileExists( action , F_RRDFILE ) )
+			createRrdFile( F_RRDFILE );
+		 */
+
+		action.trace( "add record to RRD database file: " + info.F_RRDFILE + " (" + X_TS + ":" + X_VALUES + ")" );
+		action.shell.appendFileWithString( action , F_RRDFILE_LOG , 
+				"rrdtool update: " + Common.getTimeStamp( F_TS ) + "=" + X_TS + ":" + X_VALUES );
+		
+		/*
+		 * OLD COMMAND SYNTAX
+		action.shell.custom( action , "rrdtool update " + F_RRDFILE + " " + X_TS + ":" + X_VALUES );
+		 */
+		
+		long t = Util.getTime();
+		Sample sample = info.rrdDb.createSample( t );
+		sample.setValue( "total" , F_STATUSTOTAL );
+		sample.setValue( "checkenv" , F_ENVTOTAL );
+		sample.setValue( "checkenv-time" , info.timeMajor );
+		sample.update();
+	}
+	
+}

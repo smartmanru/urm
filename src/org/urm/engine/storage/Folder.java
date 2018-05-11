@@ -1,15 +1,13 @@
 package org.urm.engine.storage;
 
-import java.io.File;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.Types.*;
 
 public abstract class Folder {
 
@@ -96,9 +94,13 @@ public abstract class Folder {
 		session.copyFile( action , srcFile , folderPath , newName , "" );
 	}
 
+	public void copyDir( ActionBase action , String srcpath ) throws Exception {
+		copyDir( action , srcpath , "" );
+	}
+	
 	public void copyDir( ActionBase action , String srcpath , String targetSubFolder ) throws Exception {
 		ShellExecutor session = getSession( action );
-		session.copyDirDirect( action , Common.getPath( folderPath , srcpath ) , Common.getPath( folderPath , targetSubFolder ) );
+		session.copyDirDirect( action , srcpath , Common.getPath( folderPath , targetSubFolder ) );
 	}
 	
 	public void copyFile( ActionBase action , String folder1 , String folder2 , String newName , String targetSubFolder ) throws Exception {
@@ -109,11 +111,6 @@ public abstract class Folder {
 			session.copyFile( action , Common.getPath( folderPath , folder1 ) , Common.getPath( folderPath , targetSubFolder , folder2 ) , newName , "" );
 	}
 
-	public void copyExtDir( ActionBase action , String srcpath , String targetSubFolder ) throws Exception {
-		ShellExecutor session = getSession( action );
-		session.copyDirDirect( action , srcpath , Common.getPath( folderPath , targetSubFolder ) );
-	}
-	
 	public String getFilePath( ActionBase action , String file ) {
 		return( folderPath + "/" + file ); 
 	}
@@ -193,19 +190,14 @@ public abstract class Folder {
 		session.move( action , Common.getPath( folderPath , file ) , Common.getPath( folderPath , folder ) );
 	}
 	
-	public void moveFolderToFolder( ActionBase action , String src , String dst ) throws Exception {
-		ShellExecutor session = getSession( action ); 
-		session.move( action , Common.getPath( folderPath , src ) , Common.getPath( folderPath , dst ) );
-	}
-	
-	public void extractArchive( ActionBase action , EnumArchiveType atype , String archiveFile , String targetFolder ) throws Exception {
-		if( atype == EnumArchiveType.TAR )
+	public void extractArchive( ActionBase action , VarARCHIVETYPE atype , String archiveFile , String targetFolder ) throws Exception {
+		if( atype == VarARCHIVETYPE.TAR )
 			extractTar( action , archiveFile , targetFolder );
 		else
-		if( atype == EnumArchiveType.TARGZ )
+		if( atype == VarARCHIVETYPE.TARGZ )
 			extractTarGz( action , archiveFile , targetFolder );
 		else
-		if( atype == EnumArchiveType.ZIP )
+		if( atype == VarARCHIVETYPE.ZIP )
 			unzipToFolder( action , archiveFile , targetFolder );
 		else
 			action.exitUnexpectedState();
@@ -248,12 +240,12 @@ public abstract class Folder {
 		return( session.ls( action , Common.getPath( folderPath , folder ) ) );
 	}
 	
-	public String[] getTopDirs( ActionBase action ) throws Exception {
+	public List<String> getTopDirs( ActionBase action ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		List<String> dirs = new LinkedList<String>();  
 		List<String> files = new LinkedList<String>();  
 		session.getTopDirsAndFiles( action , folderPath , dirs , files );
-		return( dirs.toArray( new String[0] ) );
+		return( dirs );
 	}
 	
 	public List<String> getTopFiles( ActionBase action ) throws Exception {
@@ -269,27 +261,27 @@ public abstract class Folder {
 		session.getTopDirsAndFiles( action , folderPath , dirs , files );
 	}
 
-	public void createArchiveFromContent( ActionBase action , EnumArchiveType atype , String archiveFilePath , String content , String exclude ) throws Exception {
-		if( atype == EnumArchiveType.TAR )
+	public void createArchiveFromContent( ActionBase action , VarARCHIVETYPE atype , String archiveFilePath , String content , String exclude ) throws Exception {
+		if( atype == VarARCHIVETYPE.TAR )
 			createTarFromContent( action , archiveFilePath , content , exclude );
 		else
-		if( atype == EnumArchiveType.TARGZ )
+		if( atype == VarARCHIVETYPE.TARGZ )
 			createTarGzFromContent( action , archiveFilePath , content , exclude );
 		else
-		if( atype == EnumArchiveType.ZIP )
+		if( atype == VarARCHIVETYPE.ZIP )
 			createZipFromContent( action , archiveFilePath , content , exclude );
 		else
 			action.exitUnexpectedState();
 	}
 	
-	public void createArchiveFromFolderContent( ActionBase action , EnumArchiveType atype , String archiveFilePath , String folder , String content , String exclude ) throws Exception {
-		if( atype == EnumArchiveType.TAR )
+	public void createArchiveFromFolderContent( ActionBase action , VarARCHIVETYPE atype , String archiveFilePath , String folder , String content , String exclude ) throws Exception {
+		if( atype == VarARCHIVETYPE.TAR )
 			createTarFromFolderContent( action , archiveFilePath , folder , content , exclude );
 		else
-		if( atype == EnumArchiveType.TARGZ )
+		if( atype == VarARCHIVETYPE.TARGZ )
 			createTarGzFromFolderContent( action , archiveFilePath , folder , content , exclude );
 		else
-		if( atype == EnumArchiveType.ZIP )
+		if( atype == VarARCHIVETYPE.ZIP )
 			createZipFromFolderContent( action , archiveFilePath , folder , content , exclude );
 		else
 			action.exitUnexpectedState();
@@ -381,16 +373,12 @@ public abstract class Folder {
 		ShellExecutor session = getSession( action ); 
 		session.downloadUnix( action , DOWNLOAD_URL_REQUEST , Common.getPath( folderPath , DOWNLOAD_FILENAME ) , auth );
 	}
-
-	public FileSet getFileSet( ActionBase action ) throws Exception {
-		return( getFileSet( action , "" ) );
-	}
 	
-	public FileSet getFileSet( ActionBase action , String excludeRegExp ) throws Exception {
+	public FileSet getFileSet( ActionBase action ) throws Exception {
 		List<String> dirs = new LinkedList<String>(); 
 		List<String> files = new LinkedList<String>(); 
 		ShellExecutor session = getSession( action ); 
-		session.getDirsAndFiles( action , folderPath , dirs , files , excludeRegExp );
+		session.getDirsAndFiles( action , folderPath , dirs , files );
 
 		FileSet root = new FileSet( this , dirs , files );
 		root.makeStructure( action );
@@ -427,10 +415,10 @@ public abstract class Folder {
 	public String findBinaryDistItemFile( ActionBase action , MetaDistrBinaryItem item , String specificDeployBaseName ) throws Exception {
 		String deployBasename = specificDeployBaseName;
 		if( deployBasename.isEmpty() )
-			deployBasename = item.BASENAME_DEPLOY;
+			deployBasename = item.DEPLOYBASENAME;
 		
 		boolean addDotSlash = ( windows )? false : true;
-		String filePath = findOneTopWithGrep( action , "*" + deployBasename + "*" + item.EXT , Common.getGrepMask( action , deployBasename , addDotSlash , item.EXT ) );
+		String filePath = findOneTopWithGrep( action , "*" + deployBasename + "*" + item.EXT , item.getGrepMask( action , deployBasename , addDotSlash ) );
 
 		// ensure correct file
 		if( filePath.isEmpty() ) {
@@ -485,41 +473,6 @@ public abstract class Folder {
 
 	public boolean isRemote( ActionBase action ) throws Exception {
 		return( false );
-	}
-
-	public String getLocalPath( ActionBase action ) throws Exception {
-		if( isRemote( action ) ) {
-			RemoteFolder remote = ( RemoteFolder )this;
-			if( remote.account.isWindows() )
-				return( Common.getWinPath( folderPath ) );
-			return( Common.getLinuxPath( folderPath ) );
-		}
-		
-		return( action.getLocalPath( folderPath ) );
-	}
-	
-	public String getLocalFilePath( ActionBase action , String file ) throws Exception {
-		String filePath = getFilePath( action , file );
-		if( isRemote( action ) ) {
-			RemoteFolder remote = ( RemoteFolder )this;
-			if( remote.account.isWindows() )
-				return( Common.getWinPath( filePath ) );
-			return( Common.getLinuxPath( filePath ) );
-		}
-		
-		return( action.getLocalPath( filePath ) );
-	}
-
-	public Date getFileChangeTime( ActionBase action , String file ) throws Exception {
-		String path = getFilePath( action , file );
-		File fo = new File( action.getLocalPath( path ) );
-		return( new Date( fo.lastModified() ) );
-	}
-	
-	public long getFileSize( ActionBase action , String file ) throws Exception {
-		String path = getFilePath( action , file );
-		File fo = new File( action.getLocalPath( path ) );
-		return( fo.length() );
 	}
 	
 }

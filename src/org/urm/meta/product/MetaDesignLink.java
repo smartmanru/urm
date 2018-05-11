@@ -3,8 +3,8 @@ package org.urm.meta.product;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
-import org.urm.meta.loader.Types;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -12,15 +12,15 @@ import org.w3c.dom.Node;
 public class MetaDesignLink {
 
 	protected Meta meta;
-	MetaDesignDiagram design;
+	MetaDesign design;
 	MetaDesignElement element;
 	
 	public String TARGET;
 	public MetaDesignElement target;
 	public String TEXT;
-	private EnumLinkType linkType;
+	private VarLINKTYPE linkType;
 	
-	public MetaDesignLink( Meta meta , MetaDesignDiagram design , MetaDesignElement element ) {
+	public MetaDesignLink( Meta meta , MetaDesign design , MetaDesignElement element ) {
 		this.meta = meta;
 		this.design = design;
 		this.element = element;
@@ -33,7 +33,7 @@ public class MetaDesignLink {
 		TEXT = ConfReader.getAttrValue( node , "text" );
 	}
 
-	public MetaDesignLink copy( Meta meta , MetaDesignElement element ) throws Exception {
+	public MetaDesignLink copy( ActionBase action , Meta meta , MetaDesignElement element ) throws Exception {
 		MetaDesignLink r = new MetaDesignLink( meta , element.design , element );
 		r.TARGET = TARGET;
 		r.linkType = linkType;
@@ -48,16 +48,16 @@ public class MetaDesignLink {
 		Common.xmlSetElementAttr( doc , root , "text" , TEXT );
 	}
 	
-	public void resolve() throws Exception {
-		target = design.getElement( TARGET );
+	public void resolve( ActionBase action ) throws Exception {
+		target = design.getElement( action , TARGET );
 	}
 
 	public boolean isGenericType() {
-		return( linkType == EnumLinkType.GENERIC );		
+		return( linkType == VarLINKTYPE.GENERIC );		
 	}
 
 	public boolean isMsgType() {
-		return( linkType == EnumLinkType.MSG );		
+		return( linkType == VarLINKTYPE.MSG );		
 	}
 	
 }

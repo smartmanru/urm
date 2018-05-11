@@ -16,7 +16,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -26,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,17 +34,12 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.urm.action.ActionBase;
-import org.urm.common.RunContext.VarOSTYPE;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class Common {
 
-	public static String BOOLEAN_YES = "yes";
-	public static String BOOLEAN_NO = "no";
-	
 	public static String getValueDefault( String value , String defValue ) {
 		if( value == null || value.isEmpty() )
 			return( defValue );
@@ -142,34 +135,34 @@ public class Common {
 		return( count );
 	}
 
-	public static PrintWriter createOutfileFile( RunContext execrc , String fname ) throws Exception {
-		FileOutputStream outstream = new FileOutputStream( execrc.getLocalPath( fname ) );
+	public static PrintWriter createOutfileFile( String fname ) throws Exception {
+		FileOutputStream outstream = new FileOutputStream( fname );
 		PrintWriter outfile = new PrintWriter( outstream );
 		return( outfile );
 	}
 	
-	public static void createFileFromString( RunContext execrc , String path , String content ) throws Exception {
-		FileWriter writer = new FileWriter( execrc.getLocalPath( path ) );
+	public static void createFileFromString( String path , String content ) throws Exception {
+		FileWriter writer = new FileWriter( path );
 		writer.write( content );
 		writer.close();
 	}
 
-	public static void createFileFromStringList( RunContext execrc , String path , String[] content ) throws Exception {
-		createFileFromStringList( execrc , path , content , StandardCharsets.UTF_8 );
+	public static void createFileFromStringList( String path , String[] content ) throws Exception {
+		createFileFromStringList( path , content , StandardCharsets.UTF_8 );
 	}
 	
-	public static void createFileFromStringList( RunContext execrc , String path , String[] content , Charset charset ) throws Exception {
-		FileWriter writer = new FileWriter( execrc.getLocalPath( path ) );
+	public static void createFileFromStringList( String path , String[] content , Charset charset ) throws Exception {
+		FileWriter writer = new FileWriter( path );
 		for( String s : content )
 			writer.write( s + "\n" );
 		writer.close();
 	}
 	
-	public static void createFileFromStringList( RunContext execrc , String path , List<String> content ) throws Exception {
-		createFileFromStringList( execrc , path , content , StandardCharsets.UTF_8 );
+	public static void createFileFromStringList( String path , List<String> content ) throws Exception {
+		createFileFromStringList( path , content , StandardCharsets.UTF_8 );
 	}
 	
-	public static void createFileFromStringList( RunContext execrc , String path , List<String> content , Charset charset ) throws Exception {
+	public static void createFileFromStringList( String path , List<String> content , Charset charset ) throws Exception {
 		FileWriter writer = new FileWriter( path );
 		for( String s : content )
 			writer.write( s + "\n" );
@@ -217,45 +210,6 @@ public class Common {
 	public static String getList( String[] items ) {
 		return( getList( items , ", " ) );
 	}
-
-	public static String getList( Integer[] items , String delimiter ) {
-		String value = "";
-		if( items == null )
-			return( value );
-		
-		for( int k = 0; k < items.length; k++ ) {
-			if( k > 0 )
-				value += delimiter;
-			
-			value += items[ k ];
-		}
-		
-		return( value );
-	}
-
-	public static String getListLines( String[] items ) {
-		return( getList( items , "\n" ) );
-	}
-	
-	public static String getListSpaced( String[] items ) {
-		return( getList( items , " " ) );
-	}
-	
-	public static String getListDotted( String[] items ) {
-		return( getList( items , "." ) );
-	}
-	
-	public static String getListComma( String[] items ) {
-		return( getList( items , "," ) );
-	}
-	
-	public static String getListCommaSpaced( String[] items ) {
-		return( getList( items , ", " ) );
-	}
-	
-	public static String getListPath( String[] items ) {
-		return( getList( items , "/" ) );
-	}
 	
 	public static String getList( String[] items , String delimiter ) {
 		String value = "";
@@ -294,33 +248,13 @@ public class Common {
 		return( getTimeStamp( new Date() ) );
 	}
 
-	public static String getTime( Date date ) {
-        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss" );
-        return( simpleFormat.format( date ) );
-	}
-	
 	public static String getTimeStamp( Date date ) {
-        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS" );
-        return( simpleFormat.format( date ) );
+        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS zzz" );
+        return simpleFormat.format( date );
 	}
 	
 	public static String getTimeStamp( long timeMillis ) {
 		return( getTimeStamp( new Date( timeMillis ) ) );
-	}
-
-	public static String getTime() {
-		return( getTime( System.currentTimeMillis() ) );
-	}
-	
-	public static String getTime( long timeMillis ) {
-        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss" );
-        Date date = new Date( timeMillis );
-        return( simpleFormat.format( date ) );
-	}
-	
-	public static String getDate( long timeMillis ) {
-        SimpleDateFormat simpleFormat = new SimpleDateFormat( "d MMM yyyy, EEE" );
-        return( simpleFormat.format( timeMillis ) );
 	}
 	
 	public static String replace( String s , String from , String to ) {
@@ -406,12 +340,6 @@ public class Common {
 		}
 		if( path2.equals( "." ) )
 			return( path1 );
-		if( path1.equals( "/" ) )
-			return( "/" + path2 );
-		if( path1.endsWith( "/" ) )
-			return( path1 + path2 );
-		if( path2.startsWith( "/" ) )
-			return( path1 + path2 );
 		return( path1 + "/" + path2 );
 	}
 	
@@ -484,13 +412,6 @@ public class Common {
 		return( el );
 	}
 
-	public static Element xmlCreateNamedElement( Document doc , Element parent , String element , String name ) throws Exception {
-		Element el = doc.createElement( element );
-		parent.appendChild( el );
-		xmlSetNameAttr( doc , el , name );
-		return( el );
-	}
-
 	public static Element xmlCreateBooleanPropertyElement( Document doc , Element parent , String propName , boolean propValue ) throws Exception {
 		String value = getBooleanValue( propValue );
 		return( xmlCreatePropertyElement( doc , parent , propName , value ) );
@@ -506,16 +427,6 @@ public class Common {
 
 	public static void xmlSetElementAttr( Document doc , Element element , String attrName , String value ) throws Exception {
 		Attr attr = doc.createAttribute( attrName );
-		attr.setValue( value );
-		element.setAttributeNode( attr );
-	}
-
-	public static void xmlSetElementBooleanAttr( Document doc , Element element , String attrName , boolean value ) throws Exception {
-		xmlSetElementAttr( doc , element , attrName , Common.getBooleanValue( value ) );
-	}
-	
-	public static void xmlSetNameAttr( Document doc , Element element , String value ) throws Exception {
-		Attr attr = doc.createAttribute( "name" );
 		attr.setValue( value );
 		element.setAttributeNode( attr );
 	}
@@ -582,10 +493,10 @@ public class Common {
 		if( s == null )
 			return( false );
 		
-		if( s.equals( BOOLEAN_YES ) )
+		if( s.equals( "yes" ) )
 			return( true );
 		
-		if( !s.equals( BOOLEAN_NO ) )
+		if( !s.equals( "no" ) )
 			throw new RuntimeException( "invalid boolean value=" + s ); 
 			
 		return( false );
@@ -593,41 +504,9 @@ public class Common {
 	
 	public static String getBooleanValue( boolean v ) {
 		if( v == true )
-			return( BOOLEAN_YES );
+			return( "yes" );
 		
-		return( BOOLEAN_NO );
-	}
-
-	public static Date getDateCurrentDay() {
-		return( getDateDay( System.currentTimeMillis() ) );
-	}
-	
-	public static Date getDateDay( long millis ) {
-		long value = getDayNoTime( millis );
-		Date day = new Date( value );
-		return( day );
-	}
-	
-	public static Date getDateValue( String s ) {
-		if( s == null || s.isEmpty() )
-			return( null );
-		
-		DateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
-		try {
-			Date value = format.parse( s );
-			return( getDateDay( value.getTime() ) );
-		}
-		catch( Throwable e ) {
-		}
-		throw new RuntimeException( "invalid date value=" + s ); 
-	}
-	
-	public static String getDateValue( Date v ) {
-		if( v == null )
-			return( "" );
-		
-		DateFormat format = new SimpleDateFormat( "yyyy-MM-dd" );
-		return( format.format( v ) );
+		return( "no" );
 	}
 	
 	public static String concat( String value1 , String value2 , String delimiter ) {
@@ -667,8 +546,6 @@ public class Common {
 	}
 	
 	public static String[] split( String value , String delimiter ) {
-		if( value == null )
-			return( new String[0] );
 		value = value.trim();
 		if( value.isEmpty() )
 			return( new String[0] );
@@ -781,26 +658,6 @@ public class Common {
 		return( -1 );
 	}
 
-	public static int findItemInsertIndex( String value , String[] list ) {
-		if( value == null || value.isEmpty() )
-			return( -1 );
-		
-		for( int k = 0; k < list.length; k++ )
-			if( list[ k ].compareTo( value ) >= 0 )
-				return( k );
-		return( list.length );
-	}
-
-	public static int findItemInsertIndex( String value , List<String> list ) {
-		if( value == null || value.isEmpty() )
-			return( -1 );
-		
-		for( int k = 0; k < list.size(); k++ )
-			if( list.get( k ).compareTo( value ) >= 0 )
-				return( k );
-		return( list.size() );
-	}
-
 	public static boolean checkListItem( Object[] list , Object item ) {
 		for( Object xitem : list ) {
 			if( xitem.equals( item ) )
@@ -859,13 +716,6 @@ public class Common {
 	}
 
 	public static Map<String,String> copyListToMap( List<String> list ) {
-		Map<String,String> map = new HashMap<String,String>();
-		for( String s : list )
-			map.put( s , s );
-		return( map );
-	}
-
-	public static Map<String,String> copyListToMap( String[] list ) {
 		Map<String,String> map = new HashMap<String,String>();
 		for( String s : list )
 			map.put( s , s );
@@ -931,7 +781,7 @@ public class Common {
 		
 		int indexTo = length - 1;
 		for( ; indexTo > 0; indexTo-- ) {
-			if( s.charAt( indexTo ) != trimChar )
+			if( s.charAt( indexFrom ) != trimChar )
 				break;
 		}
 		
@@ -1003,7 +853,7 @@ public class Common {
 			if( !sv.equals( "unknown" ) )
 				items.add( sv );
 		}
-		return( items.toArray( new String[0] ) );
+		return( getSortedList( items ) );
 	}
 
 	public static boolean isBasenameMask( String name ) {
@@ -1016,161 +866,4 @@ public class Common {
 		return( false );
 	}
 	
-	public static long getDayNoTime( long value ) {
-		Calendar cal = Calendar.getInstance(); // locale-specific
-		cal.setTime( new Date( value ) );
-		cal.set(Calendar.HOUR_OF_DAY, 0);
-		cal.set(Calendar.MINUTE, 0);
-		cal.set(Calendar.SECOND, 0);
-		cal.set(Calendar.MILLISECOND, 0);
-		long time = cal.getTimeInMillis();
-		return( time );
-	}
-
-	public static Date addDays( Date point , int shift ) {
-		long value = point.getTime() + shift * ( 24 * 60 * 60 * 1000L );
-		return( new Date( value ) );
-	}
-
-	public static int getDateDiffDays( Date start , Date finish ) {
-		return( getDateDiffDays( start.getTime() , finish.getTime() ) );
-	}
-	
-	public static int getDateDiffDays( long start , long finish ) {
-		long diff = finish - start;
-		diff /= ( 24 * 60 * 60 * 1000L );
-		return( ( int )diff );
-	}
-
-	public static String getRefDate( Date refTime ) {
-		if( refTime == null )
-			return( "" );
-		return( getRefDate( refTime.getTime() ) );
-	}
-	
-	public static String getRefDate( Date baseTime , Date refTime ) {
-		if( baseTime == null || refTime == null )
-			return( "" );
-		return( getRefDate( baseTime.getTime() , refTime.getTime() ) );
-	}
-
-	public static String getRefDate( long refTime ) {
-		return( getRefDate( System.currentTimeMillis() , refTime ) );
-	}
-	
-	public static String getRefDateOnly( long refTime ) {
-		if( isToday( refTime ) )
-			return( "" );
-		return( getDate( refTime ) );
-	}
-	
-	public static String getRefDate( long baseTime , long refTime ) {
-		if( isToday( refTime ) )
-			return( getTime( refTime ) );
-		return( getDate( refTime ) );
-	}
-
-	public static boolean isToday( Date date ) {
-		return( isToday( date.getTime() ) );
-	}
-	
-	public static boolean isToday( long date ) {
-		long baseDay = getDayNoTime( System.currentTimeMillis() ); 
-		long refDay = getDayNoTime( date );
-		if( refDay == baseDay )
-			return( true );
-		return( false );
-	}
-	
-	public static int getObjectIndex( Object[] list , Object item ) {
-		for( int k = 0; k < list.length; k++ ) {
-			if( list[k] == item )
-				return( k );
-		}
-		return( -1 );
-	}
-
-	public static String getZeroPadded( int value , int totalChars ) {
-		String v = "00000000000000000000" + value;
-		v = v.substring( v.length() - 10 );
-		return( v );
-	}
-
-	public static String[] addArrays( String[] list1 , String[] list2 ) {
-		if( list1.length == 0 )
-			return( list2 );
-		if( list2.length == 0 )
-			return( list1 );
-		
-		String[] list = new String[ list1.length + list2.length ];
-		for( int k = 0; k < list1.length; k++ )
-			list[ k ] = list1[ k ];
-		for( int k = 0; k < list2.length; k++ )
-			list[ list1.length + k ] = list2[ k ];
-		return( list );
-	}
-
-	public static <T> boolean changeMapKey( Map<String,T> map , T value , String newKey ) throws Exception {
-		for( Entry<String,?> entry : map.entrySet() ) {
-			if( entry.getValue() == value ) {
-				if( !newKey.equals( entry.getKey() ) ) {
-					if( map.containsKey( newKey ) )
-						exitUnexpected();
-					
-					map.remove( entry.getKey() );
-					map.put( newKey , value );
-					return( true );
-				}
-				
-				return( false );
-			}
-		}
-		exitUnexpected();
-		return( false );
-	}
-
-	public static boolean equalsIntegers( Integer v1 , Integer v2 ) {
-		if( v1 == null && v2 == null )
-			return( true );
-		if( v1 == null || v2 == null )
-			return( false );
-		if( v1.intValue() == v2.intValue() )
-			return( true );
-		return( false );
-	}
-	
-	public static boolean equalsStrings( String v1 , String v2 ) {
-		if( v1 == null && v2 == null )
-			return( true );
-		if( v1 == null && v2.isEmpty() )
-			return( true );
-		if( v2 == null && v1.isEmpty() )
-			return( true );
-		if( v1 == null || v2 == null )
-			return( false );
-		if( v1.equals( v2 ) )
-			return( true );
-		return( false );
-	}
-	
-	public static String getGrepMask( ActionBase action , String baseName , boolean addDotSlash , String EXT ) throws Exception {
-		if( addDotSlash )
-			return( "./" + baseName + EXT + 
-					"|./.*[0-9]-" + baseName + EXT + 
-					"|./" + baseName + "-[0-9].*" + EXT +
-					"|./" + baseName + "##[0-9].*" + EXT );
-		return( baseName + EXT + 
-				"|.*[0-9]-" + baseName + EXT + 
-				"|" + baseName + "-[0-9].*" + EXT +
-				"|" + baseName + "##[0-9].*" + EXT );
-	}
-
-	public static String getOSPath( VarOSTYPE ostype , String path ) {
-		if( ostype == VarOSTYPE.LINUX )
-			return( getLinuxPath( path ) );
-		if( ostype == VarOSTYPE.WINDOWS )
-			return( getWinPath( path ) );
-		return( path );
-	}
-
 }

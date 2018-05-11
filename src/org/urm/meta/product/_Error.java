@@ -28,9 +28,20 @@ public class _Error {
 	public static final int UnknownDeliverySchema1 = ErrorBase + 49;
 	public static final int UnknownDeliveryDatagroup1 = ErrorBase + 50;
 	public static final int UnknownSegment1 = ErrorBase + 51;
+	public static final int NoSegmentDefined0 = ErrorBase + 52;
+	public static final int UnknownServer1 = ErrorBase + 53;
+	public static final int RootpathEmptyRequiredForDeployments1 = ErrorBase + 54;
+	public static final int RootpathEmptyRequiredForGeneric1 = ErrorBase + 55;
+	public static final int InvalidServerNode2 = ErrorBase + 56;
+	public static final int MissingServerPrimaryNode1 = ErrorBase + 57;
+	public static final int MissingStandbyNode0 = ErrorBase + 58;
+	public static final int MissingActiveNode0 = ErrorBase + 59;
 	public static final int UnexpectedDeploymentType1 = ErrorBase + 60;
+	public static final int UnknownDeploymentPath1 = ErrorBase + 61;
+	public static final int MissingProxyNode0 = ErrorBase + 62;
 	public static final int UnknownDatabaseFilesCharset1 = ErrorBase + 63;
 	public static final int UnableGetBuildModeSettings1 = ErrorBase + 64;
+	public static final int InconsistentVersionAttributes0 = ErrorBase + 65;
 	public static final int UnknownSourceSet1 = ErrorBase + 66;
 	public static final int UnknownSourceProject1 = ErrorBase + 67;
 	public static final int UnknownSourceProjectItem2 = ErrorBase + 68;
@@ -42,10 +53,6 @@ public class _Error {
 	public static final int UnknownCompConfItem1 = ErrorBase + 82;
 	public static final int UnknownCompSchemaItem1 = ErrorBase + 83;
 	public static final int UnknownSourceProjectItem1 = ErrorBase + 84;
-	public static final int UnknownCompWebService1 = ErrorBase + 85;
-	public static final int UnknownUnit1 = ErrorBase + 86;
-	public static final int UnknownDoc1 = ErrorBase + 87;
-	public static final int UnknownDeliveryDoc1 = ErrorBase + 88;
-	public static final int UnableCopyMeta2 = ErrorBase + 89;
+	public static final int UnknownCompWebService1 = ErrorBase + 84;
 
 }

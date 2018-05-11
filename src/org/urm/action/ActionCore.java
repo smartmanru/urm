@@ -1,29 +1,20 @@
 package org.urm.action;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.urm.common.Common;
 import org.urm.common.RunError;
-import org.urm.db.core.DBEnums.*;
 import org.urm.common.RunContext;
-import org.urm.engine.Engine;
-import org.urm.engine.EventService;
-import org.urm.engine.blotter.EngineBlotterActionItem;
-import org.urm.engine.blotter.EngineBlotterTreeItem;
+import org.urm.engine.ServerEngine;
+import org.urm.meta.Types.*;
 
-abstract public class ActionCore {
+public class ActionCore {
 
+	public ServerEngine engine;
 	public ActionCore parent;
-	public Engine engine;
-	public EngineBlotterActionItem blotterRootItem;
-	public EngineBlotterTreeItem blotterTreeItem;
 	public RunContext execrc;
 	
 	private static int instanceSequence = 0;
 	public int ID;
 	public String NAME;
-	public String INFO;
 
 	private boolean callFailed;
 	private boolean progressFailed;
@@ -32,17 +23,11 @@ abstract public class ActionCore {
 	private RunError progressError;
 	
 	public ActionEventsSource eventSource;
-
-	abstract public void stopExecution();
 	
-	private List<ActionCore> childsRunning;
-	private boolean stopping;
-	
-	protected ActionCore( Engine engine , ActionCore parent , String INFO ) {
+	protected ActionCore( ServerEngine engine , ActionCore parent ) {
 		this.engine = engine;
 		this.parent = parent;
 		this.execrc = engine.execrc;
-		this.INFO = INFO;
 		
 		ID = instanceSequence++;
 		NAME = this.getClass().getSimpleName();
@@ -53,15 +38,8 @@ abstract public class ActionCore {
 		progressCurrent = 0;
 		
 		eventSource = new ActionEventsSource( this );
-		childsRunning = new LinkedList<ActionCore>();
-		stopping = false;
 	}
 
-	public void setBlotterItem( EngineBlotterActionItem blotterItem , EngineBlotterTreeItem blotterTreeItem ) {
-		this.blotterRootItem = blotterItem;
-		this.blotterTreeItem = blotterTreeItem;
-	}
-	
 	public boolean isCallFailed() {
 		return( callFailed );
 	}
@@ -92,28 +70,16 @@ abstract public class ActionCore {
 		progressError = exception;
 	}
 	
-	public RunError getError() {
-		if( isCallFailed() )
-			return( progressError );
-		return( null );
-	}
-	
 	public boolean isStandalone() {
 		return( engine.execrc.isStandalone() );
 	}
 	
-	public String getLocalPath( String path ) {
+	public String getLocalPath( String path ) throws Exception {
 		return( engine.execrc.getLocalPath( path ) );
 	}
 	
 	public String getInternalPath( String path ) throws Exception {
 		return( Common.getLinuxPath( path ) );
-	}
-	
-	public void fail( RunError error ) {
-		setFailed( error );
-		if( parent != null )
-			parent.fail( error );
 	}
 	
 	public void fail( int errorCode , String s , String[] params ) {
@@ -200,48 +166,13 @@ abstract public class ActionCore {
 		exit( _Error.NotImplemented0 , "sorry, code is not implemented yet" , null );
 	}
 	
-	public void exitUnexpectedCategory( DBEnumScopeCategoryType CATEGORY ) throws Exception {
+	public void exitUnexpectedCategory( VarCATEGORY CATEGORY ) throws Exception {
 		String category = Common.getEnumLower( CATEGORY );
 		exit( _Error.UnexpectedCategory1 , "unexpected category=" + category , new String[] { category } );
 	}
 
 	public void exitUnexpectedState() throws Exception {
 		exit( _Error.InternalError0 , "unexpected state" , null );
-	}
-
-	public synchronized boolean startChild( ActionCore child ) {
-		if( stopping )
-			return( false );
-		
-		childsRunning.add( child );
-		return( true );
-	}
-	
-	public synchronized void stopChild( ActionCore child ) {
-		childsRunning.remove( child );
-	}
-	
-	public void cancelRun() {
-		ActionCore[] running = null;
-		synchronized( this ) {
-			if( stopping )
-				return;
-			
-			stopping = true;
-			running = childsRunning.toArray( new ActionCore[0] );
-		}
-		
-		stopExecution();
-		for( ActionCore action : running )
-			action.cancelRun();
-	}
-	
-	public void notifyLog( String s ) {
-		ActionCore notifyAction = this;
-		while( notifyAction != null ) {
-			notifyAction.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_ACTIONLOG , s );
-			notifyAction = notifyAction.parent;
-		}
 	}
 	
 }
