@@ -6,7 +6,6 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.Account;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
@@ -32,9 +31,6 @@ public class DatabaseClient {
 	}
 	
 	public boolean checkConnect( ActionBase action , MetaEnvServer server , MetaEnvServerNode node ) throws Exception {
-		this.server = server;
-		this.node = node;
-		
 		specific = new DatabaseSpecific( server , node );
 		admSchema = server.getAdmSchema();
 		
@@ -75,7 +71,7 @@ public class DatabaseClient {
 			// get password
 			S_DB_USE_SCHEMA_PASSWORD = action.shell.customGetValue( action , 
 					"cat " + F_FNAME + " | grep " + Common.getQuoted( "^" + serverId + "." + user + "=" ) +
-					" | cut -d \"=\" -f2 | tr -d \"\n\r\"" , Shell.WAIT_DEFAULT );
+					" | cut -d \"=\" -f2 | tr -d \"\n\r\"" );
 			
 			if( S_DB_USE_SCHEMA_PASSWORD.isEmpty() )
 				action.exit3( _Error.UnableFindPassword3 , "getSchemaPassword: unable to find password for dbms=" + serverId + ", schema=" + user + 

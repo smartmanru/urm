@@ -4,7 +4,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.MirrorRepository;
 
@@ -100,14 +99,26 @@ public class MirrorCaseSubversion extends MirrorCase {
 	@Override
 	public void refreshMirror() throws Exception {
 		LocalFolder branch = getBranchFolder();
-		shell.customCheckStatus( action , branch.folderPath , "svn update " + vcsSubversion.SVNAUTH , Shell.WAIT_LONG );
+		try {
+			action.setTimeout( 10 * 60 * 1000 );
+			shell.customCheckStatus( action , branch.folderPath , "svn update " + vcsSubversion.SVNAUTH );
+		}
+		finally {
+			action.setTimeoutDefault();
+		}
 	}
 	
 	@Override
 	public void pushMirror() throws Exception {
 		String msg = "push to origin";
 		LocalFolder branch = getBranchFolder();
-		shell.customCheckStatus( action , branch.folderPath , "svn commit -m " + Common.getQuoted( msg ) + " " + vcsSubversion.SVNAUTH , Shell.WAIT_LONG );
+		try {
+			action.setTimeout( 10 * 60 * 1000 );
+			shell.customCheckStatus( action , branch.folderPath , "svn commit -m " + Common.getQuoted( msg ) + " " + vcsSubversion.SVNAUTH );
+		}
+		finally {
+			action.setTimeoutDefault();
+		}
 	}
 
 	@Override

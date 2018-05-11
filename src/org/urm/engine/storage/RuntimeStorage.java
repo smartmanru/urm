@@ -6,7 +6,6 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumBinaryItemType;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
@@ -67,10 +66,10 @@ public class RuntimeStorage extends ServerStorage {
 			if( server.isAccessService() ) {
 				shell = action.getShell( account );
 				shell.customCheckErrorsDebug( action , F_RUNTIMEDIR , "chown " + nodeAccount.USER + ": " + F_FILES + 
-						"; chmod 744 " + F_FILES , Shell.WAIT_DEFAULT );
+						"; chmod 744 " + F_FILES );
 			}
 			else
-				shell.customCheckErrorsDebug( action , F_RUNTIMEDIR , "chmod 744 " + F_FILES , Shell.WAIT_DEFAULT );
+				shell.customCheckErrorsDebug( action , F_RUNTIMEDIR , "chmod 744 " + F_FILES );
 		}
 
 		remoteDir.removeFiles( action , F_CONFIGTARFILE );
@@ -294,12 +293,12 @@ public class RuntimeStorage extends ServerStorage {
 		ShellExecutor session = action.getShell( account );
 		if( link.startsWith( "/" ) ) {
 			session.customCheckErrorsDebug( action , "if [ -d " + link + " ]; then unlink " + link + 
-					"; fi; ln -s " + runtimePath + " " + link , Shell.WAIT_DEFAULT );
+					"; fi; ln -s " + runtimePath + " " + link );
 		}
 		else {
 			String dir = Common.getDirName( runtimePath );
 			session.customCheckErrorsDebug( action , dir , "if [ -d " + link + " ]; then unlink " + link + 
-					"; fi; ln -s " + runtimePath + " " + link , Shell.WAIT_DEFAULT );
+					"; fi; ln -s " + runtimePath + " " + link );
 		}
 	}
 
@@ -315,22 +314,18 @@ public class RuntimeStorage extends ServerStorage {
 			String targetFile = "/etc/init.d/" + server.SYSNAME;
 			runtimeDir.copyFile( action , "service" , targetFile );
 			ShellExecutor session = action.getShell( account );
-			session.custom( action , "chmod 744 " + targetFile , Shell.WAIT_DEFAULT );
+			session.custom( action , "chmod 744 " + targetFile );
 		}
 		else
 			action.exitUnexpectedState();
 	}
 
 	public void createRootPath( ActionBase action ) throws Exception {
-		if( server.ROOTPATH.isEmpty() )
-			Common.exitUnexpected();
 		RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , server.ROOTPATH );
 		runtimeDir.ensureExists( action );
 	}
 	
 	public void createBinPath( ActionBase action ) throws Exception {
-		if( server.ROOTPATH.isEmpty() )
-			Common.exitUnexpected();
 		String path = Common.getPath( server.ROOTPATH , server.BINPATH );
 		RemoteFolder runtimeDir = new RemoteFolder( action.getNodeAccount( node ) , path );
 		runtimeDir.ensureExists( action );

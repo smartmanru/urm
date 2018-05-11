@@ -250,8 +250,6 @@ public abstract class DBEnums {
 		ENVIRONMENT_DEPLOYMENT(182,null) ,
 		ENVIRONMENT_MONTARGET(183,null) ,
 		ENVIRONMENT_MONITEM(184,null) ,
-		ENVIRONMENT_DUMP(185,null) ,
-		ENVIRONMENT_DUMPMASK(186,null) ,
 		RELEASE_REPOSITORY(201,null) ,
 		RELEASE_MAIN(202,null) ,
 		RELEASE_DIST(203,null) ,
@@ -830,8 +828,6 @@ public abstract class DBEnums {
 		ENV_DEPLOYMENT(325,null) ,
 		ENV_NODE_PRIMARY(331,null) ,
 		ENV_NODE_CUSTOM(333,null) ,
-		ENV_DUMP(341,null) ,
-		ENV_DUMPMASK(342,null) ,
 		RELEASE_REPOSITORY(401,null) ,
 		RELEASE_MAIN(402,null) ,
 		RELEASE_DIST(403,null) ,
@@ -1165,7 +1161,7 @@ public abstract class DBEnums {
     	
 		return( null );
     }
-
+    
     public static void verifyDatabase( EngineLoader loader ) throws Exception {
     	DBConnection c = loader.getConnection();
     	ResultSet rs = c.query( DBQueries.QUERY_ENUMS_GETALL0 );

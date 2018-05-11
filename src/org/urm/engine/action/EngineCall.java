@@ -82,6 +82,7 @@ public abstract class EngineCall implements Runnable {
 	public void runInteractive( ActionBase action , ShellInteractive shell ) throws Exception {
 		shellInteractive = shell;
 		waitConnectMode = true;
+		action.setTimeoutUnlimited();
 		shell.runInteractive( action );
 	}
     

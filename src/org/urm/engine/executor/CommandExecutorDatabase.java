@@ -150,18 +150,20 @@ public class CommandExecutorDatabase extends CommandExecutor {
 	private class ImportDB extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TASK = getRequiredArg( action , 0 , "TASK" );
-		String CMD = getRequiredArg( action , 1 , "CMD" );
-		String SCHEMA = getArg( action , 2 );
-		impl.importDatabase( parentState , action , TASK , CMD , SCHEMA );
+		String SERVER = getRequiredArg( action , 1 , "SERVER" );
+		String CMD = getRequiredArg( action , 2 , "CMD" );
+		String SCHEMA = getArg( action , 3 );
+		impl.importDatabase( parentState , action , SERVER , TASK , CMD , SCHEMA );
 	}
 	}
 	
 	private class ExportDB extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TASK = getRequiredArg( action , 0 , "TASK" );
-		String CMD = getRequiredArg( action , 1 , "CMD" );
-		String SCHEMA = getArg( action , 2 );
-		impl.exportDatabase( parentState , action , TASK , CMD , SCHEMA );
+		String SERVER = getRequiredArg( action , 1 , "SERVER" );
+		String CMD = getRequiredArg( action , 2 , "CMD" );
+		String SCHEMA = getArg( action , 3 );
+		impl.exportDatabase( parentState , action , SERVER , TASK , CMD , SCHEMA );
 	}
 	}
 	

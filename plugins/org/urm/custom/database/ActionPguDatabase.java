@@ -5,7 +5,6 @@ import org.urm.common.Common;
 import org.urm.common.RunErrorClass;
 import org.urm.engine.custom.CommandCustom;
 import org.urm.engine.custom.ICustomDatabase;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.LocalFolder;
 
@@ -449,7 +448,7 @@ public class ActionPguDatabase implements ICustomDatabase {
 		if( !action.shell.checkFileExists( action , path ) )
 			action.exit1( MissingOrganizationalMappingFile1 , "organizational mapping file " + path + " not found" , path );
 			
-		String S_ORG_FOLDERID = action.shell.customGetValue( action , "grep " + Common.getQuoted( "^" + S_ORG_EXTID + "=" ) + " " + path + " | cut -d " + Common.getQuoted( "=" ) + " -f2" , Shell.WAIT_DEFAULT );
+		String S_ORG_FOLDERID = action.shell.customGetValue( action , "grep " + Common.getQuoted( "^" + S_ORG_EXTID + "=" ) + " " + path + " | cut -d " + Common.getQuoted( "=" ) + " -f2" );
 		return( S_ORG_FOLDERID );
 	}
 	

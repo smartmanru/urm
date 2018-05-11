@@ -206,11 +206,6 @@ public class CodebaseCommand {
 		ca.runEachBuildableProject( parentState , scope , SecurityAction.ACTION_CODEBASE , false );
 	}
 	
-	public static void list( ScopeState parentState , ActionBase action , ActionScope scope , String CMD ) throws Exception {
-		ActionCodebaseList ca = new ActionCodebaseList( action , null , scope.meta , CMD );
-		ca.runEachSourceProject( parentState , scope , SecurityAction.ACTION_CODEBASE , false );
-	}
-	
 	public static void renameBranch( ScopeState parentState , ActionBase action , ActionScope scope , String BRANCH1 , String BRANCH2 ) throws Exception {
 		ActionRenameCodebase ca = new ActionRenameCodebase( action , null , true , BRANCH1 , true , BRANCH2 , false );
 		ca.runEachBuildableProject( parentState , scope , SecurityAction.ACTION_CODEBASE , false );

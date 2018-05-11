@@ -12,7 +12,6 @@ import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyValue;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.HiddenFiles;
@@ -87,7 +86,7 @@ public class ConfBuilder {
 		if( live.checkFileExists( action , runScript ) ) {
 			action.info( "run " + runScript );
 			action.shell.custom( action , live.folderPath , "chmod 744 " + runScript + "; ./" + runScript + " " + 
-				server.sg.env.NAME + " " + server.sg.NAME + " " + server.NAME + " " + node.POS , Shell.WAIT_DEFAULT );
+				server.sg.env.NAME + " " + server.sg.NAME + " " + server.NAME + " " + node.POS );
 		}
 		
 		// copy explicit environment directories
@@ -119,7 +118,7 @@ public class ConfBuilder {
 			extCompOptions += Common.getQuoted( mask );
 		}
 		String list = action.shell.customGetValue( action , live.folderPath , "F_FILES=`find . -type f -a \\( " + 
-				extCompOptions + " \\) | tr \"\\n\" \" \"`; if [ \"$F_FILES\" != \"\" ]; then grep -l \"@.*@\" $F_FILES; fi" , Shell.WAIT_DEFAULT );
+				extCompOptions + " \\) | tr \"\\n\" \" \"`; if [ \"$F_FILES\" != \"\" ]; then grep -l \"@.*@\" $F_FILES; fi" );
 		String[] files = Common.splitLines( list );
 		return( files );
 	}

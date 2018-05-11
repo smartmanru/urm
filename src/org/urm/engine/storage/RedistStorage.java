@@ -9,7 +9,6 @@ import org.urm.db.core.DBEnums.DBEnumBinaryItemType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
@@ -353,7 +352,9 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 
 		String redistBackupFile = redistFile.getFileName( action );
+		int timeout = action.setTimeoutUnlimited();
 		saveArchiveItem( action , redistFile.binaryItem , deployFolder , redistBackupFile , backupFolder );
+		action.setTimeout( timeout );
 		action.info( "redist backup done, archive item file=" + redistBackupFile );
 		
 		// copy version file from state
@@ -368,8 +369,10 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 		RemoteFolder tmpFolder = getRedistTmpFolder( action );
 		
+		int timeout = action.setTimeoutUnlimited();
 		tmpFolder.removeFiles( action , tmpName );
 		saveArchiveItem( action , archiveItem , deployFolder , tmpName , tmpFolder );
+		action.setTimeout( timeout );
 	}
 	
 	public void copyTmpFileToLocal( ActionBase action , String tmpName , LocalFolder localFolder ) throws Exception {
@@ -440,7 +443,7 @@ public class RedistStorage extends ServerStorage {
 			EnumPackageExtension ext = Types.getPackageExtension( binaryItem.EXT , true );
 			ShellExecutor shell = action.getShell( deployFolder );
 			if( ext == EnumPackageExtension.RPM ) {
-				String values = shell.customGetValue( action , "rpm -q --qf=\"%{VERSION}:%{SIGMD5}:%{RELEASE}:%{ARCH}\" " + binaryItem.BASENAME_DEPLOY , Shell.WAIT_DEFAULT );
+				String values = shell.customGetValue( action , "rpm -q --qf=\"%{VERSION}:%{SIGMD5}:%{RELEASE}:%{ARCH}\" " + binaryItem.BASENAME_DEPLOY );
 				String[] items = Common.split( values , ":" );
 				if( items.length != 4 )
 					action.exit2( _Error.ItemNotFoundInLive2 , "item=" + binaryItem.NAME + ", is not found in " + deployFolder.folderPath , binaryItem.NAME , deployFolder.folderPath );

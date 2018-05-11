@@ -79,15 +79,19 @@ public class DBMetaEnvServer {
 	}
 	
 	public static void matchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvSegment baselineSegment ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		EngineMatcher matcher = loader.getMatcher();
 		DBConnection c = loader.getConnection();
 		
 		MatchItem BASELINE = server.getBaselineMatchItem();
 		if( BASELINE != null ) {
-			MetaEnvServer baseline = baselineSegment.findServer( BASELINE );
+			String value = matcher.matchEnvBefore( env , BASELINE.FKNAME , server.ID , entities.entityAppServerPrimary , MetaEnvServer.PROPERTY_BASELINE , null );
+			MetaEnvServer baseline = baselineSegment.findServer( value );
 			if( baseline != null ) {
 				BASELINE.match( baseline.ID );
 				modifyServerMatch( c , storage , env , server );
 			}
+			matcher.matchEnvDone( BASELINE );
 		}
 	}
 	
@@ -427,7 +431,7 @@ public class DBMetaEnvServer {
 	public static void modifyServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		server.modifyServer( name , desc , runType , accessType , sysname , osType , dbmsType , MatchItem.create( admSchema ) );
+		server.modifyServer( name , desc , runType , accessType , osType , dbmsType , MatchItem.create( admSchema ) );
  		modifyServer( c , storage , env , server , false );
  		server.sg.updateServer( server );
 	}
@@ -461,6 +465,20 @@ public class DBMetaEnvServer {
 		modifyServer( c , storage , env , server , false );
 	}
 	
+	public static void setDeployments( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment[] deployments ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		if( !c.modify( DBQueries.MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 , new String[] { EngineDB.getInteger( server.ID ) } ) )
+			Common.exitUnexpected();
+		
+		server.clearDeployments();
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			deployment = deployment.copy( storage.meta , server );
+			server.addDeployment( deployment );
+			DBMetaEnvServerDeployment.modifyDeployment( c , storage , env , server , deployment , true );
+		}
+	}
+
 	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		ObjectProperties ops = server.getProperties();

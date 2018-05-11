@@ -153,16 +153,16 @@ public class DBReleaseData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_MAIN_REPO_ID , "repo id" , DBEnumObjectType.RELEASE_REPOSITORY , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_MAIN_TRANSITION_REPO_ID , "transition repo id" , DBEnumObjectType.RELEASE_REPOSITORY , false ) ,
 				EntityVar.metaString( Release.PROPERTY_NAME , "release name" , true , null ) ,
-				EntityVar.metaStringVar( Release.PROPERTY_DESC , FIELD_MAIN_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( Release.PROPERTY_DESC , FIELD_MAIN_DESC , Release.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_MASTER , "master" , true , false ) ,
-				EntityVar.metaEnumVar( Release.PROPERTY_LIFECYCLETYPE , FIELD_MAIN_LIFECYCLETYPE , "Lifecycle type" , true , DBEnumLifecycleType.UNKNOWN ) ,
+				EntityVar.metaEnumVar( Release.PROPERTY_LIFECYCLETYPE , FIELD_MAIN_LIFECYCLETYPE , Release.PROPERTY_LIFECYCLETYPE , "Lifecycle type" , true , DBEnumLifecycleType.UNKNOWN ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_MAIN_V1 , "version number 1" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_MAIN_V2 , "version number 2" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_MAIN_V3 , "version number 3" , true , null ) ,
 				EntityVar.metaIntegerDatabaseOnly( FIELD_MAIN_V4 , "version number 4" , true , null ) ,
-				EntityVar.metaStringVar( Release.PROPERTY_VERSION , FIELD_MAIN_VERSION , "release version" , true , null ) ,
-				EntityVar.metaEnumVar( Release.PROPERTY_BUILDMODE , FIELD_MAIN_BUILDMODE , "Build mode type" , true , DBEnumBuildModeType.UNKNOWN ) ,
-				EntityVar.metaStringVar( Release.PROPERTY_COMPATIBILITY , FIELD_MAIN_COMPATIBILITY , "release compatibility" , false , null ) ,
+				EntityVar.metaStringVar( Release.PROPERTY_VERSION , FIELD_MAIN_VERSION , Release.PROPERTY_VERSION , "release version" , true , null ) ,
+				EntityVar.metaEnumVar( Release.PROPERTY_BUILDMODE , FIELD_MAIN_BUILDMODE , Release.PROPERTY_BUILDMODE , "Build mode type" , true , DBEnumBuildModeType.UNKNOWN ) ,
+				EntityVar.metaStringVar( Release.PROPERTY_COMPATIBILITY , FIELD_MAIN_COMPATIBILITY , Release.PROPERTY_COMPATIBILITY , "release compatibility" , false , null ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_CUMULATIVE , "cumulative" , true , false ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_ARCHIVED , "archived" , true , false ) ,
 				EntityVar.metaBoolean( Release.PROPERTY_CANCELLED , "cancelled" , true , false )
@@ -178,7 +178,7 @@ public class DBReleaseData {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaStringVar( ReleaseDist.PROPERTY_VARIANT , FIELD_DIST_VARIANT , "distributive variant" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDist.PROPERTY_VARIANT , FIELD_DIST_VARIANT , ReleaseDist.PROPERTY_VARIANT , "distributive variant" , false , null ) ,
 				EntityVar.metaDateDatabaseOnly( FIELD_DIST_DATE , "data date" , false ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_DIST_METAHASH , "meta hash" , false , null ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_DIST_DATAHASH , "data hash" , false , null )
@@ -195,15 +195,15 @@ public class DBReleaseData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaBooleanDatabaseOnly( ReleaseBuildTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
-				EntityVar.metaEnumVar( ReleaseBuildTarget.PROPERTY_TARGETTYPE , FIELD_BUILDTARGET_TARGETTYPE , "release target type" , true , DBEnumBuildTargetType.UNKNOWN ) ,
-				EntityVar.metaBooleanVar( ReleaseBuildTarget.PROPERTY_ALL , FIELD_BUILDTARGET_SCOPEALL , "all scope" , false , false ) ,
+				EntityVar.metaEnumVar( ReleaseBuildTarget.PROPERTY_TARGETTYPE , FIELD_BUILDTARGET_TARGETTYPE , ReleaseBuildTarget.PROPERTY_TARGETTYPE , "release target type" , true , DBEnumBuildTargetType.UNKNOWN ) ,
+				EntityVar.metaBooleanVar( ReleaseBuildTarget.PROPERTY_ALL , FIELD_BUILDTARGET_SCOPEALL , ReleaseBuildTarget.PROPERTY_ALL , "all scope" , false , false ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDTARGET_SRCSET_ID , "source project set id" , DBEnumObjectType.META_SOURCESET , false ) ,
-				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_SRCSET , FIELD_BUILDTARGET_SRCSET_NAME , "source project set name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_SRCSET , FIELD_BUILDTARGET_SRCSET_NAME , ReleaseBuildTarget.PROPERTY_SRCSET , "source project set name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDTARGET_PROJECT_ID , "source project id" , DBEnumObjectType.META_SOURCEPROJECT , false ) ,
-				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_PROJECT , FIELD_BUILDTARGET_PROJECT_NAME , "source project name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_BUILDBRANCH , FIELD_BUILDTARGET_BRANCH , "build branch name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_BUILDTAG , FIELD_BUILDTARGET_TAG , "build tag name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_BUILDVERSION , FIELD_BUILDTARGET_VERSION , "build version" , false , null )
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_PROJECT , FIELD_BUILDTARGET_PROJECT_NAME , ReleaseBuildTarget.PROPERTY_PROJECT , "source project name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_BUILDBRANCH , FIELD_BUILDTARGET_BRANCH , ReleaseBuildTarget.PROPERTY_BUILDBRANCH , "build branch name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_BUILDTAG , FIELD_BUILDTARGET_TAG , ReleaseBuildTarget.PROPERTY_BUILDTAG , "build tag name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseBuildTarget.PROPERTY_BUILDVERSION , FIELD_BUILDTARGET_VERSION , ReleaseBuildTarget.PROPERTY_BUILDVERSION , "build version" , false , null )
 		} ) );
 	}
 
@@ -217,18 +217,18 @@ public class DBReleaseData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaBooleanDatabaseOnly( ReleaseDistTarget.PROPERTY_SCOPETARGET , "scope target" , true , false ) ,
-				EntityVar.metaEnumVar( ReleaseDistTarget.PROPERTY_TARGETTYPE , FIELD_DISTTARGET_TARGETTYPE , "release target type" , true , DBEnumDistTargetType.UNKNOWN ) ,
-				EntityVar.metaBooleanVar( ReleaseDistTarget.PROPERTY_ALL , FIELD_DISTTARGET_SCOPEALL , "all scope" , false , false ) ,
+				EntityVar.metaEnumVar( ReleaseDistTarget.PROPERTY_TARGETTYPE , FIELD_DISTTARGET_TARGETTYPE , ReleaseDistTarget.PROPERTY_TARGETTYPE , "release target type" , true , DBEnumDistTargetType.UNKNOWN ) ,
+				EntityVar.metaBooleanVar( ReleaseDistTarget.PROPERTY_ALL , FIELD_DISTTARGET_SCOPEALL , ReleaseDistTarget.PROPERTY_ALL , "all scope" , false , false ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , false ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_DELIVERY , FIELD_DISTTARGET_DELIVERY_NAME , "delivery name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_DELIVERY , FIELD_DISTTARGET_DELIVERY_NAME , ReleaseDistTarget.PROPERTY_DELIVERY , "delivery name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_BINARY_ID , "binary item id" , DBEnumObjectType.META_DIST_BINARYITEM , false ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_BINARY , FIELD_DISTTARGET_BINARY_NAME , "binary item name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_BINARY , FIELD_DISTTARGET_BINARY_NAME , ReleaseDistTarget.PROPERTY_BINARY , "binary item name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_CONF_ID , "conf item id" , DBEnumObjectType.META_DIST_CONFITEM , false ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_CONF , FIELD_DISTTARGET_CONF_NAME , "conf item name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_CONF , FIELD_DISTTARGET_CONF_NAME , ReleaseDistTarget.PROPERTY_CONF , "conf item name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_SCHEMA_ID , "schema id" , DBEnumObjectType.META_SCHEMA , false ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_SCHEMA , FIELD_DISTTARGET_SCHEMA_NAME , "schema name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_SCHEMA , FIELD_DISTTARGET_SCHEMA_NAME , ReleaseDistTarget.PROPERTY_SCHEMA , "schema name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTTARGET_DOC_ID , "doc id" , DBEnumObjectType.META_DOC , false ) ,
-				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_DOC , FIELD_DISTTARGET_DOC_NAME , "doc name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistTarget.PROPERTY_DOC , FIELD_DISTTARGET_DOC_NAME , ReleaseDistTarget.PROPERTY_DOC , "doc name" , false , null ) ,
 		} ) );
 	}
 
@@ -243,11 +243,11 @@ public class DBReleaseData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTITEM_DIST_ID , "release distributive id" , DBEnumObjectType.RELEASE_DIST , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DISTITEM_DISTTARGET_ID , "release target id" , DBEnumObjectType.RELEASE_DISTTARGET , true ) ,
-				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE , FIELD_DISTITEM_FILE , "file name" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_FOLDER , FIELD_DISTITEM_FILE_FOLDER , "file path" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_HASH , FIELD_DISTITEM_FILE_HASH , "file hash" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_SIZE , FIELD_DISTITEM_FILE_SIZE , "file size" , false , null ) ,
-				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_TIME , FIELD_DISTITEM_FILE_TIME , "file time" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE , FIELD_DISTITEM_FILE , ReleaseDistItem.PROPERTY_FILE , "file name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_FOLDER , FIELD_DISTITEM_FILE_FOLDER , ReleaseDistItem.PROPERTY_FILE_FOLDER , "file path" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_HASH , FIELD_DISTITEM_FILE_HASH , ReleaseDistItem.PROPERTY_FILE_HASH , "file hash" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_SIZE , FIELD_DISTITEM_FILE_SIZE , ReleaseDistItem.PROPERTY_FILE_SIZE , "file size" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseDistItem.PROPERTY_FILE_TIME , FIELD_DISTITEM_FILE_TIME , ReleaseDistItem.PROPERTY_FILE_TIME , "file time" , false , null ) ,
 				EntityVar.metaString( FIELD_DISTITEM_SOURCE_RELEASEDIR , "source release distributive version" , false , null ) ,
 				EntityVar.metaDate( FIELD_DISTITEM_SOURCE_RELEASETIME , "source release distributive time" , false )
 		} ) );
@@ -261,14 +261,14 @@ public class DBReleaseData {
 		}
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_STARTED , FIELD_SCHEDULE_STARTED , "start date" , true ) ,
-				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_RELEASEDATE , FIELD_SCHEDULE_RELEASEDATE , "release date scheduled" , true ) ,
-				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_RELEASEDATEACTUAL , FIELD_SCHEDULE_RELEASEDATEACTUAL , "release date actual" , false ) ,
- 				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL , FIELD_SCHEDULE_COMPLETEDATEACTUAL , "complete date actual" , false ) ,
+				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_STARTED , FIELD_SCHEDULE_STARTED , ReleaseSchedule.PROPERTY_STARTED , "start date" , true ) ,
+				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_RELEASEDATE , FIELD_SCHEDULE_RELEASEDATE , ReleaseSchedule.PROPERTY_RELEASEDATE , "release date scheduled" , true ) ,
+				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_RELEASEDATEACTUAL , FIELD_SCHEDULE_RELEASEDATEACTUAL , ReleaseSchedule.PROPERTY_RELEASEDATEACTUAL , "release date actual" , false ) ,
+ 				EntityVar.metaDateVar( ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL , FIELD_SCHEDULE_COMPLETEDATEACTUAL , ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL , "complete date actual" , false ) ,
 				EntityVar.metaBoolean( ReleaseSchedule.PROPERTY_RELEASEDSTATUS , "released status" , true , false ) ,
 				EntityVar.metaBoolean( ReleaseSchedule.PROPERTY_COMPLETEDSTATUS , "completed status" , true , false ) ,
-				EntityVar.metaStringVar( ReleaseSchedule.PROPERTY_SCHEDULE , FIELD_SCHEDULE_NAME , "current phase" , false , null ) ,
-				EntityVar.metaIntegerVar( ReleaseSchedule.PROPERTY_PHASE , FIELD_SCHEDULE_PHASE , "current phase" , false , null )
+				EntityVar.metaStringVar( ReleaseSchedule.PROPERTY_SCHEDULE , FIELD_SCHEDULE_NAME , ReleaseSchedule.PROPERTY_SCHEDULE , "current phase" , false , null ) ,
+				EntityVar.metaIntegerVar( ReleaseSchedule.PROPERTY_PHASE , FIELD_SCHEDULE_PHASE , ReleaseSchedule.PROPERTY_PHASE , "current phase" , false , null )
 		} ) );
 	}
 
@@ -281,16 +281,16 @@ public class DBReleaseData {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
-				EntityVar.metaEnumVar( ReleaseSchedulePhase.PROPERTY_RELEASESTAGE , FIELD_PHASE_LCSTAGETYPE , "release phase stage type" , true , DBEnumLifecycleStageType.UNKNOWN ) ,
-				EntityVar.metaIntegerVar( ReleaseSchedulePhase.PROPERTY_STAGEPOS , FIELD_PHASE_STAGEPOS , "release phase stage position" , true , null ) ,
+				EntityVar.metaEnumVar( ReleaseSchedulePhase.PROPERTY_RELEASESTAGE , FIELD_PHASE_LCSTAGETYPE , ReleaseSchedulePhase.PROPERTY_RELEASESTAGE , "release phase stage type" , true , DBEnumLifecycleStageType.UNKNOWN ) ,
+				EntityVar.metaIntegerVar( ReleaseSchedulePhase.PROPERTY_STAGEPOS , FIELD_PHASE_STAGEPOS , ReleaseSchedulePhase.PROPERTY_STAGEPOS , "release phase stage position" , true , null ) ,
 				EntityVar.metaString( ReleaseSchedulePhase.PROPERTY_NAME , "product name" , true , null ) ,
-				EntityVar.metaStringVar( ReleaseSchedulePhase.PROPERTY_DESC , FIELD_PHASE_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseSchedulePhase.PROPERTY_DESC , FIELD_PHASE_DESC , ReleaseSchedulePhase.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaInteger( ReleaseSchedulePhase.PROPERTY_DAYS , "phase days" , true , null ) ,
-				EntityVar.metaIntegerVar( ReleaseSchedulePhase.PROPERTY_NORMALDAYS , FIELD_PHASE_NORMALDAYS , "phase days" , true , null ) ,
+				EntityVar.metaIntegerVar( ReleaseSchedulePhase.PROPERTY_NORMALDAYS , FIELD_PHASE_NORMALDAYS , ReleaseSchedulePhase.PROPERTY_NORMALDAYS , "phase days" , true , null ) ,
 				EntityVar.metaBoolean( ReleaseSchedulePhase.PROPERTY_FINISHED , "finished status" , true , false ) ,
 				EntityVar.metaBoolean( ReleaseSchedulePhase.PROPERTY_UNLIMITED , "unlimited status" , true , false ) ,
-				EntityVar.metaDateVar( ReleaseSchedulePhase.PROPERTY_STARTDATE , FIELD_PHASE_STARTDATE , "actual start date" , false ) ,
-				EntityVar.metaDateVar( ReleaseSchedulePhase.PROPERTY_FINISHDATE , FIELD_PHASE_FINISHDATE , "actual finish date" , false )
+				EntityVar.metaDateVar( ReleaseSchedulePhase.PROPERTY_STARTDATE , FIELD_PHASE_STARTDATE , ReleaseSchedulePhase.PROPERTY_STARTDATE , "actual start date" , false ) ,
+				EntityVar.metaDateVar( ReleaseSchedulePhase.PROPERTY_FINISHDATE , FIELD_PHASE_FINISHDATE , ReleaseSchedulePhase.PROPERTY_FINISHDATE , "actual finish date" , false )
 		} ) );
 	}
 
@@ -305,8 +305,8 @@ public class DBReleaseData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_RELEASE_ID , "release id" , DBEnumObjectType.RELEASE_MAIN , true ) ,
 				EntityVar.metaString( ReleaseTicketSet.PROPERTY_CODE , "ticket set code" , true , null ) ,
 				EntityVar.metaString( ReleaseTicketSet.PROPERTY_NAME , "ticket set name" , true , null ) ,
-				EntityVar.metaStringVar( ReleaseTicketSet.PROPERTY_DESC , FIELD_TICKETSET_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnumVar( ReleaseTicketSet.PROPERTY_STATUS , FIELD_TICKETSET_STATUS , "ticket set status type" , true , DBEnumTicketSetStatusType.UNKNOWN )
+				EntityVar.metaStringVar( ReleaseTicketSet.PROPERTY_DESC , FIELD_TICKETSET_DESC , ReleaseTicketSet.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( ReleaseTicketSet.PROPERTY_STATUS , FIELD_TICKETSET_STATUS , ReleaseTicketSet.PROPERTY_STATUS , "ticket set status type" , true , DBEnumTicketSetStatusType.UNKNOWN )
 		} ) );
 	}
 
@@ -341,19 +341,19 @@ public class DBReleaseData {
 				EntityVar.metaInteger( ReleaseTicket.PROPERTY_POS , "ticket position" , true , null ) ,
 				EntityVar.metaString( ReleaseTicket.PROPERTY_CODE , "ticket code" , true , null ) ,
 				EntityVar.metaString( ReleaseTicket.PROPERTY_NAME , "ticket name" , true , null ) ,
-				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_DESC , FIELD_TICKET_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_DESC , FIELD_TICKET_DESC , ReleaseTicket.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( ReleaseTicket.PROPERTY_LINK , "ticket link reference" , false , null ) ,
-				EntityVar.metaEnumVar( ReleaseTicket.PROPERTY_TYPE , FIELD_TICKET_TYPE , "ticket type" , true , DBEnumTicketType.UNKNOWN ) ,
-				EntityVar.metaEnumVar( ReleaseTicket.PROPERTY_STATUS , FIELD_TICKET_STATUS , "ticket status" , true , DBEnumTicketStatusType.UNKNOWN ) ,
+				EntityVar.metaEnumVar( ReleaseTicket.PROPERTY_TYPE , FIELD_TICKET_TYPE , ReleaseTicket.PROPERTY_TYPE , "ticket type" , true , DBEnumTicketType.UNKNOWN ) ,
+				EntityVar.metaEnumVar( ReleaseTicket.PROPERTY_STATUS , FIELD_TICKET_STATUS , ReleaseTicket.PROPERTY_STATUS , "ticket status" , true , DBEnumTicketStatusType.UNKNOWN ) ,
 				EntityVar.metaBoolean( ReleaseTicket.PROPERTY_ACTIVE , "active status" , true , false ) ,
 				EntityVar.metaBoolean( ReleaseTicket.PROPERTY_ACCEPTED , "accepted status" , true , false ) ,
 				EntityVar.metaBoolean( ReleaseTicket.PROPERTY_DESCOPED , "descoped status" , true , false ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKET_OWNER_ID , "owner user id" , DBEnumObjectType.AUTH_USER , false ) ,
-				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_OWNER , FIELD_TICKET_OWNER_NAME , "owner user name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_OWNER , FIELD_TICKET_OWNER_NAME , ReleaseTicket.PROPERTY_OWNER , "owner user name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKET_DEVUSER_ID , "developer user id" , DBEnumObjectType.AUTH_USER , false ) ,
-				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_DEV , FIELD_TICKET_DEVUSER_NAME , "developer user name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_DEV , FIELD_TICKET_DEVUSER_NAME , ReleaseTicket.PROPERTY_DEV , "developer user name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_TICKET_QAUSER_ID , "qa user id" , DBEnumObjectType.AUTH_USER , false ) ,
-				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_QA , FIELD_TICKET_QAUSER_NAME , "qa user name" , false , null ) ,
+				EntityVar.metaStringVar( ReleaseTicket.PROPERTY_QA , FIELD_TICKET_QAUSER_NAME , ReleaseTicket.PROPERTY_QA , "qa user name" , false , null ) ,
 		} ) );
 	}
 

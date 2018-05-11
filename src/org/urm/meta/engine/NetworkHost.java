@@ -15,7 +15,7 @@ public class NetworkHost extends EngineObject {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
-	public static String PROPERTY_OSTYPE = "ostype";
+	public static String PROPERTY_OSTYPE = "os_type";
 	public static String PROPERTY_IP = "ip";
 	public static String PROPERTY_PORT = "port";
 	

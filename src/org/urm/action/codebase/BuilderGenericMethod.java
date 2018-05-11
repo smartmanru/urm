@@ -2,7 +2,6 @@ package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.properties.PropertySet;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.meta.engine.ProjectBuilder;
@@ -39,7 +38,9 @@ public class BuilderGenericMethod extends Builder {
 
 		// execute maven
 		action.info( "using generic: " + GENERIC_CMD );
-		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , GENERIC_CMD , Shell.WAIT_INFINITE );
+		int timeout = action.setTimeoutUnlimited();
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , GENERIC_CMD );
+		action.setTimeout( timeout );
 
 		if( status != 0 ) {
 			action.error( "build: generic build failed" );

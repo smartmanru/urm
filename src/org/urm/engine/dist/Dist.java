@@ -488,7 +488,9 @@ public class Dist {
 
 	public String getDistItemMD5( ActionBase action , MetaDistrBinaryItem item , String fileName ) throws Exception {
 		RemoteFolder fileFolder = distFolder.getSubFolder( action , item.delivery.FOLDER );
+		int timeout = action.setTimeoutUnlimited();
 		String value = fileFolder.getFileMD5( action , fileName );
+		action.setTimeout( timeout );
 		return( value );
 	}
 	

@@ -8,6 +8,5 @@ public class _Error {
 	public static final int ErrorInternalBase = ErrorBase + RunErrorClass.InternalBase;
 	
 	public static final int UnknownRelease1 = ErrorBase + 1;
-	public static final int UnknownEnvironment1 = ErrorBase + 2;
 	
 }

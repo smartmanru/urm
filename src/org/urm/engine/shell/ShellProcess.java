@@ -202,13 +202,15 @@ public class ShellProcess {
 			builder.redirectErrorStream( true );
 		shell.startProcess( action , this , null , true , auth );
 		
+		int timeout = action.setTimeoutDefault();
 		shell.addInput( action , "echo " + CONNECT_MARKER + "; echo " + CONNECT_MARKER + " >&2" , true );
 		
-		if( !shell.waitForMarker( action , CONNECT_MARKER , true , Shell.WAIT_DEFAULT ) ) {
+		if( !shell.waitForMarker( action , CONNECT_MARKER , true ) ) {
 			call.connectFinished( false );
 			action.exit1( _Error.UnableConnectHost1 , "unable to connect to " + shell.name , shell.name );
 		}
 		
+		action.setTimeout( timeout );
 		call.connectFinished( true );
 	}
 
@@ -217,7 +219,7 @@ public class ShellProcess {
 		shell.addInput( action , "echo " + COMMAND_MARKER + "; echo " + COMMAND_MARKER + " >&2" , true );
 		
 		// wait for finish
-		return( shell.waitForMarker( action , COMMAND_MARKER , false , Shell.WAIT_DEFAULT ) );
+		return( shell.waitForMarker( action , COMMAND_MARKER , false ) );
 	}
 
 	public static void scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {

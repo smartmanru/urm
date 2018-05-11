@@ -2,7 +2,6 @@ package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.properties.PropertySet;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -49,10 +48,12 @@ public class BuilderAntMethod extends Builder {
 
 		// execute ant
 		action.info( "using ant:" );
-		session.customCheckErrorsNormal( action , "ant -version" , Shell.WAIT_DEFAULT );
+		session.customCheckErrorsNormal( action , "ant -version" );
 		
 		action.info( "execute: " + ANT_CMD );
-		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , ANT_CMD , Shell.WAIT_INFINITE );
+		int timeout = action.setTimeoutUnlimited();
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , ANT_CMD );
+		action.setTimeout( timeout );
 
 		if( status != 0 ) {
 			action.error( "build: ant build failed" );

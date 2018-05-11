@@ -63,8 +63,8 @@ public abstract class DBEngineBase {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaStringXmlOnly( BaseGroup.PROPERTY_TYPE , "Type" , true , null ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_GROUP_CATEGORY , "Category" , true , null ) ,
-				EntityVar.metaStringVar( BaseGroup.PROPERTY_NAME , BaseGroup.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( BaseGroup.PROPERTY_DESC , FIELD_GROUP_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( BaseGroup.PROPERTY_NAME , BaseGroup.PROPERTY_NAME , BaseGroup.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( BaseGroup.PROPERTY_DESC , FIELD_GROUP_DESC , BaseGroup.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( BaseGroup.PROPERTY_OFFLINE , "Offline" , false , true )
 		} ) );
 	}
@@ -78,8 +78,8 @@ public abstract class DBEngineBase {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaIntegerDatabaseOnly( FIELD_ITEM_GROUP_ID , "Name" , true , null ) ,
-				EntityVar.metaStringVar( BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( BaseItem.PROPERTY_DESC , FIELD_ITEM_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , BaseItem.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( BaseItem.PROPERTY_DESC , FIELD_ITEM_DESC , BaseItem.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBoolean( BaseItem.PROPERTY_OFFLINE , "Offline" , false , true )
 		} ) );
 	}

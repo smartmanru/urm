@@ -105,8 +105,8 @@ public class MetaEnvSegment extends EngineObject {
 	}
 	
 	public void setSegmentPrimary( String name , String desc , MatchItem baselineMatchItem , boolean offline , MatchItem dcMatchItem ) throws Exception {
-		if( !env.hasBaseline() )
-			baselineMatchItem = null;
+		if( env.hasBaseline() && baselineMatchItem != null )
+			Common.exitUnexpected();
 		
 		if( dcMatchItem == null )
 			Common.exitUnexpected();
@@ -267,6 +267,10 @@ public class MetaEnvSegment extends EngineObject {
 		ops.setStringProperty( PROPERTY_NAME , NAME );
 		ops.setStringProperty( PROPERTY_DESC , DESC );
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		
+		MetaEnvSegment sgBaseline = getBaseline();
+		if( sgBaseline != null )
+			ops.setStringProperty( PROPERTY_BASELINE , sgBaseline.NAME );
 		
 		Datacenter dc = getDatacenter();
 		if( dc != null )

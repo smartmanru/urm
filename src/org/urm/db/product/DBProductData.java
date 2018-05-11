@@ -234,7 +234,7 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
 				EntityVar.metaIntegerDatabaseOnly( FIELD_META_ID , "product meta" , true , null ) ,
 				EntityVar.metaString( MetaProductUnit.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaProductUnit.PROPERTY_DESC , FIELD_UNIT_DESC , "Description" , false , null )
+				EntityVar.metaStringVar( MetaProductUnit.PROPERTY_DESC , FIELD_UNIT_DESC , MetaProductUnit.PROPERTY_DESC , "Description" , false , null )
 		} ) );
 	}
 
@@ -248,8 +248,8 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaDatabaseSchema.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaDatabaseSchema.PROPERTY_DESC , FIELD_SCHEMA_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnumVar( MetaDatabaseSchema.PROPERTY_DBTYPE , FIELD_SCHEMA_DBTYPE , "Database software type" , true , DBEnumDbmsType.UNKNOWN ) ,
+				EntityVar.metaStringVar( MetaDatabaseSchema.PROPERTY_DESC , FIELD_SCHEMA_DESC , MetaDatabaseSchema.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaDatabaseSchema.PROPERTY_DBTYPE , FIELD_SCHEMA_DBTYPE , MetaDatabaseSchema.PROPERTY_DBTYPE , "Database software type" , true , DBEnumDbmsType.UNKNOWN ) ,
 				EntityVar.metaString( MetaDatabaseSchema.PROPERTY_DBNAME , "Default database name" , false , null ) ,
 				EntityVar.metaString( MetaDatabaseSchema.PROPERTY_DBUSER , "Default database user" , false , null )
 		} ) );
@@ -265,8 +265,8 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaSourceProjectSet.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaSourceProjectSet.PROPERTY_DESC , FIELD_SOURCESET_DESC , "Description" , false , null ) ,
-				EntityVar.metaIntegerVar( MetaSourceProjectSet.PROPERTY_POS , FIELD_SOURCESET_POS , "Build order" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectSet.PROPERTY_DESC , FIELD_SOURCESET_DESC , MetaSourceProjectSet.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaIntegerVar( MetaSourceProjectSet.PROPERTY_POS , FIELD_SOURCESET_POS , MetaSourceProjectSet.PROPERTY_POS , "Build order" , false , null ) ,
 				EntityVar.metaBoolean( MetaSourceProjectSet.PROPERTY_PARALLEL , "parallel build" , false , false )
 		} ) );
 	}
@@ -282,22 +282,22 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SOURCEPROJECT_SET_ID , "Source set" , DBEnumObjectType.META_SOURCESET , true ) ,
 				EntityVar.metaString( MetaSourceProject.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_DESC , FIELD_SOURCEPROJECT_DESC , "Description" , false , null ) ,
-				EntityVar.metaIntegerVar( MetaSourceProject.PROPERTY_PROJECTPOS , FIELD_SOURCEPROJECT_POS , "Source set" , true , null ) ,
-				EntityVar.metaEnumVar( MetaSourceProject.PROPERTY_PROJECTTYPE , FIELD_SOURCEPROJECT_TYPE , "Source project type" , true , DBEnumProjectType.UNKNOWN ) ,
-				EntityVar.metaBooleanVar( MetaSourceProject.PROPERTY_PROD , FIELD_SOURCEPROJECT_PROD , "Use in production build" , true , false ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_DESC , FIELD_SOURCEPROJECT_DESC , MetaSourceProject.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaIntegerVar( MetaSourceProject.PROPERTY_PROJECTPOS , FIELD_SOURCEPROJECT_POS , MetaSourceProject.PROPERTY_PROJECTPOS , "Source set" , true , null ) ,
+				EntityVar.metaEnumVar( MetaSourceProject.PROPERTY_PROJECTTYPE , FIELD_SOURCEPROJECT_TYPE , MetaSourceProject.PROPERTY_PROJECTTYPE , "Source project type" , true , DBEnumProjectType.UNKNOWN ) ,
+				EntityVar.metaBooleanVar( MetaSourceProject.PROPERTY_PROD , FIELD_SOURCEPROJECT_PROD , MetaSourceProject.PROPERTY_PROD , "Use in production build" , true , false ) ,
 				EntityVar.metaStringXmlOnly( MetaSourceProject.PROPERTY_UNIT , "Source project unit name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SOURCEPROJECT_UNIT_ID , "Source project unit id" , DBEnumObjectType.META_UNIT , false ) ,
 				EntityVar.metaString( MetaSourceProject.PROPERTY_TRACKER , "Ticket management project name" , false , null ) ,
 				EntityVar.metaString( MetaSourceProject.PROPERTY_BRANCH , "Default production branch" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SOURCEPROJECT_BUILDER_ID , "Source project builder" , DBEnumObjectType.BUILDER , false ) ,
-				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_BUILDER_NAME , FIELD_SOURCEPROJECT_BUILDER_NAME , "Source project builder name" , false , null ) ,
-				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_BUILDER_OPTIONS , FIELD_SOURCEPROJECT_BUILDOPTIONS , "Additional build options" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_BUILDER_NAME , FIELD_SOURCEPROJECT_BUILDER_NAME , MetaSourceProject.PROPERTY_BUILDER_NAME , "Source project builder name" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_BUILDER_OPTIONS , FIELD_SOURCEPROJECT_BUILDOPTIONS , MetaSourceProject.PROPERTY_BUILDER_OPTIONS , "Additional build options" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SOURCEPROJECT_MIRROR_ID , "Source project mirror id" , DBEnumObjectType.MIRROR , false ) ,
-				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORRES , FIELD_SOURCEPROJECT_MIRRORRES , "Respository resource" , false , null ) ,
-				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORREPO , FIELD_SOURCEPROJECT_MIRRORREPO , "Respository name" , false , null ) ,
-				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORPATH , FIELD_SOURCEPROJECT_MIRRORPATH , "Path to respository" , false , null ) ,
-				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORDATA , FIELD_SOURCEPROJECT_MIRRORDATA , "Respository path to data" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORRES , FIELD_SOURCEPROJECT_MIRRORRES , MetaSourceProject.PROPERTY_MIRRORRES , "Respository resource" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORREPO , FIELD_SOURCEPROJECT_MIRRORREPO , MetaSourceProject.PROPERTY_MIRRORREPO , "Respository name" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORPATH , FIELD_SOURCEPROJECT_MIRRORPATH , MetaSourceProject.PROPERTY_MIRRORPATH , "Path to respository" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProject.PROPERTY_MIRRORDATA , FIELD_SOURCEPROJECT_MIRRORDATA , MetaSourceProject.PROPERTY_MIRRORDATA , "Respository path to data" , false , null ) ,
 				EntityVar.metaBoolean( MetaSourceProject.PROPERTY_CUSTOM_BUILD , "Build using custom plugin" , false , false ) ,
 				EntityVar.metaBoolean( MetaSourceProject.PROPERTY_CUSTOM_GET , "Get artefacts using custom plugin" , false , false )
 		} ) );
@@ -314,14 +314,14 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_SOURCEITEM_PROJECT_ID , "Source project" , DBEnumObjectType.META_SOURCEPROJECT , true ) ,
 				EntityVar.metaString( MetaSourceProjectItem.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_DESC , FIELD_SOURCEITEM_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnumVar( MetaSourceProjectItem.PROPERTY_SRCTYPE , FIELD_SOURCEITEM_TYPE , "Source project item type" , true , DBEnumSourceItemType.UNKNOWN ) ,
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_DESC , FIELD_SOURCEITEM_DESC , MetaSourceProjectItem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaSourceProjectItem.PROPERTY_SRCTYPE , FIELD_SOURCEITEM_TYPE , MetaSourceProjectItem.PROPERTY_SRCTYPE , "Source project item type" , true , DBEnumSourceItemType.UNKNOWN ) ,
 				EntityVar.metaString( MetaSourceProjectItem.PROPERTY_BASENAME , "Source item basename" , true , null ) ,
-				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_EXT , FIELD_SOURCEITEM_EXT , "Item extension" , false , null ) ,
-				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_STATICEXT , FIELD_SOURCEITEM_STATICEXT , "Item static extension" , false , null ) ,
-				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_PATH , FIELD_SOURCEITEM_PATH , "Item artefact path" , false , null ) ,
-				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_VERSION , FIELD_SOURCEITEM_VERSION , "Item artefact fixed version" , false , null ) ,
-				EntityVar.metaBooleanVar( MetaSourceProjectItem.PROPERTY_NODIST , FIELD_SOURCEITEM_NODIST , "Internal item flag" , false , false )
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_EXT , FIELD_SOURCEITEM_EXT , MetaSourceProjectItem.PROPERTY_EXT , "Item extension" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_STATICEXT , FIELD_SOURCEITEM_STATICEXT , MetaSourceProjectItem.PROPERTY_STATICEXT , "Item static extension" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_PATH , FIELD_SOURCEITEM_PATH , MetaSourceProjectItem.PROPERTY_PATH , "Item artefact path" , false , null ) ,
+				EntityVar.metaStringVar( MetaSourceProjectItem.PROPERTY_VERSION , FIELD_SOURCEITEM_VERSION , MetaSourceProjectItem.PROPERTY_VERSION , "Item artefact fixed version" , false , null ) ,
+				EntityVar.metaBooleanVar( MetaSourceProjectItem.PROPERTY_NODIST , FIELD_SOURCEITEM_NODIST , MetaSourceProjectItem.PROPERTY_NODIST , "Internal item flag" , false , false )
 		} ) );
 	}
 
@@ -335,9 +335,9 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaProductDoc.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaProductDoc.PROPERTY_DESC , FIELD_DOC_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnumVar( MetaProductDoc.PROPERTY_CATEGORY , FIELD_DOC_CATEGORY , "Document category" , true , DBEnumDocCategoryType.UNKNOWN ) ,
-				EntityVar.metaStringVar( MetaProductDoc.PROPERTY_EXT , FIELD_DOC_EXT , "Document extension" , true , null ) ,
+				EntityVar.metaStringVar( MetaProductDoc.PROPERTY_DESC , FIELD_DOC_DESC , MetaProductDoc.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaProductDoc.PROPERTY_CATEGORY , FIELD_DOC_CATEGORY , MetaProductDoc.PROPERTY_CATEGORY , "Document category" , true , DBEnumDocCategoryType.UNKNOWN ) ,
+				EntityVar.metaStringVar( MetaProductDoc.PROPERTY_EXT , FIELD_DOC_EXT , MetaProductDoc.PROPERTY_EXT , "Document extension" , true , null ) ,
 				EntityVar.metaBoolean( MetaProductDoc.PROPERTY_UNITBOUND , "Document type can have separate instance for every unit" , true , false )
 		} ) );
 	}
@@ -354,7 +354,7 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERY_UNIT_ID , "delivery unit id" , DBEnumObjectType.META_UNIT , false ) ,
 				EntityVar.metaStringXmlOnly( MetaDistrDelivery.PROPERTY_UNIT_NAME , "delivery unit name" , false , null ) ,
 				EntityVar.metaString( MetaDistrDelivery.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaDistrDelivery.PROPERTY_DESC , FIELD_DELIVERY_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( MetaDistrDelivery.PROPERTY_DESC , FIELD_DELIVERY_DESC , MetaDistrDelivery.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( MetaDistrDelivery.PROPERTY_FOLDER , "Distributive folder" , true , null ) ,
 				EntityVar.metaBoolean( MetaDistrDelivery.PROPERTY_SCHEMA_ANY , "Any database schema allowed" , true , false ) ,
 				EntityVar.metaBoolean( MetaDistrDelivery.PROPERTY_DOC_ANY , "Any database document allowed" , true , false )
@@ -400,22 +400,22 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , true ) ,
 				EntityVar.metaString( MetaDistrBinaryItem.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DESC , FIELD_BINARYITEM_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE , FIELD_BINARYITEM_DISTITEMTYPE , "Distributive item type" , true , DBEnumBinaryItemType.UNKNOWN ) ,
-				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DISTNAME , FIELD_BINARYITEM_DISTNAME , "Distribute base name" , true , null ) ,
-				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DEPLOYNAME , FIELD_BINARYITEM_DEPLOYNAME , "Default deployment base name" , true , null ) ,
-				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_EXT , FIELD_BINARYITEM_EXT , "Item file extension" , true , null ) ,
-				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_DEPLOYVERSIONTYPE , FIELD_BINARYITEM_DEPLOYVERSIONTYPE , "Deployment name version type" , false , DBEnumDeployVersionType.UNKNOWN ) ,
-				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_ITEMORIGIN , FIELD_BINARYITEM_ITEMORIGIN , "Item origin type" , true , DBEnumItemOriginType.UNKNOWN ) ,
+				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DESC , FIELD_BINARYITEM_DESC , MetaDistrBinaryItem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE , FIELD_BINARYITEM_DISTITEMTYPE , MetaDistrBinaryItem.PROPERTY_DISTITEMTYPE , "Distributive item type" , true , DBEnumBinaryItemType.UNKNOWN ) ,
+				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DISTNAME , FIELD_BINARYITEM_DISTNAME , MetaDistrBinaryItem.PROPERTY_DISTNAME , "Distribute base name" , true , null ) ,
+				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_DEPLOYNAME , FIELD_BINARYITEM_DEPLOYNAME , MetaDistrBinaryItem.PROPERTY_DEPLOYNAME , "Default deployment base name" , true , null ) ,
+				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_EXT , FIELD_BINARYITEM_EXT , MetaDistrBinaryItem.PROPERTY_EXT , "Item file extension" , true , null ) ,
+				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_DEPLOYVERSIONTYPE , FIELD_BINARYITEM_DEPLOYVERSIONTYPE , MetaDistrBinaryItem.PROPERTY_DEPLOYVERSIONTYPE , "Deployment name version type" , false , DBEnumDeployVersionType.UNKNOWN ) ,
+				EntityVar.metaEnumVar( MetaDistrBinaryItem.PROPERTY_ITEMORIGIN , FIELD_BINARYITEM_ITEMORIGIN , MetaDistrBinaryItem.PROPERTY_ITEMORIGIN , "Item origin type" , true , DBEnumItemOriginType.UNKNOWN ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_BINARYITEM_SRCITEM_ID , "source project item id" , DBEnumObjectType.META_SOURCEITEM , false ) ,
 				EntityVar.metaStringXmlOnly( MetaDistrBinaryItem.PROPERTY_SRCITEM_NAME , "source project item name" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_BINARYITEM_SRCDISTITEM_ID , "source distributive item id" , DBEnumObjectType.META_DIST_BINARYITEM , false ) ,
 				EntityVar.metaStringXmlOnly( MetaDistrBinaryItem.PROPERTY_SRCDISTITEM_NAME , "source distributive item name" , false , null ) ,
-				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_SRCITEMPATH , FIELD_BINARYITEM_SRCITEMPATH , "Source item path" , false , null ) ,
-				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_ARCHIVEFILES , FIELD_BINARYITEM_ARCHIVEFILES , "Archive item files" , false , null ) ,
-				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_ARCHIVEEXCLUDE , FIELD_BINARYITEM_ARCHIVEEXCLUDE , "Archive item exclude files" , false , null ) ,
+				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_SRCITEMPATH , FIELD_BINARYITEM_SRCITEMPATH , MetaDistrBinaryItem.PROPERTY_SRCITEMPATH , "Source item path" , false , null ) ,
+				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_ARCHIVEFILES , FIELD_BINARYITEM_ARCHIVEFILES , MetaDistrBinaryItem.PROPERTY_ARCHIVEFILES , "Archive item files" , false , null ) ,
+				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_ARCHIVEEXCLUDE , FIELD_BINARYITEM_ARCHIVEEXCLUDE , MetaDistrBinaryItem.PROPERTY_ARCHIVEEXCLUDE , "Archive item exclude files" , false , null ) ,
 				EntityVar.metaStringDatabaseOnly( FIELD_BINARYITEM_WARSTATICEXT , "Static file extension" , false , null ) ,
-				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_WARCONTEXT , FIELD_BINARYITEM_WARCONTEXT , "War file context" , false , null ) ,
+				EntityVar.metaStringVar( MetaDistrBinaryItem.PROPERTY_WARCONTEXT , FIELD_BINARYITEM_WARCONTEXT , MetaDistrBinaryItem.PROPERTY_WARCONTEXT , "War file context" , false , null ) ,
 				EntityVar.metaBoolean( MetaDistrBinaryItem.PROPERTY_CUSTOMGET , "Use custom method to get" , false , false ) ,
 				EntityVar.metaBoolean( MetaDistrBinaryItem.PROPERTY_CUSTOMDEPLOY , "Use custom method to deploy" , false , false ) ,
 		} ) );
@@ -432,8 +432,8 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_DELIVERY_ID , "delivery id" , DBEnumObjectType.META_DIST_DELIVERY , true ) ,
 				EntityVar.metaString( MetaDistrConfItem.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaDistrConfItem.PROPERTY_DESC , FIELD_CONFITEM_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnumVar( MetaDistrConfItem.PROPERTY_TYPE , FIELD_CONFITEM_TYPE , "Configuration item type" , true , DBEnumConfItemType.UNKNOWN ) ,
+				EntityVar.metaStringVar( MetaDistrConfItem.PROPERTY_DESC , FIELD_CONFITEM_DESC , MetaDistrConfItem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MetaDistrConfItem.PROPERTY_TYPE , FIELD_CONFITEM_TYPE , MetaDistrConfItem.PROPERTY_TYPE , "Configuration item type" , true , DBEnumConfItemType.UNKNOWN ) ,
 				EntityVar.metaString( MetaDistrConfItem.PROPERTY_FILES , "Any files" , false , null ) ,
 				EntityVar.metaString( MetaDistrConfItem.PROPERTY_TEMPLATES , "Public templates only" , false , null ) ,
 				EntityVar.metaString( MetaDistrConfItem.PROPERTY_SECURED , "Secured files only" , false , null ) ,
@@ -452,7 +452,7 @@ public class DBProductData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] {
 				EntityVar.metaObjectDatabaseOnly( FIELD_META_ID , "product meta" , DBEnumObjectType.META , true ) ,
 				EntityVar.metaString( MetaDistrComponent.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MetaDistrComponent.PROPERTY_DESC , FIELD_COMPONENT_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( MetaDistrComponent.PROPERTY_DESC , FIELD_COMPONENT_DESC , MetaDistrComponent.PROPERTY_DESC , "Description" , false , null ) ,
 		} ) );
 	}
 
@@ -471,8 +471,8 @@ public class DBProductData {
 				EntityVar.metaObjectDatabaseOnly( FIELD_COMPITEM_CONF_ID , "configuration item id" , DBEnumObjectType.META_DIST_CONFITEM , false ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_COMPITEM_SCHEMA_ID , "schema item id" , DBEnumObjectType.META_SCHEMA , false ) ,
 				EntityVar.metaStringXmlOnly( MetaDistrComponentItem.PROPERTY_NAME , "item name" , false , null ) ,
-				EntityVar.metaStringVar( MetaDistrComponentItem.PROPERTY_DEPLOYNAME , FIELD_COMPITEM_DEPLOYNAME , "Deployment name" , false , null ) ,
-				EntityVar.metaStringVar( MetaDistrComponentItem.PROPERTY_WSDL , FIELD_COMPITEM_WSDL , "Wsdl base address" , false , null )
+				EntityVar.metaStringVar( MetaDistrComponentItem.PROPERTY_DEPLOYNAME , FIELD_COMPITEM_DEPLOYNAME , MetaDistrComponentItem.PROPERTY_DEPLOYNAME , "Deployment name" , false , null ) ,
+				EntityVar.metaStringVar( MetaDistrComponentItem.PROPERTY_WSDL , FIELD_COMPITEM_WSDL , MetaDistrComponentItem.PROPERTY_WSDL , "Wsdl base address" , false , null )
 		} ) );
 	}
 

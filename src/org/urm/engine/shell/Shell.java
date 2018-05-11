@@ -15,10 +15,6 @@ import org.urm.meta.engine.AuthResource;
 
 abstract public class Shell {
 
-	public static int WAIT_DEFAULT = -1;
-	public static int WAIT_INFINITE = 0;
-	public static int WAIT_LONG = 300000;
-	
 	abstract public boolean start( ActionBase action ) throws Exception;
 	abstract public void kill( ActionBase action ) throws Exception;
 	
@@ -171,6 +167,12 @@ abstract public class Shell {
 		this.rootPath = rootPath;
 	}
 	
+	public String getOSPath( ActionBase action , String path ) throws Exception {
+		if( account.isWindows() )
+			return( Common.getWinPath( path ) );
+		return( path );
+	}
+	
 	public boolean isWindows() {
 		return( account.isWindows() );
 	}
@@ -210,8 +212,8 @@ abstract public class Shell {
 		stdin.write( input );
 	}
 
-	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean system , int commandTimeoutMillis ) throws Exception {
-		if( wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr , commandTimeoutMillis ) )
+	public void waitCommandFinished( ActionBase action , int logLevel , List<String> cmdout , List<String> cmderr , boolean system ) throws Exception {
+		if( wc.waitForCommandFinished( action , logLevel , system , cmdout , cmderr ) )
 			return;
 		
 		kill( action );
@@ -225,8 +227,8 @@ abstract public class Shell {
 		return( useProcess.waitForInteractive( action ) );
 	}
 
-	public boolean waitForMarker( ActionBase action , String marker , boolean system , int commandTimeoutMillis ) throws Exception {
-		return( wc.waitForMarker( action , action.context.logLevelLimit , system , marker , commandTimeoutMillis ) );
+	public boolean waitForMarker( ActionBase action , String marker , boolean system ) throws Exception {
+		return( wc.waitForMarker( action , action.context.logLevelLimit , system , marker ) );
 	}
 
 	public String getPathBreak() {

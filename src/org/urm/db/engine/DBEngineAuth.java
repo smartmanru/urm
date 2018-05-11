@@ -100,7 +100,7 @@ public class DBEngineAuth {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthUser.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AuthUser.PROPERTY_DESC , FIELD_USER_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( AuthUser.PROPERTY_DESC , FIELD_USER_DESC , AuthUser.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( AuthUser.PROPERTY_FULLNAME , "" , true , null ) ,
 				EntityVar.metaString( AuthUser.PROPERTY_EMAIL , "" , true , null ) ,
 				EntityVar.metaBoolean( AuthUser.PROPERTY_ADMIN , "" , true , false ) ,
@@ -117,7 +117,7 @@ public class DBEngineAuth {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthGroup.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AuthGroup.PROPERTY_DESC , FIELD_GROUP_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( AuthGroup.PROPERTY_DESC , FIELD_GROUP_DESC , AuthGroup.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_RESOURCES , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_PRODUCTS , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_NETWORKS , "" , true , false ) ,

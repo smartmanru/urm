@@ -51,21 +51,21 @@ public class DBEngineBuilders {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( ProjectBuilder.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_DESC , FIELD_BUILDER_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_DESC , FIELD_BUILDER_DESC , ProjectBuilder.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( ProjectBuilder.PROPERTY_VERSION , "Version" , true , null ) ,
-				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_BUILDERTYPE , FIELD_BUILDER_METHOD , "Build method" , true , DBEnumBuilderMethodType.UNKNOWN ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_COMMAND , FIELD_BUILDER_COMMAND , "Method command" , true , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_HOMEPATH , FIELD_BUILDER_HOMEPATH , "Builder home path" , false , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_OPTIONS , FIELD_BUILDER_OPTIONS , "Builder options" , false , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_JAVA_JDKHOMEPATH , FIELD_BUILDER_JDKPATH , "JDK path" , false , null ) ,
-				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_TARGETTYPE , FIELD_BUILDER_TARGET , "Build target" , true , DBEnumBuilderTargetType.UNKNOWN ) ,
-				EntityVar.metaObjectVar( ProjectBuilder.PROPERTY_TARGETRESOURCE , FIELD_BUILDER_TARGET_RESOURCE , "Target resource" , DBEnumObjectType.RESOURCE , false ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPATH , FIELD_BUILDER_TARGET_PATH , "Target path" , false , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPLATFORM , FIELD_BUILDER_TARGET_PLATFORM , "Target platform" , false , null ) ,
-				EntityVar.metaBooleanVar( ProjectBuilder.PROPERTY_BUILDER_REMOTE , FIELD_BUILDER_REMOTE , "Remote build" , false , false ) ,
+				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_BUILDERTYPE , FIELD_BUILDER_METHOD , ProjectBuilder.PROPERTY_BUILDERTYPE , "Build method" , true , DBEnumBuilderMethodType.UNKNOWN ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_COMMAND , FIELD_BUILDER_COMMAND , ProjectBuilder.PROPERTY_BUILDER_COMMAND , "Method command" , true , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_HOMEPATH , FIELD_BUILDER_HOMEPATH , ProjectBuilder.PROPERTY_BUILDER_HOMEPATH , "Builder home path" , false , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_OPTIONS , FIELD_BUILDER_OPTIONS , ProjectBuilder.PROPERTY_BUILDER_OPTIONS , "Builder options" , false , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_JAVA_JDKHOMEPATH , FIELD_BUILDER_JDKPATH , ProjectBuilder.PROPERTY_JAVA_JDKHOMEPATH , "JDK path" , false , null ) ,
+				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_TARGETTYPE , FIELD_BUILDER_TARGET , ProjectBuilder.PROPERTY_TARGETTYPE , "Build target" , true , DBEnumBuilderTargetType.UNKNOWN ) ,
+				EntityVar.metaObjectVar( ProjectBuilder.PROPERTY_TARGETRESOURCE , FIELD_BUILDER_TARGET_RESOURCE , ProjectBuilder.PROPERTY_TARGETRESOURCE , "Target resource" , DBEnumObjectType.RESOURCE , false ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPATH , FIELD_BUILDER_TARGET_PATH , ProjectBuilder.PROPERTY_TARGETPATH , "Target path" , false , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPLATFORM , FIELD_BUILDER_TARGET_PLATFORM , ProjectBuilder.PROPERTY_TARGETPLATFORM , "Target platform" , false , null ) ,
+				EntityVar.metaBooleanVar( ProjectBuilder.PROPERTY_BUILDER_REMOTE , FIELD_BUILDER_REMOTE , ProjectBuilder.PROPERTY_BUILDER_REMOTE , "Remote build" , false , false ) ,
 				EntityVar.metaStringXmlOnly( ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN , "Remote host account" , false , null ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDER_ACCOUNT , "Remote host login" , DBEnumObjectType.HOSTACCOUNT , false ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_REMOTEMIRRORPATH , FIELD_BUILDER_MIRRORPATH , "Remote mirror path" , false , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_REMOTEMIRRORPATH , FIELD_BUILDER_MIRRORPATH , ProjectBuilder.PROPERTY_REMOTEMIRRORPATH , "Remote mirror path" , false , null ) ,
 		} ) );
 	}
 

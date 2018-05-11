@@ -36,8 +36,6 @@ public abstract class GenericVCS {
 	public abstract boolean ignoreDir( String name );
 	public abstract boolean ignoreFile( String name );
 	
-	public abstract String[] getBranches( MetaSourceProject project ) throws Exception;
-	public abstract String[] getTags( MetaSourceProject project ) throws Exception;
 	public abstract boolean checkout( MetaSourceProject project , LocalFolder PATCHPATH , String BRANCH ) throws Exception;
 	public abstract boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHPATH , String MESSAGE ) throws Exception;
 	public abstract boolean copyBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) throws Exception;
@@ -103,7 +101,7 @@ public abstract class GenericVCS {
 		if( res.isGit() )
 			return( new GitVCS( action , meta , res , shell , builder ) );
 		
-		action.exit2( _Error.UnexectedVcsType2 , "unexpected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.RESOURCE_TYPE ) , res.NAME , Common.getEnumLower( res.RESOURCE_TYPE ) );
+		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.RESOURCE_TYPE ) , res.NAME , Common.getEnumLower( res.RESOURCE_TYPE ) );
 		return( null );
 	}
 	
