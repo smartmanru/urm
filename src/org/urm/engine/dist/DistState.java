@@ -8,11 +8,10 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.engine.ReleaseLifecycle;
 
 public class DistState {
 
@@ -30,23 +29,24 @@ public class DistState {
 	}
 	
 	// state
+	private Dist dist;
 	private RemoteFolder distFolder;
 
 	public DISTSTATE state;
 	DISTSTATE stateMem;
 	String stateChangeID;
-	public Date stateDate;
-	public String dataHash;
-	public String metaHash;
+	String dataHash;
+	String metaHash;
 	String activeChangeID;
 	
-	public DistState( RemoteFolder distFolder ) {
+	public DistState( Dist dist , RemoteFolder distFolder ) {
+		this.dist = dist;
 		this.distFolder = distFolder;
 		this.state = DISTSTATE.UNKNOWN;
 	}
 	
 	public DistState copy( ActionBase action , Dist rdist ) throws Exception {
-		DistState rstate = new DistState( distFolder );
+		DistState rstate = new DistState( rdist , distFolder );
 		rstate.state = state;
 		rstate.stateMem = stateMem;
 		rstate.stateChangeID = stateChangeID;
@@ -107,11 +107,28 @@ public class DistState {
 		
 		String timeStamp = Common.getNameTimeStamp();
 		String value = newState + ":" + timeStamp;
+		String dataHashNew = "";
+		String metaHashNew = "";
+		if( isFinalized() ) {
+			dataHashNew = dataHash;
+			if( isCompleted() )
+				metaHashNew = metaHash;
+			else
+				metaHashNew = getMetaHashValue( action );
+		}
+		else {
+			if( isFinalized( newState ) ) {
+				dataHashNew = getDataHashValue( action );
+				metaHashNew = getMetaHashValue( action );
+			}
+		}
 		
-		value += ":" + dataHash + ":" + metaHash;
+		value += ":" + dataHashNew + ":" + metaHashNew;
 		createStateFile( action , value );
 		activeChangeID = timeStamp;
 		stateMem = newState;
+		dataHash = dataHashNew;
+		metaHash = metaHashNew;
 		
 		state = stateMem;
 		stateChangeID = activeChangeID;
@@ -154,14 +171,15 @@ public class DistState {
 			}
 			
 			state = DISTSTATE.valueOf( parts[ 0 ] );
-			if( parts.length != 4 ) {
-				state = DISTSTATE.BROKEN;
-				return;
+			if( isFinalized() ) {
+				if( parts.length != 4 ) {
+					state = DISTSTATE.BROKEN;
+					return;
+				}
+				
+				dataHash = parts[ 2 ];
+				metaHash = parts[ 3 ];
 			}
-			
-			dataHash = parts[ 2 ];
-			metaHash = parts[ 3 ];
-			stateDate = new Date();
 			
 			stateChangeID = parts[ 1 ];
 		}
@@ -170,29 +188,24 @@ public class DistState {
 		}
 	}
 
-	public void ctlCreateNormal( ActionBase action , ReleaseDist releaseDist ) throws Exception {
+	public void ctlCreate( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+		// create release.xml, create status file, set closed dirty state
 		// check current status
 		ctlLoadReleaseState( action );
-		if( state != DISTSTATE.MISSINGSTATE ) {
-			if( state == DISTSTATE.MISSINGDIST )
-				Common.exitUnexpected();
-			
+		if( state != DISTSTATE.MISSINGDIST ) {
 			if( !action.isForced() )
 				action.exit0( _Error.CannotCreateExistingDistributive0 , "cannot create existing distributive" );
 		}
 			
+		// create directory
+		createMetaFile( action , releaseDate , lc );
+		
 		// set status
-		updateHashValues( action );
 		ctlSetStatus( action , DISTSTATE.DIRTY );
-		action.info( "release has been created at " + distFolder.getLocalPath( action ) );
-	}
-
-	public void updateHashValues( ActionBase action ) throws Exception {
-		metaHash = getMetaHashValue( action );
-		dataHash = getDataHashValue( action );
+		action.info( "release has been created: " + dist.RELEASEDIR );
 	}
 	
-	public void ctlCreateMaster( ActionBase action , ReleaseDist releaseDist ) throws Exception {
+	public void ctlCreateProd( ActionBase action , String RELEASEVER ) throws Exception {
 		// create release.xml, create status file, set closed dirty state
 		if( !distFolder.checkExists( action ) )
 			action.exit0( _Error.MissingProdDistributiveDirectory0 , "prod distributive directory should exist" );
@@ -202,10 +215,16 @@ public class DistState {
 		if( state != DISTSTATE.MISSINGSTATE )
 			action.exit0( _Error.StateFileExists0 , "state file should not exist" );
 		
+		// create empty release.xml
+		String filePath = action.artefactory.workFolder.getFilePath( action , Dist.META_FILENAME );
+		
+		Release info = new Release( dist.meta , dist );
+		info.createMaster( action , RELEASEVER , filePath );
+		distFolder.copyFileFromLocal( action , filePath );
+		
 		// set status
-		updateHashValues( action );
 		ctlSetStatus( action , DISTSTATE.DIRTY );
-		action.info( "prod has been created at " + distFolder.getLocalPath( action ) );
+		action.info( "prod has been created at " + distFolder.folderPath );
 	}
 	
 	public void ctlOpenForDataChange( ActionBase action ) throws Exception {
@@ -243,7 +262,6 @@ public class DistState {
 
 	public void ctlCloseDataChange( ActionBase action ) throws Exception {
 		ctlReloadCheckOpenedForDataChange( action );
-		updateHashValues( action );
 		ctlSetStatus( action , DISTSTATE.DIRTY );
 		action.debug( "distributive has been closed after change, ID=" + stateChangeID );
 	}
@@ -270,7 +288,6 @@ public class DistState {
 	public void ctlFinish( ActionBase action ) throws Exception {
 		ctlReloadCheckOpenedForDataChange( action );
 
-		updateHashValues( action );
 		ctlSetStatus( action , DISTSTATE.RELEASED );
 		action.info( "distributive has been finalized, state=" + Common.getEnumLower( DISTSTATE.RELEASED ) );
 	}
@@ -303,12 +320,9 @@ public class DistState {
 
 		if( state != DISTSTATE.DIRTY ) {
 			String dataHashCurrent = getDataHashValue( action );
-			if( dataHashCurrent.equals( dataHash ) == false )
-				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, data hash value differs from declared (" + dataHash + " / " + dataHashCurrent + ")" );
-			
 			String metaHashCurrent = getMetaHashValue( action );
-			if( metaHashCurrent.equals( metaHash ) == false )
-				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, meta hash value differs from declared (" + metaHash + " / " + metaHashCurrent + ")" );
+			if( dataHashCurrent.equals( dataHash ) == false || metaHashCurrent.equals( metaHash ) == false )
+				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, hash value differs from declared" );
 		}
 	}
 
@@ -363,7 +377,7 @@ public class DistState {
 		String hash;
 		if( shell.account.isLinux() ) {
 			String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | grep -v release.xml | md5sum | cut -d \" \" -f1";
-			hash = shell.customGetValue( action , distFolder.folderPath , cmd , Shell.WAIT_DEFAULT );
+			hash = shell.customGetValue( action , distFolder.folderPath , cmd );
 		}
 		else {
 			Map<String,File> fileMap = new HashMap<String,File>(); 
@@ -404,6 +418,19 @@ public class DistState {
             else
                 fileMap.put( namePath , f );
         }		
+	}
+
+	public void createMetaFile( ActionBase action , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
+		// create empty release.xml
+		String filePath = action.getWorkFilePath( Dist.META_FILENAME );
+		String RELEASEDIR = distFolder.folderName;
+		
+		Release info = new Release( dist.meta , dist );
+		String RELEASEVER = DistLabelInfo.getReleaseVerByDir( action , RELEASEDIR ); 
+		info.createNormal( action , RELEASEVER , releaseDate , lc , filePath );
+		
+		distFolder.ensureExists( action );
+		distFolder.copyFileFromLocal( action , filePath );
 	}
 
 	public boolean isFinalized() {

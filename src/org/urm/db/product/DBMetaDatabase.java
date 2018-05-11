@@ -11,13 +11,10 @@ import org.urm.db.core.DBNames;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.env.DBMetaEnv;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.transaction.EngineTransaction;
-import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.loader.Types.EnumModifyType;
-import org.urm.meta.product.Meta;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
@@ -34,19 +31,6 @@ public class DBMetaDatabase {
 	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
 		MetaDatabase database = new MetaDatabase( storage , storage.meta );
 		storage.setDatabase( database );
-	}
-
-	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		MetaDatabase databaseSrc = src.getDatabase();
-		MetaDatabase database = new MetaDatabase( dst , dst.meta );
-		dst.setDatabase( database );
-		
-		for( MetaDatabaseSchema schemaSrc : databaseSrc.getSchemaList() ) {
-			MetaDatabaseSchema schema = schemaSrc.copy( dst.meta , database );
-			modifySchema( c , dst , schema , true , EnumModifyType.ORIGINAL );
-		}
 	}
 
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
@@ -85,18 +69,17 @@ public class DBMetaDatabase {
 				entity.importxmlStringAttr( node , MetaDatabaseSchema.PROPERTY_DBUSER )
 				);
 		
-		modifySchema( c , storage , schema , true , EnumModifyType.ORIGINAL );
+		modifySchema( c , storage , schema , true );
 		return( schema );
 	}
 
-	private static void modifySchema( DBConnection c , ProductMeta storage , MetaDatabaseSchema schema , boolean insert , EnumModifyType type ) throws Exception {
+	private static void modifySchema( DBConnection c , ProductMeta storage , MetaDatabaseSchema schema , boolean insert ) throws Exception {
 		if( insert )
 			schema.ID = DBNames.getNameIndex( c , storage.ID , schema.NAME , DBEnumParamEntityType.PRODUCT_SCHEMA );
 		else
 			DBNames.updateName( c , storage.ID , schema.NAME , schema.ID , DBEnumParamEntityType.PRODUCT_SCHEMA );
 		
 		schema.PV = c.getNextProductVersion( storage );
-		schema.CHANGETYPE = EngineDB.getChangeModify( insert , schema.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSchema , schema.ID , schema.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -105,7 +88,7 @@ public class DBMetaDatabase {
 				EngineDB.getEnum( schema.DBMS_TYPE ) ,
 				EngineDB.getString( schema.DBNAMEDEF ) ,
 				EngineDB.getString( schema.DBUSERDEF )
-				} , insert , schema.CHANGETYPE );
+				} , insert );
 	}
 
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -176,7 +159,7 @@ public class DBMetaDatabase {
 		
 		MetaDatabaseSchema schema = new MetaDatabaseSchema( storage.meta , database );
 		schema.createSchema( name , desc , type , dbname , dbuser );
-		modifySchema( c , storage , schema , true , EnumModifyType.NORMAL );
+		modifySchema( c , storage , schema , true );
 		
 		database.addSchema( schema );
 		return( schema );
@@ -186,7 +169,7 @@ public class DBMetaDatabase {
 		DBConnection c = transaction.getConnection();
 		
 		schema.modifySchema( name , desc , type , dbname , dbuser );
-		modifySchema( c , storage , schema , false , EnumModifyType.NORMAL );
+		modifySchema( c , storage , schema , false );
 		
 		database.updateSchema( schema );
 	}
@@ -197,14 +180,11 @@ public class DBMetaDatabase {
 
 		DBMetaEnv.deleteDatabaseSchema( transaction , storage , schema );
 		
-		Meta meta = schema.meta;
-		MetaDistr distr = meta.getDistr();
+		MetaDistr distr = schema.meta.getDistr();
 		DBMetaDistr.deleteDatabaseSchema( transaction , storage , distr , schema );
 		
-		schema.CHANGETYPE = EngineDB.getChangeDelete( schema.CHANGETYPE );
-		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaSchema , schema.ID , c.getNextProductVersion( storage ) , schema.CHANGETYPE );
-		if( schema.CHANGETYPE == null )
-			database.removeSchema( schema );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppMetaSchema , schema.ID , c.getNextProductVersion( storage ) );
+		database.removeSchema( schema );
 	}
 
 }

@@ -8,8 +8,6 @@ import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.data.EngineBase;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -20,9 +18,10 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.RuntimeStorage;
 import org.urm.engine.storage.VersionInfoStorage;
 import org.urm.meta.engine.BaseItem;
+import org.urm.meta.engine.EngineBase;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.Types.*;
 
 public class ActionBaseInstall extends ActionBase {
 
@@ -66,7 +65,7 @@ public class ActionBaseInstall extends ActionBase {
 		}
 		
 		// install dependencies
-		EngineBase base = super.getEngineBase();
+		EngineBase base = super.getServerBase();
 		for( String name : baseItem.getDepItemNames() ) {
 			BaseItem depItem = base.getItem( name );
 			executeNodeInstall( server , node , state , repo , depItem );
@@ -155,11 +154,13 @@ public class ActionBaseInstall extends ActionBase {
 		
 		ShellExecutor shell = super.getShell( node );
 		if( server.isLinux() )
-			shell.customCheckErrorsDebug( this , redistFolder.folderPath , "chmod 777 server.*.sh" , Shell.WAIT_DEFAULT );
+			shell.customCheckErrorsDebug( this , redistFolder.folderPath , "chmod 777 server.*.sh" );
 		
 		// run installer
+		int timeout = setTimeoutUnlimited();
 		String cmd = ( server.isLinux() )? "./server.prepare.sh" : "call server.prepare.cmd";
-		shell.customCheckStatus( this , redistFolder.folderPath , cmd , Shell.WAIT_LONG );
+		shell.customCheckStatus( this , redistFolder.folderPath , cmd );
+		setTimeout( timeout );
 	}
 	
 	private boolean startUpdate( BaseItem baseItem , RuntimeStorage runtime , VersionInfoStorage vis ) throws Exception {
@@ -183,6 +184,8 @@ public class ActionBaseInstall extends ActionBase {
 	}
 
 	private String copySourceToLocal( MetaEnvServer server , BaseItem baseItem ) throws Exception {
+		int timeout = setTimeoutUnlimited();
+		
 		String localPath = null;
 		if( baseItem.SRCFILE.startsWith( "http:" ) || baseItem.SRCFILE.startsWith( "https:" ) ) {
 			LocalFolder folder = artefactory.getArtefactFolder( this , server.OS_TYPE , server.meta , "base" );
@@ -198,6 +201,7 @@ public class ActionBaseInstall extends ActionBase {
 			else
 				localPath = getItemPath( baseItem , baseItem.SRCFILE );
 		}
+		setTimeout( timeout );
 		
 		if( !shell.checkFileExists( this , localPath ) )
 			exit1( _Error.UnableFindFile1 , "unable to find file: " + localPath , localPath );
@@ -217,6 +221,8 @@ public class ActionBaseInstall extends ActionBase {
 	}
 	
 	private void extractArchiveFromRedist( BaseItem baseItem , String redistPath , String installPath , RuntimeStorage runtime ) throws Exception {
+		int timeout = setTimeoutUnlimited();
+
 		if( baseItem.BASESRCFORMAT_TYPE == DBEnumBaseSrcFormatType.TARGZ_SINGLEDIR ) {
 			runtime.extractBaseArchiveSingleDir( this , redistPath , baseItem.SRCFILEDIR , installPath , EnumArchiveType.TARGZ );
 			debug( "runtime path: " + baseItem.INSTALLPATH );
@@ -227,6 +233,7 @@ public class ActionBaseInstall extends ActionBase {
 			debug( "runtime path: " + baseItem.INSTALLPATH );
 		}
 
+		setTimeout( timeout );
 		exitUnexpectedState();
 	}
 

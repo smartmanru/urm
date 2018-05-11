@@ -13,12 +13,11 @@ import org.urm.db.core.DBEnums.DBEnumOwnerStatusType;
 import org.urm.db.core.DBVersions;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.engine.Engine;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.meta.OwnerObjectVersion;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.loader.OwnerObjectVersion;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.release.Release;
 
 public class DBConnection {
 
@@ -48,12 +47,6 @@ public class DBConnection {
 	public void init() throws Exception {
 		action.trace( "connection created" );
 		stmt = connection.createStatement();
-	}
-	
-	public boolean isConnected() {
-		if( connection != null )
-			return( true );
-		return( false );
 	}
 	
 	public void close( boolean commit ) {
@@ -336,7 +329,7 @@ public class DBConnection {
 	public synchronized int getNextProductVersion( ProductMeta storage , boolean delete ) throws Exception {
 		OwnerObjectVersion version = getObjectVersion( storage.ID , DBEnumObjectVersionType.PRODUCT );
 		if( version.nextVersion < 0 ) {
-			version.LAST_NAME = storage.NAME;
+			version.LAST_NAME = storage.name;
 			version.OWNER_STATUS_TYPE = ( delete )? DBEnumOwnerStatusType.DELETED : DBEnumOwnerStatusType.ACTIVE;
 			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
 		}
@@ -371,18 +364,6 @@ public class DBConnection {
 			DBVersions.setNextVersion( this , version , version.VERSION + 1 );
 		}
 		return( version.nextVersion );
-	}
-
-	public synchronized int getNextReleaseVersion( Release release ) throws Exception {
-		OwnerObjectVersion object = versions.get( release.ID );
-		if( object == null ) {
-			object = new OwnerObjectVersion( release.ID , DBEnumObjectVersionType.RELEASE );
-			object.VERSION = release.RV;
-			object.nextVersion = object.VERSION + 1;
-			versions.put( release.ID , object );
-		}
-		
-		return( object.nextVersion );
 	}
 	
 	public synchronized int getEnvironmentVersion( int envId ) throws Exception {

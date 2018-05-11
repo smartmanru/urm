@@ -25,7 +25,6 @@ public class MetaSourceProjectItem {
 	public String FIXED_VERSION;
 	public boolean INTERNAL;
 	public int PV;
-	public DBEnumChangeType CHANGETYPE;
 	
 	public MetaDistrBinaryItem distItem;
 
@@ -51,7 +50,6 @@ public class MetaSourceProjectItem {
 		r.FIXED_VERSION = FIXED_VERSION;
 		r.INTERNAL = INTERNAL;
 		r.PV = PV;
-		r.CHANGETYPE = CHANGETYPE;
 		
 		return( r );
 	}

@@ -9,13 +9,13 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.shell.Account;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.EngineObject;
 
 public class NetworkHost extends EngineObject {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_DESC = "desc";
-	public static String PROPERTY_OSTYPE = "ostype";
+	public static String PROPERTY_OSTYPE = "os_type";
 	public static String PROPERTY_IP = "ip";
 	public static String PROPERTY_PORT = "port";
 	

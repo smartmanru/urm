@@ -39,7 +39,7 @@ public class MonitorTargetInfo {
 	
 	public MonitorTargetInfo( MetaMonitoringTarget target , MonitoringStorage storage ) {
 		this.target = target;
-		this.meta = target.envs.meta;
+		this.meta = target.meta;
 		this.storage = storage;
 		rrdDbFail = false;
 		validMajor = false;
@@ -139,14 +139,14 @@ public class MonitorTargetInfo {
 	
 	public void addCheckEnvData( ActionBase action , long timeMillis , boolean status ) throws Exception {
 		MetaEnvSegment sg = target.getSegment();
-		action.info( "addCheckEnvData: product=" + target.envs.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
+		action.info( "addCheckEnvData: product=" + target.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
 				", timeMillis=" + timeMillis + ", succeeded:" + Common.getBooleanValue( status ) );
 		setLastMajor( status , timeMillis );
 	}
 
 	public void addCheckMinorsData( ActionBase action , long timeMillis , boolean status ) throws Exception {
 		MetaEnvSegment sg = target.getSegment();
-		action.info( "addCheckMinorsData: product=" + target.envs.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
+		action.info( "addCheckMinorsData: product=" + target.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
 				", succeeded:" + Common.getBooleanValue( status ) );
 		setLastMinor( status , timeMillis );
 	}

@@ -15,18 +15,12 @@ import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.Engine;
-import org.urm.engine.AuthService;
-import org.urm.engine.AuthService.SourceType;
-import org.urm.engine.AuthService.SpecialRights;
-import org.urm.engine.data.EngineDirectory;
-import org.urm.engine.data.EngineInfrastructure;
-import org.urm.engine.data.EngineResources;
-import org.urm.engine.data.EngineSettings;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthGroup;
 import org.urm.meta.engine.AuthLdap;
@@ -34,8 +28,14 @@ import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.AuthRoleSet;
 import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.Datacenter;
+import org.urm.meta.engine.EngineAuth;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineAuth.SourceType;
+import org.urm.meta.engine.EngineAuth.SpecialRights;
+import org.urm.meta.engine.EngineResources;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.engine.Network;
-import org.urm.meta.loader.EngineLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -69,13 +69,9 @@ public class DBEngineAuth {
 	public static String XMLPROP_ANY_PRODUCTS = "anyproduct";
 	public static String XMLPROP_ANY_NETWORKS = "anynetwork";
 	
-	public static PropertyEntity makeEntityLDAPSettings( DBConnection c , boolean upgrade ) throws Exception {
+	public static PropertyEntity upgradeEntityLDAPSettings( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.LOCAL );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaBoolean( AuthLdap.PROPERTY_LDAPUSE , "Use LDAP Authentification" , true , false ) ,
 				EntityVar.metaString( AuthLdap.PROPERTY_HOST , "LDAP Server Host" , false , null ) ,
@@ -91,16 +87,12 @@ public class DBEngineAuth {
 		} ) );
 	}
 
-	public static PropertyEntity makeEntityAuthUser( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.LOCAL , TABLE_USER , FIELD_USER_ID , false );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
+	public static PropertyEntity upgradeEntityAuthUser( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.LOCAL , TABLE_USER , FIELD_USER_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthUser.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AuthUser.PROPERTY_DESC , FIELD_USER_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( AuthUser.PROPERTY_DESC , FIELD_USER_DESC , AuthUser.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( AuthUser.PROPERTY_FULLNAME , "" , true , null ) ,
 				EntityVar.metaString( AuthUser.PROPERTY_EMAIL , "" , true , null ) ,
 				EntityVar.metaBoolean( AuthUser.PROPERTY_ADMIN , "" , true , false ) ,
@@ -108,16 +100,12 @@ public class DBEngineAuth {
 		} ) );
 	}
 
-	public static PropertyEntity makeEntityAuthGroup( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.LOCAL , TABLE_GROUP , FIELD_GROUP_ID , false );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
+	public static PropertyEntity upgradeEntityAuthGroup( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.LOCAL , TABLE_GROUP , FIELD_GROUP_ID );
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthGroup.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AuthGroup.PROPERTY_DESC , FIELD_GROUP_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( AuthGroup.PROPERTY_DESC , FIELD_GROUP_DESC , AuthGroup.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_RESOURCES , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_PRODUCTS , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_NETWORKS , "" , true , false ) ,
@@ -132,13 +120,31 @@ public class DBEngineAuth {
 		} ) );
 	}
 
-	public static void importxml( EngineLoader loader , AuthService auth , Node root ) throws Exception {
+	public static PropertyEntity loaddbEntityLDAPSettings( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppAttrsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.LDAPSETTINGS , DBEnumObjectVersionType.LOCAL );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity loaddbEntityAuthUser( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_USER , DBEnumParamEntityType.AUTHUSER , DBEnumObjectVersionType.LOCAL , TABLE_USER , FIELD_USER_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity loaddbEntityAuthGroup( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.AUTH_GROUP , DBEnumParamEntityType.AUTHGROUP , DBEnumObjectVersionType.LOCAL , TABLE_GROUP , FIELD_GROUP_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static void importxml( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
 		importxmlLDAPSettings( loader , auth , root );
 		importxmlLocalUsers( loader , auth , root );
 		importxmlGroups( loader , auth , root );
 	}
 	
-	public static void importxmlLDAPSettings( EngineLoader loader , AuthService auth , Node root ) throws Exception {
+	public static void importxmlLDAPSettings( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		EngineSettings settings = loader.getSettings();
@@ -152,7 +158,7 @@ public class DBEngineAuth {
 		auth.setLdapSettings( ops );
 	}
 
-	public static void importxmlLocalUsers( EngineLoader loader , AuthService auth , Node root ) throws Exception {
+	public static void importxmlLocalUsers( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
 		Node users = ConfReader.xmlGetFirstChild( root , ELEMENT_LOCALUSERS );
 		if( users == null )
 			return;
@@ -166,7 +172,7 @@ public class DBEngineAuth {
 		}
 	}
 	
-	public static void importxmlGroups( EngineLoader loader , AuthService auth , Node root ) throws Exception {
+	public static void importxmlGroups( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
 		Node groups = ConfReader.xmlGetFirstChild( root , ELEMENT_GROUPS );
 		if( groups == null )
 			return;
@@ -180,7 +186,7 @@ public class DBEngineAuth {
 		}
 	}
 	
-	private static AuthUser importxmlLocalUser( EngineLoader loader , AuthService auth , Node root ) throws Exception {
+	private static AuthUser importxmlLocalUser( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppAuthUser;
@@ -200,7 +206,7 @@ public class DBEngineAuth {
 		return( user );
 	}
 
-	private static AuthGroup importxmlGroup( EngineLoader loader , AuthService auth , Node root ) throws Exception {
+	private static AuthGroup importxmlGroup( EngineLoader loader , EngineAuth auth , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppAuthGroup;
@@ -265,7 +271,7 @@ public class DBEngineAuth {
 		return( group );
 	}
 
-	private static AuthUser importxmlLdapUser( EngineLoader loader , AuthService auth , String userName ) throws Exception {
+	private static AuthUser importxmlLdapUser( EngineLoader loader , EngineAuth auth , String userName ) throws Exception {
 		AuthUser user = auth.findLdapUser( userName );
 		if( user != null )
 			return( user );
@@ -386,7 +392,7 @@ public class DBEngineAuth {
 		}
 	}
 	
-	public static void loaddb( EngineLoader loader , AuthService auth ) throws Exception {
+	public static void loaddb( EngineLoader loader , EngineAuth auth ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		EngineSettings settings = loader.getSettings();
 		
@@ -398,7 +404,7 @@ public class DBEngineAuth {
 		loaddbGroups( loader , auth );
 	}
 
-	public static void loaddbUsers( EngineLoader loader , AuthService auth ) throws Exception {
+	public static void loaddbUsers( EngineLoader loader , EngineAuth auth ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppAuthUser;
@@ -428,7 +434,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void loaddbGroups( EngineLoader loader , AuthService auth ) throws Exception {
+	public static void loaddbGroups( EngineLoader loader , EngineAuth auth ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppAuthGroup;
@@ -486,7 +492,7 @@ public class DBEngineAuth {
 		loaddbGroupsUsers( loader , auth );
 	}	
 
-	private static void loaddbGroupsAccessResources( EngineLoader loader , AuthService auth ) throws Exception {
+	private static void loaddbGroupsAccessResources( EngineLoader loader , EngineAuth auth ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_AUTH_GROUPACCESS_RESOURCES0 );
@@ -503,7 +509,7 @@ public class DBEngineAuth {
 		}
 	}
 	
-	private static void loaddbGroupsAccessProducts( EngineLoader loader , AuthService auth ) throws Exception {
+	private static void loaddbGroupsAccessProducts( EngineLoader loader , EngineAuth auth ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_AUTH_GROUPACCESS_PRODUCTS0 );
@@ -520,7 +526,7 @@ public class DBEngineAuth {
 		}
 	}
 	
-	private static void loaddbGroupsAccessNetworks( EngineLoader loader , AuthService auth ) throws Exception {
+	private static void loaddbGroupsAccessNetworks( EngineLoader loader , EngineAuth auth ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_AUTH_GROUPACCESS_NETWORKS0 );
@@ -555,7 +561,7 @@ public class DBEngineAuth {
 		return( sr );
 	}
 	
-	private static void loaddbGroupsUsers( EngineLoader loader , AuthService auth ) throws Exception {
+	private static void loaddbGroupsUsers( EngineLoader loader , EngineAuth auth ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
 		ResultSet rs = c.query( DBQueries.QUERY_AUTH_GROUPUSERS0 );
@@ -576,7 +582,7 @@ public class DBEngineAuth {
 		}
 	}
 	
-	public static void exportxml( EngineLoader loader , AuthService auth , Document doc , Element root ) throws Exception {
+	public static void exportxml( EngineLoader loader , EngineAuth auth , Document doc , Element root ) throws Exception {
 		ObjectProperties ops = auth.getLdapSettings();
 		Element node = Common.xmlCreateElement( doc , root , ELEMENT_LDAP );
 		DBSettings.exportxml( loader , doc , node , ops , false );
@@ -588,7 +594,7 @@ public class DBEngineAuth {
 		exportxmlGroups( loader , auth , doc , node );
 	}
 
-	public static void exportxmlLocalUsers( EngineLoader loader , AuthService auth , Document doc , Element root ) throws Exception {
+	public static void exportxmlLocalUsers( EngineLoader loader , EngineAuth auth , Document doc , Element root ) throws Exception {
 		for( String name : auth.getLocalUserNames() ) {
 			AuthUser user = auth.findLocalUser( name );
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_LOCALUSER );
@@ -596,7 +602,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void exportxmlLocalUser( EngineLoader loader , AuthService auth , AuthUser user , Document doc , Element root ) throws Exception {
+	public static void exportxmlLocalUser( EngineLoader loader , EngineAuth auth , AuthUser user , Document doc , Element root ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppAuthUser;
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
@@ -608,7 +614,7 @@ public class DBEngineAuth {
 		} , true );
 	}
 
-	public static void exportxmlGroups( EngineLoader loader , AuthService auth , Document doc , Element root ) throws Exception {
+	public static void exportxmlGroups( EngineLoader loader , EngineAuth auth , Document doc , Element root ) throws Exception {
 		for( String name : auth.getGroupNames() ) {
 			AuthGroup group = auth.findGroup( name );
 			Element node = Common.xmlCreateElement( doc , root , ELEMENT_GROUP );
@@ -616,7 +622,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void exportxmlGroup( EngineLoader loader , AuthService auth , AuthGroup group , Document doc , Element root ) throws Exception {
+	public static void exportxmlGroup( EngineLoader loader , EngineAuth auth , AuthGroup group , Document doc , Element root ) throws Exception {
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppAuthGroup;
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
@@ -638,7 +644,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void exportxmlGroupPermissions( EngineLoader loader , AuthService auth , AuthGroup group , Document doc , Element root ) throws Exception {
+	public static void exportxmlGroupPermissions( EngineLoader loader , EngineAuth auth , AuthGroup group , Document doc , Element root ) throws Exception {
 		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ANY_RESOURCES , group.anyResources );
 		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ANY_NETWORKS , group.anyNetworks );
 		Common.xmlSetElementBooleanAttr( doc , root , XMLPROP_ANY_PRODUCTS , group.anyProducts );
@@ -716,7 +722,7 @@ public class DBEngineAuth {
 		return( specialList );
 	}
 	
-	public static void deleteDatacenterAccess( EngineTransaction transaction , AuthService auth , Datacenter datacenter ) throws Exception {
+	public static void deleteDatacenterAccess( EngineTransaction transaction , EngineAuth auth , Datacenter datacenter ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_DATACENTERACCESS1 , new String[] {
 			EngineDB.getInteger( datacenter.ID )
@@ -727,14 +733,14 @@ public class DBEngineAuth {
 			deleteDatacenterAccess( transaction , auth , datacenter , group );
 	}
 
-	private static void deleteDatacenterAccess( EngineTransaction transaction , AuthService auth , Datacenter datacenter , AuthGroup group ) throws Exception {
+	private static void deleteDatacenterAccess( EngineTransaction transaction , EngineAuth auth , Datacenter datacenter , AuthGroup group ) throws Exception {
 		for( Integer networkId : group.getPermissionNetworks() ) {
 			if( datacenter.findNetwork( networkId ) != null )
 				group.removeNetwork( networkId );
 		}
 	}
 	
-	public static void deleteNetworkAccess( EngineTransaction transaction , AuthService auth , Network network ) throws Exception {
+	public static void deleteNetworkAccess( EngineTransaction transaction , EngineAuth auth , Network network ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_NETWORKACCESS1 , new String[] {
 			EngineDB.getInteger( network.ID )
@@ -749,7 +755,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void deleteProductAccess( DBConnection c , AuthService auth , AppProduct product ) throws Exception {
+	public static void deleteProductAccess( DBConnection c , EngineAuth auth , AppProduct product ) throws Exception {
 		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_PRODUCTACCESS1 , new String[] {
 			EngineDB.getInteger( product.ID )
 			}))
@@ -763,7 +769,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void deleteResourceAccess( EngineTransaction transaction , AuthService auth , AuthResource resource ) throws Exception {
+	public static void deleteResourceAccess( EngineTransaction transaction , EngineAuth auth , AuthResource resource ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		if( !c.modify( DBQueries.MODIFY_AUTH_DROP_RESOURCEACCESS1 , new String[] {
 			EngineDB.getInteger( resource.ID )
@@ -778,7 +784,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void disableLdap( EngineTransaction transaction , AuthService auth ) throws Exception {
+	public static void disableLdap( EngineTransaction transaction , EngineAuth auth ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		AuthLdap ldap = auth.getAuthLdap();
 		ldap.setNotUse();
@@ -787,7 +793,7 @@ public class DBEngineAuth {
 		DBSettings.savedbPropertyValues( transaction , ldap.getLdapSettings() , true , false , version );
 	}
 	
-	public static void enableLdap( EngineTransaction transaction , AuthService auth , ObjectProperties ops ) throws Exception {
+	public static void enableLdap( EngineTransaction transaction , EngineAuth auth , ObjectProperties ops ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		AuthLdap ldap = auth.getAuthLdap();
 		ldap.setLdapSettings( ops );
@@ -798,7 +804,7 @@ public class DBEngineAuth {
 		ldap.start();
 	}
 	
-	public static AuthGroup createGroup( EngineTransaction transaction , AuthService auth , String name , String desc ) throws Exception {
+	public static AuthGroup createGroup( EngineTransaction transaction , EngineAuth auth , String name , String desc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		AuthGroup group = new AuthGroup( auth );
@@ -808,7 +814,7 @@ public class DBEngineAuth {
 		return( group );
 	}
 
-	public static void modifyGroup( EngineTransaction transaction , AuthService auth , AuthGroup group , String name , String desc ) throws Exception {
+	public static void modifyGroup( EngineTransaction transaction , EngineAuth auth , AuthGroup group , String name , String desc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		group.modifyGroup( name , desc );
@@ -817,7 +823,7 @@ public class DBEngineAuth {
 		auth.updateGroup( group );
 	}
 
-	public static void deleteGroup( EngineTransaction transaction , AuthService auth , AuthGroup group ) throws Exception {
+	public static void deleteGroup( EngineTransaction transaction , EngineAuth auth , AuthGroup group ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
 		
@@ -847,7 +853,7 @@ public class DBEngineAuth {
 			engine.updatePermissions( action , user );
 	}
 
-	private static AuthUser createLdapUser( DBConnection c , AuthService auth , String name ) throws Exception {
+	private static AuthUser createLdapUser( DBConnection c , EngineAuth auth , String name ) throws Exception {
 		AuthUser user = new AuthUser( auth );
 		user.createUser(
 				name ,
@@ -864,7 +870,7 @@ public class DBEngineAuth {
 		return( user );
 	}
 	
-	public static AuthUser createLocalUser( EngineTransaction transaction , AuthService auth , String name , String desc , String full , String email , boolean admin ) throws Exception {
+	public static AuthUser createLocalUser( EngineTransaction transaction , EngineAuth auth , String name , String desc , String full , String email , boolean admin ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		AuthUser user = new AuthUser( auth );
@@ -874,7 +880,7 @@ public class DBEngineAuth {
 		return( user );
 	}
 	
-	public static void modifyLocalUser( EngineTransaction transaction , AuthService auth , AuthUser user , String name , String desc , String full , String email , boolean admin ) throws Exception {
+	public static void modifyLocalUser( EngineTransaction transaction , EngineAuth auth , AuthUser user , String name , String desc , String full , String email , boolean admin ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		user.modifyUser( name , desc , full , email , admin , true );
@@ -883,7 +889,7 @@ public class DBEngineAuth {
 		auth.updateUser( user );
 	}
 	
-	public static void deleteLocalUser( EngineTransaction transaction , AuthService auth , AuthUser user ) throws Exception {
+	public static void deleteLocalUser( EngineTransaction transaction , EngineAuth auth , AuthUser user ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
 		
@@ -899,7 +905,7 @@ public class DBEngineAuth {
 		engine.updatePermissions( action , user.NAME );
 	}
 
-	public static void addGroupLocalUsers( EngineTransaction transaction , AuthService auth , AuthGroup group , String[] users ) throws Exception {
+	public static void addGroupLocalUsers( EngineTransaction transaction , EngineAuth auth , AuthGroup group , String[] users ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		Engine engine = transaction.engine;
 		ActionBase action = transaction.getAction();
@@ -912,7 +918,7 @@ public class DBEngineAuth {
 		}
 	}
 	
-	public static void addGroupLdapUsers( EngineTransaction transaction , AuthService auth , AuthGroup group , String[] users ) throws Exception {
+	public static void addGroupLdapUsers( EngineTransaction transaction , EngineAuth auth , AuthGroup group , String[] users ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		Engine engine = transaction.engine;
 		ActionBase action = transaction.getAction();
@@ -928,7 +934,7 @@ public class DBEngineAuth {
 		}
 	}
 	
-	public static void deleteGroupUsers( EngineTransaction transaction , AuthService auth , AuthGroup group , String[] users ) throws Exception {
+	public static void deleteGroupUsers( EngineTransaction transaction , EngineAuth auth , AuthGroup group , String[] users ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		Engine engine = transaction.engine;
 		ActionBase action = transaction.getAction();
@@ -943,7 +949,7 @@ public class DBEngineAuth {
 		}
 	}
 
-	public static void setGroupPermissions( EngineTransaction transaction , AuthService auth , AuthGroup group , AuthRoleSet roles , boolean allResources , String[] resources , boolean allProd , String[] products , boolean allNet , String[] networks , boolean allSpecial , SpecialRights[] specials ) throws Exception {
+	public static void setGroupPermissions( EngineTransaction transaction , EngineAuth auth , AuthGroup group , AuthRoleSet roles , boolean allResources , String[] resources , boolean allProd , String[] products , boolean allNet , String[] networks , boolean allSpecial , SpecialRights[] specials ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		Engine engine = transaction.engine;
 		ActionBase action = transaction.getAction();

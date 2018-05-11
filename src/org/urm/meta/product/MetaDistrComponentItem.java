@@ -16,7 +16,6 @@ public class MetaDistrComponentItem {
 	public String DEPLOY_NAME;
 	public String WSDL_REQUEST;
 	public int PV;
-	public DBEnumChangeType CHANGETYPE;
 	
 	public MetaDistrBinaryItem binaryItem;
 	public MetaDistrConfItem confItem;
@@ -35,13 +34,16 @@ public class MetaDistrComponentItem {
 		r.WSDL_REQUEST = WSDL_REQUEST;
 		r.DEPLOY_NAME = DEPLOY_NAME;
 		r.PV = PV;
-		r.CHANGETYPE = CHANGETYPE; 
 		
-		if( binaryItem != null )
-			r.binaryItem = rcomp.dist.findBinaryItem( binaryItem.NAME );
+		if( binaryItem != null ) {
+			MetaDistr rdistr = rmeta.getDistr();
+			r.binaryItem = rdistr.findBinaryItem( binaryItem.NAME );
+		}
 		else
-		if( confItem != null )
-			r.confItem = rcomp.dist.getConfItem( confItem.NAME );
+		if( confItem != null ) {
+			MetaDistr rdistr = rmeta.getDistr();
+			r.confItem = rdistr.getConfItem( confItem.NAME );
+		}
 		else
 		if( schema != null ) {
 			MetaDatabase database = rmeta.getDatabase();

@@ -14,7 +14,7 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.Types.*;
 
 public class ActionGetRedistInfo extends ActionBase {
 

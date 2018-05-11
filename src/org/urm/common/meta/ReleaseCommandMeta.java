@@ -15,7 +15,6 @@ public class ReleaseCommandMeta extends CommandMeta {
 	public static String METHOD_STATUS = "status";
 	public static String METHOD_CLEANUP = "cleanup";
 	public static String METHOD_COPY = "copy";
-	public static String METHOD_IMPORT = "import";
 	public static String METHOD_FINISH = "finish";
 	public static String METHOD_COMPLETE = "complete";
 	public static String METHOD_REOPEN = "reopen";
@@ -40,9 +39,9 @@ public class ReleaseCommandMeta extends CommandMeta {
 	public ReleaseCommandMeta( OptionsMeta options ) {
 		super( options , NAME , DESC );
 		
-		String releaseOpts = "OPT_BUILDMODE,OPT_COMPATIBILITY,OPT_CUMULATIVE";
+		String releaseOpts = "OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY,OPT_CUMULATIVE";
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_CREATE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "create release" , releaseOpts , "<RELEASELABEL> [<RELEASEDATE> [<LIFECYCLE>]]" ) );
-		releaseOpts = "OPT_BUILDMODE,OPT_COMPATIBILITY";
+		releaseOpts = "OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY";
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_MODIFY , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "set release properties" , releaseOpts , "<RELEASELABEL> [<RELEASEDATE> [<LIFECYCLE>]]" ) );
 		releaseOpts = "";
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_PHASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "set phase properties" , releaseOpts , "<RELEASELABEL> {next|deadline <PHASE> <DEADLINEDATE>|days <PHASE> <DURATIONDAYS>}" ) );
@@ -51,7 +50,6 @@ public class ReleaseCommandMeta extends CommandMeta {
 		defineAction( CommandMethodMeta.newStatus( this , METHOD_STATUS , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_RELEASE , true , "get release status" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_CLEANUP , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "close release after failure" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_COPY , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "copy release" , releaseOpts , "<RELEASESRC> <RELEASEDST> <RELEASEDATE>" ) );
-		defineAction( CommandMethodMeta.newNormal( this , METHOD_IMPORT , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "import release" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_FINISH , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "finalize and disable distributive updates" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_COMPLETE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "mark all release operations as completed" , releaseOpts , "<RELEASELABEL>" ) );
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_REOPEN , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "reopen release" , releaseOpts , "<RELEASELABEL>" ) );

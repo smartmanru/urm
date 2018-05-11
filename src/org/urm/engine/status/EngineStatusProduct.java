@@ -4,32 +4,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.EventService;
-import org.urm.engine.StateService;
-import org.urm.engine.StateService.StatusType;
-import org.urm.engine.products.EngineProductEnvs;
+import org.urm.engine.TransactionBase;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.status.EngineStatus.StatusType;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
-import org.urm.engine.transaction.TransactionBase;
+import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 
 public class EngineStatusProduct extends EngineObject {
 
-	StateService engineStatus;
-	EventService events;
-	public AppProduct product;
+	EngineStatus engineStatus;
+	EngineEvents events;
+	AppProduct product;
+	Meta meta;
 	
 	private Map<EngineObject,StatusSource> productSources;
 	
-	public EngineStatusProduct( StateService engineStatus , AppProduct product ) {
+	public EngineStatusProduct( EngineStatus engineStatus , AppProduct product , Meta meta ) {
 		super( engineStatus );
 		this.product = product;
+		this.meta = meta;
 		this.engineStatus = engineStatus;
 		this.events = engineStatus.events;
 		productSources = new HashMap<EngineObject,StatusSource>();
@@ -37,13 +38,13 @@ public class EngineStatusProduct extends EngineObject {
 
 	@Override
 	public String getName() {
-		return( "engine-status-" + product.NAME );
+		return( "engine-status-" + meta.name );
 	}
 
 	public void start( ActionBase action ) {
-		EngineProductEnvs envs = product.findEnvs();
+		ProductEnvs envs = meta.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
-			MetaEnv env = envs.findEnv( envName );
+			MetaEnv env = envs.findMetaEnv( envName );
 			startEnvironment( action , env );
 		}
 	}
@@ -104,11 +105,12 @@ public class EngineStatusProduct extends EngineObject {
 			processServerNodeItems( action , nodeSource , node , status );
 	}
 	
-	public void modifyProduct( TransactionBase transaction , ProductMeta storageOld , ProductMeta storageNew ) throws Exception {
+	public void modifyProduct( TransactionBase transaction , ProductMeta storageOld , ProductMeta storage ) throws Exception {
 		ActionBase action = transaction.getAction();
 		product = transaction.getProduct( product );
+		meta = transaction.getMeta( product );
 		
-		ProductEnvs envs = storageNew.getEnviroments();
+		ProductEnvs envs = meta.getEnviroments();
 		ProductEnvs envsOld = storageOld.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
 			MetaEnv envNew = envs.findMetaEnv( envName );
@@ -295,8 +297,8 @@ public class EngineStatusProduct extends EngineObject {
 	}
 	
 	private void processSegmentItems( ActionBase action , StatusSource sgSource , MetaEnvSegment sg , SegmentStatus status ) {
-		sgSource.setExtraLog( StateService.EXTRA_SEGMENT_ITEMS , status.getLog() );
-		if( sgSource.setExtraState( StateService.EXTRA_SEGMENT_ITEMS , status.itemState , status ) ) {
+		sgSource.setExtraLog( EngineStatus.EXTRA_SEGMENT_ITEMS , status.getLog() );
+		if( sgSource.setExtraState( EngineStatus.EXTRA_SEGMENT_ITEMS , status.itemState , status ) ) {
 			MetaEnv env = sg.env;
 			recalculateEnv( action , env );
 		}
@@ -311,8 +313,8 @@ public class EngineStatusProduct extends EngineObject {
 	}
 	
 	private void processServerItems( ActionBase action , StatusSource serverSource , MetaEnvServer server , ServerStatus status ) {
-		serverSource.setExtraLog( StateService.EXTRA_SERVER_ITEMS , status.getLog() );
-		if( serverSource.setExtraState( StateService.EXTRA_SERVER_ITEMS , status.itemState , status ) ) {
+		serverSource.setExtraLog( EngineStatus.EXTRA_SERVER_ITEMS , status.getLog() );
+		if( serverSource.setExtraState( EngineStatus.EXTRA_SERVER_ITEMS , status.itemState , status ) ) {
 			MetaEnvSegment sg = server.sg;
 			recalculateSegment( action , sg );
 		}
@@ -327,8 +329,8 @@ public class EngineStatusProduct extends EngineObject {
 	}
 	
 	private void processServerNodeItems( ActionBase action , StatusSource nodeSource , MetaEnvServerNode node , NodeStatus status ) {
-		nodeSource.setExtraLog( StateService.EXTRA_NODE_ITEMS , status.getLog() );
-		if( nodeSource.setExtraState( StateService.EXTRA_NODE_ITEMS , status.itemState , status ) ) {
+		nodeSource.setExtraLog( EngineStatus.EXTRA_NODE_ITEMS , status.getLog() );
+		if( nodeSource.setExtraState( EngineStatus.EXTRA_NODE_ITEMS , status.itemState , status ) ) {
 			MetaEnvServer server = node.server;
 			recalculateServer( action , server );
 		}
@@ -388,9 +390,9 @@ public class EngineStatusProduct extends EngineObject {
 
 	private void recalculateProduct( ActionBase action ) {
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
-		EngineProductEnvs envs = product.findEnvs();
+		ProductEnvs envs = meta.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
-			MetaEnv env = envs.findEnv( envName );
+			MetaEnv env = envs.findMetaEnv( envName );
 			StatusSource envSource = getObjectSource( env );
 			if( envSource != null )
 				finalState = StatusData.addState( finalState , envSource.state.state );

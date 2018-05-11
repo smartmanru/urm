@@ -1,7 +1,5 @@
 package org.urm.engine.blotter;
 
-import java.util.Date;
-
 import org.urm.action.ActionBase;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.action.ActionInit.RootActionType;
@@ -12,8 +10,8 @@ public class EngineBlotterActionItem extends EngineBlotterItem {
 	public ActionBase action;
 	public EngineBlotterTreeItem treeItem;
 
-	public Date startTime;
-	public Date stopTime;
+	public long startTime;
+	public long stopTime;
 	public boolean success;
 	public boolean stopped;
 	public boolean errors;
@@ -41,7 +39,7 @@ public class EngineBlotterActionItem extends EngineBlotterItem {
 		this.treeItem = new EngineBlotterTreeItem( action , this.root , parentTreeItem , this );
 		
 		startTime = treeItem.startTime;
-		stopTime = null;
+		stopTime = 0;
 		success = false;
 		stopped = false;
 		errors = false;
@@ -84,32 +82,9 @@ public class EngineBlotterActionItem extends EngineBlotterItem {
 	public void stopAction( boolean success ) {
 		this.success = success;
 		
-		stopTime = new Date();
+		stopTime = System.currentTimeMillis();
 		stopped = true;
 		super.setTobeRemoved();
-	}
-
-	public int getProgressPercent() {
-		Date currentTime = new Date();
-		long elapsed = currentTime.getTime() - startTime.getTime();
-		int percent;
-		if( memo.isNew() ) {
-			if( elapsed <= 5000 )
-				percent = ( int )( elapsed / 100 );
-			else {
-				percent = ( int )( 50 + 8 * Math.log10( elapsed - 5000 ) );
-				if( percent > 99 )
-					percent = 99;
-			}
-		}
-		else {
-			if( elapsed <= memo.lastDuration )
-				percent = ( int )( ( elapsed * 80 ) / memo.lastDuration );
-			else
-				percent = 80 + ( int )( 20 * ( 1. - 1. / ( elapsed - memo.lastDuration ) ) );
-		}
-		
-		return( percent );
 	}
 	
 }

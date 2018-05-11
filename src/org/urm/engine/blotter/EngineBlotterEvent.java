@@ -1,6 +1,6 @@
 package org.urm.engine.blotter;
 
-import org.urm.engine.BlotterService.BlotterEvent;
+import org.urm.engine.blotter.EngineBlotter.BlotterEvent;
 
 public class EngineBlotterEvent {
 

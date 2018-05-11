@@ -181,20 +181,11 @@ public class RemoteFolder extends Folder {
 
 	public Date getFileChangeTime( ActionBase action , String file ) throws Exception {
 		if( account.local )
-			return( super.getFileChangeTime( action , file ) );
+			return( super.getFileChangeTime( action ,  file ) );
 		
 		String path = getFilePath( action , file );
 		ShellExecutor shell = action.getShell( account );
 		return( shell.getFileChangeTime( action , path ) );
-	}
-	
-	public long getFileSize( ActionBase action , String file ) throws Exception {
-		if( account.local )
-			return( super.getFileSize( action ,  file ) );
-		
-		String path = getFilePath( action , file );
-		ShellExecutor shell = action.getShell( account );
-		return( shell.getFileSize( action , path ) );
 	}
 	
 }

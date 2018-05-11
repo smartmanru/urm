@@ -5,20 +5,14 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
-import org.urm.db.release.DBReleaseScope;
-import org.urm.engine.dist.ReleaseBuildScope;
-import org.urm.engine.dist.ReleaseBuildScopeProject;
-import org.urm.engine.dist.ReleaseBuildScopeSet;
-import org.urm.engine.dist.ReleaseDistScope;
-import org.urm.engine.dist.ReleaseDistScopeDelivery;
-import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
-import org.urm.engine.dist.ReleaseDistScopeSet;
-import org.urm.engine.products.EngineProduct;
-import org.urm.engine.run.EngineMethod;
+import org.urm.engine.dist.Dist;
+import org.urm.engine.dist.ReleaseDelivery;
+import org.urm.engine.dist.ReleaseSet;
+import org.urm.engine.dist.ReleaseTarget;
+import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.Meta;
+import org.urm.meta.Types.EnumScopeCategory;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
@@ -26,8 +20,6 @@ import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.product.MetaSources;
-import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
 import org.urm.meta.product.MetaSourceProjectSet;
@@ -41,57 +33,48 @@ public class ActionSetScope extends ActionBase {
 	public static String SCOPEITEM_SCHEMA = "schema";
 	public static String SCOPEITEM_DOC = "doc";
 	
-	public Release release;
+	public Dist dist;
 	boolean sourcePath;
 	String[] pathItems;
 	
-	public ActionSetScope( ActionBase action , String stream , Release release , boolean sourcePath , String[] pathItems ) {
-		super( action , stream , "Set scope, release=" + release.RELEASEVER );
-		this.release = release;
+	public ActionSetScope( ActionBase action , String stream , Dist dist , boolean sourcePath , String[] pathItems ) {
+		super( action , stream , "Set scope, release=" + dist.RELEASEDIR );
+		this.dist = dist;
 		this.sourcePath = sourcePath;
 		this.pathItems = pathItems;
 	}
 
 	@Override 
 	protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
-		EngineMethod method = super.method;
-
-		Meta meta = release.getMeta();
-		EngineProduct ep = meta.getEngineProduct();
-		synchronized( ep ) {
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
-			Release releaseUpdated = method.changeRelease( repoUpdated , release );
-			if( sourcePath ) {
-				if( !executeBySource( method , releaseUpdated ) )
-					return( SCOPESTATE.RunFail );
-			}
-			else {
-				if( !executeByDelivery( method , releaseUpdated ) ) 
-					return( SCOPESTATE.RunFail );
-			}
+		if( sourcePath ) {
+			if( !executeBySource() )
+				return( SCOPESTATE.RunFail );
 		}
-		
+		else {
+			if( !executeByDelivery() ) 
+				return( SCOPESTATE.RunFail );
+		}
 		return( SCOPESTATE.RunSuccess );
 	}
 
-	private boolean executeBySource( EngineMethod method , Release release ) throws Exception {
-		Meta meta = release.getMeta();
-		MetaSources source = meta.getSources();
+	private boolean executeBySource() throws Exception {
+		MetaSources source = dist.meta.getSources();
 		
 		// add new
+		dist.reloadCheckOpenedForDataChange( this );
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
-				DBReleaseScope.addAllSource( method , this , release );
+				for( MetaSourceProjectSet set : source.getSets() ) {
+					if( !dist.addAllSource( this , set ) )
+						return( false );
+				}
 				return( true );
 			}
 			if( pathItems[0].equals( "none" ) ) {
-				DBReleaseScope.descopeAllSource( method , this , release );
+				dist.descopeAllProjects( this );
 				return( true );
 			}
 		}
-		
-		ReleaseBuildScope buildScope = ReleaseBuildScope.createScope( release );
-		DBReleaseScope.descopeBuildAll( method , this , release );
 		
 		Map<String,String> check = new HashMap<String,String>();
 		for( String path : pathItems ) {
@@ -99,14 +82,16 @@ public class ActionSetScope extends ActionBase {
 			String[] els = Common.split( path , "/" );
 			if( els.length == 1 ) {
 				MetaSourceProjectSet set = source.getProjectSet( els[0] );
-				DBReleaseScope.addAllSourceSet( method , this , release , set );
+				if( !dist.addAllSource( this , set ) )
+					return( false );
 				continue;
 			}
 			if( els.length == 2 ) {
 				MetaSourceProjectSet set = source.getProjectSet( els[0] );
 				check.put( els[0] , "set" );
 				MetaSourceProject project = set.getProject( els[1] );
-				DBReleaseScope.addAllProjectItems( method , this , release , project );
+				if( !dist.addProjectAllItems( this , project ) )
+					return( false );
 				continue;
 			}
 			if( els.length == 3 ) {
@@ -115,82 +100,80 @@ public class ActionSetScope extends ActionBase {
 				MetaSourceProject project = set.getProject( els[1] );
 				check.put( Common.concat( els[0] , els[1] , "/" ) , "project" );
 				MetaSourceProjectItem item = project.getItem( els[2] );
-				DBReleaseScope.addProjectItem( method , this , release , project , item );
+				if( !dist.addProjectItem( this , project , item ) )
+					return( false );
 				continue;
 			}
 		}
-
+		
 		// descope missing
-		for( ReleaseBuildScopeSet set : buildScope.getSets() ) {
+		for( ReleaseSet set : dist.release.getSourceSets() ) {
 			String checkSet = check.get( set.set.NAME );
 			if( checkSet == null ) {
-				DBReleaseScope.descopeSet( method , this , release , set );
+				dist.descopeSet( this , set );
 				continue;
 			}
 
 			if( checkSet.equals( "all" ) )
 				continue;
 			
-			for( ReleaseBuildScopeProject target : set.getProjects() ) {
-				String checkProject = check.get( Common.concat( set.set.NAME , target.project.NAME , "/" ) );
+			for( ReleaseTarget target : set.getTargets() ) {
+				String checkProject = check.get( Common.concat( set.set.NAME , target.sourceProject.NAME , "/" ) );
 				if( checkProject == null ) {
-					DBReleaseScope.descopeProject( method , this , release , set.set , target.project );
+					dist.descopeTarget( this , target );
 					continue;
 				}
 				
 				if( checkProject.equals( "all" ) )
 					continue;
 				
-				for( MetaSourceProjectItem item : target.project.getItems() ) {
-					if( item.isInternal() )
-						continue;
-					
-					String checkItem = check.get( Common.concat( Common.concat( set.set.NAME , target.project.NAME , "/" ) , item.NAME , "/" ) );
+				for( ReleaseTargetItem item : target.getItems() ) {
+					String checkItem = check.get( Common.concat( Common.concat( set.set.NAME , target.sourceProject.NAME , "/" ) , item.sourceItem.NAME , "/" ) );
 					if( checkItem == null )
-						DBReleaseScope.descopeBinaryItem( method , this , release , item.distItem );
+						dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
 				}
 			}
 		}
-		
 		return( true );
 	}
 
-	private boolean executeByDelivery( EngineMethod method , Release releaseUpdated ) throws Exception {
-		Meta meta = release.getMeta();
-		MetaDistr distr = meta.getDistr();
-		MetaSources source = meta.getSources();
+	private boolean executeByDelivery() throws Exception {
+		MetaDistr distr = dist.meta.getDistr();
+		MetaSources source = dist.meta.getSources();
 		
 		// add new 
+		dist.reloadCheckOpenedForDataChange( this );
 		if( pathItems.length == 1 ) {
 			if( pathItems[0].equals( "all" ) ) {
-				for( DBEnumScopeCategoryType category : new DBEnumScopeCategoryType[] { 
-						DBEnumScopeCategoryType.MANUAL , 
-						DBEnumScopeCategoryType.DERIVED , 
-						DBEnumScopeCategoryType.CONFIG , 
-						DBEnumScopeCategoryType.DB , 
-						DBEnumScopeCategoryType.DOC } )
-					DBReleaseScope.addAllCategory( method , this , releaseUpdated , category );
+				for( EnumScopeCategory category : new EnumScopeCategory[] { 
+						EnumScopeCategory.MANUAL , 
+						EnumScopeCategory.DERIVED , 
+						EnumScopeCategory.CONFIG , 
+						EnumScopeCategory.DB , 
+						EnumScopeCategory.DOC } ) {
+					if( !dist.addAllCategory( this , category ) )
+						return( false );
+				}
 				
-				for( MetaSourceProjectSet set : source.getSets() )
-					DBReleaseScope.addAllSourceSet( method , this , releaseUpdated , set );
+				for( MetaSourceProjectSet set : source.getSets() ) {
+					if( !dist.addAllSource( this , set ) )
+						return( false );
+				}
 				return( true );
 			}
 			if( pathItems[0].equals( "none" ) ) {
-				DBReleaseScope.descopeAll( method , this , releaseUpdated );
+				dist.descopeAll( this );
 				return( true );
 			}
 		}
 			
-		ReleaseDistScope distScope = ReleaseDistScope.createScope( release );
-		DBReleaseScope.descopeDistAll( method , this , release );
-		
 		Map<String,String> check = new HashMap<String,String>();
 		for( String path : pathItems ) {
 			check.put( path , "all" );
 			String[] els = Common.split( path , "/" );
 			if( els.length == 1 ) {
 				MetaDistrDelivery delivery = distr.getDelivery( els[0] );
-				if( !addAllDelivery( method , releaseUpdated , check , delivery ) )
+				if( !addAllDelivery( check , delivery ) )
 					return( false );
 				continue;
 			}
@@ -200,12 +183,12 @@ public class ActionSetScope extends ActionBase {
 				
 				String type = els[1];
 				if( type.equals( SCOPEITEM_SCHEMA ) ) {
-					if( !addDeliveryAllSchemes( method , releaseUpdated , check , delivery ) )
+					if( !addDeliveryAllSchemes( check , delivery ) )
 						return( false );
 				}
 				else
 				if( type.equals( SCOPEITEM_DOC ) ) {
-					if( !addDeliveryAllDocs( method , releaseUpdated , check , delivery ) )
+					if( !addDeliveryAllDocs( check , delivery ) )
 						return( false );
 				}
 			}
@@ -216,90 +199,114 @@ public class ActionSetScope extends ActionBase {
 				
 				if( type.equals( SCOPEITEM_BINARY ) ) {
 					MetaDistrBinaryItem item = delivery.getBinaryItem( els[2] );
-					DBReleaseScope.addBinaryItem( method , this , releaseUpdated , item );
+					if( !dist.addBinaryItem( this , item ) )
+						return( false );
 				}
 				else
-				if( type.equals( SCOPEITEM_CONF ) ) {
+					if( type.equals( SCOPEITEM_CONF ) ) {
 					MetaDistrConfItem item = delivery.getConfItem( els[2] );
-					DBReleaseScope.addConfItem( method , this , releaseUpdated , item );
+					if( !dist.addConfItem( this , item ) )
+						return( false );
 				}
 				else
-				if( type.equals( SCOPEITEM_SCHEMA ) ) {
+					if( type.equals( SCOPEITEM_SCHEMA ) ) {
 					MetaDatabaseSchema schema = delivery.getSchema( els[2] );
-					DBReleaseScope.addDeliveryDatabaseSchema( method , this , releaseUpdated , delivery , schema );
+					if( !dist.addDeliveryDatabaseSchema( this , delivery , schema ) )
+						return( false );
 				}
 				else
-				if( type.equals( SCOPEITEM_DOC ) ) {
+					if( type.equals( SCOPEITEM_DOC ) ) {
 					MetaProductDoc doc = delivery.getDoc( els[2] );
-					DBReleaseScope.addDeliveryDoc( method , this , releaseUpdated , delivery , doc );
+					if( !dist.addDeliveryDoc( this , delivery , doc ) )
+						return( false );
 				}
 			}
 		}
 
 		// descope missing
-		for( ReleaseDistScopeSet set : distScope.getSets() ) {
-			for( ReleaseDistScopeDelivery delivery : set.getDeliveries() ) {
-				for( ReleaseDistScopeDeliveryItem item : delivery.getItems() ) {
-					if( item.isBinary() ) {
-						String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.binary.NAME } ) );
-						if( checkItem == null )
-							DBReleaseScope.descopeBinaryItem( method , this , releaseUpdated , item.binary );
-					}
-					else
-					if( item.isConf() ) {
-						String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_CONF , item.conf.NAME } ) );
-						if( checkItem == null )
-							DBReleaseScope.descopeConfItem( method , this , releaseUpdated , item.conf );
-					}
-					else
-					if( item.isSchema() ) {
-						String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_SCHEMA , item.schema.NAME } ) );
-						if( checkItem == null )
-							DBReleaseScope.descopeDeliverySchema( method , this , releaseUpdated , delivery.distDelivery , item.schema );
-					}
-					else
-					if( item.isSchema() ) {
-						String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_SCHEMA , item.schema.NAME } ) );
-						if( checkItem == null )
-							DBReleaseScope.descopeDeliveryDoc( method , this , releaseUpdated , delivery.distDelivery , item.doc );
-					}
+		for( ReleaseDelivery delivery : dist.release.getDeliveries() ) {
+			for( ReleaseTargetItem item : delivery.getProjectItems() ) {
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distItem.NAME } ) );
+				if( checkItem == null ) {
+					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
+					continue;
+				}
+			}
+			for( ReleaseTarget item : delivery.getManualItems() ) {
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distManualItem.NAME } ) );
+				if( checkItem == null ) {
+					dist.descopeTarget( this , item );
+					continue;
+				}
+			}
+			for( ReleaseTarget item : delivery.getDerivedItems() ) {
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_BINARY , item.distDerivedItem.NAME } ) );
+				if( checkItem == null ) {
+					dist.descopeTarget( this , item );
+					continue;
+				}
+			}
+			for( ReleaseTarget item : delivery.getConfItems() ) {
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_CONF , item.distConfItem.NAME } ) );
+				if( checkItem == null ) {
+					dist.descopeTarget( this , item );
+					continue;
+				}
+			}
+			
+			for( ReleaseTargetItem item : delivery.getDatabaseItems() ) {
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_SCHEMA , item.schema.NAME } ) );
+				if( checkItem == null ) {
+					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
+					continue;
+				}
+			}
+			
+			for( ReleaseTargetItem item : delivery.getDocItems() ) {
+				String checkItem = check.get( Common.getListPath( new String[] { delivery.distDelivery.NAME , SCOPEITEM_DOC , item.doc.NAME } ) );
+				if( checkItem == null ) {
+					dist.descopeTargetItems( this , new ReleaseTargetItem[] { item } );
+					continue;
 				}
 			}
 		}
-		
 		return( true );
 	}
 
-	private boolean addAllDelivery( EngineMethod method , Release releaseUpdated , Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
+	private boolean addAllDelivery( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
 		for( MetaDistrBinaryItem binaryItem : delivery.getBinaryItems() ) {
-			DBReleaseScope.addBinaryItem( method , this , releaseUpdated , binaryItem );
+			if( !dist.addBinaryItem( this , binaryItem ) )
+				return( false );
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_BINARY , binaryItem.NAME } ) , "binary" );
 		}
 		for( MetaDistrConfItem confItem : delivery.getConfItems() ) {
-			DBReleaseScope.addConfItem( method , this , releaseUpdated , confItem );
+			if( !dist.addConfItem( this , confItem ) )
+				return( false );
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_CONF , confItem.NAME } ) , "conf" );
 		}
 		if( delivery.hasDatabaseItems() ) {
-			if( !addDeliveryAllSchemes( method , releaseUpdated , check , delivery ) )
+			if( !addDeliveryAllSchemes( check , delivery ) )
 				return( false );
 		}
 		if( delivery.hasDocItems() ) {
-			if( !addDeliveryAllDocs( method , releaseUpdated , check , delivery ) )
+			if( !addDeliveryAllDocs( check , delivery ) )
 				return( false );
 		}
 		return( true );
 	}
 	
-	private boolean addDeliveryAllSchemes( EngineMethod method , Release releaseUpdated , Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
-		DBReleaseScope.addDeliveryAllDatabaseSchemes( method , this , releaseUpdated , delivery );
+	private boolean addDeliveryAllSchemes( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
+		if( !dist.addDeliveryAllDatabaseSchemes( this , delivery ) )
+			return( false );
 		
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() )
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_SCHEMA , schema.NAME } ) , "database" );
 		return( true );
 	}
 	
-	private boolean addDeliveryAllDocs( EngineMethod method , Release releaseUpdated , Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
-		DBReleaseScope.addDeliveryAllDocs( method , this , releaseUpdated , delivery );
+	private boolean addDeliveryAllDocs( Map<String,String> check , MetaDistrDelivery delivery ) throws Exception {
+		if( !dist.addDeliveryAllDocs( this , delivery ) )
+			return( false );
 		
 		for( MetaProductDoc doc : delivery.getDocs() )
 			check.put( Common.getListPath( new String[] { delivery.NAME , SCOPEITEM_DOC , doc.NAME } ) , "doc" );

@@ -1,6 +1,5 @@
 package org.urm.meta.product;
 
-import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.core.DBEnums.DBEnumDocCategoryType;
 
 public class MetaProductDoc {
@@ -21,7 +20,6 @@ public class MetaProductDoc {
 	public String EXT;
 	public boolean UNITBOUND;
 	public int PV;
-	public DBEnumChangeType CHANGETYPE;
 
 	public MetaProductDoc( Meta meta , MetaDocs docs ) {
 		this.meta = meta;
@@ -39,7 +37,6 @@ public class MetaProductDoc {
 		r.EXT = EXT;
 		r.UNITBOUND = UNITBOUND;
 		r.PV = PV;
-		r.CHANGETYPE = CHANGETYPE;
 		return( r );
 	}
 

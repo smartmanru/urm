@@ -6,8 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumChangeType;
-import org.urm.meta.loader.MatchItem;
+import org.urm.meta.MatchItem;
 
 public class MetaDistr {
 
@@ -40,18 +39,24 @@ public class MetaDistr {
 		MetaDocs rdocs = rmeta.getDocs();
 		
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
-			MetaDistrDelivery rd = delivery.copy( rmeta , r , rdb , rdocs , true );
+			MetaDistrDelivery rd = delivery.copy( rmeta , r , rdb , rdocs );
 			r.addDelivery( rd );
+		}
 		
-			for( MetaDistrBinaryItem ritem : rd.getBinaryItems() )
-				r.addBinaryItem( ritem );
-			
-			for( MetaDistrConfItem ritem : rd.getConfItems() )
-				r.addConfItem( ritem );
+		for( MetaDistrBinaryItem item : mapBinaryItems.values() ) {
+			MetaDistrDelivery rd = r.getDelivery( item.delivery.ID );
+			MetaDistrBinaryItem ritem = item.copy( rmeta , rd );
+			r.addBinaryItem( ritem );
+		}
+		
+		for( MetaDistrConfItem item : mapConfItems.values() ) {
+			MetaDistrDelivery rd = r.getDelivery( item.delivery.ID );
+			MetaDistrConfItem ritem = item.copy( rmeta , rd );
+			r.addConfItem( ritem );
 		}
 		
 		for( MetaDistrComponent item : mapComps.values() ) {
-			MetaDistrComponent ritem = item.copy( rmeta , r , true );
+			MetaDistrComponent ritem = item.copy( rmeta , r );
 			r.addComponent( ritem );
 		}
 		
@@ -108,31 +113,8 @@ public class MetaDistr {
 		return( comp.NAME );
 	}
 	
-	public MetaDistrComponent findComponent( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( mapCompsById.get( item.FKID ) );
-		return( mapComps.get( item.FKNAME ) );
-	}
-	
 	public MetaDistrBinaryItem findBinaryItem( String name ) {
 		return( mapBinaryItems.get( name ) );
-	}
-	
-	public MetaDistrBinaryItem findBinaryItem( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( mapBinaryItemsById.get( item.FKID ) );
-		return( mapBinaryItems.get( item.FKNAME ) );
-	}
-	
-	public String findBinaryItemName( MatchItem item ) {
-		MetaDistrBinaryItem binaryItem = findBinaryItem( item );
-		if( item == null )
-			return( null );
-		return( binaryItem.NAME );
 	}
 	
 	public MetaDistrBinaryItem getBinaryItem( String name ) throws Exception {
@@ -214,14 +196,6 @@ public class MetaDistr {
 		return( mapConfItems.get( name ) );
 	}
 
-	public MetaDistrConfItem findConfItem( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( mapConfItemsById.get( item.FKID ) );
-		return( mapConfItems.get( item.FKNAME ) );
-	}
-	
 	public MetaDistrConfItem getConfItem( String name ) throws Exception {
 		MetaDistrConfItem item = mapConfItems.get( name );
 		if( item == null )
@@ -275,27 +249,12 @@ public class MetaDistr {
 		return( mapDeliveries.get( delivery ) );
 	}
 
-	public MetaDistrDelivery findDelivery( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( mapDeliveriesById.get( item.FKID ) );
-		return( mapDeliveries.get( item.FKNAME ) );
-	}
-	
 	public MetaDistrDelivery findDeliveryByFolder( String folder ) {
 		for( MetaDistrDelivery delivery : mapDeliveries.values() ) {
 			if( delivery.FOLDER.equals( folder ) )
 				return( delivery );
 		}
 		return( null );
-	}
-
-	public String findDeliveryName( MatchItem item ) {
-		MetaDistrDelivery delivery = findDelivery( item );
-		if( item == null )
-			return( null );
-		return( delivery.NAME );
 	}
 	
 	public MetaDistrDelivery getDelivery( String name ) throws Exception {
@@ -305,14 +264,6 @@ public class MetaDistr {
 		return( delivery );
 	}
 
-	public MetaDistrDelivery getDelivery( MatchItem item ) throws Exception {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( getDelivery( item.FKID ) );
-		return( getDelivery( item.FKNAME ) );
-	}
-	
 	public MetaDistrDelivery getDelivery( int id ) throws Exception {
 		MetaDistrDelivery delivery = mapDeliveriesById.get( id );
 		if( delivery == null )
@@ -320,15 +271,6 @@ public class MetaDistr {
 		return( delivery );
 	}
 
-	public String getDeliveryName( MatchItem item ) throws Exception {
-		if( item == null )
-			return( "" );
-		MetaDistrDelivery delivery = findDelivery( item );
-		if( delivery == null )
-			Common.exitUnexpected();
-		return( delivery.NAME );
-	}
-	
 	public void addComponent( MetaDistrComponent comp ) {
 		mapComps.put( comp.NAME , comp );
 		mapCompsById.put( comp.ID , comp );
@@ -363,12 +305,12 @@ public class MetaDistr {
 		addConfItem( item );
 	}
 
-	public void addDeliverySchema( MetaDistrDelivery delivery , MetaDatabaseSchema schema , DBEnumChangeType changeType ) throws Exception {
-		delivery.addSchema( schema , changeType );
+	public void addDeliverySchema( MetaDistrDelivery delivery , MetaDatabaseSchema schema ) throws Exception {
+		delivery.addSchema( schema );
 	}
 
-	public void addDeliveryDoc( MetaDistrDelivery delivery , MetaProductDoc doc , DBEnumChangeType changeType ) throws Exception {
-		delivery.addDocument( doc , changeType );
+	public void addDeliveryDoc( MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
+		delivery.addDocument( doc );
 	}
 
 	public void addBinaryItem( MetaDistrBinaryItem item ) throws Exception {
@@ -532,30 +474,6 @@ public class MetaDistr {
 			return( true );
 		}
 		return( false );
-	}
-
-	public MatchItem getDeliveryMatchItem( Integer id , String name ) throws Exception {
-		if( id == null && name.isEmpty() )
-			return( null );
-		MetaDistrDelivery delivery = ( id == null )? findDelivery( name ) : getDelivery( id );
-		MatchItem match = ( delivery == null )? new MatchItem( name ) : new MatchItem( delivery.ID );
-		return( match );
-	}
-	
-	public MatchItem getBinaryMatchItem( Integer id , String name ) throws Exception {
-		if( id == null && name.isEmpty() )
-			return( null );
-		MetaDistrBinaryItem binary = ( id == null )? findBinaryItem( name ) : getBinaryItem( id );
-		MatchItem match = ( binary == null )? new MatchItem( name ) : new MatchItem( binary.ID );
-		return( match );
-	}
-	
-	public MatchItem getConfMatchItem( Integer id , String name ) throws Exception {
-		if( id == null && name.isEmpty() )
-			return( null );
-		MetaDistrConfItem conf = ( id == null )? findConfItem( name ) : getConfItem( id );
-		MatchItem match = ( conf == null )? new MatchItem( name ) : new MatchItem( conf.ID );
-		return( match );
 	}
 	
 }

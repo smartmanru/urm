@@ -1,8 +1,6 @@
 package org.urm.action;
 
-import org.urm.common.Common;
-import org.urm.engine.dist.ReleaseBuildScopeProjectItem;
-import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
+import org.urm.engine.dist.ReleaseTargetItem;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -17,16 +15,13 @@ public class ActionScopeTargetItem {
 	public ActionScopeTarget target;
 	
 	public String NAME;
-	
-	public ReleaseBuildScopeProjectItem releaseBuildScopeProjectItem;
-	public ReleaseDistScopeDeliveryItem releaseDistScopeDeliveryItem;
-	
 	public MetaDistrBinaryItem distItem;
 	public MetaSourceProjectItem sourceItem;
 	public MetaEnvServerNode envServerNode;
 	public MetaDatabaseSchema schema;
 	public MetaProductDoc doc;
 	
+	public ReleaseTargetItem releaseItem;
 	public boolean scriptIndex = false;
 	public boolean specifiedExplicitly;
 	
@@ -44,8 +39,7 @@ public class ActionScopeTargetItem {
 		item.schema = schema;
 		item.doc = doc;
 		
-		item.releaseBuildScopeProjectItem = releaseBuildScopeProjectItem;
-		item.releaseDistScopeDeliveryItem = releaseDistScopeDeliveryItem;
+		item.releaseItem = releaseItem;
 		item.scriptIndex = scriptIndex;
 		item.specifiedExplicitly = specifiedExplicitly;
 		return( item );
@@ -84,37 +78,13 @@ public class ActionScopeTargetItem {
 		return( ti );
 	}
 	
-	public static ActionScopeTargetItem createReleaseTargetItem( ActionScopeTarget target , ReleaseBuildScopeProjectItem releaseItem , boolean specifiedExplicitly ) {
+	public static ActionScopeTargetItem createReleaseTargetItem( ActionScopeTarget target , ReleaseTargetItem releaseItem , boolean specifiedExplicitly ) {
 		ActionScopeTargetItem ti = new ActionScopeTargetItem( target ); 
-		ti.distItem = releaseItem.item.distItem;
-		ti.sourceItem = releaseItem.item;
-		ti.releaseBuildScopeProjectItem = releaseItem;
+		ti.distItem = releaseItem.distItem;
+		ti.sourceItem = releaseItem.sourceItem;
+		ti.releaseItem = releaseItem;
 		ti.specifiedExplicitly = specifiedExplicitly;
-		ti.NAME = ti.sourceItem.NAME;
-		return( ti );
-	}
-
-	public static ActionScopeTargetItem createReleaseTargetItem( ActionScopeTarget target , ReleaseDistScopeDeliveryItem releaseItem , boolean specifiedExplicitly ) throws Exception {
-		ActionScopeTargetItem ti = new ActionScopeTargetItem( target );
-		if( releaseItem.binary != null ) {
-			ti.distItem = releaseItem.binary;
-			ti.NAME = ti.distItem.NAME;
-		}
-		else
-		if( releaseItem.schema != null ) {
-			ti.schema = releaseItem.schema;
-			ti.NAME = ti.schema.NAME;
-		}
-		else
-		if( releaseItem.doc != null ) {
-			ti.doc = releaseItem.doc;
-			ti.NAME = ti.doc.NAME;
-		}
-		else
-			Common.exitUnexpected();
-			
-		ti.releaseDistScopeDeliveryItem = releaseItem;
-		ti.specifiedExplicitly = specifiedExplicitly;
+		ti.NAME = releaseItem.NAME;
 		return( ti );
 	}
 
@@ -131,8 +101,12 @@ public class ActionScopeTargetItem {
 		if( !action.context.CTX_VERSION.isEmpty() )
 			BUILDVERSION = action.context.CTX_VERSION;
 		
-		if( BUILDVERSION.isEmpty() && releaseBuildScopeProjectItem != null )
-			BUILDVERSION = target.getProjectBuildVersion( action );
+		if( BUILDVERSION.isEmpty() && releaseItem != null ) {
+			BUILDVERSION = releaseItem.BUILDVERSION;
+			
+			if( BUILDVERSION.isEmpty() )
+				BUILDVERSION = releaseItem.target.BUILDVERSION;
+		}
 		
 		if( BUILDVERSION.isEmpty() )
 			BUILDVERSION = sourceItem.FIXED_VERSION;

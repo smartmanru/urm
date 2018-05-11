@@ -10,18 +10,18 @@ import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
-import org.urm.engine.data.EngineDirectory;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.TransactionBase;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.properties.PropertyValue;
-import org.urm.engine.transaction.TransactionBase;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
@@ -573,17 +573,15 @@ public abstract class DBSettings {
 
 	private static void insertEntity( DBConnection c , PropertyEntity entity , int version ) throws Exception {
 		entity.VERSION = version;
-		if( !c.modify( DBQueries.MODIFY_PARAM_ADDENTITY13 , new String[] {
-			EngineDB.getObject( entity.PARAM_OBJECT_ID ) ,
+		if( !c.modify( DBQueries.MODIFY_PARAM_ADDENTITY11 , new String[] {
+			EngineDB.getInteger( entity.PARAM_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.PARAMENTITY_TYPE ) ,
 			EngineDB.getBoolean( entity.CUSTOM ) ,
 			EngineDB.getBoolean( entity.USE_PROPS ) ,
-			EngineDB.getBoolean( entity.CHANGEABLE ) ,
-			EngineDB.getInteger( entity.PK_FIELD_COUNT ) ,
 			EngineDB.getString( entity.APP_TABLE ) ,
 			EngineDB.getString( entity.ID_FIELD ) ,
 			EngineDB.getEnum( entity.OBJECT_TYPE ) ,
-			EngineDB.getObject( entity.META_OBJECT_ID ) ,
+			EngineDB.getInteger( entity.META_OBJECT_ID ) ,
 			EngineDB.getEnum( entity.META_OBJECTVERSION_TYPE ) ,
 			EngineDB.getEnum( entity.DATA_OBJECTVERSION_TYPE ) ,
 			EngineDB.getInteger( version )
@@ -672,10 +670,6 @@ public abstract class DBSettings {
 		meta.rebuild();
 	}
 
-	public static void loaddbCustomEntity( DBConnection c , PropertyEntity entity ) throws Exception {
-		loaddbEntity( c , entity , entity.META_OBJECT_ID , false );
-	}
-	
 	public static void loaddbAppEntity( DBConnection c , PropertyEntity entity ) throws Exception {
 		loaddbEntity( c , entity , DBVersions.APP_ID , false );
 	}
@@ -852,14 +846,6 @@ public abstract class DBSettings {
 		meta.rebuild();
 	}
 
-	public static PropertyEntity copydbCustomEntity( DBConnection c , int ownerId , PropertyEntity src , int version ) throws Exception {
-		PropertyEntity entity = src.copy();
-		entity.PARAM_OBJECT_ID = ownerId;
-		entity.META_OBJECT_ID = ownerId;
-		savedbPropertyEntity( c , entity , entity.getVars() , version );
-		return( entity );
-	}
-	
 	public static void modifyAppValues( DBConnection c , int objectId , ObjectProperties properties , DBEnumParamEntityType entityType , int version , String[] dbonlyValues , boolean insert ) throws Exception {
 		ObjectMeta meta = properties.getMeta();
 		PropertyEntity entity = meta.getAppEntity( entityType );
@@ -946,7 +932,7 @@ public abstract class DBSettings {
 		else
 		if( versionType == DBEnumObjectVersionType.PRODUCT ) {
 			Meta meta = transaction.getTransactionMetadata( objectId );
-			ProductMeta storage = meta.getStorage();
+			ProductMeta storage = transaction.getTransactionProductMetadata( meta );
 			version = c.getNextProductVersion( storage );
 		}
 		else
@@ -990,24 +976,20 @@ public abstract class DBSettings {
 				Common.exitUnexpected();
 			if( rc.getBoolean( 2 ) != entity.USE_PROPS )
 				Common.exitUnexpected();
-			if( rc.getBoolean( 3 ) != entity.CHANGEABLE )
+			if( !Common.equalsStrings( rc.getString( 3 ) , entity.APP_TABLE ) )
 				Common.exitUnexpected();
-			if( rc.getInt( 4 ) != entity.PK_FIELD_COUNT )
+			if( !Common.equalsStrings( rc.getString( 4 ) , entity.ID_FIELD ) )
 				Common.exitUnexpected();
-			if( !Common.equalsStrings( rc.getString( 5 ) , entity.APP_TABLE ) )
+			if( rc.getInt( 5 ) != entity.OBJECT_TYPE.code() )
 				Common.exitUnexpected();
-			if( !Common.equalsStrings( rc.getString( 6 ) , entity.ID_FIELD ) )
+			if( rc.getInt( 6 ) != entity.META_OBJECT_ID )
 				Common.exitUnexpected();
-			if( rc.getInt( 7 ) != entity.OBJECT_TYPE.code() )
+			if( rc.getInt( 7 ) != entity.META_OBJECTVERSION_TYPE.code() )
 				Common.exitUnexpected();
-			if( rc.getInt( 8 ) != entity.META_OBJECT_ID )
-				Common.exitUnexpected();
-			if( rc.getInt( 9 ) != entity.META_OBJECTVERSION_TYPE.code() )
-				Common.exitUnexpected();
-			if( rc.getInt( 10 ) != entity.DATA_OBJECTVERSION_TYPE.code() )
+			if( rc.getInt( 8 ) != entity.DATA_OBJECTVERSION_TYPE.code() )
 				Common.exitUnexpected();
 		
-			return( rc.getInt( 11 ) );
+			return( rc.getInt( 9 ) );
 		}
 		finally {
 			c.closeQuery();

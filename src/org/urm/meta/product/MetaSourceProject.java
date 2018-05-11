@@ -8,11 +8,11 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.data.EngineMirrors;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.ProjectBuilder;
-import org.urm.meta.loader.MatchItem;
 
 public class MetaSourceProject {
 
@@ -55,7 +55,6 @@ public class MetaSourceProject {
 	public boolean CUSTOMBUILD;
 	public boolean CUSTOMGET;
 	public int PV;
-	public DBEnumChangeType CHANGETYPE;
 	
 	List<MetaSourceProjectItem> itemList;
 	Map<String,MetaSourceProjectItem> itemMap;
@@ -72,7 +71,7 @@ public class MetaSourceProject {
 		itemMapById = new HashMap<Integer,MetaSourceProjectItem>();
 	}
 	
-	public MetaSourceProject copy( Meta rmeta , MetaSourceProjectSet rset , boolean all ) throws Exception {
+	public MetaSourceProject copy( Meta rmeta , MetaSourceProjectSet rset ) throws Exception {
 		MetaSourceProject r = new MetaSourceProject( rmeta , rset );
 		r.ID = ID;
 		r.NAME = NAME;
@@ -93,14 +92,11 @@ public class MetaSourceProject {
 		r.CUSTOMBUILD = CUSTOMBUILD;
 		r.CUSTOMGET = CUSTOMGET;
 		r.PV = PV;
-		r.CHANGETYPE = CHANGETYPE;
 		
 		// project items
-		if( all ) {
-			for( MetaSourceProjectItem item : itemList ) {
-				MetaSourceProjectItem ritem = item.copy( rmeta , r );
-				r.addItem( ritem );
-			}
+		for( MetaSourceProjectItem item : itemList ) {
+			MetaSourceProjectItem ritem = item.copy( rmeta , r );
+			r.addItem( ritem );
 		}
 		
 		return( r );
@@ -147,7 +143,7 @@ public class MetaSourceProject {
 		this.CUSTOMGET = customGet;
 	}
 
-	public void changeOrder( int POS ) {
+	public void changeOrder( int POS ) throws Exception {
 		this.PROJECT_POS = POS;
 	}
 
@@ -193,7 +189,7 @@ public class MetaSourceProject {
 	}
 	
 	public MirrorRepository getMirror( ActionBase action ) throws Exception {
-		EngineMirrors mirrors = action.getEngineMirrors();
+		EngineMirrors mirrors = action.getServerMirrors();
 		MirrorRepository mirror = mirrors.getRepository( MIRROR.FKID );
 		return( mirror );
 	}
@@ -213,11 +209,6 @@ public class MetaSourceProject {
 		return( res.isSvn() );
 	}
 
-	public boolean isVCS( ActionBase action ) throws Exception {
-		AuthResource res = getResource( action );
-		return( res.isVCS() );
-	}
-	
 	public boolean isBuildable() {
 		if( PROJECT_TYPE == DBEnumProjectType.BUILDABLE )
 			return( true );

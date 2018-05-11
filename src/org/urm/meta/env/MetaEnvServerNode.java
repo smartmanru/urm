@@ -5,15 +5,15 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.DataService;
-import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
+import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.HostAccount;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.EngineData;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 
 public class MetaEnvServerNode extends EngineObject {
 
@@ -92,8 +92,7 @@ public class MetaEnvServerNode extends EngineObject {
 		
 		if( ACCOUNT != null ) {
 			HostAccount account = getHostAccount();
-			if( account != null )
-				ops.setStringProperty( PROPERTY_HOSTLOGIN , account.getFinalAccount() );
+			ops.setStringProperty( PROPERTY_HOSTLOGIN , account.getFinalAccount() );
 		}
 		
 		ops.setStringProperty( PROPERTY_DEPLOYGROUP , DEPLOYGROUP );
@@ -185,7 +184,7 @@ public class MetaEnvServerNode extends EngineObject {
 	}
 
 	public HostAccount getHostAccount() throws Exception {
-		DataService data = meta.getEngineData();
+		EngineData data = meta.getEngineData();
 		EngineInfrastructure infra = data.getInfrastructure();
 		return( infra.getHostAccount( ACCOUNT ) );
 	}

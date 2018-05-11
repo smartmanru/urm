@@ -8,9 +8,8 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.AuthService;
-import org.urm.engine.EventService;
 import org.urm.engine.action.CommandContext;
+import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
@@ -18,11 +17,13 @@ import org.urm.engine.events.SourceEvent;
 import org.urm.engine.shell.Account;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.Meta;
+import org.urm.meta.Types;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
+import org.urm.meta.Types.*;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.Datacenter;
+import org.urm.meta.engine.EngineAuth;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -43,8 +44,6 @@ public class ScopeExecutor implements EngineEventsListener {
 	ScopeState parentState;
 	ActionBase action;
 	boolean async;
-	Meta meta;
-	
 	CommandContext context;
 
 	boolean runUniqueHosts = false;
@@ -59,15 +58,13 @@ public class ScopeExecutor implements EngineEventsListener {
 	ActionScopeSet asyncScopeSet;
 	ActionScopeTarget asyncScopeTarget;
 	ActionScopeTarget[] asyncTargets;
-	DBEnumScopeCategoryType[] asyncCategories;
+	EnumScopeCategory[] asyncCategories;
 	EngineEventsSubscription asyncSub;
 	
-	public ScopeExecutor( ScopeState parentState , ActionBase action , boolean async , Meta meta ) {
+	public ScopeExecutor( ScopeState parentState , ActionBase action , boolean async ) {
 		this.parentState = parentState;
 		this.action = action;
 		this.async = async;
-		this.meta = meta;
-		
 		this.context = action.context;
 		this.eventsSource = action.eventSource;
 		runUniqueHosts = false;
@@ -77,7 +74,7 @@ public class ScopeExecutor implements EngineEventsListener {
 
 	@Override
 	public void triggerEvent( EngineEventsSubscription sub , SourceEvent event ) {
-		if( event.isEngineEvent( EventService.EVENT_RUNASYNC ) )
+		if( event.isEngineEvent( EngineEvents.EVENT_RUNASYNC ) )
 			executeAsync();
 	}
 	
@@ -86,9 +83,9 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runAsync() {
-		EventService events = action.engine.getEvents();
+		EngineEvents events = action.engine.getEvents();
 		EngineEventsApp app = action.actionInit.getEventsApp();
-		SourceEvent event = eventsSource.createCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_RUNASYNC , this );
+		SourceEvent event = eventsSource.createCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_RUNASYNC , this );
 		events.notifyListener( app , this , event );
 		return( true );
 	}
@@ -114,7 +111,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runSimpleServer( SecurityAction sa , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessServerAction( action , sa , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", server operation)" );
 			return( false );
@@ -128,9 +125,9 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( runSimple() );
 	}
 	
-	public boolean runSimpleProduct( SecurityAction sa , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
-		AppProduct product = meta.findProduct();
+	public boolean runSimpleProduct( String productName , SecurityAction sa , boolean readOnly ) {
+		EngineAuth auth = action.engine.getAuth();
+		AppProduct product = action.findProduct( productName );
 		if( product == null ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", unknown product)" );
 			return( false );
@@ -141,9 +138,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 		
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSIMPLE;
 			return( runAsync() );
@@ -151,16 +145,13 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		return( runSimple() );
 	}
-
+	
 	public boolean runSimpleEnv( MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment operation)" );
 			return( false );
 		}
-		
-		if( !updateContext() )
-			return( false );
 		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSIMPLE;
@@ -170,9 +161,9 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( runSimple() );
 	}
 	
-	public boolean runProductBuild( SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
-		AppProduct product = meta.findProduct();
+	public boolean runProductBuild( String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
+		EngineAuth auth = action.engine.getAuth();
+		AppProduct product = action.findProduct( productName );
 		if( product == null ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", unknown product)" );
 			return( false );
@@ -183,9 +174,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 		
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSIMPLE;
 			return( runAsync() );
@@ -195,7 +183,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runAll( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope)" );
@@ -218,16 +206,13 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( runScope( scope ) );
 	}
 	
-	public boolean runCategories( ActionScope scope , DBEnumScopeCategoryType[] categories , SecurityAction sa , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
+	public boolean runCategories( ActionScope scope , EnumScopeCategory[] categories , SecurityAction sa , boolean readOnly ) {
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", categories)" );
 			return( false );
 		}
 
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNCATEGORIES;
 			asyncScope = scope;
@@ -239,7 +224,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runAll( ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope set)" );
@@ -253,9 +238,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 		}
 		
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSCOPESET;
 			asyncScopeSet = set;
@@ -266,7 +248,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runTargetList( ActionScopeSet set , ActionScopeTarget[] targets , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , set.scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope targets)" );
@@ -280,9 +262,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 		}
 
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSCOPESETTARGETS;
 			asyncScopeSet = set;
@@ -294,7 +273,7 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runSingleTarget( ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( env != null ) {
 			if( !auth.checkAccessProductAction( action , sa , item.set.scope.meta , env , readOnly ) ) {
 				accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, scope target)" );
@@ -308,9 +287,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 		}
 		
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSCOPETARGET;
 			asyncScopeTarget = item;
@@ -321,15 +297,12 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 	
 	public boolean runEnvUniqueHosts( ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		AuthService auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, hosts)" );
 			return( false );
 		}
 			
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNUNIQUEHOSTS;
 			asyncScope = scope;
@@ -345,15 +318,12 @@ public class ScopeExecutor implements EngineEventsListener {
 				return( runEnvUniqueHosts( scope , env , sa , readOnly ) );
 		}
 
-		AuthService auth = action.engine.getAuth();
+		EngineAuth auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , scope.meta , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment execute, acccounts)" );
 			return( false );
 		}
 			
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNUNIQUEACCOUNTS;
 			asyncScope = scope;
@@ -520,7 +490,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( finishExecutor( ss ) );
 	}
 
-	private boolean runCategories( ActionScope scope , DBEnumScopeCategoryType[] categories ) {
+	private boolean runCategories( ActionScope scope , EnumScopeCategory[] categories ) {
 		if( !startExecutor( scope ) )
 			return( false );
 		
@@ -560,7 +530,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
-		DBEnumScopeCategoryType[] categories = new DBEnumScopeCategoryType[] { DBEnumScopeCategoryType.ENV };
+		EnumScopeCategory[] categories = new EnumScopeCategory[] { EnumScopeCategory.ENV };
 		try {
 			action.debug( action.NAME + ": run unique hosts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( stateFinal , scope );
@@ -598,7 +568,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		
 		SCOPESTATE ss = SCOPESTATE.New;
-		DBEnumScopeCategoryType[] categories = new DBEnumScopeCategoryType[] { DBEnumScopeCategoryType.ENV };
+		EnumScopeCategory[] categories = new EnumScopeCategory[] { EnumScopeCategory.ENV };
 		try {
 			action.debug( action.NAME + ": run unique accounts of scope={" + scope.getScopeInfo( action , categories ) + "}" );
 			action.runBefore( stateFinal , scope );
@@ -711,7 +681,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			String all = ( set.setFull )? " (all)" : "";
 			action.debug( action.NAME + ": execute scope set=" + set.NAME + all + " ..." );
 			
-			items = set.getTargets(); 
+			items = set.getTargets( action ).values().toArray( new ActionScopeTarget[0] ); 
 			action.runBefore( stateSet , set , items );
 		}
 		catch( Throwable e ) {
@@ -743,7 +713,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( ss );
 	}
 	
-	private SCOPESTATE runTargetCategoriesInternal( ActionScope scope , DBEnumScopeCategoryType[] categories ) {
+	private SCOPESTATE runTargetCategoriesInternal( ActionScope scope , EnumScopeCategory[] categories ) {
 		SCOPESTATE ss = SCOPESTATE.New;
 		try {
 			if( scope.isEmpty( action , categories ) ) {
@@ -755,11 +725,11 @@ public class ScopeExecutor implements EngineEventsListener {
 				boolean run = true;
 				if( categories != null ) {
 					run = false;
-					for( DBEnumScopeCategoryType CATEGORY : categories ) {
+					for( EnumScopeCategory CATEGORY : categories ) {
 						if( !running )
 							break;
 						
-						if( CATEGORY.checkCategoryProperty( set.CATEGORY ) )
+						if( Types.checkCategoryProperty( set.CATEGORY , CATEGORY ) )
 							run = true;
 					}
 				}
@@ -1051,7 +1021,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		if( scope.meta != null ) {
 			MetaSources sources = scope.meta.getSources(); 
 			for( String sourceSetName : sources.getSetNames() ) {
-				ActionScopeSet set = scope.findSet( action , DBEnumScopeCategoryType.PROJECT , sourceSetName );
+				ActionScopeSet set = scope.findSet( action , EnumScopeCategory.PROJECT , sourceSetName );
 				if( set != null )
 					list.add( set );
 			}
@@ -1062,7 +1032,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		if( context.env != null ) {
 			for( MetaEnvSegment envSet : context.env.getSegments() ) {
-				ActionScopeSet set = scope.findSet( action , DBEnumScopeCategoryType.ENV , envSet.NAME );
+				ActionScopeSet set = scope.findSet( action , EnumScopeCategory.ENV , envSet.NAME );
 				if( set != null )
 					list.add( set );
 			}
@@ -1075,7 +1045,7 @@ public class ScopeExecutor implements EngineEventsListener {
 		List<ActionScopeTarget> list = new LinkedList<ActionScopeTarget>();
 		Map<String,ActionScopeTarget> map = new HashMap<String,ActionScopeTarget>();
 		
-		if( set.CATEGORY.isSource() ) {
+		if( Types.isSourceCategory( set.CATEGORY ) ) {
 			for( ActionScopeTarget target : targets )
 				map.put( target.sourceProject.NAME , target );
 			
@@ -1088,7 +1058,7 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( list );
 		}
 				
-		if( set.CATEGORY == DBEnumScopeCategoryType.ENV ) {
+		if( set.CATEGORY == EnumScopeCategory.ENV ) {
 			for( ActionScopeTarget target : targets )
 				map.put( target.envServer.NAME , target );
 
@@ -1184,36 +1154,23 @@ public class ScopeExecutor implements EngineEventsListener {
 	}
 
 	private void notifyStartAction( ActionCore action ) {
-		action.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_STARTACTION , action );
+		action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTACTION , action );
 		
 		ActionCore actionParent = action;
 		while( actionParent.parent != null ) {
 			actionParent = actionParent.parent;
-			actionParent.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_STARTCHILDACTION , action );
+			actionParent.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTCHILDACTION , action );
 		}
 	}
 
 	private void notifyFinishAction( ActionBase action ) {
-		action.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_FINISHACTION , action );
+		action.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHACTION , action );
 		
 		ActionCore actionParent = action;
 		while( actionParent.parent != null ) {
 			actionParent = actionParent.parent;
-			actionParent.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_FINISHCHILDACTION , action );
+			actionParent.eventSource.notifyCustomEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHCHILDACTION , action );
 		}
-	}
-
-	private boolean updateContext() {
-		try {
-			AppProduct product = meta.getProduct();
-			action.updateContext( product , meta );
-		}
-		catch( Throwable e ) {
-			action.log( "run simple product" , e );
-			return( false );
-		}
-		
-		return( true );
 	}
 	
 }

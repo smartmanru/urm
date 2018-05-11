@@ -61,7 +61,7 @@ public class LocalFolder extends Folder {
 		String filePath = getFilePath( action , FILENAME );
 		return( action.readFile( filePath ) );
 	}
-
+	
 	public List<String> readFileLines( ActionBase action , String FILENAME ) throws Exception {
 		String filePath = getFilePath( action , FILENAME );
 		return( action.readFileLines( filePath ) );
@@ -96,6 +96,11 @@ public class LocalFolder extends Folder {
 		String dstDir = Common.getPath( folderPath , dstFolder ); 
 		ShellExecutor session = getSession( action ); 
 		session.copyDirContent( action , srcDir , dstDir );
+	}
+
+	public void removeVcsFiles( ActionBase action ) throws Exception {
+		ShellExecutor session = getSession( action );
+		session.customCheckStatus( action , folderPath , "rm -rf `find . -name \".svn\" -o -name \".git\"`" );
 	}
 
 	public boolean equals( LocalFolder folder ) {

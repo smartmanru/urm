@@ -5,7 +5,6 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.meta.MainCommandMeta;
-import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileSet;
@@ -13,6 +12,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.SubversionVCS;
+import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.product.Meta;
 
@@ -47,11 +47,11 @@ public class ActionSave extends ActionBase {
 		saveProduct( pf , false );
 		
 		UrmStorage urm = artefactory.getUrmStorage();
-		EngineDirectory directory = actionInit.getEngineDirectory();
+		EngineDirectory directory = actionInit.getServerDirectory();
 		for( String name : directory.getProductNames() ) {
 			info( "save product=" + name + " ..." );
 			
-			LocalFolder folder = urm.getProductHome( this , meta.findProduct() );
+			LocalFolder folder = urm.getProductHome( this , meta.getProduct() );
 			saveProduct( folder , false );
 		}
 	}

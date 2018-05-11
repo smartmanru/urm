@@ -31,6 +31,7 @@ public class _Error {
 	public static final int UnexpectedDeploymentType1 = ErrorBase + 60;
 	public static final int UnknownDatabaseFilesCharset1 = ErrorBase + 63;
 	public static final int UnableGetBuildModeSettings1 = ErrorBase + 64;
+	public static final int InconsistentVersionAttributes0 = ErrorBase + 65;
 	public static final int UnknownSourceSet1 = ErrorBase + 66;
 	public static final int UnknownSourceProject1 = ErrorBase + 67;
 	public static final int UnknownSourceProjectItem2 = ErrorBase + 68;
@@ -46,6 +47,5 @@ public class _Error {
 	public static final int UnknownUnit1 = ErrorBase + 86;
 	public static final int UnknownDoc1 = ErrorBase + 87;
 	public static final int UnknownDeliveryDoc1 = ErrorBase + 88;
-	public static final int UnableCopyMeta2 = ErrorBase + 89;
 
 }

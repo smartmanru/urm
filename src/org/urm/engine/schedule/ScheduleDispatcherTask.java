@@ -1,13 +1,12 @@
 package org.urm.engine.schedule;
 
-import org.urm.engine.ScheduleService;
-import org.urm.engine.run.EngineExecutorTask;
+import org.urm.engine.EngineExecutorTask;
 
 public class ScheduleDispatcherTask extends EngineExecutorTask {
 
-	ScheduleService scheduler;
+	EngineScheduler scheduler;
 	
-	public ScheduleDispatcherTask( ScheduleService scheduler ) {
+	public ScheduleDispatcherTask( EngineScheduler scheduler ) {
 		super( "scheduler-dispatcher" );
 		this.scheduler = scheduler;
 	}

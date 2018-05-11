@@ -6,7 +6,7 @@ import java.util.Date;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.ScheduleService.ScheduleTaskType;
+import org.urm.engine.schedule.EngineScheduler.ScheduleTaskType;
 
 public class ScheduleProperties {
 

@@ -3,8 +3,8 @@ package org.urm.action.monitor;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
-import org.urm.engine.EventService;
-import org.urm.engine.StateService;
+import org.urm.engine.events.EngineEvents;
+import org.urm.engine.status.EngineStatus;
 import org.urm.engine.status.NodeStatus;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.SegmentStatus;
@@ -18,17 +18,15 @@ import org.urm.meta.env.MetaMonitoringTarget;
 public class ActionMonitorTarget extends ActionBase {
 	
 	public MonitorTargetInfo info;
-	public String name;
 	public MetaMonitoringTarget target;
 	
 	volatile boolean running;
 	volatile ActionBase currentAction;
 	
-	public ActionMonitorTarget( ActionBase action , String stream , MonitorTargetInfo info , String name ) {
+	public ActionMonitorTarget( ActionBase action , String stream , MonitorTargetInfo info ) {
 		super( action , stream , "monitoring, check target" );
 		this.info = info;
 		this.target = info.target;
-		this.name = name;
 		running = false;
 	}
 
@@ -71,10 +69,10 @@ public class ActionMonitorTarget extends ActionBase {
 		info.stop( this );
 
 		if( sg != null ) { 
-			StateService status = super.getEngineStatus();
+			EngineStatus status = super.getServerStatus();
 			StatusSource source = status.getObjectSource( sg );
 			if( source != null )
-				source.customEvent( EventService.OWNER_ENGINE , EventService.EVENT_MONITORGRAPHCHANGED , info );
+				source.customEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_MONITORGRAPHCHANGED , info );
 		}
 	}
 
@@ -87,7 +85,7 @@ public class ActionMonitorTarget extends ActionBase {
 		long timeStart = System.currentTimeMillis();
 		boolean ok = true;
 		
-		StateService engineStatus = super.getEngineStatus();
+		EngineStatus engineStatus = super.getServerStatus();
 		String name = sg.env.NAME + "::" + sg.NAME;
 		
 		for( MetaEnvServer server : sg.getServers() ) {

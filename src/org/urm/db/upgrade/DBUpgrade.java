@@ -4,12 +4,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
-import org.urm.action._Error;
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.EngineLoader;
 
 public class DBUpgrade {
 
@@ -35,8 +34,10 @@ public class DBUpgrade {
 				indexTo = k;
 		}
 		
-		if( indexFrom < 0 || indexTo < 0 )
-			Common.exit2( _Error.UnableToUpgrade2 , "Unable to upgrade database from " + dbVersion + " to " + appVersion , "" + dbVersion , "" + appVersion );
+		if( indexFrom < 0 )
+			Common.exitUnexpected();
+		if( indexTo < 0 )
+			Common.exitUnexpected();
 		
 		DBConnection c = loader.getConnection(); 
 		for( int k = indexFrom; k <= indexTo; k++ ) {

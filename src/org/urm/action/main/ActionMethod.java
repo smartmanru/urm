@@ -25,7 +25,7 @@ public class ActionMethod extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		context.setOptions( this , meta , methodOptions );
 		CommandMethod executorMethod = methodExecutor.getAction( methodOptions.method );
-		if( methodExecutor.runExecutor( state , this , executorMethod , true ) )
+		if( methodExecutor.runExecutor( state , this , executorMethod ) )
 			return( SCOPESTATE.RunSuccess );
 		return( SCOPESTATE.RunFail );
 	}

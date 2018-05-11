@@ -10,9 +10,7 @@ import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
 import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
@@ -23,6 +21,7 @@ import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.Types.*;
 
 public class ActionConfigure extends ActionBase {
 
@@ -68,7 +67,7 @@ public class ActionConfigure extends ActionBase {
 		// collect components
 		Map<String, MetaDistrConfItem> confs = new HashMap<String, MetaDistrConfItem>(); 
 		for( ActionScopeSet set : scope.getSets( this ) ) {
-			for( ActionScopeTarget target : set.getTargets() ) {
+			for( ActionScopeTarget target : set.getTargets( this ).values() ) {
 				for( MetaDistrConfItem item : target.envServer.getConfItems() )
 					confs.put( item.NAME , item );
 			}
@@ -76,10 +75,10 @@ public class ActionConfigure extends ActionBase {
 		
 		// export/copy to template folder
 		for( MetaDistrConfItem conf : confs.values() )
-			fillTemplateFolder( conf , scope.releaseDistScope );
+			fillTemplateFolder( conf );
 	}
 
-	private void fillTemplateFolder( MetaDistrConfItem conf , ReleaseDistScope scope ) throws Exception {
+	private void fillTemplateFolder( MetaDistrConfItem conf ) throws Exception {
 		if( dist == null ) {
 			// download configuration templates
 			SourceStorage sourceStorage = artefactory.getSourceStorage( this , conf.meta );
@@ -88,7 +87,7 @@ public class ActionConfigure extends ActionBase {
 		}
 		
 		// copy from release
-		if( scope.findCategoryDeliveryItem( DBEnumScopeCategoryType.CONFIG , conf.NAME ) != null ) {
+		if( dist.release.findCategoryTarget( this , EnumScopeCategory.CONFIG , conf.NAME ) != null ) {
 			LocalFolder folder = templateFolder.getSubFolder( this , conf.NAME );
 			if( folder.checkExists( this ) )
 				dist.copyDistConfToFolder( this , conf , folder );

@@ -8,18 +8,16 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.common.RunError;
 import org.urm.common.action.CommandMeta;
 import org.urm.common.action.CommandMethodMeta;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
-import org.urm.engine.TaskService;
-import org.urm.engine.data.EngineLifecycles;
-import org.urm.engine.products.EngineProductReleases;
-import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
-import org.urm.meta.engine.AppProduct;
+import org.urm.meta.Types;
+import org.urm.meta.Types.*;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.release.Release;
+import org.urm.meta.engine.EngineLifecycles;
 
 public abstract class CommandExecutor {
 
@@ -29,7 +27,7 @@ public abstract class CommandExecutor {
 	public Map<String,CommandMethod> actionsMap = new HashMap<String,CommandMethod>();
 	public List<CommandMethod> actionsList = new LinkedList<CommandMethod>();
 	
-	public abstract boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method );
+	protected abstract boolean runExecutorImpl( ScopeState parentState , ActionBase action , CommandMethod method );
 
 	public CommandExecutor( Engine engine , CommandMeta commandInfo ) {
 		this.engine = engine;
@@ -51,17 +49,11 @@ public abstract class CommandExecutor {
 		return( commandAction );
 	}
 
-	public boolean runExecutor( ScopeState parentState , ActionBase action , CommandMethod command , boolean runTask ) {
-		if( runTask ) {
-			TaskService tasks = engine.getTaskService();
-			EngineMethod method = new EngineMethod( action , this , command , parentState );
-			tasks.executeOnceWait( method );
-			if( method.runFailed )
-				return( false );
+	public boolean runExecutor( ScopeState parentState , ActionBase action , CommandMethod method ) {
+		if( runExecutorImpl( parentState , action , method ) )
 			return( true );
-		}
-
-		return( runExecutorImpl( parentState , action , command ) );
+		
+		return( false );
 	}
 	
 	public boolean runMethod( ScopeState parentState , ActionBase action , CommandMethod method ) {
@@ -69,15 +61,24 @@ public abstract class CommandExecutor {
 			action.debug( "execute " + method.getClass().getSimpleName() + " ..." );
 			action.debug( "context: " + action.context.getInfo() );
 			method.run( parentState , action );
-			if( action.isOK() )
-				return( true );
 		}
 		catch( Throwable e ) {
-			action.log( "method exception" , e );
 			action.fail1( _Error.ActionException1 , "Exception in method=" + method.method.name + ": " + e.toString() , method.method.name );
+			String trace = System.getenv( "TRACE" );
+			if( trace != null && trace.equals( "yes" ) )
+				e.printStackTrace();
+			else {
+				RunError ex = Common.getExitException( e );
+				if( ex == null || action.context.CTX_SHOWALL )
+					action.handle( e );
+				else
+					action.error( "exception: " + ex.getMessage() );
+			}
+				
+			return( false );
 		}
 		
-		return( false );
+		return( true );
 	}
 	
 	public void checkRequired( ActionBase action , String value , String name ) throws Exception {
@@ -98,8 +99,8 @@ public abstract class CommandExecutor {
 		action.exit1( _Error.UnexpectedExtraArguments1 , "unexpected extra arguments: " + Common.getQuoted( xargs ) + "; see help to find syntax" , xargs );
 	}
 	
-	public DBEnumScopeCategoryType getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
-		DBEnumScopeCategoryType CATEGORY = getCategoryArg( action , pos );
+	public EnumScopeCategory getRequiredCategoryArg( ActionBase action , int pos ) throws Exception {
+		EnumScopeCategory CATEGORY = getCategoryArg( action , pos );
 		if( CATEGORY == null )
 			action.exit1( _Error.ArgumentRequired1 , "CATEGORY argument is required" , "CATEGORY" );
 		return( CATEGORY );
@@ -120,11 +121,11 @@ public abstract class CommandExecutor {
 		return( BUILDMODE );
 	}
 	
-	public DBEnumScopeCategoryType getCategoryArg( ActionBase action , int pos ) throws Exception {
+	public EnumScopeCategory getCategoryArg( ActionBase action , int pos ) throws Exception {
 		if( pos >= action.context.options.getArgCount() )
 			return( null );
 		
-		return( DBEnumScopeCategoryType.getValue( getArg( action , pos ) , true ) );
+		return( Types.getCategory( getArg( action , pos ) , true ) );
 	}
 	
 	public String getRequiredArg( ActionBase action , int pos , String argName ) throws Exception {
@@ -160,14 +161,8 @@ public abstract class CommandExecutor {
 		if( value.isEmpty() )
 			return( null );
 		
-		EngineLifecycles lifecycles = action.getEngineLifecycles();
+		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
 		return( lifecycles.getLifecycle( value ) );
-	}
-
-	public Release getReleaseByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
-		AppProduct product = action.getContextProduct();
-		EngineProductReleases releases = product.findReleases();
-		return( releases.getReleaseByLabel( action , RELEASELABEL ) );
 	}
 	
 }

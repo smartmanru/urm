@@ -6,8 +6,8 @@ import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.Meta;
+import org.urm.meta.Types.*;
 
 public class ServerStorage {
 

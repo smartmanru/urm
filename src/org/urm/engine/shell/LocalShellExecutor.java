@@ -1,12 +1,11 @@
 package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
-import org.urm.engine.ShellService;
 import org.urm.engine.storage.Folder;
 
 public class LocalShellExecutor extends ShellExecutor {
 
-	public LocalShellExecutor( int id , String name , ShellService pool , String rootPath , Folder tmpFolder , boolean dedicated ) {
+	public LocalShellExecutor( int id , String name , EngineShellPool pool , String rootPath , Folder tmpFolder , boolean dedicated ) {
 		super( id , name , pool , pool.masterAccount , rootPath , tmpFolder , dedicated );
 	}
 	

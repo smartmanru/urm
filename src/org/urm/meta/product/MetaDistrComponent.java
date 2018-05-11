@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumChangeType;
-import org.urm.db.core.DBEnums.DBEnumCompItemType;
 
 public class MetaDistrComponent {
 
@@ -19,7 +17,6 @@ public class MetaDistrComponent {
 	public String NAME;
 	public String DESC;
 	public int PV;
-	public DBEnumChangeType CHANGETYPE;
 
 	private Map<Integer,MetaDistrComponentItem> mapBinaryItemsById;
 	private Map<Integer,MetaDistrComponentItem> mapConfItemsById;
@@ -36,34 +33,31 @@ public class MetaDistrComponent {
 		mapWSByItemId = new HashMap<Integer,MetaDistrComponentItem>();
 	}
 
-	public MetaDistrComponent copy( Meta rmeta , MetaDistr rdistr , boolean all ) throws Exception {
-		MetaDistrComponent r = new MetaDistrComponent( rmeta , rdistr );
+	public MetaDistrComponent copy( Meta meta , MetaDistr distr ) throws Exception {
+		MetaDistrComponent r = new MetaDistrComponent( meta , distr );
 		r.ID = ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.PV = PV;
-		r.CHANGETYPE = CHANGETYPE;
 		
-		if( all ) {
-			for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
-				MetaDistrComponentItem ritem = item.copy( rmeta , r );
-				r.addBinaryItem( ritem );
-			}
-			
-			for( MetaDistrComponentItem item : mapConfItemsById.values() ) {
-				MetaDistrComponentItem ritem = item.copy( rmeta , r );
-				r.addConfItem( ritem );
-			}
-			
-			for( MetaDistrComponentItem item : mapSchemaItemsById.values() ) {
-				MetaDistrComponentItem ritem = item.copy( rmeta , r );
-				r.addSchemaItem( ritem );
-			}
-	
-			for( MetaDistrComponentItem item : mapWSByItemId.values() ) {
-				MetaDistrComponentItem ritem = item.copy( rmeta , r );
-				r.addWebService( ritem );
-			}
+		for( MetaDistrComponentItem item : mapBinaryItemsById.values() ) {
+			MetaDistrComponentItem ritem = item.copy( meta , r );
+			r.addBinaryItem( ritem );
+		}
+		
+		for( MetaDistrComponentItem item : mapConfItemsById.values() ) {
+			MetaDistrComponentItem ritem = item.copy( meta , r );
+			r.addConfItem( ritem );
+		}
+		
+		for( MetaDistrComponentItem item : mapSchemaItemsById.values() ) {
+			MetaDistrComponentItem ritem = item.copy( meta , r );
+			r.addSchemaItem( ritem );
+		}
+
+		for( MetaDistrComponentItem item : mapWSByItemId.values() ) {
+			MetaDistrComponentItem ritem = item.copy( meta , r );
+			r.addWebService( ritem );
 		}
 		
 		return( r );
@@ -76,22 +70,6 @@ public class MetaDistrComponent {
 	public void modifyComponent( String name , String desc ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
-	}
-
-	public void addItem( MetaDistrComponentItem item ) throws Exception {
-		if( item.COMPITEM_TYPE == DBEnumCompItemType.BINARY )
-			addBinaryItem( item );
-		else
-		if( item.COMPITEM_TYPE == DBEnumCompItemType.CONF )
-			addConfItem( item );
-		else
-		if( item.COMPITEM_TYPE == DBEnumCompItemType.SCHEMA )
-			addSchemaItem( item );
-		else
-		if( item.COMPITEM_TYPE == DBEnumCompItemType.WSDL )
-			addWebService( item );
-		else
-			Common.exitUnexpected();
 	}
 	
 	public void addBinaryItem( MetaDistrComponentItem item ) {

@@ -11,13 +11,10 @@ public class RunErrorClass {
 	public static int BaseEngineCustom = 112000;
 	public static int BaseEngineDist = 113000;
 	public static int BaseEngineExecutor = 114000;
-	public static int BaseEngineData = 115000;
 	public static int BaseEngineShell = 116000;
 	public static int BaseEngineStorage = 117000;
 	public static int BaseEngineVCS = 118000;
 	public static int BaseEngineProperties = 119000;
-	public static int BaseEngineProducts = 120000;
-	public static int BaseEngineSession = 121000;
 	public static int BaseAction = 200000;
 	public static int BaseActionBuild = 201000;
 	public static int BaseActionConf = 202000;
@@ -31,12 +28,10 @@ public class RunErrorClass {
 	public static int BaseMetaEngine = 251000;
 	public static int BaseMetaProduct = 252000;
 	public static int BaseMetaEnv = 253000;
-	public static int BaseMetaRelease = 254000;
 	public static int BaseClient = 300000;
 	public static int BaseDB = 400000;
 	public static int BaseDBCore = 401000;
 	public static int BaseDBEngine = 402000;
-	public static int BaseDBRelease = 403000;
 	public static int BasePlugin = 800000;
 	
 	public static int InternalBase = 500;

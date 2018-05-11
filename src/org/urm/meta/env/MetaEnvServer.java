@@ -8,15 +8,12 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.DataService;
-import org.urm.engine.data.EngineBase;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.BaseItem;
+import org.urm.meta.engine.EngineBase;
 import org.urm.meta.engine.HostAccount;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -25,6 +22,9 @@ import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.EngineData;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 
 public class MetaEnvServer extends EngineObject {
 
@@ -223,9 +223,6 @@ public class MetaEnvServer extends EngineObject {
 
 	public void setServerPrimary( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , DBEnumOSType osType , 
 			String sysname , MatchItem baselineMatchItem , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatchItem , MatchItem baseItemMatchItem ) throws Exception {
-		if( sg.hasBaseline() && baseItemMatchItem != null )
-			Common.exitUnexpected();
-		
 		this.NAME = name;
 		this.DESC = desc;
 		this.SERVERRUN_TYPE = runType;
@@ -239,10 +236,6 @@ public class MetaEnvServer extends EngineObject {
 		this.BASEITEM = MatchItem.copy( baseItemMatchItem );
 	}
 	
-	public void refreshProperties() throws Exception {
-		refreshPrimaryProperties();
-	}
-	
 	private void refreshPrimaryProperties() throws Exception {
 		ops.clearProperties( DBEnumParamEntityType.ENV_SERVER_PRIMARY );
 		
@@ -253,6 +246,10 @@ public class MetaEnvServer extends EngineObject {
 		ops.setEnumProperty( PROPERTY_OSTYPE , OS_TYPE );
 		ops.setStringProperty( PROPERTY_SYSNAME , SYSNAME );
 		
+		MetaEnvServer serverBaseline = getBaseline();
+		if( serverBaseline != null )
+			ops.setStringProperty( PROPERTY_BASELINE , serverBaseline.NAME );
+
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		ops.setEnumProperty( PROPERTY_DBMSTYPE , DBMS_TYPE );
 		
@@ -436,18 +433,11 @@ public class MetaEnvServer extends EngineObject {
 		return( deployments.toArray( new MetaEnvServerDeployment[0] ) );
 	}
 
-	public MetaEnvServerDeployment getDeployment( int id ) throws Exception {
-		MetaEnvServerDeployment deployment = deployMapById.get( id );
-		if( deployment == null )
-			Common.exitUnexpected();
-		return( deployment );
-	}
-	
 	public String getFullBinPath() throws Exception {
 		if( ROOTPATH.isEmpty() )
-			Common.exit1( _Error.MissingRootPath1 , "missing root path server=" + NAME , NAME );
+			Common.exitUnexpected();
 		if( BINPATH.isEmpty() )
-			Common.exit1( _Error.MissingBinPath1 , "missing bin path server=" + NAME , NAME );
+			Common.exitUnexpected();
 		return( Common.getPath( ROOTPATH , BINPATH ) );
 	}
 	
@@ -494,13 +484,13 @@ public class MetaEnvServer extends EngineObject {
 		return( true );
 	}
 	
-	public boolean hasConfiguration() {
+	public boolean hasConfiguration() throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isConfItem() )
 				return( true );
 			
 			if( deployment.isComponent() ) {
-				MetaDistrComponent comp = deployment.findComponent();
+				MetaDistrComponent comp = deployment.getComponent();
 				if( comp.hasConfItems() )
 					return( true );
 			}
@@ -508,7 +498,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) {
+	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasConfItemDeployment( confItem ) )
 				return( true );
@@ -516,7 +506,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) {
+	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasBinaryItemDeployment( binaryItem ) )
 				return( true );
@@ -524,7 +514,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( MetaDistrDelivery delivery ) {
+	public boolean hasDatabaseItemDeployment( MetaDistrDelivery delivery ) throws Exception {
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
 			if( hasDatabaseItemDeployment( schema ) )
 				return( true );
@@ -532,17 +522,9 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) {
+	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasDatabaseItemDeployment( schema ) ) 
-				return( true );
-		}
-		return( false );
-	}
-	
-	public boolean hasComponentDeployment( MetaDistrComponent comp ) {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isComponent( comp ) )
 				return( true );
 		}
 		return( false );
@@ -783,7 +765,7 @@ public class MetaEnvServer extends EngineObject {
 	}
 
 	public BaseItem getBaseItem() throws Exception {
-		DataService data = meta.getEngineData();
+		EngineData data = meta.getEngineData();
 		EngineBase base = data.getEngineBase();
 		return( base.getItem( BASEITEM ) );
 	}
@@ -814,9 +796,6 @@ public class MetaEnvServer extends EngineObject {
 	}
 	
 	public void setBaseline( MatchItem baselineMatchItem ) throws Exception {
-		if( !sg.hasBaseline() )
-			baselineMatchItem = null;
-		
 		this.BASELINE = MatchItem.copy( baselineMatchItem );
 		refreshPrimaryProperties();
 	}
@@ -959,21 +938,20 @@ public class MetaEnvServer extends EngineObject {
 		return( null );
 	}
 
-	public void createServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ,  
+	public void createServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
 			DBEnumOSType osType , MatchItem baselineMatch , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch , MatchItem baseItemMatch ) throws Exception {
 		this.BASELINE = MatchItem.copy( baselineMatch );
 		this.BASEITEM = MatchItem.copy( baseItemMatch );
 		this.OFFLINE = false;
-		modifyServer( name , desc , runType , accessType , sysname , osType , dbmsType , admSchemaMatch );
+		modifyServer( name , desc , runType , accessType , osType , dbmsType , admSchemaMatch );
 	}
 	
-	public void modifyServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , 
+	public void modifyServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
 			DBEnumOSType osType , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
 		this.SERVERRUN_TYPE = runType;
 		this.SERVERACCESS_TYPE = accessType;
-		this.SYSNAME = sysname;
 		this.OS_TYPE = osType;
 		this.DBMS_TYPE = dbmsType;
 		this.DATABASE_ADMSCHEMA = MatchItem.copy( admSchemaMatch );
@@ -1046,12 +1024,6 @@ public class MetaEnvServer extends EngineObject {
 		return( true );
 	}
 	
-	public boolean hasStartGroup() {
-		if( startGroup == null ) 
-			return( false );
-		return( true );
-	}
-	
 	public boolean hasDependencies() {
 		if( nlbServer != null )
 			return( true );
@@ -1062,38 +1034,6 @@ public class MetaEnvServer extends EngineObject {
 		if( !subordinateServers.isEmpty() )
 			return( true );
 		return( false );
-	}
-
-	public MetaEnvServerDeployment findBinaryItemDeployment( MetaDistrBinaryItem item ) {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isBinaryItem( item ) )
-				return( deployment );
-		}
-		return( null );
-	}
-	
-	public MetaEnvServerDeployment findConfItemDeployment( MetaDistrConfItem item ) {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isConfItem( item ) )
-				return( deployment );
-		}
-		return( null );
-	}
-	
-	public MetaEnvServerDeployment findDatabaseSchemaDeployment( MetaDatabaseSchema schema ) {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isSchema( schema ) )
-				return( deployment );
-		}
-		return( null );
-	}
-
-	public MetaEnvServerDeployment findComponentDeployment( MetaDistrComponent comp ) {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isComponent( comp ) )
-				return( deployment );
-		}
-		return( null );
 	}
 	
 }

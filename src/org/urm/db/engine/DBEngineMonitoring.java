@@ -3,15 +3,15 @@ package org.urm.db.engine;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.data.EngineContext;
-import org.urm.engine.data.EngineMonitoring;
-import org.urm.engine.data.EngineSettings;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.transaction.EngineTransaction;
-import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.engine.EngineContext;
+import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -19,13 +19,9 @@ import org.w3c.dom.Node;
 
 public class DBEngineMonitoring {
 
-	public static PropertyEntity makeEntityEngineMonitoring( DBConnection c , boolean upgrade ) throws Exception {
+	public static PropertyEntity upgradeEntityEngineMonitoring( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
 		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.MONITORING , DBEnumObjectVersionType.CORE );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaBoolean( EngineMonitoring.PROPERTY_ENABLED , "Instance Monitoring Enabled" , true , false ) ,
 				EntityVar.metaString( EngineMonitoring.PROPERTY_RESOURCE_URL , "Monitoring Resources URL" , true , getProductPath( EngineContext.PROPERTY_MON_RESURL ) ) ,
@@ -36,6 +32,12 @@ public class DBEngineMonitoring {
 		} ) );
 	}
 
+	public static PropertyEntity loaddbEntityEngineMonitoring( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppPropsEntity( DBEnumObjectType.ROOT , DBEnumParamEntityType.MONITORING , DBEnumObjectVersionType.CORE );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
 	private static String getProductPath( String var ) {
 		return( EntityVar.p( var ) + "/" + EntityVar.p( MetaProductSettings.PROPERTY_PRODUCT_NAME ) );
 	}

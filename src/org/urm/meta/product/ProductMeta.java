@@ -1,121 +1,99 @@
 package org.urm.meta.product;
 
-import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.urm.action.ActionBase;
-import org.urm.common.Common;
 import org.urm.engine.Engine;
-import org.urm.engine.products.EngineProduct;
+import org.urm.engine.EngineSession;
+import org.urm.engine.dist.DistRepository;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.meta.EngineObject;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.EngineProducts;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.release.ReleaseRepository;
 
 public class ProductMeta extends EngineObject {
 
-	public EngineProduct ep;
+	public Engine engine;
+	public EngineProducts products;
+	public AppProduct product;
+	public String name;
 	
 	public Meta meta;
 	public Integer ID;
-	public String NAME;
-	public String REVISION;
-	public boolean DRAFT;
-	public Date SAVEDATE;
 	public int PV;
 	public boolean MATCHED;
 	
+	private MetaProductVersion version;
 	private MetaProductSettings settings;
+	private MetaProductPolicy policy;
 	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaSources sources;
 	private MetaDocs docs;
 	private MetaDistr distr;
-	
 	private ProductEnvs envs;
-	private ReleaseRepository releases;
 
+	private DistRepository repo;
+	
+	private Map<EngineSession,Meta> sessionMeta;
 	private boolean primary;
 	
-	public ProductMeta( Engine engine , EngineProduct ep ) {
+	public ProductMeta( EngineProducts products , AppProduct product ) {
 		super( null );
-		this.ep = ep;
-		this.NAME = ep.productName;
+		this.products = products;
+		this.engine = products.engine;
+		this.product = product;
+		this.name = product.NAME;
 		
-		meta = new Meta( engine , ep , this , null );
+		meta = new Meta( this , null );
 		ID = null;
 		PV = -1;
 		MATCHED = false;
-		DRAFT = true;
+		engine.trace( "new product storage meta object, id=" + meta.objectId + ", storage=" + objectId );
 		
+		sessionMeta = new HashMap<EngineSession,Meta>();
 		primary = false;
-		engine.trace( "new product revision object, id=" + super.objectId );
 	}
 
 	@Override
 	public String getName() {
-		return( NAME );
+		return( name );
 	}
 	
-	public synchronized ProductMeta copy( ActionBase action , ObjectProperties opsParent ) throws Exception {
-		ProductMeta r = new ProductMeta( action.engine , ep );
-
-		try {
-			r.ID = ID;
-			r.NAME = NAME;
-			r.REVISION = REVISION;
-			r.DRAFT = DRAFT;
-			r.SAVEDATE = SAVEDATE;
-			r.PV = PV;
-			r.MATCHED = MATCHED;
-			
-			r.settings = settings.copy( r.meta , opsParent );
-			r.units = units.copy( r.meta );
-			r.database = database.copy( r.meta );
-			r.sources = sources.copy( r.meta );
-			r.docs = docs.copy( r.meta );
-			r.distr = distr.copy( r.meta );
-			
-			r.envs = envs.copy( r.meta );
-			r.envs.copyResolveExternals();
-			r.releases = releases.copy( r.meta );
-		}
-		catch( Throwable e ) {
-			action.log( "copy meta" , e );
-			r.deleteObject();
-			Common.exit2( _Error.UnableCopyMeta2 , "Unable to copy metadata, product=" + ep.productName + ", revision=" + REVISION , ep.productName , REVISION );
-		}
+	public synchronized ProductMeta copy( ActionBase action , EngineProducts rproducts , AppProduct rproduct , ObjectProperties opsParent ) throws Exception {
+		ProductMeta r = new ProductMeta( products , rproduct );
 		
+		r.ID = ID;
+		r.PV = PV;
+		r.MATCHED = MATCHED;
+		
+		r.version = version.copy( r.meta );
+		
+		r.settings = settings.copy( r.meta , opsParent );
+		r.policy = policy.copy( r.meta );
+		r.units = units.copy( r.meta );
+		r.database = database.copy( r.meta );
+		r.sources = sources.copy( r.meta );
+		r.docs = docs.copy( r.meta );
+		r.distr = distr.copy( r.meta );
+		
+		r.envs = envs.copy( action , r.meta );
+		r.envs.copyResolveExternals();
+		
+		r.repo = repo.copy( action , r.meta );
 		return( r );
 	}
 
-	public void create( String revision , boolean draft , Date saveDate , boolean matched ) {
-		this.REVISION = revision;
-		this.DRAFT = draft;
-		this.SAVEDATE = saveDate;
-		this.MATCHED = matched;
-	}
-	
-	public EngineProduct getEngineProduct() {
-		return( ep );
-	}
-	
-	public AppProduct getProduct() throws Exception {
-		return( ep.getProduct() );
-	}
-	
-	public AppProduct findProduct() {
-		return( ep.findProduct() );
-	}
-	
 	public void setMatched( boolean matched ) {
 		this.MATCHED = matched;
 	}
 	
-	public void setRevision( String revision ) {
-		this.REVISION = revision;
+	public void setContext( ProductContext context ) {
+		this.ID = context.ID;
+		this.PV = context.PV;
 	}
 	
 	public boolean isExists() {
@@ -128,32 +106,42 @@ public class ProductMeta extends EngineObject {
 		this.primary = primary;
 	}
 	
+	public synchronized void addSessionMeta( Meta meta ) {
+		sessionMeta.put( meta.session , meta );
+	}
+	
+	public synchronized void releaseSessionMeta( Meta meta ) {
+		sessionMeta.remove( meta.session );
+	}
+
+	public synchronized Meta findSessionMeta( EngineSession session ) {
+		return( sessionMeta.get( session ) );
+	}
+
+	public synchronized boolean isReferencedBySessions() {
+		if( sessionMeta.isEmpty() )
+			return( false );
+		return( true );
+	}
+	
 	public boolean isPrimary() {
 		return( primary );
 	}
 	
-	public boolean isDraft() {
-		return( DRAFT );
+	public DistRepository getDistRepository() {
+		return( repo );
 	}
 	
-	public void setDraft( boolean draft ) {
-		this.DRAFT = draft;
-		if( draft )
-			SAVEDATE = null;
-		else
-			SAVEDATE = new Date();
+	public void setVersion( MetaProductVersion version ) throws Exception {
+		this.version = version;
 	}
-	
-	public ReleaseRepository getReleaseRepository() {
-		return( releases );
-	}
-	
-	public void setReleaseRepository( ReleaseRepository repo ) {
-		releases = repo;
-	}
-	
+
 	public void setSettings( MetaProductSettings settings ) throws Exception {
 		this.settings = settings;
+	}
+
+	public void setPolicy( MetaProductPolicy policy ) throws Exception {
+		this.policy = policy;
 	}
 
 	public void setUnits( MetaUnits units ) throws Exception {
@@ -180,8 +168,20 @@ public class ProductMeta extends EngineObject {
 		this.envs = envs;
 	}
 
+	public void setReleases( DistRepository repo ) throws Exception {
+		this.repo = repo;
+	}
+	
+	public MetaProductVersion getVersion() {
+		return( version );
+	}
+	
 	public MetaProductSettings getSettings() {
 		return( settings );
+	}
+	
+	public MetaProductPolicy getPolicy() {
+		return( policy );
 	}
 	
 	public MetaUnits getUnits() {
@@ -208,18 +208,11 @@ public class ProductMeta extends EngineObject {
 		return( envs );
 	}
 
-	public MetaMonitoring getMonitoring() {
-		return( envs.getMonitoring() );
-	}
-	
 	public boolean isMatched() {
 		return( MATCHED );
 	}
 
 	public void deleteEnvObjects() {
-		if( envs == null )
-			return;
-		
 		for( MetaEnv env : envs.getEnvs() )
 			env.deleteObject();
 	}

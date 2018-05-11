@@ -58,7 +58,7 @@ public class ActionDeployRedist extends ActionBase {
 		boolean isEmpty = true;
 		
 		VersionInfo version = VersionInfo.getDistVersion( dist ); 
-		for( ActionScopeTarget target : set.getTargets() ) {
+		for( ActionScopeTarget target : set.getTargets( this ).values() ) {
 			if( !Common.checkListItem( targets , target ) )
 				continue;
 			

@@ -6,9 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.engine.AuthService;
-import org.urm.engine.AuthService.SourceType;
-import org.urm.engine.AuthService.SpecialRights;
+import org.urm.meta.engine.EngineAuth.SourceType;
+import org.urm.meta.engine.EngineAuth.SpecialRights;
 
 public class AuthGroup {
 
@@ -26,7 +25,7 @@ public class AuthGroup {
 	public static String PROPERTY_SPECIAL_BASEADM = "specialrights_baseadm";
 	public static String PROPERTY_SPECIAL_BASEITEMS = "specialrights_baseitems";
 	
-	AuthService auth;
+	EngineAuth auth;
 	
 	public int ID;
 	public String NAME;
@@ -44,7 +43,7 @@ public class AuthGroup {
 	private List<SpecialRights> specials;
 	public int UV;
 	
-	public AuthGroup( AuthService auth ) {
+	public AuthGroup( EngineAuth auth ) {
 		this.auth = auth;
 		users = new HashMap<Integer,SourceType>();
 		

@@ -5,22 +5,23 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.common.Common;
+import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBVersions;
-import org.urm.db.core.DBEnums.*;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.DBQueries;
-import org.urm.engine.data.EngineDirectory;
-import org.urm.engine.data.EngineSettings;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.engine.EngineDirectory;
+import org.urm.meta.engine.EngineSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -32,14 +33,13 @@ public abstract class DBAppSystem {
 		EngineEntities entities = loader.getEntities();
 		EngineSettings settings = loader.getSettings();
 		ObjectProperties props = entities.createSystemProps( settings.getEngineProperties() );
-		PropertyEntity entity = entities.entityAppDirectorySystem;
 		
 		AppSystem system = new AppSystem( directory , props );
 		system.createSystem(
-				entity.importxmlStringProperty( node , AppSystem.PROPERTY_NAME ) ,
-				entity.importxmlStringProperty( node , AppSystem.PROPERTY_DESC ) 
+				ConfReader.getAttrValue( node , AppSystem.PROPERTY_NAME ) ,
+				ConfReader.getAttrValue( node , AppSystem.PROPERTY_DESC ) 
 				);
-		system.setOffline( entity.importxmlBooleanProperty( node , AppSystem.PROPERTY_OFFLINE , true ) );
+		system.setOffline( ConfReader.getBooleanAttrValue( node , AppSystem.PROPERTY_OFFLINE , true ) );
 		modifySystem( c , system , true );
 		props.setOwnerId( system.ID );
 		DBSettings.importxml( loader , node , props , false , true , system.SV );
@@ -48,15 +48,9 @@ public abstract class DBAppSystem {
 	}
 
 	public static void exportxml( EngineLoader loader , EngineDirectory directory , AppSystem system , Document doc , Element root ) throws Exception {
-		EngineEntities entities = loader.getEntities();
-		PropertyEntity entity = entities.entityAppDirectorySystem;
-		
-		Common.xmlSetNameAttr( doc , root , system.NAME );
-		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
-				entity.exportxmlString( system.NAME ) ,
-				entity.exportxmlString( system.DESC ) ,
-				entity.exportxmlBoolean( system.OFFLINE )
-		} , false );
+		Common.xmlSetElementAttr( doc , root , "name" , system.NAME );
+		Common.xmlSetElementAttr( doc , root , "desc" , system.DESC );
+		Common.xmlSetElementAttr( doc , root , "offline" , Common.getBooleanValue( system.OFFLINE ) );
 	}
 	
 	public static AppSystem[] loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
@@ -81,7 +75,7 @@ public abstract class DBAppSystem {
 						entity.loaddbString( rs , AppSystem.PROPERTY_DESC ) 
 						);
 				system.setOffline( entity.loaddbBoolean( rs , AppSystem.PROPERTY_OFFLINE ) );
-				system.setMatched( entity.loaddbBoolean( rs , DBSystemData.FIELD_SYSTEM_MATCHED ) );
+				system.setMatched( entity.loaddbBoolean( rs , AppSystem.PROPERTY_MATCHED ) );
 				
 				props.setOwnerId( system.ID );
 				systems.add( system );

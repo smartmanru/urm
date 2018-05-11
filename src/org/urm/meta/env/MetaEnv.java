@@ -7,16 +7,15 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.DataService;
-import org.urm.engine.data.EngineInfrastructure;
-import org.urm.engine.data.EngineResources;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.meta.EngineData;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.EngineInfrastructure;
+import org.urm.meta.engine.EngineResources;
 import org.urm.meta.engine.HostAccount;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.ProductMeta;
@@ -46,12 +45,10 @@ public class MetaEnv extends EngineObject {
 	public static String PROPERTY_CONF_KEEPALIVE = "configuration-keepalive";
 
 	public Meta meta;
-	public ProductEnvs envs;
 
 	// table data
 	private ObjectProperties ops;
 	public int ID;
-	public Integer TRANSITION_META_ID;
 	public boolean MATCHED;
 	public String NAME;
 	public String DESC;
@@ -77,21 +74,15 @@ public class MetaEnv extends EngineObject {
 
 	private Map<String,MetaEnvSegment> sgMap;
 	private Map<Integer,MetaEnvSegment> sgMapById;
-	public Map<Integer,MetaDump> mapExportById;
-	public Map<Integer,MetaDump> mapImportById;
 
-	public MetaEnv( ProductMeta storage , Meta meta , ProductEnvs envs ) {
+	public MetaEnv( ProductMeta storage , Meta meta ) {
 		super( null );
 		this.meta = meta;
-		this.envs = envs;
-		
 		ID = -1;
 		EV = -1;
 		MATCHED = false;
 		sgMap = new HashMap<String,MetaEnvSegment>();
 		sgMapById = new HashMap<Integer,MetaEnvSegment>();
-		mapExportById = new HashMap<Integer,MetaDump>();
-		mapImportById = new HashMap<Integer,MetaDump>();
 	}
 	
 	@Override
@@ -99,13 +90,12 @@ public class MetaEnv extends EngineObject {
 		return( NAME );
 	}
 	
-	public MetaEnv copy( ProductMeta rstorage , Meta rmeta , ProductEnvs renvs , ObjectProperties rparent ) throws Exception {
-		MetaEnv r = new MetaEnv( rstorage , rmeta , renvs );
+	public MetaEnv copy( ProductMeta rstorage , Meta rmeta , ObjectProperties rparent ) throws Exception {
+		MetaEnv r = new MetaEnv( rstorage , rmeta );
 		
 		r.ops = ops.copy( rparent );
 		
 		r.ID = ID;
-		r.TRANSITION_META_ID = TRANSITION_META_ID;
 		r.NAME = NAME;
 		r.DESC = DESC;
 		r.ENV_TYPE = ENV_TYPE;
@@ -117,33 +107,17 @@ public class MetaEnv extends EngineObject {
 		r.DISTR_PATH = DISTR_PATH;
 		r.EV = EV;
 		r.MATCHED = MATCHED;
-		
-		if( rmeta.isDraft() && r.isProd() )
-			r.OFFLINE = true;
+		r.refreshPrimaryProperties();
 		
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvSegment rsg = sg.copy( rmeta , r );
 			r.addSegment( rsg );
 		}
 		
-		for( MetaDump dump : mapExportById.values() ) {
-			MetaDump rdump = dump.copy( rmeta , r );
-			r.addDump( rdump );
-		}
-		
-		for( MetaDump dump : mapImportById.values() ) {
-			MetaDump rdump = dump.copy( rmeta , r );
-			r.addDump( rdump );
-		}
-		
 		r.scatterExtraProperties();
 		return( r );
 	}
 
-	public EngineProduct getEngineProduct() {
-		return( meta.ep );
-	}
-	
 	public void createSettings( ObjectProperties ops ) throws Exception {
 		this.ops = ops;
 	}
@@ -156,16 +130,23 @@ public class MetaEnv extends EngineObject {
 		this.MATCHED = matched;
 	}
 	
-	public void refreshPrimaryProperties() throws Exception {
+	private void refreshPrimaryProperties() throws Exception {
 		ops.clearProperties( DBEnumParamEntityType.ENV_PRIMARY );
 		
 		ops.setStringProperty( PROPERTY_NAME , NAME );
 		ops.setStringProperty( PROPERTY_DESC , DESC );
 		ops.setEnumProperty( PROPERTY_ENVTYPE , ENV_TYPE );
+		
+		if( BASELINE != null ) {
+			ProductEnvs envs = meta.getEnviroments();
+			MetaEnv env = envs.getMetaEnv( BASELINE );
+			ops.setStringProperty( PROPERTY_BASELINE , env.NAME );
+		}
+		
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		
 		if( ENVKEY != null ) {
-			DataService data = meta.getEngineData();
+			EngineData data = meta.getEngineData();
 			EngineResources resources = data.getResources();
 			AuthResource res = resources.getResource( ENVKEY );
 			ops.setStringProperty( PROPERTY_ENVKEY , res.NAME );
@@ -173,7 +154,7 @@ public class MetaEnv extends EngineObject {
 		
 		ops.setBooleanProperty( PROPERTY_DISTR_REMOTE , DISTR_REMOTE );
 		if( DISTR_REMOTE ) {
-			DataService data = meta.getEngineData();
+			EngineData data = meta.getEngineData();
 			EngineInfrastructure infra = data.getInfrastructure();
 			HostAccount account = infra.getHostAccount( DISTR_ACCOUNT );
 			ops.setStringProperty( PROPERTY_DISTR_HOSTLOGIN , account.getFinalAccount() );
@@ -204,24 +185,9 @@ public class MetaEnv extends EngineObject {
 		DISTR_ACCOUNT = MatchItem.copy( distAccountMatchItem );
 		DISTR_PATH = distPath;
 		
-		if( meta.isDraft() && isProd() )
-			OFFLINE = true;
+		refreshPrimaryProperties();
 	}
 
-	public void setTransition( Integer id ) {
-		this.TRANSITION_META_ID = id;
-	}
-	
-	public boolean isOnline() {
-		return( !OFFLINE );
-	}
-	
-	public void refreshProperties() throws Exception {
-		refreshPrimaryProperties();
-		for( MetaEnvSegment sg : sgMap.values() )
-			sg.refreshProperties();
-	}
-	
 	public boolean isProd() {
 		return( ENV_TYPE == DBEnumEnvType.PRODUCTION );
 	}
@@ -233,7 +199,8 @@ public class MetaEnv extends EngineObject {
 	}
 	
 	public MetaEnv getBaseline() throws Exception {
-		MetaEnv env = envs.getProductEnv( BASELINE );
+		ProductEnvs envs = meta.getEnviroments();
+		MetaEnv env = envs.getMetaEnv( BASELINE );
 		return( env );
 	}
 	
@@ -246,14 +213,6 @@ public class MetaEnv extends EngineObject {
 		Common.changeMapKey( sgMap , sg , sg.NAME );
 	}
 	
-	public MetaEnvSegment findSegment( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( findSegment( item.FKID ) );
-		return( findSegment( item.FKNAME ) );
-	}
-
 	public MetaEnvSegment findSegment( String name ) {
 		return( sgMap.get( name ) );
 	}
@@ -356,7 +315,7 @@ public class MetaEnv extends EngineObject {
 	public AuthResource getEnvKey() throws Exception {
 		if( ENVKEY == null )
 			return( null );
-		DataService data = meta.getEngineData();
+		EngineData data = meta.getEngineData();
 		EngineResources resources = data.getResources();
 		return( resources.getResource( ENVKEY ) );
 	}
@@ -364,7 +323,7 @@ public class MetaEnv extends EngineObject {
 	public HostAccount getDistrAccount() throws Exception {
 		if( DISTR_ACCOUNT == null )
 			return( null );
-		DataService data = meta.getEngineData();
+		EngineData data = meta.getEngineData();
 		EngineInfrastructure infra = data.getInfrastructure();
 		return( infra.getHostAccount( DISTR_ACCOUNT ) );
 	}
@@ -418,83 +377,15 @@ public class MetaEnv extends EngineObject {
 		return( null );
 	}
 	
-	public MetaEnvServer findServer( int id ) {
+	public MetaEnvServer getServer( int id ) throws Exception {
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvServer server = sg.findServer( id );
 			if( server != null )
 				return( server );
 		}
-		return( null );
-	}
-	
-	public MetaEnvServer getServer( int id ) throws Exception {
-		MetaEnvServer server = findServer( id );
-		if( server == null )
-			Common.exitUnexpected();
-		return( server );
-	}
-	
-	public String[] getExportDumpNames() {
-		List<String> list = new LinkedList<String>();
-		for( MetaDump dump : mapExportById.values() )
-			list.add( dump.NAME );
-		return( Common.getSortedList( list ) );
-	}
-
-	public String[] getImportDumpNames() {
-		List<String> list = new LinkedList<String>();
-		for( MetaDump dump : mapImportById.values() )
-			list.add( dump.NAME );
-		return( Common.getSortedList( list ) );
-	}
-
-	public MetaDump findExportDump( String name ) {
-		for( MetaDump dump : mapExportById.values() ) {
-			if( name.equals( dump.NAME ) )
-				return( dump );
-		}
-		return( null );
-	}
-	
-	public MetaDump findImportDump( String name ) {
-		for( MetaDump dump : mapImportById.values() ) {
-			if( name.equals( dump.NAME ) )
-				return( dump );
-		}
-		return( null );
-	}
-	
-	public void addDump( MetaDump dump ) {
-		if( dump.MODEEXPORT )
-			mapExportById.put( dump.ID , dump );
-		else
-			mapImportById.put( dump.ID , dump );
-	}
-	
-	public void removeDump( MetaDump dump ) {
-		if( dump.MODEEXPORT )
-			mapExportById.remove( dump.ID );
-		else
-			mapImportById.remove( dump.ID );
-	}
-
-	public MetaDump findDump( int id ) {
-		MetaDump dump = mapExportById.get( id );
-		if( dump != null )
-			return( dump );
 		
-		dump = mapImportById.get( id );
-		if( dump != null )
-			return( dump );
-		
+		Common.exitUnexpected();
 		return( null );
 	}
 	
-	public MetaDump getDump( int id ) throws Exception {
-		MetaDump dump = findDump( id );
-		if( dump == null )
-			Common.exit1( _Error.UnknownDump1 , "unknown dump=" + id , "" + id );
-		return( dump );
-	}
-
 }

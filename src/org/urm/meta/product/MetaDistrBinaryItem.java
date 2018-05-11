@@ -5,7 +5,7 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.storage.FileInfo;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.Types.*;
 
 public class MetaDistrBinaryItem {
 
@@ -48,7 +48,6 @@ public class MetaDistrBinaryItem {
 	public boolean CUSTOM_GET;
 	public boolean CUSTOM_DEPLOY;
 	public int PV;
-	public DBEnumChangeType CHANGETYPE;
 
 	public MetaSourceProjectItem sourceProjectItem;
 	public MetaDistrBinaryItem srcDistItem;
@@ -82,7 +81,6 @@ public class MetaDistrBinaryItem {
 		r.CUSTOM_GET = CUSTOM_GET;
 		r.CUSTOM_DEPLOY = CUSTOM_DEPLOY;
 		r.PV = PV;
-		r.CHANGETYPE = CHANGETYPE;
 		
 		return( r );
 	}

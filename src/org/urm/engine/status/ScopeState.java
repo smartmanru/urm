@@ -8,7 +8,7 @@ import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.action.ActionScopeTargetItem;
-import org.urm.engine.EventService;
+import org.urm.engine.events.EngineEvents;
 import org.urm.engine.shell.Account;
 import org.urm.meta.env.MetaEnvServerNode;
 
@@ -27,10 +27,7 @@ public class ScopeState extends ObjectState {
 		PROCESSMODE ,
 		PROCESSACTION ,
 		BASEITEM ,
-		VERSION ,
-		BRANCHNAME ,
-		TAGNAME ,
-		VARIABLENAME
+		VERSION
 	};
 	
 	public ActionCore action;
@@ -102,7 +99,7 @@ public class ScopeState extends ObjectState {
 		ActionCore notifyParent = action;
 		notifyParent = notifyParent.parent;
 		while( notifyParent != null ) {
-			notifyParent.eventSource.startScopeItem( EventService.OWNER_ENGINE , EventService.EVENT_STARTCHILDSTATE , this );
+			notifyParent.eventSource.startScopeItem( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTCHILDSTATE , this );
 			notifyParent = notifyParent.parent;
 		}
 	}
@@ -124,7 +121,7 @@ public class ScopeState extends ObjectState {
 		ActionCore notifyParent = action;
 		notifyParent = notifyParent.parent;
 		while( notifyParent != null ) {
-			notifyParent.eventSource.finishScopeItem( EventService.OWNER_ENGINE , EventService.EVENT_FINISHCHILDSTATE , this );
+			notifyParent.eventSource.finishScopeItem( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHCHILDSTATE , this );
 			notifyParent = notifyParent.parent;
 		}
 	}
@@ -234,12 +231,12 @@ public class ScopeState extends ObjectState {
 	public void addFact( ScopeStateFact fact ) {
 		facts.add( fact );
 		
-		action.eventSource.customEvent( EventService.OWNER_ENGINE , EventService.EVENT_ADDFACT , fact );
+		action.eventSource.customEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ADDFACT , fact );
 		
 		ActionCore notifyParent = action;
 		notifyParent = notifyParent.parent;
 		while( notifyParent != null ) {
-			notifyParent.eventSource.customEvent( EventService.OWNER_ENGINE , EventService.EVENT_ADDCHILDFACT , fact );
+			notifyParent.eventSource.customEvent( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_ADDCHILDFACT , fact );
 			notifyParent = notifyParent.parent;
 		}
 	}

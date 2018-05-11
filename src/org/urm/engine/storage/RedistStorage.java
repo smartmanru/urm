@@ -1,5 +1,7 @@
 package org.urm.engine.storage;
 
+import java.util.List;
+
 import org.urm.action.ActionBase;
 import org.urm.action.deploy.ServerDeployment;
 import org.urm.common.Common;
@@ -9,16 +11,15 @@ import org.urm.db.core.DBEnums.DBEnumBinaryItemType;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.Account;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.meta.Types;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerLocation;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types;
-import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.Types.*;
 
 public class RedistStorage extends ServerStorage {
 
@@ -277,7 +278,8 @@ public class RedistStorage extends ServerStorage {
 		if( !folder.checkExists( action ) )
 			return( null );
 		
-		return( folder.getTopDirs( action ) );
+		List<String> releases = folder.getTopDirs( action );
+		return( releases.toArray( new String[0] ) );
 	}
 
 	public String[] getReleaseLocations( ActionBase action ) throws Exception {
@@ -353,7 +355,9 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 
 		String redistBackupFile = redistFile.getFileName( action );
+		int timeout = action.setTimeoutUnlimited();
 		saveArchiveItem( action , redistFile.binaryItem , deployFolder , redistBackupFile , backupFolder );
+		action.setTimeout( timeout );
 		action.info( "redist backup done, archive item file=" + redistBackupFile );
 		
 		// copy version file from state
@@ -368,8 +372,10 @@ public class RedistStorage extends ServerStorage {
 		RemoteFolder deployFolder = getRuntimeLocationFolder( action , LOCATION );
 		RemoteFolder tmpFolder = getRedistTmpFolder( action );
 		
+		int timeout = action.setTimeoutUnlimited();
 		tmpFolder.removeFiles( action , tmpName );
 		saveArchiveItem( action , archiveItem , deployFolder , tmpName , tmpFolder );
+		action.setTimeout( timeout );
 	}
 	
 	public void copyTmpFileToLocal( ActionBase action , String tmpName , LocalFolder localFolder ) throws Exception {
@@ -440,7 +446,7 @@ public class RedistStorage extends ServerStorage {
 			EnumPackageExtension ext = Types.getPackageExtension( binaryItem.EXT , true );
 			ShellExecutor shell = action.getShell( deployFolder );
 			if( ext == EnumPackageExtension.RPM ) {
-				String values = shell.customGetValue( action , "rpm -q --qf=\"%{VERSION}:%{SIGMD5}:%{RELEASE}:%{ARCH}\" " + binaryItem.BASENAME_DEPLOY , Shell.WAIT_DEFAULT );
+				String values = shell.customGetValue( action , "rpm -q --qf=\"%{VERSION}:%{SIGMD5}:%{RELEASE}:%{ARCH}\" " + binaryItem.BASENAME_DEPLOY );
 				String[] items = Common.split( values , ":" );
 				if( items.length != 4 )
 					action.exit2( _Error.ItemNotFoundInLive2 , "item=" + binaryItem.NAME + ", is not found in " + deployFolder.folderPath , binaryItem.NAME , deployFolder.folderPath );

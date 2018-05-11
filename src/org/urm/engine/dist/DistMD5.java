@@ -17,8 +17,12 @@ public class DistMD5 {
 		return( item.NAME + ":" + releaseFile + ":" + md5value );
 	}
 	
-	public static String getScopeDeliveryItemRecord( ActionBase action , Dist dist , ReleaseDistScopeDeliveryItem scopeItem ) throws Exception {
-		return( getDistItemRecord( action , dist , scopeItem.binary ) );
+	public static String getManualItemRecord( ActionBase action , Dist dist , ReleaseTarget manualItem ) throws Exception {
+		return( getDistItemRecord( action , dist , manualItem.distManualItem ) );
+	}
+
+	public static String getProjectItemRecord( ActionBase action , Dist dist , ReleaseTargetItem projectItem ) throws Exception {
+		return( getDistItemRecord( action , dist , projectItem.distItem ) );
 	}
 	
 }

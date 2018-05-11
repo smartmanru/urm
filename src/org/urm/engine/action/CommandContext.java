@@ -10,14 +10,14 @@ import org.urm.common.action.CommandOptions.SQLMODE;
 import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandOption.FLAG;
 import org.urm.db.core.DBEnums.*;
+import org.urm.engine.EngineCall;
 import org.urm.engine.Engine;
-import org.urm.engine.products.EngineProductEnvs;
-import org.urm.engine.session.EngineSession;
+import org.urm.engine.EngineSession;
 import org.urm.engine.shell.Account;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
@@ -69,7 +69,6 @@ public class CommandContext {
 	public EngineSession session;
 	public ActionBase action;
 
-	public AppProduct product;
 	public Meta meta;
 	public MetaEnv env; 
 	public MetaEnvSegment sg;
@@ -283,32 +282,31 @@ public class CommandContext {
 	
 	public void setOptions( ActionBase action , Meta meta , CommandOptions options ) throws Exception {
 		this.options = options;
-		update( action , meta.getProduct() , meta );
+		update( action , meta );
 	}
 	
 	public void update( ActionBase action , MetaEnv env , MetaEnvSegment sg ) throws Exception {
 		this.env = env;  
 		this.sg = sg;
-		update( action , env.meta.getProduct() , env.meta );
+		update( action , env.meta );
 	}
 
 	public void update( ActionInit action ) throws Exception {
-		AppProduct product = ( session != null && session.product )? action.getContextProduct() : null;
-		update( action , product , null );
+		Meta meta = ( session != null && session.product )? action.getContextMeta() : null;
+		update( action , meta );
 	}
 	
-	public void update( ActionBase action , AppProduct product , Meta meta ) throws Exception {
-		this.product = product;
+	public void update( ActionBase action , Meta meta ) throws Exception {
 		this.meta = meta;
 		
-		boolean ismeta = ( meta != null )? true : false; 
+		boolean isproduct = ( meta != null )? true : false; 
 		boolean isenv = ( env == null )? false : true; 
 		boolean def = ( isenv && env.isProd() )? true : false;
 		String value;
 		
 		// generic
-		MetaProductSettings settings = ( ismeta )? meta.getProductSettings() : null;
-		MetaProductCoreSettings core = ( ismeta )? settings.getCoreSettings() : null;
+		MetaProductSettings settings = ( isproduct )? meta.getProductSettings() : null;
+		MetaProductCoreSettings core = ( isproduct )? settings.getCoreSettings() : null;
 		CTX_TRACEINTERNAL = ( getFlagValue( "OPT_TRACE" ) && getFlagValue( "OPT_SHOWALL" ) )? true : false;
 		CTX_TRACE = getFlagValue( "OPT_TRACE" );
 		CTX_SHOWONLY = combineValue( "OPT_SHOWONLY" , ( ( isenv )? env.SHOWONLY : null ) , def );
@@ -329,10 +327,10 @@ public class CommandContext {
 		}
 		
 		CTX_DISTPATH = getParamPathValue( "OPT_DISTPATH" , "" );
-		CTX_REDISTWIN_PATH = ( ismeta )? core.CONFIG_REDISTWIN_PATH : "";
+		CTX_REDISTWIN_PATH = ( isproduct )? core.CONFIG_REDISTWIN_PATH : null;
 		if( isenv && !env.REDISTWIN_PATH.isEmpty() )
 			CTX_REDISTWIN_PATH = env.REDISTWIN_PATH;
-		CTX_REDISTLINUX_PATH = ( ismeta )? core.CONFIG_REDISTLINUX_PATH : "";
+		CTX_REDISTLINUX_PATH = ( isproduct )? core.CONFIG_REDISTLINUX_PATH : null;
 		if( isenv && !env.REDISTLINUX_PATH.isEmpty() )
 			CTX_REDISTLINUX_PATH = env.REDISTLINUX_PATH;
 		CTX_HIDDENPATH = getParamPathValue( "OPT_HIDDENPATH" );
@@ -405,9 +403,9 @@ public class CommandContext {
 	}
 	
 	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
-		AppProduct product = action.getContextProduct();
-		EngineProductEnvs envs = product.findEnvs();
-		env = envs.findEnv( ENV );
+		Meta meta = action.getContextMeta();
+		ProductEnvs envs = meta.getEnviroments();
+		env = envs.findMetaEnv( ENV );
 		
 		if( SG == null || SG.isEmpty() ) {
 			sg = null;

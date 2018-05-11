@@ -2,14 +2,13 @@ package org.urm.action.deploy;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.FACTVALUE;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.Types.*;
 
 public class ServerProcess {
 
@@ -152,7 +151,7 @@ public class ServerProcess {
 			return( false );
 		
 		try {
-			cmdValue = shell.customGetValue( action , "crm_resource -W -r " + srv.SYSNAME + " 2>&1 | grep `hostname`" , Shell.WAIT_DEFAULT );
+			cmdValue = shell.customGetValue( action , "crm_resource -W -r " + srv.SYSNAME + " 2>&1 | grep `hostname`" );
 			String check = cmdValue.toUpperCase();
 			if( isStoppedStatus( action , check ) ) {
 				mode = EnumProcessMode.STOPPED;
@@ -185,7 +184,7 @@ public class ServerProcess {
 			return( false );
 		
 		try {
-			cmdValue = shell.customGetValue( action , "docker inspect " + srv.SYSNAME + " | grep Status" , Shell.WAIT_DEFAULT );
+			cmdValue = shell.customGetValue( action , "docker inspect " + srv.SYSNAME + " | grep Status" );
 			cmdValue = cmdValue.trim();
 			if( !cmdValue.startsWith( Common.getQuoted( "Status" ) + ":" ) ) {
 				mode = EnumProcessMode.ERRORS;
@@ -227,7 +226,7 @@ public class ServerProcess {
 		// linux operations
 		try {
 			if( srv.isLinux() ) {
-				cmdValue = shell.customGetValue( action , "service " + srv.SYSNAME + " status 2>&1" , Shell.WAIT_DEFAULT );
+				cmdValue = shell.customGetValue( action , "service " + srv.SYSNAME + " status 2>&1" );
 				
 				String check = cmdValue.toUpperCase();
 				if( isStoppedStatus( action , check ) ) {
@@ -289,10 +288,10 @@ public class ServerProcess {
 		
 		try {
 			if( srv.isLinux() )
-				cmdValue = shell.customGetValue( action , srv.getFullBinPath() , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS , Shell.WAIT_DEFAULT );
+				cmdValue = shell.customGetValue( action , srv.getFullBinPath() , "./server.status.sh " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
 			else
 			if( srv.isWindows() )
-				cmdValue = shell.customGetValue( action , srv.getFullBinPath() , "call server.status.cmd " + srv.NAME + " " + action.context.CTX_EXTRAARGS , Shell.WAIT_DEFAULT );
+				cmdValue = shell.customGetValue( action , srv.getFullBinPath() , "call server.status.cmd " + srv.NAME + " " + action.context.CTX_EXTRAARGS );
 			else
 				action.exitUnexpectedState();
 		}
@@ -333,7 +332,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				String value = shell.customGetValue( action , "pgrep -f \"Dprogram.name=" + srv.NAME + " \"" , Shell.WAIT_DEFAULT );
+				String value = shell.customGetValue( action , "pgrep -f \"Dprogram.name=" + srv.NAME + " \"" );
 				if( !value.isEmpty() )
 					pids = value.replace( '\n' ,  ' ' );
 				return( true );
@@ -392,7 +391,7 @@ public class ServerProcess {
 
 		ShellExecutor shell = action.getShell( node );
 		try {
-			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --ban --quiet" , Shell.WAIT_DEFAULT );
+			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --ban --quiet" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 			return( true );
 		}
@@ -418,7 +417,7 @@ public class ServerProcess {
 
 		ShellExecutor shell = action.getShell( node );
 		try {
-			shell.customCritical( action , "docker stop " + srv.SYSNAME , Shell.WAIT_DEFAULT );
+			shell.customCritical( action , "docker stop " + srv.SYSNAME );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 			return( true );
 		}
@@ -443,7 +442,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "service " + srv.SYSNAME + " stop > /dev/null 2>&1" , Shell.WAIT_DEFAULT );
+				shell.customCritical( action , "service " + srv.SYSNAME + " stop > /dev/null 2>&1" );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 				return( true );
 			}
@@ -494,7 +493,7 @@ public class ServerProcess {
 			// linux operations
 			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.stop.sh " + srv.NAME + " " +
-						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" , Shell.WAIT_DEFAULT );
+						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 				shell.checkErrors( action );
 				return( true );
@@ -503,7 +502,7 @@ public class ServerProcess {
 			// windows operations
 			if( srv.isWindows() ) {
 				shell.customCritical( action , F_FULLBINPATH , "call server.stop.cmd " + srv.NAME + " " +
-						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS , Shell.WAIT_DEFAULT );
+						Common.getQuoted( pids ) + " " + action.context.CTX_EXTRAARGS );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTOP.name() );
 				shell.checkErrors( action );
 				return( true );
@@ -638,7 +637,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "kill -9 " + pids , Shell.WAIT_DEFAULT );
+				shell.customCritical( action , "kill -9 " + pids );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSKILL.name() );
 				return;
 			}
@@ -701,7 +700,7 @@ public class ServerProcess {
 
 		ShellExecutor shell = action.getShell( node );
 		try {
-			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --clear --quiet" , Shell.WAIT_DEFAULT );
+			shell.customCritical( action , "crm_resource -r " + srv.SYSNAME + " --host `hostname` --clear --quiet" );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
 			return( true );
 		}
@@ -733,7 +732,7 @@ public class ServerProcess {
 
 		ShellExecutor shell = action.getShell( node );
 		try {
-			shell.customCritical( action , "docker start " + srv.SYSNAME , Shell.WAIT_DEFAULT );
+			shell.customCritical( action , "docker start " + srv.SYSNAME );
 			state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
 			return( true );
 		}
@@ -764,7 +763,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "service " + srv.SYSNAME + " start > /dev/null 2>&1" , Shell.WAIT_DEFAULT );
+				shell.customCritical( action , "service " + srv.SYSNAME + " start > /dev/null 2>&1" );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
 				return( true );
 			}
@@ -808,7 +807,7 @@ public class ServerProcess {
 			// linux operations
 			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.start.sh " + srv.NAME + " " +
-					action.context.CTX_EXTRAARGS + " > /dev/null" , Shell.WAIT_DEFAULT );
+					action.context.CTX_EXTRAARGS + " > /dev/null" );
 				shell.checkErrors( action );
 				state.addFact( Facts.PROCESSACTION , FACTVALUE.PROCESSACTION , ProcessAction.PROCESSSTART.name() );
 				return( true );
@@ -817,7 +816,7 @@ public class ServerProcess {
 			// windows operations
 			if( srv.isWindows() ) {
 				shell.customCritical( action , F_FULLBINPATH , "call server.start.cmd " + srv.NAME + " " +
-					action.context.CTX_EXTRAARGS , Shell.WAIT_DEFAULT );
+					action.context.CTX_EXTRAARGS );
 					shell.checkErrors( action );
 				return( true );
 			}
@@ -915,6 +914,7 @@ public class ServerProcess {
 		action.info( "prepare server ..." );
 		
 		boolean res = false;
+		int timeout = action.setTimeoutUnlimited();
 		
 		if( isService( action ) )
 			res = prepareService( action );
@@ -930,6 +930,7 @@ public class ServerProcess {
 		else
 			action.exitUnexpectedState();
 		
+		action.setTimeout( timeout );
 		return( res );
 	}
 
@@ -948,7 +949,7 @@ public class ServerProcess {
 		try {
 			// linux operations
 			if( srv.isLinux() ) {
-				shell.customCritical( action , "service " + srv.SYSNAME + " prepare" , Shell.WAIT_LONG );
+				shell.customCritical( action , "service " + srv.SYSNAME + " prepare" );
 				shell.checkErrors( action );
 				return( true );
 			}
@@ -975,7 +976,7 @@ public class ServerProcess {
 			// linux operations
 			if( srv.isLinux() ) {
 				shell.customCritical( action , F_FULLBINPATH , "./server.prepare.sh " + srv.NAME + " " +
-						srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS + " > /dev/null" , Shell.WAIT_LONG );
+						srv.ROOTPATH + " " + action.context.CTX_EXTRAARGS + " > /dev/null" );
 				shell.checkErrors( action );
 				return( true );
 			}
@@ -984,7 +985,7 @@ public class ServerProcess {
 			if( srv.isWindows() ) {
 				String wpath = Common.getWinPath( srv.ROOTPATH ); 
 				shell.customCritical( action , F_FULLBINPATH , "call server.prepare.cmd " + srv.NAME + " " +
-						wpath + " " + action.context.CTX_EXTRAARGS , Shell.WAIT_LONG );
+						wpath + " " + action.context.CTX_EXTRAARGS );
 				shell.checkErrors( action );
 				return( true );
 			}

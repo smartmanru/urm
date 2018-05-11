@@ -26,27 +26,23 @@ public class ActionCopyCodebase extends ActionBase {
 	@Override 
 	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
-		boolean res = false;
 		if( branchVAR1 == true && branchVAR2 == true && force == false )
-			res = vcs.copyBranchToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
+			vcs.copyBranchToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
 		else
 		if( branchVAR1 == true && branchVAR2 == false && force == true )
-			res = vcs.setTag( scopeProject.sourceProject , VAR1 , VAR2 , "" );
+			vcs.setTag( scopeProject.sourceProject , VAR1 , VAR2 , "" );
 		else
 		if( branchVAR1 == false && branchVAR2 == true && force == false )
-			res = vcs.copyTagToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
+			vcs.copyTagToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
 		else
 		if( branchVAR1 == false && branchVAR2 == false && force == false )
-			res = vcs.copyTagToNewTag( scopeProject.sourceProject , VAR1 , VAR2 );
+			vcs.copyTagToNewTag( scopeProject.sourceProject , VAR1 , VAR2 );
 		else
 		if( branchVAR1 == false && branchVAR2 == false && force == true )
-			res = vcs.copyTagToTag( scopeProject.sourceProject , VAR1 , VAR2 );
+			vcs.copyTagToTag( scopeProject.sourceProject , VAR1 , VAR2 );
 		else
 			exitNotImplemented();
 		
-		if( !res )
-			super.exit1( _Error.UnableChangeProjectCodebase1 , "Unable to change source codebase of project=" + scopeProject.sourceProject.NAME , scopeProject.sourceProject.NAME );
-			
 		return( SCOPESTATE.RunSuccess );
 	}
 	

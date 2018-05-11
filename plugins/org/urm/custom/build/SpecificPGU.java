@@ -7,14 +7,12 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionScope;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.*;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
@@ -23,6 +21,7 @@ import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectItem;
+import org.urm.meta.Types.*;
 
 public class SpecificPGU {
 
@@ -169,8 +168,7 @@ public class SpecificPGU {
 	}
 	
 	private void getAllWarAppCopyProd() throws Exception {
-		AppProduct product = meta.getProduct();
-		Dist distStorage = action.getMasterDist( product );
+		Dist distStorage = action.getMasterDist( meta );
 
 		action.debug( "copy libraries from " + distStorage.RELEASEDIR + "/servicecall." + SERVICECALL_EXT + " to servicecall-prod-libs ..." );
 		distStorage.unzipDistFileToFolder( action , downloadFolder , "servicecall-*." + SERVICECALL_EXT , servicecallItem.delivery.FOLDER , Common.getQuoted( SERVICECALL_DIR + "/lib/*" ) , "servicecall-prod-libs" );
@@ -191,7 +189,7 @@ public class SpecificPGU {
 
 		// download latest built libs for all microportals
 		action.debug( "download last built libs for all microportals from Nexus - to pgu-services-lib ..." );
-		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , DBEnumScopeCategoryType.SEARCH_SOURCEBUILDABLE );
+		Map<String,ActionScopeTarget> projects = scope.getCategorySetTargets( action , EnumScopeCategory.SEARCH_SOURCEBUILDABLE );
 		
 		for( ActionScopeTarget scopeProject : projects.values() ) {
 			MetaDistrBinaryItem distItem = getWarItem( scopeProject.sourceProject , 1 );

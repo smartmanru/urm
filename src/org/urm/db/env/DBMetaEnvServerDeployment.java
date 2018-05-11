@@ -9,23 +9,18 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineMatcher;
+import org.urm.meta.MatchItem;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.loader.EngineMatcher;
-import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.MetaDatabase;
-import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistr;
-import org.urm.meta.product.MetaDistrBinaryItem;
-import org.urm.meta.product.MetaDistrComponent;
-import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -43,7 +38,7 @@ public class DBMetaEnvServerDeployment {
 		MetaEnvServerDeployment deployment = new MetaEnvServerDeployment( storage.meta , server );
 		importxmlData( loader , storage , env , deployment , root );
 		
-		modifyDeployment( c , storage , env , server , deployment , true );
+		modifyDeployment( c , storage , env , deployment , true );
 		
 		return( deployment );
 	}
@@ -95,7 +90,7 @@ public class DBMetaEnvServerDeployment {
 		String schemaName = entity.importxmlStringAttr( root , MetaEnvServerDeployment.PROPERTY_SCHEMA );
 		if( !schemaName.isEmpty() ) {
 			schemaName = matcher.matchEnvBefore( env , schemaName , deployment.ID , entity , MetaEnvServerDeployment.PROPERTY_SCHEMA , null );
-			MatchItem SCHEMA = database.getSchemaMatchItem( null , schemaName );
+			MatchItem SCHEMA = database.matchSchema( schemaName );
 			matcher.matchEnvDone( SCHEMA );
 			
 			deployment.create( DBEnumServerDeploymentType.SCHEMA , null , null , null , SCHEMA , deployMode , "" , dbname , dbuser , DBEnumNodeType.UNKNOWN );
@@ -105,7 +100,7 @@ public class DBMetaEnvServerDeployment {
 		Common.exitUnexpected();
 	}
 	
-	public static void modifyDeployment( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment deployment , boolean insert ) throws Exception {
+	public static void modifyDeployment( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvServerDeployment deployment , boolean insert ) throws Exception {
 		if( insert )
 			deployment.ID = c.getNextSequenceValue();
 		
@@ -113,7 +108,7 @@ public class DBMetaEnvServerDeployment {
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppServerDeployment , deployment.ID , deployment.EV , new String[] {
 				EngineDB.getObject( env.ID ) ,
-				EngineDB.getObject( server.ID ) ,
+				EngineDB.getObject( deployment.server.ID ) ,
 				EngineDB.getEnum( deployment.SERVERDEPLOYMENT_TYPE ) ,
 				EngineDB.getMatchId( deployment.getCompMatchItem() ) ,
 				EngineDB.getMatchName( deployment.getCompMatchItem() ) ,
@@ -213,95 +208,6 @@ public class DBMetaEnvServerDeployment {
 				entity.exportxmlString( deployment.DBUSER ) ,
 				entity.exportxmlEnum( deployment.NODE_TYPE )
 		} , true );
-	}
-
-	public static void deleteDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment deployment ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		EngineEntities entities = c.getEntities();
-		PropertyEntity entity = entities.entityAppServerDeployment;
-		
-		DBEngineEntities.deleteAppObject( c , entity , deployment.ID , c.getNextEnvironmentVersion( env ) );
-		server.removeDeployment( deployment );
-	}
-
-	public static MetaEnvServerDeployment createBinaryDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , 
-			MetaDistrBinaryItem item , DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		MetaEnvServerDeployment dp = new MetaEnvServerDeployment( storage.meta , server );
-		dp.createBinaryItem( item , deployMode , deployPath , nodeType );
-		modifyDeployment( c , storage , env , server , dp , true );
-		
-		server.addDeployment( dp );
-		return( dp );
-	}
-	
-	public static MetaEnvServerDeployment createConfDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , 
-			MetaDistrConfItem item , DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		MetaEnvServerDeployment dp = new MetaEnvServerDeployment( storage.meta , server );
-		dp.createConfItem( item , deployMode , deployPath , nodeType );
-		modifyDeployment( c , storage , env , server , dp , true );
-		
-		server.addDeployment( dp );
-		return( dp );
-	}
-	
-	public static MetaEnvServerDeployment createDatabaseDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , 
-			MetaDatabaseSchema schema , DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		MetaEnvServerDeployment dp = new MetaEnvServerDeployment( storage.meta , server );
-		dp.createSchema( schema , deployMode , dbName , dbUser );
-		modifyDeployment( c , storage , env , server , dp , true );
-		
-		server.addDeployment( dp );
-		return( dp );
-	}
-	
-	public static MetaEnvServerDeployment createComponentDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , 
-			MetaDistrComponent comp , DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		MetaEnvServerDeployment dp = new MetaEnvServerDeployment( storage.meta , server );
-		dp.createComponent( comp , deployMode , deployPath , nodeType );
-		modifyDeployment( c , storage , env , server , dp , true );
-		
-		server.addDeployment( dp );
-		return( dp );
-	}
-	
-	public static void modifyBinaryDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment dp , 
-			MetaDistrBinaryItem item , DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		dp.modifyBinaryItem( item , deployMode , deployPath , nodeType );
-		modifyDeployment( c , storage , env , server , dp , false );
-	}
-	
-	public static void modifyConfDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment dp , 
-			MetaDistrConfItem item , DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		dp.modifyConfItem( item , deployMode , deployPath , nodeType );
-		modifyDeployment( c , storage , env , server , dp , false );
-	}
-	
-	public static void modifyDatabaseDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment dp , 
-			MetaDatabaseSchema schema , DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		dp.modifySchema( schema , deployMode , dbName , dbUser );
-		modifyDeployment( c , storage , env , server , dp , false );
-	}
-	
-	public static void modifyComponentDeployment( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment dp , 
-			MetaDistrComponent comp , DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		dp.modifyComponent( comp , deployMode , deployPath , nodeType );
-		modifyDeployment( c , storage , env , server , dp , false );
 	}
 	
 }

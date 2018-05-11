@@ -4,21 +4,19 @@ import java.sql.ResultSet;
 
 import org.urm.common.Common;
 import org.urm.db.DBConnection;
-import org.urm.db.EngineDB;
-import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamValueSubType;
 import org.urm.db.core.DBEnums.DBEnumParamValueType;
 import org.urm.db.core.DBSettings;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.TransactionBase;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.properties.PropertyValue;
-import org.urm.engine.transaction.TransactionBase;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -29,9 +27,7 @@ public abstract class DBEngineEntities {
 	public static String FIELD_VERSION_SYSTEM = "sv"; 
 	public static String FIELD_VERSION_PRODUCT = "pv"; 
 	public static String FIELD_VERSION_ENVIRONMENT = "ev"; 
-	public static String FIELD_VERSION_RELEASE = "rv"; 
 	public static String FIELD_VERSION_AUTH = "uv"; 
-	public static String FIELD_CHANGETYPE = "change_type";
 	
 	public static String getVersionField( DBEnumObjectVersionType versionType ) {
 		if( versionType == DBEnumObjectVersionType.APP )
@@ -44,88 +40,35 @@ public abstract class DBEngineEntities {
 			return( FIELD_VERSION_PRODUCT );
 		if( versionType == DBEnumObjectVersionType.ENVIRONMENT )
 			return( FIELD_VERSION_ENVIRONMENT );
-		if( versionType == DBEnumObjectVersionType.RELEASE )
-			return( FIELD_VERSION_RELEASE );
 		if( versionType == DBEnumObjectVersionType.LOCAL )
 			return( FIELD_VERSION_AUTH );
 		return( null );
 	}
 
 	public static void modifyAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values , boolean insert ) throws Exception {
-		if( entity.CHANGEABLE )
+		if( id <= 0 || version <= 0 )
 			Common.exitUnexpected();
+		
 		if( insert )
-			insertAppObject( c , entity , id , version , values , null );
-		updateAppObject( c , entity , id , version , values , null );
+			insertAppObject( c , entity , id , version , values );
+		else
+			updateAppObject( c , entity , id , version , values );
 	}
 	
-	public static void modifyAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values , boolean insert , DBEnumChangeType type ) throws Exception {
-		if( !entity.CHANGEABLE )
-			Common.exitUnexpected();
-		if( insert )
-			insertAppObject( c , entity , id , version , values , type );
-		updateAppObject( c , entity , id , version , values , type );
-	}
-	
-	public static void modifyAppEntity( DBConnection c , PropertyEntity entity , int version , String[] values , boolean insert ) throws Exception {
-		if( entity.CHANGEABLE )
-			Common.exitUnexpected();
-		if( entity.hasId() )
-			Common.exitUnexpected();
-		if( insert )
-			insertAppObject( c , entity , null , version , values , null );
-		updateAppObject( c , entity , null , version , values , null );
-	}
-	
-	public static void modifyAppEntity( DBConnection c , PropertyEntity entity , int version , String[] values , boolean insert , DBEnumChangeType type ) throws Exception {
-		if( !entity.CHANGEABLE )
-			Common.exitUnexpected();
-		if( entity.hasId() )
-			Common.exitUnexpected();
-		if( insert )
-			insertAppObject( c , entity , null , version , values , type );
-		updateAppObject( c , entity , null , version , values , type );
-	}
-	
-	private static void insertAppObject( DBConnection c , PropertyEntity entity , Integer id , int version , String[] values , DBEnumChangeType type ) throws Exception {
-		if( entity.hasId() ) {
-			if( id == null )
-				Common.exitUnexpected();
-		}
-		else {
-			if( id != null )
-				Common.exitUnexpected();
-		}
-			
-		if( version <= 0 )
+	public static void insertAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values ) throws Exception {
+		if( id <= 0 || version <= 0 )
 			Common.exitUnexpected();
 		
 		EntityVar[] vars = entity.getDatabaseVars();
 		if( vars.length != values.length )
 			Common.exitUnexpected();
 
-		int addFields = 1;
-		if( id != null )
-			addFields++;
+		String[] valuesFinal = new String[ values.length + 2 ];
 		
-		if( entity.CHANGEABLE )
-			addFields++;
-		String[] valuesFinal = new String[ values.length + addFields ];
-		
-		int shift = 0;
-		if( id != null ) {
-			valuesFinal[ 0 ] = "" + id;
-			shift = 1;
-		}
+		valuesFinal[ 0 ] = "" + id;
 		for( int k = 0; k < vars.length; k++ )
-			valuesFinal[ k + shift ] = values[ k ];
-		
-		if( entity.CHANGEABLE ) {
-			valuesFinal[ valuesFinal.length - 2 ] = EngineDB.getInteger( version );
-			valuesFinal[ valuesFinal.length - 1 ] = EngineDB.getEnum( type );
-		}
-		else
-			valuesFinal[ valuesFinal.length - 1 ] = EngineDB.getInteger( version );
+			valuesFinal[ k + 1 ] = values[ k ];
+		valuesFinal[ valuesFinal.length - 1 ] = "" + version;
 		
 		String query = "insert into " + entity.APP_TABLE + " ( ";
 		query += getFieldList( entity );
@@ -137,9 +80,7 @@ public abstract class DBEngineEntities {
 	
 	private static String getFieldList( PropertyEntity entity ) {
 		EntityVar[] vars = entity.getDatabaseVars();
-		String list = "";
-		if( entity.hasId() )
-			list = entity.getIdField();
+		String list = entity.getIdField();
 		for( int k = 0; k < vars.length; k++ ) {
 			EntityVar var = vars[ k ];
 			list = Common.addToList( list , var.DBNAME , " , " );
@@ -147,23 +88,11 @@ public abstract class DBEngineEntities {
 		
 		String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
 		list = Common.addToList( list , fieldVersion , " , " );
-		
-		if( entity.CHANGEABLE )
-			list = Common.addToList( list , FIELD_CHANGETYPE , " , " );
 		return( list );
 	}
 	
-	private static void updateAppObject( DBConnection c , PropertyEntity entity , Integer id , int version , String[] values , DBEnumChangeType type ) throws Exception {
-		if( entity.hasId() ) {
-			if( id == null )
-				Common.exitUnexpected();
-		}
-		else {
-			if( id != null )
-				Common.exitUnexpected();
-		}
-		
-		if( version <= 0 )
+	public static void updateAppObject( DBConnection c , PropertyEntity entity , int id , int version , String[] values ) throws Exception {
+		if( id <= 0 || version <= 0 )
 			Common.exitUnexpected();
 		
 		EntityVar[] vars = entity.getDatabaseVars();
@@ -171,31 +100,14 @@ public abstract class DBEngineEntities {
 			Common.exitUnexpected();
 		
 		String query = "update " + entity.APP_TABLE + " set ";
-		int startIndex = 0;
-		if( id == null )
-			startIndex = entity.PK_FIELD_COUNT;
-		
-		for( int k = startIndex; k < vars.length; k++ ) {
+		for( int k = 0; k < vars.length; k++ ) {
 			EntityVar var = vars[ k ];
 			query += var.DBNAME + " = " + values[ k ] + " , ";
 		}
 		
 		String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
 		query += fieldVersion + " = " + version;
-		if( entity.CHANGEABLE )
-			query += " , " + FIELD_CHANGETYPE + " = " + EngineDB.getEnum( type );
-			
-		query += " where ";
-		if( id != null )
-			query += entity.getIdField() + " = " + id;
-		else {
-			for( int k = 0; k < entity.PK_FIELD_COUNT; k++ ) {
-				EntityVar var = vars[ k ];
-				if( k > 0 )
-					query += " and ";
-				query += var.DBNAME + " = " + values[ k ];
-			}
-		}
+		query += " where " + entity.getIdField() + " = " + id;
 		
 		if( !c.modify( query ) )
 			Common.exitUnexpected();
@@ -208,7 +120,7 @@ public abstract class DBEngineEntities {
 	}
 
 	public static ResultSet listAppObjectsFiltered( DBConnection c , PropertyEntity entity , String filter , String[] args ) throws Exception {
-		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE + " where " + filter; 
+		String query = "select " + getFieldList( entity ) + " from " + entity.APP_TABLE + " " + filter; 
 		ResultSet rs = c.query( query , args );
 		return( rs );
 	}
@@ -227,47 +139,11 @@ public abstract class DBEngineEntities {
 		return( rs );
 	}
 
-	public static boolean existAppObjects( DBConnection c , PropertyEntity entity , String filter , String[] args ) throws Exception {
-		String query = "select 1 from " + entity.APP_TABLE + " where " + filter; 
-		ResultSet rs = c.query( query , args );
-		if( rs == null )
-			Common.exitUnexpected();
-
-		boolean next = false;
-		try {
-			next = rs.next();
-		}
-		finally {
-			c.closeQuery();
-		}
-		
-		return( next );
-	}
-	
 	public static void deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version ) throws Exception {
-		if( entity.CHANGEABLE )
-			Common.exitUnexpected();
-		deleteAppObject( c , entity , id , version , null );
-	}
-	
-	public static void deleteAppObject( DBConnection c , PropertyEntity entity , int id , int version , DBEnumChangeType changeType ) throws Exception {
 		if( id <= 0 || version <= 0 )
 			Common.exitUnexpected();
 		
-		String query = null;
-		if( entity.CHANGEABLE && changeType == DBEnumChangeType.DELETED ) {
-			String fieldVersion = getVersionField( entity.DATA_OBJECTVERSION_TYPE );
-			query = "update " + entity.APP_TABLE + " set change_type = " + EngineDB.getEnum( changeType ) +
-					", " + fieldVersion + " = " + version +
-					" where " + entity.getIdField() + " = " + id;
-		}
-		else {
-			if( changeType != null )
-				Common.exitUnexpected();
-			
-			query = "delete from " + entity.APP_TABLE + " where " + entity.getIdField() + " = " + id;
-		}
-		
+		String query = "delete from " + entity.APP_TABLE + " where " + entity.getIdField() + " = " + id;
 		if( !c.modify( query ) )
 			Common.exitUnexpected();
 	}
@@ -275,12 +151,6 @@ public abstract class DBEngineEntities {
 	public static void dropAppObjects( DBConnection c , PropertyEntity entity ) throws Exception {
 		String query = "delete from " + entity.APP_TABLE;
 		if( !c.modify( query ) )
-			Common.exitUnexpected();
-	}
-	
-	public static void dropAppObjects( DBConnection c , PropertyEntity entity , String filter , String[] args ) throws Exception {
-		String query = "delete from " + entity.APP_TABLE + " where " + filter;
-		if( !c.modify( query , args ) )
 			Common.exitUnexpected();
 	}
 	
@@ -301,13 +171,10 @@ public abstract class DBEngineEntities {
 		}
 	}
 	
-	public static void loaddbAppObject( ResultSet rs , ObjectProperties props , PropertyEntity entity ) throws Exception {
+	public static void loaddbAppObject( ResultSet rs , ObjectProperties props ) throws Exception {
 		ObjectMeta meta = props.getMeta();
 		
 		for( EntityVar var : meta.getAppVars() ) {
-			if( entity != null && entity != var.entity )
-				continue;
-			
 			if( var.isDatabaseOnly() || var.isXmlOnly() )
 				continue;
 

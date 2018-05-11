@@ -2,7 +2,6 @@ package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.properties.PropertySet;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.LocalFolder;
@@ -28,7 +27,7 @@ public class BuilderAntMethod extends Builder {
 	@Override 
 	public boolean runBuild( ActionBase action ) throws Exception {
 		// ant params
-		action.info( "build PATCHPATH=" + CODEPATH.getLocalPath( action ) + " using ant " + builder.VERSION + " ..." );
+		action.info( "build PATCHPATH=" + CODEPATH.folderPath + " using ant " + builder.VERSION + " ..." );
 		PropertySet props = super.createProperties( action , project );
 
 		// set environment
@@ -49,10 +48,12 @@ public class BuilderAntMethod extends Builder {
 
 		// execute ant
 		action.info( "using ant:" );
-		session.customCheckErrorsNormal( action , "ant -version" , Shell.WAIT_DEFAULT );
+		session.customCheckErrorsNormal( action , "ant -version" );
 		
 		action.info( "execute: " + ANT_CMD );
-		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , ANT_CMD , Shell.WAIT_INFINITE );
+		int timeout = action.setTimeoutUnlimited();
+		int status = session.customGetStatusCheckErrors( action , CODEPATH.folderPath , ANT_CMD );
+		action.setTimeout( timeout );
 
 		if( status != 0 ) {
 			action.error( "build: ant build failed" );

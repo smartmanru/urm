@@ -2,7 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.EngineObject;
 
 public class LifecyclePhase extends EngineObject {
 
@@ -71,7 +71,7 @@ public class LifecyclePhase extends EngineObject {
 	}
 
 	public boolean isDeploy() {
-		if( LIFECYCLESTAGE_TYPE == DBEnumLifecycleStageType.DELIVERY )
+		if( LIFECYCLESTAGE_TYPE == DBEnumLifecycleStageType.DEPLOYMENT )
 			return( true );
 		return( false );
 	}

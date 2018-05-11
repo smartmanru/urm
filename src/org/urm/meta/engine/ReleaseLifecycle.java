@@ -9,12 +9,13 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.data.EngineLifecycles;
+import org.urm.engine.blotter.EngineBlotterReleaseItem;
+import org.urm.engine.blotter.EngineBlotterSet;
+import org.urm.engine.blotter.EngineBlotter.BlotterType;
+import org.urm.engine.dist.Release;
 import org.urm.engine.dist.VersionInfo;
-import org.urm.engine.products.EngineProductReleases;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.release.Release;
-import org.urm.meta.release.ReleaseSchedule;
+import org.urm.meta.EngineObject;
+import org.urm.meta.product.Meta;
 
 public class ReleaseLifecycle extends EngineObject {
 
@@ -215,60 +216,34 @@ public class ReleaseLifecycle extends EngineObject {
 		return( REGULAR );
 	}
 
-	public static Date findReleaseDate( ActionBase action , String RELEASEVER , AppProduct product , ReleaseLifecycle lc ) throws Exception {
-		Date date = null;
-		if( lc == null )
-			date = ReleaseLifecycle.findReleaseDate( action , RELEASEVER , product );
-		else
-			date = lc.getReleaseDate( action , RELEASEVER , product );
-		
-		if( date == null && lc != null )
-			date = Common.addDays( new Date() , lc.DAYS_TO_RELEASE );
-		return( date );
-	}
-	
-	public static Date findReleaseDate( ActionBase action , String RELEASEVER , AppProduct product ) throws Exception {
+	public static Date getReleaseDate( ActionBase action , String RELEASEVER , Meta meta ) throws Exception {
 		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEVER );
+		String prevReleaseVer = info.getPreviousVersion();
+		if( prevReleaseVer.isEmpty() )
+			return( null );
 		
-		AppProductPolicy policy = product.getPolicy();
-		ReleaseLifecycle lc = policy.findLifecycle( info.getLifecycleType() );
+		EngineBlotterSet blotter = action.getBlotter( BlotterType.BLOTTER_RELEASE );
+		EngineBlotterReleaseItem item = blotter.findReleaseItem( meta.name , prevReleaseVer );
+		if( item == null )
+			return( null );
+		
+		String LIFECYCLE = item.repoItem.dist.release.schedule.LIFECYCLE;
+		if( LIFECYCLE.isEmpty() )
+			return( null );
+		
+		EngineLifecycles lifecycles = action.getServerReleaseLifecycles();
+		ReleaseLifecycle lc = lifecycles.findLifecycle( LIFECYCLE );
 		if( lc == null )
 			return( null );
 		
-		return( lc.getReleaseDate( action , RELEASEVER , product , info ) );
-	}
-
-	public Date getReleaseDate( ActionBase action , String RELEASEVER , AppProduct product ) throws Exception {
-		VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEVER );
-		return( getReleaseDate( action , RELEASEVER , product , info ) );
+		return( lc.getNextReleaseDate( action , item.repoItem.dist.release ) );
 	}
 	
-	public Date getReleaseDate( ActionBase action , String RELEASEVER , AppProduct product , VersionInfo info ) throws Exception {
-		EngineProductReleases releases = product.findReleases();
-		String prevReleaseVer = info.getPreviousVersion();
+	public Date getNextReleaseDate( ActionBase action , Release release ) throws Exception {
+		if( isRegular() )
+			return( Common.addDays( release.schedule.releaseDate , SHIFT_DAYS ) );
 		
-		if( !prevReleaseVer.isEmpty() ) {
-			Release release = releases.findRelease( prevReleaseVer );
-			if( release != null ) {
-				ReleaseSchedule schedule = release.getSchedule();
-				Date refDate = new Date();
-				if( refDate.before( schedule.RELEASE_DATE ) )
-					refDate = schedule.RELEASE_DATE;
-				return( getNextReleaseDate( action , refDate ) );
-			}
-		}
-		
-		return( Common.addDays( new Date() , DAYS_TO_RELEASE ) );
-	}
-	
-	public Date getNextReleaseDate( ActionBase action , Date date ) throws Exception {
-		if( isRegular() ) {
-			Date newdate = Common.addDays( date , SHIFT_DAYS );
-			if( Common.getDateDiffDays( new Date() , newdate ) >= DAYS_TO_RELEASE )
-				return( date );
-		}
-		
-		return( Common.addDays( date , DAYS_TO_RELEASE ) );
+		return( Common.addDays( release.schedule.releaseDate , DAYS_TO_RELEASE ) );
 	}
 
 }

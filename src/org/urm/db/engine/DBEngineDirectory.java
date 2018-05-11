@@ -5,22 +5,24 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
+import org.urm.db.core.DBEnums.DBEnumObjectType;
+import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
-import org.urm.engine.data.EngineDirectory;
-import org.urm.engine.data.EngineSettings;
-import org.urm.engine.products.EngineProductRevisions;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
+import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineMatcher;
 import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.EngineDirectory;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.loader.EngineMatcher;
-import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.product.ProductMeta;
+import org.urm.meta.engine.EngineSettings;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,7 +31,51 @@ public abstract class DBEngineDirectory {
 
 	public static String ELEMENT_SYSTEM = "system";
 	public static String ELEMENT_PRODUCT = "product";
-	public static String ELEMENT_POLICY = "policy";
+	
+	public static String TABLE_SYSTEM = "urm_system";
+	public static String TABLE_PRODUCT = "urm_product";
+	public static String FIELD_SYSTEM_ID = "system_id";
+	public static String FIELD_SYSTEM_DESC = "xdesc";
+	public static String FIELD_PRODUCT_SYSTEM_ID = "system_id";
+	public static String FIELD_PRODUCT_ID = "product_id";
+	public static String FIELD_PRODUCT_DESC = "xdesc";
+	public static String FIELD_PRODUCT_MONITORING_ENABLED = "monitoring_enabled";
+	
+	public static PropertyEntity upgradeEntityDirectorySystem( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaString( AppSystem.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( AppSystem.PROPERTY_DESC , FIELD_SYSTEM_DESC , AppSystem.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaBoolean( AppSystem.PROPERTY_OFFLINE , "Offline" , false , true ) ,
+				EntityVar.metaBoolean( AppSystem.PROPERTY_MATCHED , "State of matched to core" , false , true )
+		} ) );
+	}
+
+	public static PropertyEntity upgradeEntityDirectoryProduct( EngineLoader loader ) throws Exception {
+		DBConnection c = loader.getConnection();
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.APPPRODUCT , DBEnumObjectVersionType.SYSTEM , TABLE_PRODUCT , FIELD_PRODUCT_ID );
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_PRODUCT_SYSTEM_ID , "System" , DBEnumObjectType.APPSYSTEM , true ) ,
+				EntityVar.metaString( AppProduct.PROPERTY_NAME , "Name" , true , null ) ,
+				EntityVar.metaStringVar( AppProduct.PROPERTY_DESC , FIELD_PRODUCT_DESC , AppProduct.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaString( AppProduct.PROPERTY_PATH , "Path" , true , null ) ,
+				EntityVar.metaBoolean( AppProduct.PROPERTY_OFFLINE , "Offline" , false , true ) ,
+				EntityVar.metaBooleanVar( AppProduct.PROPERTY_MONITORING_ENABLED , FIELD_PRODUCT_MONITORING_ENABLED , AppProduct.PROPERTY_MONITORING_ENABLED , "Monitoring enabled" , false , false ) ,
+		} ) );
+	}
+
+	public static PropertyEntity loaddbEntityDirectorySystem( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
+	
+	public static PropertyEntity loaddbEntityDirectoryProduct( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT , DBEnumParamEntityType.APPPRODUCT , DBEnumObjectVersionType.SYSTEM , TABLE_PRODUCT , FIELD_PRODUCT_ID );
+		DBSettings.loaddbAppEntity( c , entity );
+		return( entity );
+	}
 	
 	public static void importxml( EngineLoader loader , EngineDirectory directory , Node root ) throws Exception {
 		if( root == null )
@@ -61,16 +107,7 @@ public abstract class DBEngineDirectory {
 	}
 
 	private static AppProduct importxmlProduct( EngineLoader loader , EngineDirectory directory , AppSystem system , Node root ) throws Exception {
-		DBConnection c = loader.getConnection();
-		
 		AppProduct product = DBAppProduct.importxmlProduct( loader , directory , system , root );
-		
-		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_POLICY );
-		if( node == null )
-			DBAppProduct.createdbPolicy( c , directory , product );
-		else
-			DBAppProduct.importxmlPolicy( loader , directory , product , node );
-				
 		return( product );
 	}
 
@@ -95,8 +132,6 @@ public abstract class DBEngineDirectory {
 	
 	private static void exportxmlProduct( EngineLoader loader , EngineDirectory directory , AppProduct product , Document doc , Element root ) throws Exception {
 		DBAppProduct.exportxmlProduct( loader , product , doc , root );
-		Element elementPolicy = Common.xmlCreateElement( doc , root , ELEMENT_POLICY );
-		DBAppProduct.exportxmlPolicy( loader , product , doc , elementPolicy );
 	}
 	
 	public static void loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
@@ -115,10 +150,6 @@ public abstract class DBEngineDirectory {
 	
 	private static void loaddbProducts( EngineLoader loader , EngineDirectory directory ) throws Exception {
 		AppProduct[] products = DBAppProduct.loaddb( loader , directory );
-		
-		for( AppProduct product : products )
-			DBAppProduct.loaddbPolicy( loader , product );
-		
 		for( AppProduct product : products )
 			directory.addUnmatchedProduct( product );
 	}
@@ -155,7 +186,6 @@ public abstract class DBEngineDirectory {
 
 	public static void modifySystem( EngineTransaction transaction , EngineDirectory directory , AppSystem system , String name , String desc ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		
 		system.modifySystem( name , desc );
 		DBAppSystem.modifySystem( c , system , false );
 		directory.updateSystem( system );
@@ -163,7 +193,6 @@ public abstract class DBEngineDirectory {
 	
 	public static void setSystemOffline( EngineTransaction transaction , EngineDirectory directory , AppSystem system , boolean offline ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		
 		system.setOffline( offline );
 		DBAppSystem.modifySystem( c , system , false );
 	}
@@ -186,15 +215,11 @@ public abstract class DBEngineDirectory {
 		if( directory.findProduct( name ) != null )
 			transaction.exitUnexpectedState();
 		
-		// create product
 		AppProduct product = new AppProduct( directory , system );
 		product.createProduct( name , desc , path );
 		DBAppProduct.modifyProduct( c , product , true );
 		
-		// create initial policy
-		DBAppProduct.createdbPolicy( c , directory , product );
-		
-		directory.addMatchedProduct( product );
+		directory.addProduct( product );
 		return( product );
 	}
 	
@@ -236,17 +261,4 @@ public abstract class DBEngineDirectory {
 		product.deleteObject();
 	}
 
-	public static void modifyProductVersion( EngineTransaction transaction , EngineDirectory directory , AppProduct product , int majorLastFirstNumber , int majorLastSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		product.setVersions( majorLastFirstNumber , majorLastSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
-		DBAppProduct.modifyProduct( c , product , false );
-		
-		EngineProductRevisions revisions = product.findRevisions();
-		for( ProductMeta storage : revisions.getRevisions() ) {
-			MetaProductSettings settings = storage.getSettings();
-			settings.updateSettings( product );
-		}
-	}
-	
 }

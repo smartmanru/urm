@@ -6,12 +6,12 @@ import org.urm.action.ActionScopeSet;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
+import org.urm.engine.dist.Dist;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.release.Release;
 
 public class ActionBuild extends ActionBase {
 	
@@ -19,16 +19,16 @@ public class ActionBuild extends ActionBase {
 	public LocalFolder OUTDIR;
 	public String OUTFILE;
 	public String TAG;
-	public Release release;
+	public Dist dist;
 
 	public String BUILDSTATUS;
 	
-	public ActionBuild( ActionBase action , String stream , LocalFolder OUTDIR , String OUTFILE , String TAG , Release release ) {
+	public ActionBuild( ActionBase action , String stream , LocalFolder OUTDIR , String OUTFILE , String TAG , Dist dist ) {
 		super( action , stream , "Generic build, tag=" + TAG );
 		this.OUTDIR = OUTDIR;
 		this.OUTFILE = OUTFILE;
 		this.TAG = TAG;
-		this.release = release;
+		this.dist = dist;
 	}
 
 	@Override 
@@ -49,13 +49,10 @@ public class ActionBuild extends ActionBase {
 				
 			debug( "build project=" + project.NAME );
 			if( !super.runCustomTarget( state , target ) ) {
-				if( !super.isFailed() )
-					return( SCOPESTATE.RunSuccess );
-				if( context.CTX_FORCE || context.CTX_SKIPERRORS )
-					return( SCOPESTATE.RunSuccess );
-				
-				error( "cancel build due to errors" );
-				return( SCOPESTATE.RunFail );
+				if( !super.continueRun() ) {
+					error( "cancel build due to errors" );
+					return( SCOPESTATE.RunFail );
+				}
 			}
 		}
 
@@ -88,7 +85,7 @@ public class ActionBuild extends ActionBase {
 
 		BUILDSTATUS = "SUCCESSFUL";
 		boolean res = true;
-		if( !action.runProductBuild( state , project.meta , SecurityAction.ACTION_CODEBASE , context.buildMode , false ) ) {
+		if( !action.runProductBuild( state , project.meta.name , SecurityAction.ACTION_CODEBASE , context.buildMode , false ) ) {
 			BUILDSTATUS = "FAILED";
 			res = false;
 			super.fail1( _Error.ProjectBuildError1 , "Errors while building project=" + project.NAME , project.NAME );

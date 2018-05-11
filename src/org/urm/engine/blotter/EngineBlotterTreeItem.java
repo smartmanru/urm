@@ -1,6 +1,5 @@
 package org.urm.engine.blotter;
 
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,8 +12,8 @@ public class EngineBlotterTreeItem {
 	public EngineBlotterTreeItem parentItem;
 	public EngineBlotterActionItem baseItem;
 	
-	public Date startTime;
-	public Date stopTime;
+	public long startTime;
+	public long stopTime;
 	public boolean success;
 	public boolean stopped;
 	public boolean errors;
@@ -27,8 +26,8 @@ public class EngineBlotterTreeItem {
 		this.parentItem = parentItem;
 		this.baseItem = baseItem;
 		
-		startTime = new Date();
-		stopTime = null;
+		startTime = System.currentTimeMillis();
+		stopTime = 0;
 		success = false;
 		stopped = false;
 		errors = false;
@@ -47,7 +46,7 @@ public class EngineBlotterTreeItem {
 	public synchronized void stopAction( boolean success ) {
 		this.success = success;
 		
-		stopTime = new Date();
+		stopTime = System.currentTimeMillis();
 		stopped = true;
 	}
 	

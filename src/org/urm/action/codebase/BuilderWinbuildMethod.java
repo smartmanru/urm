@@ -2,9 +2,9 @@ package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.properties.PropertySet;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
+import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.engine.AuthResource;
@@ -46,7 +46,9 @@ public class BuilderWinbuildMethod extends Builder {
 				" using nuget to nexus path " + NUGET_PATH + "..." );
 
 		ShellExecutor session = createShell( action );
-		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , BUILD_CMD , Shell.WAIT_INFINITE );
+		int timeout = action.setTimeoutUnlimited();
+		int status = session.customGetStatusNormal( action , CODEPATH.folderPath , BUILD_CMD );
+		action.setTimeout( timeout );
 
 		if( status != 0 ) {
 			action.error( "buildDotnet: msbuild failed" );
@@ -56,8 +58,10 @@ public class BuilderWinbuildMethod extends Builder {
 		// upload package
 		String nugetId = project.meta.name + ".project." + project.NAME; 
 		String nugetPackCmd = "nuget pack package.nuspec -Version " + APPVERSION + " -Properties id=" + nugetId;
-		RemoteFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
-		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetPackCmd , Shell.WAIT_LONG );
+		LocalFolder NUGETPATH = CODEPATH.getSubFolder( action , "packages.build" ); 
+		timeout = action.setTimeoutUnlimited();
+		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetPackCmd );
+		action.setTimeout( timeout );
 		
 		if( status != 0 ) {
 			action.error( "buildDotnet: nuget pack failed" );
@@ -66,7 +70,9 @@ public class BuilderWinbuildMethod extends Builder {
 
 		String packageName = nugetId + "." + APPVERSION + ".nupkg";
 		String nugetUploadCmd = "nuget push " + packageName + " -Source " + NUGET_PATH;
-		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetUploadCmd , Shell.WAIT_LONG );
+		timeout = action.setTimeoutUnlimited();
+		status = session.customGetStatusNormal( action , NUGETPATH.folderPath , nugetUploadCmd );
+		action.setTimeout( timeout );
 		
 		if( status != 0 ) {
 			action.error( "buildDotnet: nuget push failed" );

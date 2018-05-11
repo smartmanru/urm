@@ -1,7 +1,5 @@
 package org.urm.engine.events;
 
-import org.urm.engine.EventService;
-
 public class SourceEvent {
 	
 	public EngineEventsSource source;
@@ -19,19 +17,19 @@ public class SourceEvent {
 	}
 
 	public boolean isEngineEvent( int event ) {
-		if( eventOwner == EventService.OWNER_ENGINE && eventType == event )
+		if( eventOwner == EngineEvents.OWNER_ENGINE && eventType == event )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isBuildEvent( int event ) {
-		if( eventOwner == EventService.OWNER_ENGINEBUILDPLAN && eventType == event )
+		if( eventOwner == EngineEvents.OWNER_ENGINEBUILDPLAN && eventType == event )
 			return( true );
 		return( false );
 	}
 	
 	public boolean isDeployEvent( int event ) {
-		if( eventOwner == EventService.OWNER_ENGINEDEPLOYPLAN && eventType == event )
+		if( eventOwner == EngineEvents.OWNER_ENGINEDEPLOYPLAN && eventType == event )
 			return( true );
 		return( false );
 	}

@@ -9,7 +9,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
-import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.EngineLoader;
 
 public abstract class DBEnums {
 
@@ -27,22 +27,6 @@ public abstract class DBEnums {
 		private DBEnumOwnerStatusType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
 		public static DBEnumOwnerStatusType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumOwnerStatusType.class , value , required , null ) ); };
 		public static DBEnumOwnerStatusType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumOwnerStatusType.class , value , required , null ) ); };
-	}
-	
-	public enum DBEnumChangeType implements DBEnumInterface {
-		UNKNOWN(0,null) ,
-		ORIGINAL(1,null) ,
-		CREATED(2,null) ,
-		UPDATED(3,null) ,
-		DELETED(4,null);
-
-		private final int value;
-		private String[] synonyms;
-		@Override public int code() { return( value ); };
-		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumChangeType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumChangeType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumChangeType.class , value , required , null ) ); };
-		public static DBEnumChangeType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumChangeType.class , value , required , null ) ); };
 	}
 	
 	public enum DBEnumResourceType implements DBEnumInterface {
@@ -137,8 +121,7 @@ public abstract class DBEnums {
 		STRING(1,new String[] {"PROPERTY_STRING"}) ,
 		NUMBER(2,new String[] {"PROPERTY_NUMBER"}) ,
 		BOOL(3,new String[] {"PROPERTY_BOOL"}) ,
-		DATE(4,new String[] {"PROPERTY_DATE"}) ,
-		PATH(5,new String[] {"PROPERTY_PATH"});
+		PATH(4,new String[] {"PROPERTY_PATH"});
 
 		private final int value;
 		private String[] synonyms;
@@ -220,7 +203,6 @@ public abstract class DBEnums {
 		BASE_CATEGORY(20,null) ,
 		BASE_GROUP(21,null) ,
 		BASE_ITEM(22,null) ,
-		BASE_ITEMDATA(23,null) ,
 		APPSYSTEM(30,null) ,
 		APPPRODUCT(31,null) ,
 		DBSCHEMA(50,null) ,
@@ -232,40 +214,19 @@ public abstract class DBEnums {
 		META_SOURCEITEM(106,null) ,
 		META_DOC(107,null) ,
 		META_POLICY(108,null) ,
-		META_POLICYCYCLE(109,null) ,
 		META_DIST_DELIVERY(151,null) ,
-		META_DIST_DELIVERYSCHEMA(152,null) ,
-		META_DIST_DELIVERYDOC(153,null) ,
-		META_DIST_BINARYITEM(161,null) ,
-		META_DIST_CONFITEM(162,null) ,
-		META_DIST_COMPONENT(163,null) ,
-		META_DIST_COMPITEM(164,null) ,
-		ENVIRONMENT(171,null) ,
-		ENVIRONMENT_SEGMENT(172,null) ,
-		ENVIRONMENT_SERVER(173,null) ,
-		ENVIRONMENT_SERVERDEP(174,null) ,
-		ENVIRONMENT_NODE(175,null) ,
-		ENVIRONMENT_STARTGROUP(180,null) ,
-		ENVIRONMENT_STARTGROUPSERVER(181,null) ,
-		ENVIRONMENT_DEPLOYMENT(182,null) ,
-		ENVIRONMENT_MONTARGET(183,null) ,
-		ENVIRONMENT_MONITEM(184,null) ,
-		ENVIRONMENT_DUMP(185,null) ,
-		ENVIRONMENT_DUMPMASK(186,null) ,
-		RELEASE_REPOSITORY(201,null) ,
-		RELEASE_MAIN(202,null) ,
-		RELEASE_DIST(203,null) ,
-		RELEASE_BUILDTARGET(204,null) ,
-		RELEASE_DISTTARGET(205,null) ,
-		RELEASE_SCOPESET(206,null) ,
-		RELEASE_SCOPETARGET(207,null) ,
-		RELEASE_SCOPEITEM(208,null) ,
-		RELEASE_SCHEDULE(209,null) ,
-		RELEASE_PHASE(210,null) ,
-		RELEASE_TICKETSET(211,null) ,
-		RELEASE_TICKETTARGET(212,null) ,
-		RELEASE_TICKET(213,null) ,
-		RELEASE_DISTITEM(214,null);
+		META_DIST_BINARYITEM(152,null) ,
+		META_DIST_CONFITEM(153,null) ,
+		META_DIST_COMPONENT(154,null) ,
+		META_DIST_COMPITEM(155,null) ,
+		ENVIRONMENT(156,null) ,
+		ENVIRONMENT_SEGMENT(157,null) ,
+		ENVIRONMENT_SERVER(158,null) ,
+		ENVIRONMENT_NODE(159,null) ,
+		ENVIRONMENT_STARTGROUP(160,null) ,
+		ENVIRONMENT_DEPLOYMENT(161,null) ,
+		ENVIRONMENT_MONTARGET(162,null) ,
+		ENVIRONMENT_MONITEM(163,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -342,7 +303,7 @@ public abstract class DBEnums {
 	public enum DBEnumLifecycleStageType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		RELEASE(1,null) ,
-		DELIVERY(2,null);
+		DEPLOYMENT(2,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -645,108 +606,7 @@ public abstract class DBEnums {
 		public static DBEnumNodeType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumNodeType.class , value , required , UNKNOWN ) ); };
 		public static DBEnumNodeType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumNodeType.class , value , required , UNKNOWN ) ); };
 	};
-
-	public enum DBEnumDistTargetType implements DBEnumInterface {
-		UNKNOWN(0,null) ,
-		DISTALL(1,null) ,
-		BINARYITEM(20,null) ,
-		CONFITEM(21,null) ,
-		SCHEMA(22,null) ,
-		DOC(23,null) ,
-		DELIVERYBINARIES(30,null) ,
-		DELIVERYCONFS(31,null) ,
-		DELIVERYDATABASE(32,null) ,
-		DELIVERYDOC(33,null);
-
-		public boolean isDelivery() {
-			if( this == DBEnumDistTargetType.DELIVERYBINARIES ||
-				this == DBEnumDistTargetType.DELIVERYCONFS ||
-				this == DBEnumDistTargetType.DELIVERYDATABASE ||
-				this == DBEnumDistTargetType.DELIVERYDOC )
-				return( true );
-			return( false );
-		}
-		
-		public boolean isDistItem() {
-			if( this == DBEnumDistTargetType.BINARYITEM ||
-				this == DBEnumDistTargetType.CONFITEM ||
-				this == DBEnumDistTargetType.SCHEMA ||
-				this == DBEnumDistTargetType.DOC )
-				return( true );
-			return( false );
-		}
-		
-		private final int value;
-		private String[] synonyms;
-		@Override public int code() { return( value ); };
-		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumDistTargetType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumDistTargetType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDistTargetType.class , value , required , null ) ); };
-		public static DBEnumDistTargetType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumDistTargetType.class , value , required , null ) ); };
-	};
 	
-	public enum DBEnumBuildTargetType implements DBEnumInterface {
-		UNKNOWN(0,null) ,
-		BUILDALL(1,null) ,
-		PROJECTSET(10,null) ,
-		PROJECTALLITEMS(11,null) ,
-		PROJECTNOITEMS(12,null);
-
-		private final int value;
-		private String[] synonyms;
-		@Override public int code() { return( value ); };
-		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumBuildTargetType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumBuildTargetType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumBuildTargetType.class , value , required , null ) ); };
-		public static DBEnumBuildTargetType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumBuildTargetType.class , value , required , null ) ); };
-	};
-	
-	public enum DBEnumTicketSetStatusType implements DBEnumInterface {
-		UNKNOWN(0,null) ,
-		NEW(1,null) ,
-		ACTIVE(2,null) ,
-		DESCOPED(3,null);
-
-		private final int value;
-		private String[] synonyms;
-		@Override public int code() { return( value ); };
-		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumTicketSetStatusType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumTicketSetStatusType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketSetStatusType.class , value , required , null ) ); };
-		public static DBEnumTicketSetStatusType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketSetStatusType.class , value , required , null ) ); };
-	};
-
-	public enum DBEnumTicketType implements DBEnumInterface {
-		UNKNOWN(0,null) ,
-		FEATURE(1,null) ,
-		CHANGE(2,null) ,
-		DOCUMENT(3,null) ,
-		BUGFIX(4,null);
-
-		private final int value;
-		private String[] synonyms;
-		@Override public int code() { return( value ); };
-		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumTicketType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumTicketType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketType.class , value , required , null ) ); };
-		public static DBEnumTicketType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketType.class , value , required , null ) ); };
-	};
-
-	public enum DBEnumTicketStatusType implements DBEnumInterface {
-		UNKNOWN(0,null) ,
-		NEW(1,null) ,
-		DEVDONE(2,null) ,
-		QADONE(5,null);
-
-		private final int value;
-		private String[] synonyms;
-		@Override public int code() { return( value ); };
-		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumTicketStatusType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumTicketStatusType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketStatusType.class , value , required , null ) ); };
-		public static DBEnumTicketStatusType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumTicketStatusType.class , value , required , null ) ); };
-	};
-
 	public enum DBEnumObjectVersionType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		APP(1,null) ,
@@ -754,8 +614,7 @@ public abstract class DBEnums {
 		LOCAL(3,null) ,
 		SYSTEM(4,null) ,
 		PRODUCT(5,null) ,
-		ENVIRONMENT(6,null) ,
-		RELEASE(7,null);
+		ENVIRONMENT(6,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -775,7 +634,7 @@ public abstract class DBEnums {
 		PRODUCTBUILD(14,null) ,
 		BASEGROUP(15,null) ,
 		BASEITEM(16,null) ,
-		BASEITEMDATA(17,null) ,
+		MONITORING(17,null) ,
 		LIFECYCLE(18,null) ,
 		LIFECYCLEPHASE(19,null) ,
 		RESOURCE(20,null) ,
@@ -783,7 +642,6 @@ public abstract class DBEnums {
 		BUILDER(22,null) ,
 		BUILDREG(23,null) ,
 		LDAPSETTINGS(24,null) ,
-		MONITORING(25,null) ,
 		DATACENTER(31,null) ,
 		NETWORK(32,null) ,
 		HOST(33,null) ,
@@ -798,6 +656,7 @@ public abstract class DBEnums {
 		BASEITEM_CUSTOM(116,null) ,
 		SYSTEM_CUSTOM(141,null) ,
 		PRODUCT_CUSTOM(150,null) ,
+		PRODUCT_VERSION(151,null) ,
 		PRODUCT_MONITORING(152,null) ,
 		PRODUCT_UNIT(153,null) ,
 		PRODUCT_SCHEMA(154,null) ,
@@ -806,46 +665,25 @@ public abstract class DBEnums {
 		PRODUCT_SOURCEITEM(157,null) ,
 		PRODUCT_DOC(158,null) ,
 		PRODUCT_POLICY(159,null) ,
-		PRODUCT_POLICYCYCLE(160,null) ,
 		PRODUCT_DIST_DELIVERY(201,null) ,
-		PRODUCT_DIST_DELIVERYSCHEMA(202,null) ,
-		PRODUCT_DIST_DELIVERYDOC(203,null) ,
-		PRODUCT_DIST_BINARYITEM(211,null) ,
-		PRODUCT_DIST_CONFITEM(212,null) ,
-		PRODUCT_DIST_COMPONENT(213,null) ,
-		PRODUCT_DIST_COMPITEM(214,null) ,
+		PRODUCT_DIST_BINARYITEM(202,null) ,
+		PRODUCT_DIST_CONFITEM(203,null) ,
+		PRODUCT_DIST_COMPONENT(204,null) ,
+		PRODUCT_DIST_COMPITEM(205,null) ,
 		ENV_PRIMARY(301,null) ,
 		ENV_EXTRA(302,null) ,
 		ENV_CUSTOM(303,null) ,
 		ENV_SEGMENT_PRIMARY(311,null) ,
 		ENV_SEGMENT_STARTGROUP(312,null) ,
-		ENV_SEGMENT_STARTGROUPSERVER(313,null) ,
-		ENV_SEGMENT_CUSTOM(314,null) ,
-		ENV_SEGMENT_MONTARGET(315,null) ,
-		ENV_SEGMENT_MONITEM(316,null) ,
+		ENV_SEGMENT_CUSTOM(313,null) ,
+		ENV_SEGMENT_MONTARGET(314,null) ,
+		ENV_SEGMENT_MONITEM(315,null) ,
 		ENV_SERVER_PRIMARY(321,null) ,
 		ENV_SERVER_EXTRA(322,null) ,
 		ENV_SERVER_CUSTOM(323,null) ,
-		ENV_SERVER_DEPENDENCY(324,null) ,
 		ENV_DEPLOYMENT(325,null) ,
 		ENV_NODE_PRIMARY(331,null) ,
-		ENV_NODE_CUSTOM(333,null) ,
-		ENV_DUMP(341,null) ,
-		ENV_DUMPMASK(342,null) ,
-		RELEASE_REPOSITORY(401,null) ,
-		RELEASE_MAIN(402,null) ,
-		RELEASE_DIST(403,null) ,
-		RELEASE_BUILDTARGET(404,null) ,
-		RELEASE_DISTTARGET(405,null) ,
-		RELEASE_SCOPESET(406,null) ,
-		RELEASE_SCOPETARGET(407,null) ,
-		RELEASE_SCOPEITEM(408,null) ,
-		RELEASE_SCHEDULE(409,null) ,
-		RELEASE_PHASE(410,null) ,
-		RELEASE_TICKETSET(411,null) ,
-		RELEASE_TICKETTARGET(412,null) ,
-		RELEASE_TICKET(413,null) ,
-		RELEASE_DISTITEM(414,null);
+		ENV_NODE_CUSTOM(333,null);
 
 		private final int value;
 		private String[] synonyms;
@@ -884,67 +722,7 @@ public abstract class DBEnums {
 		public static DBEnumParamRoleType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamRoleType.class , value , required , null ) ); };
 		public static DBEnumParamRoleType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumParamRoleType.class , value , required , null ) ); };
 	};
-
-	public enum DBEnumScopeCategoryType implements DBEnumInterface {
-		UNKNOWN(0,null) ,
-		// source
-		PROJECT(10,null) ,
-		// distributive
-		BINARY(20,null) ,
-		CONFIG(21,null) ,
-		MANUAL(22,null) ,
-		DERIVED(23,null) ,
-		// delivery
-		DB(30,null) ,
-		DOC(31,null) ,
-		// env hierarchy
-		ENV(40,null) ,
-		// search only
-		SEARCH_SOURCEBUILDABLE(100,null) ,
-		SEARCH_SOURCEPREBUILT(101,null);
-
-		public boolean isSource() {
-			if( this == DBEnumScopeCategoryType.PROJECT )
-				return( true );
-			return( false );
-		}
-		
-		public static DBEnumScopeCategoryType[] getAllReleaseCategories() {
-			DBEnumScopeCategoryType[] categories = { 
-					DBEnumScopeCategoryType.PROJECT , 
-					DBEnumScopeCategoryType.CONFIG , 
-					DBEnumScopeCategoryType.MANUAL , 
-					DBEnumScopeCategoryType.DERIVED , 
-					DBEnumScopeCategoryType.DB ,
-					DBEnumScopeCategoryType.DOC
-					};
-			return( categories );
-		}
-
-		public static DBEnumScopeCategoryType[] getAllSourceCategories() {
-			DBEnumScopeCategoryType[] categories = { DBEnumScopeCategoryType.PROJECT };
-			return( categories );
-		}
-
-		public boolean checkCategoryProperty( DBEnumScopeCategoryType part ) {
-			if( part == this )
-				return( true );
-			if( this == DBEnumScopeCategoryType.SEARCH_SOURCEBUILDABLE ) {
-				if( part == DBEnumScopeCategoryType.PROJECT )
-					return( true );
-			}
-			return( false );
-		}
-		
-		private final int value;
-		private String[] synonyms;
-		@Override public int code() { return( value ); };
-		@Override public String[] synonyms() { return( synonyms ); };
-		private DBEnumScopeCategoryType( int value , String[] synonyms ) { this.value = value; this.synonyms = synonyms; };
-		public static DBEnumScopeCategoryType getValue( Integer value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumScopeCategoryType.class , value , required , null ) ); };
-		public static DBEnumScopeCategoryType getValue( String value , boolean required ) throws Exception { return( DBEnums.getValue( DBEnumScopeCategoryType.class , value , required , null ) ); };
-	};
-
+	
 	public enum DBEnumChatType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		JABBER(1,null) ,
@@ -964,10 +742,9 @@ public abstract class DBEnums {
 	//#################################################
 	// implementation
 	private static DBEnumInfo[] enums = { 
-		new DBEnumInfo( DBEnumOwnerStatusType.class , 501 ) ,
-		new DBEnumInfo( DBEnumObjectType.class , 502 ) ,
-		new DBEnumInfo( DBEnumObjectVersionType.class , 503 ) ,
-		new DBEnumInfo( DBEnumChangeType.class , 504 ) ,
+		new DBEnumInfo( DBEnumOwnerStatusType.class , 510 ) ,
+		new DBEnumInfo( DBEnumObjectType.class , 511 ) ,
+		new DBEnumInfo( DBEnumObjectVersionType.class , 512 ) ,
 		new DBEnumInfo( DBEnumBaseCategoryType.class , 513 ) , 
 		new DBEnumInfo( DBEnumBaseSrcFormatType.class , 514 ) ,
 		new DBEnumInfo( DBEnumBaseSrcType.class , 515 ) , 
@@ -1000,13 +777,7 @@ public abstract class DBEnums {
 		new DBEnumInfo( DBEnumServerDependencyType.class , 542 ) ,
 		new DBEnumInfo( DBEnumServerDeploymentType.class , 543 ) ,
 		new DBEnumInfo( DBEnumDeployModeType.class , 544 ) ,
-		new DBEnumInfo( DBEnumNodeType.class , 545 ) ,
-		new DBEnumInfo( DBEnumScopeCategoryType.class , 546 ) ,
-		new DBEnumInfo( DBEnumBuildTargetType.class , 547 ) ,
-		new DBEnumInfo( DBEnumDistTargetType.class , 548 ) ,
-		new DBEnumInfo( DBEnumTicketSetStatusType.class , 549 ) ,
-		new DBEnumInfo( DBEnumTicketType.class , 550 ) ,
-		new DBEnumInfo( DBEnumTicketStatusType.class , 551 )
+		new DBEnumInfo( DBEnumNodeType.class , 545 )
 	}; 
 
 	private static String prefix = "DBEnum";
@@ -1165,7 +936,7 @@ public abstract class DBEnums {
     	
 		return( null );
     }
-
+    
     public static void verifyDatabase( EngineLoader loader ) throws Exception {
     	DBConnection c = loader.getConnection();
     	ResultSet rs = c.query( DBQueries.QUERY_ENUMS_GETALL0 );

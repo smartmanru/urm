@@ -11,18 +11,16 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBNames;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.db.engine.DBEngineMirrors;
-import org.urm.engine.data.EngineBuilders;
-import org.urm.engine.data.EngineMirrors;
-import org.urm.engine.data.EngineEntities;
+import org.urm.engine.EngineTransaction;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.transaction.EngineTransaction;
-import org.urm.engine.transaction.TransactionBase;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineMatcher;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
+import org.urm.meta.engine.EngineBuilders;
+import org.urm.meta.engine.EngineMirrors;
 import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.loader.EngineMatcher;
-import org.urm.meta.loader.MatchItem;
-import org.urm.meta.loader.Types.EnumModifyType;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaProductUnit;
@@ -47,31 +45,6 @@ public class DBMetaSources {
 		storage.setSources( sources );
 	}
 	
-	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		MetaSources sourcesSrc = src.getSources();
-		MetaSources sources = new MetaSources( dst , dst.meta );
-		dst.setSources( sources );
-		for( MetaSourceProjectSet setSrc : sourcesSrc.getSetList() ) {
-			MetaSourceProjectSet set = setSrc.copy( dst.meta , sources , false );
-			modifyProjectSet( c , dst , set , true , EnumModifyType.ORIGINAL );
-			sources.addProjectSet( set );
-			
-			for( MetaSourceProject projectSrc : setSrc.getProjects() ) {
-				MetaSourceProject project = projectSrc.copy( dst.meta , set , false );
-				modifyProject( c , dst , project , true , EnumModifyType.ORIGINAL );
-				sources.addProject( set , project );
-				
-				for( MetaSourceProjectItem itemSrc : projectSrc.getItems() ) {
-					MetaSourceProjectItem item = itemSrc.copy( dst.meta , project );
-					modifyProjectItem( c , dst , item , true , EnumModifyType.ORIGINAL );
-					sources.addProjectItem( project , item );
-				}
-			}
-		}
-	}
-	
 	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
 		MetaSources sources = new MetaSources( storage , storage.meta );
 		storage.setSources( sources );
@@ -93,11 +66,9 @@ public class DBMetaSources {
 		MetaSourceProjectSet set = new MetaSourceProjectSet( storage.meta , sources );
 		set.createProjectSet( 
 				entity.importxmlStringAttr( root , MetaSourceProjectSet.PROPERTY_NAME ) ,
-				entity.importxmlStringAttr( root , MetaSourceProjectSet.PROPERTY_DESC ) ,
-				entity.importxmlIntAttr( root , MetaSourceProjectSet.PROPERTY_POS ) ,
-				entity.importxmlBooleanAttr( root , MetaSourceProjectSet.PROPERTY_PARALLEL , false )
+				entity.importxmlStringAttr( root , MetaSourceProjectSet.PROPERTY_DESC )
 				);
-		modifyProjectSet( c , storage , set , true , EnumModifyType.ORIGINAL );
+		modifyProjectSet( c , storage , set , true );
 		
 		Node[] projects = ConfReader.xmlGetChildren( root , ELEMENT_PROJECT );
 		if( projects != null ) {
@@ -110,22 +81,19 @@ public class DBMetaSources {
 		return( set );
 	}
 	
-	private static void modifyProjectSet( DBConnection c , ProductMeta storage , MetaSourceProjectSet set , boolean insert , EnumModifyType type ) throws Exception {
+	private static void modifyProjectSet( DBConnection c , ProductMeta storage , MetaSourceProjectSet set , boolean insert ) throws Exception {
 		if( insert )
 			set.ID = DBNames.getNameIndex( c , storage.ID , set.NAME , DBEnumParamEntityType.PRODUCT_SOURCESET );
 		else
 			DBNames.updateName( c , storage.ID , set.NAME , set.ID , DBEnumParamEntityType.PRODUCT_SOURCESET );
 		
 		set.PV = c.getNextProductVersion( storage );
-		set.CHANGETYPE = EngineDB.getChangeModify( insert , set.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceSet , set.ID , set.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
 				EngineDB.getString( set.NAME ) ,
-				EngineDB.getString( set.DESC ) ,
-				EngineDB.getInteger( set.SET_POS ) ,
-				EngineDB.getBoolean( set.PARALLEL )
-				} , insert , set.CHANGETYPE );
+				EngineDB.getString( set.DESC )
+				} , insert );
 	}
 	
 	public static MetaSourceProject importxmlProject( EngineLoader loader , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , Node root ) throws Exception {
@@ -192,7 +160,7 @@ public class DBMetaSources {
 				entity.importxmlBooleanAttr( root , MetaSourceProject.PROPERTY_CUSTOM_GET , false )
 				);
 		
-		modifyProject( c , storage , project , true , EnumModifyType.ORIGINAL );
+		modifyProject( c , storage , project , true );
 		
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_ITEM );
 		if( items != null ) {
@@ -205,14 +173,13 @@ public class DBMetaSources {
 		return( project );
 	}
 	
-	public static void modifyProject( DBConnection c , ProductMeta storage , MetaSourceProject project , boolean insert , EnumModifyType type ) throws Exception {
+	public static void modifyProject( DBConnection c , ProductMeta storage , MetaSourceProject project , boolean insert ) throws Exception {
 		if( insert )
 			project.ID = DBNames.getNameIndex( c , storage.ID , project.NAME , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT );
 		else
 			DBNames.updateName( c , storage.ID , project.NAME , project.ID , DBEnumParamEntityType.PRODUCT_SOURCEPROJECT );
 		
 		project.PV = c.getNextProductVersion( storage );
-		project.CHANGETYPE = EngineDB.getChangeModify( insert , project.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceProject , project.ID , project.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -235,7 +202,7 @@ public class DBMetaSources {
 				EngineDB.getString( project.MIRROR_CODEPATH ) ,
 				EngineDB.getBoolean( project.CUSTOMBUILD ) ,
 				EngineDB.getBoolean( project.CUSTOMGET )
-				} , insert , project.CHANGETYPE );
+				} , insert );
 	}
 	
 	public static MetaSourceProjectItem importxmlProjectItem( EngineLoader loader , ProductMeta storage , MetaSources sources , MetaSourceProject project , Node root ) throws Exception {
@@ -258,19 +225,18 @@ public class DBMetaSources {
 				entity.importxmlBooleanAttr( root , MetaSourceProjectItem.PROPERTY_NODIST , false )
 				);
 				
-		modifyProjectItem( c , storage , item , true , EnumModifyType.ORIGINAL );
+		modifyProjectItem( c , storage , item , true );
 		
 		return( item );
 	}
 	
-	private static void modifyProjectItem( DBConnection c , ProductMeta storage , MetaSourceProjectItem item , boolean insert , EnumModifyType type ) throws Exception {
+	private static void modifyProjectItem( DBConnection c , ProductMeta storage , MetaSourceProjectItem item , boolean insert ) throws Exception {
 		if( insert )
 			item.ID = DBNames.getNameIndex( c , item.project.ID , item.NAME , DBEnumParamEntityType.PRODUCT_SOURCEITEM );
 		else
 			DBNames.updateName( c , item.project.ID , item.NAME , item.ID , DBEnumParamEntityType.PRODUCT_SOURCEITEM );
 		
 		item.PV = c.getNextProductVersion( storage );
-		item.CHANGETYPE = EngineDB.getChangeModify( insert , item.CHANGETYPE , type );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMetaSourceItem , item.ID , item.PV , new String[] {
 				EngineDB.getInteger( storage.ID ) , 
@@ -284,7 +250,7 @@ public class DBMetaSources {
 				EngineDB.getString( item.PATH ) ,
 				EngineDB.getString( item.FIXED_VERSION ) ,
 				EngineDB.getBoolean( item.INTERNAL )
-				} , insert , item.CHANGETYPE );
+				} , insert );
 	}
 	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
@@ -302,9 +268,7 @@ public class DBMetaSources {
 		PropertyEntity entity = entities.entityAppMetaSourceSet;
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
 				entity.exportxmlString( set.NAME ) ,
-				entity.exportxmlString( set.DESC ) ,
-				entity.exportxmlInt( set.SET_POS ) ,
-				entity.exportxmlBoolean( set.PARALLEL )
+				entity.exportxmlString( set.DESC )
 		} , true );
 		
 		for( MetaSourceProject project : set.getOrderedList() ) {
@@ -401,12 +365,9 @@ public class DBMetaSources {
 				MetaSourceProjectSet set = new MetaSourceProjectSet( storage.meta , sources );
 				set.ID = entity.loaddbId( rs );
 				set.PV = entity.loaddbVersion( rs );
-				set.CHANGETYPE = entity.loaddbChangeType( rs );
 				set.createProjectSet( 
 						entity.loaddbString( rs , MetaSourceProjectSet.PROPERTY_NAME ) , 
-						entity.loaddbString( rs , MetaSourceProjectSet.PROPERTY_DESC ) ,
-						entity.loaddbInt( rs , MetaSourceProjectSet.PROPERTY_POS ) ,
-						entity.loaddbBoolean( rs , MetaSourceProjectSet.PROPERTY_PARALLEL )
+						entity.loaddbString( rs , MetaSourceProjectSet.PROPERTY_DESC )
 						);
 				sources.addProjectSet( set );
 			}
@@ -431,7 +392,6 @@ public class DBMetaSources {
 				MetaSourceProject project = new MetaSourceProject( storage.meta , set );
 				project.ID = entity.loaddbId( rs );
 				project.PV = entity.loaddbVersion( rs );
-				project.CHANGETYPE = entity.loaddbChangeType( rs );
 
 				// create
 				project.createProject( 
@@ -505,7 +465,6 @@ public class DBMetaSources {
 				MetaSourceProjectItem item = new MetaSourceProjectItem( storage.meta , project );
 				item.ID = entity.loaddbId( rs );
 				item.PV = entity.loaddbVersion( rs );
-				item.CHANGETYPE = entity.loaddbChangeType( rs );
 				item.createItem( 
 						entity.loaddbString( rs , MetaSourceProjectSet.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , MetaSourceProjectSet.PROPERTY_DESC )
@@ -528,34 +487,18 @@ public class DBMetaSources {
 		}
 	}
 	
-	public static MetaSourceProjectSet createProjectSet( EngineTransaction transaction , ProductMeta storage , MetaSources sources , String name , String desc , int pos , boolean parallel ) throws Exception {
+	public static MetaSourceProjectSet createProjectSet( EngineTransaction transaction , ProductMeta storage , MetaSources sources , String name , String desc ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
 		if( sources.findProjectSet( name ) != null )
 			transaction.exitUnexpectedState();
 		
 		MetaSourceProjectSet set = new MetaSourceProjectSet( storage.meta , sources );
-		set.createProjectSet( name , desc , pos , parallel );
-		modifyProjectSet( c , storage , set , true , EnumModifyType.NORMAL );
+		set.createProjectSet( name , desc );
+		modifyProjectSet( c , storage , set , true );
 		
 		sources.addProjectSet( set );
 		return( set );
-	}
-	
-	public static void modifyProjectSet( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , String name , String desc , int pos , boolean parallel ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		if( set.SET_POS != pos )
-			changeProjectSetOrder( transaction , storage , sources , set , pos );
-		
-		MetaSourceProjectSet old = sources.findProjectSet( name );
-		if( old != null && old != set )
-			transaction.exitUnexpectedState();
-		
-		set.modifyProjectSet( name , desc , pos , parallel );
-		modifyProjectSet( c , storage , set , false , EnumModifyType.NORMAL );
-		
-		sources.updateProjectSet( set );
 	}
 	
 	public static MetaSourceProject createProject( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , 
@@ -575,9 +518,9 @@ public class DBMetaSources {
 		MirrorRepository mirror = DBEngineMirrors.createProjectMirror( transaction , mirrors , project , repoRes , repoName , repoPath , codePath );
 		
 		project.setSource( type , tracker , new MatchItem( mirror.ID ) , null , "" , "" , "" );
-		project.setBuild( MatchItem.create( builder ) , addOptions , branch );
+		project.setBuild( new MatchItem( builder ) , addOptions , branch );
 		project.setCustom( customBuild , customGet );
-		modifyProject( c , storage , project , true , EnumModifyType.NORMAL );
+		modifyProject( c , storage , project , true );
 		
 		sources.addProject( set , project );
 		
@@ -601,9 +544,9 @@ public class DBMetaSources {
 		MirrorRepository mirror = mirrors.getRepository( project.getMirrorId() );
 		
 		project.setSource( type , tracker , new MatchItem( mirror.ID ) , null , "" , "" , "" );
-		project.setBuild( MatchItem.create( builder ) , addOptions , branch );
+		project.setBuild( new MatchItem( builder ) , addOptions , branch );
 		project.setCustom( customBuild , customGet );
-		modifyProject( c , storage , project , false , EnumModifyType.NORMAL );
+		modifyProject( c , storage , project , false );
 
 		if( Common.equalsIntegers( mirror.RESOURCE_ID , repoRes ) == false || 
 				mirror.RESOURCE_REPO.equals( repoName ) == false || 
@@ -654,8 +597,7 @@ public class DBMetaSources {
 			PropertyEntity entity = entities.entityAppMetaSourceSet;
 			
 			int version = c.getNextProductVersion( storage );
-			setOld.CHANGETYPE = EngineDB.getChangeDelete( setOld.CHANGETYPE );
-			DBEngineEntities.deleteAppObject( c , entity , setOld.ID , version , setOld.CHANGETYPE );
+			DBEngineEntities.deleteAppObject( c , entity , setOld.ID , version );
 			sources.removeProjectSet( setOld );
 		}
 	}
@@ -669,6 +611,7 @@ public class DBMetaSources {
 		if( posNew > set.getProjects().length )
 			posNew = set.getProjects().length;
 		
+		set.removeProject( project );
 		if( !c.modify( DBQueries.MODIFY_SOURCE_SHIFTPOS_ONDELETEPROJECT3 , new String[] {
 				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getInteger( set.ID ) ,
@@ -687,35 +630,6 @@ public class DBMetaSources {
 		if( !c.modify( DBQueries.MODIFY_SOURCE_SHIFTPOS_ONINSERTPROJECT3 , new String[] {
 				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getInteger( set.ID ) ,
-				EngineDB.getInteger( posNew )
-				}))
-			transaction.exitUnexpectedState();
-	}
-
-	public static void changeProjectSetOrder( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set , int posNew ) throws Exception {
-		DBConnection c = transaction.getConnection();
-
-		if( posNew < 1 )
-			posNew = 1;
-		if( posNew > set.getProjects().length )
-			posNew = set.getProjects().length;
-		
-		if( !c.modify( DBQueries.MODIFY_SOURCE_SHIFTPOS_ONDELETESET2 , new String[] {
-				EngineDB.getInteger( storage.ID ) ,
-				EngineDB.getInteger( set.SET_POS )
-				}))
-			transaction.exitUnexpectedState();
-		
-		sources.changeSetOrder( set , posNew );
-		
-		if( !c.modify( DBQueries.MODIFY_SOURCE_CHANGEPROJECTORDER2 , new String[] {
-				EngineDB.getInteger( set.ID ) ,
-				EngineDB.getInteger( posNew )
-				}))
-			transaction.exitUnexpectedState();
-		
-		if( !c.modify( DBQueries.MODIFY_SOURCE_SHIFTPOS_ONINSERTSET2 , new String[] {
-				EngineDB.getInteger( storage.ID ) ,
 				EngineDB.getInteger( posNew )
 				}))
 			transaction.exitUnexpectedState();
@@ -756,7 +670,7 @@ public class DBMetaSources {
 		item.createItem( name , desc );
 		item.setSourceData( srcType , basename , ext , staticext , path , version , internal );
 		
-		modifyProjectItem( c , storage , item , true , EnumModifyType.NORMAL );
+		modifyProjectItem( c , storage , item , true );
 		sources.addProjectItem( project , item );
 		
 		return( item );
@@ -775,35 +689,17 @@ public class DBMetaSources {
 		item.modifyItem( name , desc );
 		item.setSourceData( srcType , basename , ext , staticext , path , version , internal );
 		
-		modifyProjectItem( c , storage , item , false , EnumModifyType.NORMAL );
+		modifyProjectItem( c , storage , item , false );
 		sources.updateProjectItem( item );
-	}
-
-	public static void deleteProjectSet( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectSet set ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		EngineEntities entities = c.getEntities();
-		PropertyEntity entity = entities.entityAppMetaSourceSet;
-		
-		if( !set.isEmpty() )
-			Common.exitUnexpected();
-		
-		int version = c.getCurrentProductVersion( storage );
-		set.CHANGETYPE = EngineDB.getChangeDelete( set.CHANGETYPE );
-		DBEngineEntities.deleteAppObject( c , entity , set.ID , version , set.CHANGETYPE );
-		if( set.CHANGETYPE == null )
-			sources.removeProjectSet( set );
 	}
 
 	public static void deleteProject( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProject project , boolean leaveManual ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = c.getEntities();
-		PropertyEntity entity = entities.entityAppMetaSourceProject;
+		PropertyEntity entity = entities.entityAppMetaSourceItem;
 
 		MetaDistr distr = storage.getDistr();
 		for( MetaSourceProjectItem item : project.getItems() ) {
-			if( item.isInternal() )
-				continue;
-			
 			MetaDistrBinaryItem distItem = item.distItem;
 			if( leaveManual )
 				DBMetaDistr.changeBinaryItemProjectToManual( transaction , storage , distr , distItem );
@@ -811,16 +707,18 @@ public class DBMetaSources {
 				DBMetaDistr.deleteBinaryItem( transaction , storage , distr , distItem );
 		}
 		
-		int version = c.getCurrentProductVersion( storage );
-		project.CHANGETYPE = EngineDB.getChangeDelete( project.CHANGETYPE );
-		DBEngineEntities.deleteAppObject( c , entity , project.ID , version , project.CHANGETYPE );
-		if( project.CHANGETYPE == null ) {
-			sources.removeProject( project.set , project );
+		if( !c.modify( DBQueries.MODIFY_SOURCE_DELETEPROJECTITEMS1 , new String[] {
+				EngineDB.getInteger( project.ID )
+				}))
+			transaction.exitUnexpectedState();
 		
-			transaction.changeMirrors();
-			EngineMirrors mirrors = transaction.getTransactionMirrors();
-			DBEngineMirrors.deleteProjectMirror( transaction , mirrors , project );
-		}
+		int version = c.getCurrentProductVersion( storage );
+		DBEngineEntities.deleteAppObject( c , entity , project.ID , version );
+		sources.removeProject( project.set , project );
+		
+		transaction.changeMirrors();
+		EngineMirrors mirrors = transaction.getTransactionMirrors();
+		DBEngineMirrors.deleteProjectMirror( transaction , mirrors , project );
 	}
 
 	public static void deleteProjectItem( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaSourceProjectItem item ) throws Exception {
@@ -829,21 +727,15 @@ public class DBMetaSources {
 		PropertyEntity entity = entities.entityAppMetaSourceItem;
 		
 		int version = c.getNextProductVersion( storage );
-		item.CHANGETYPE = EngineDB.getChangeDelete( item.CHANGETYPE );
-		DBEngineEntities.deleteAppObject( c , entity , item.ID , version , item.CHANGETYPE );
-		if( item.CHANGETYPE == null )
-			sources.removeProjectItem( item.project , item );
+		DBEngineEntities.deleteAppObject( c , entity , item.ID , version );
+		sources.removeProjectItem( item.project , item );
 	}
 
 	public static void deleteUnit( EngineTransaction transaction , ProductMeta storage , MetaSources sources , MetaProductUnit unit ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
 		for( String name : sources.getProjectNames() ) {
 			MetaSourceProject project = sources.findProject( name );
-			if( Common.equalsIntegers( project.UNIT_ID , unit.ID ) ) {
+			if( project.UNIT_ID == unit.ID )
 				project.clearUnit();
-				modifyProject( c , storage , project , false , EnumModifyType.NORMAL );
-			}
 		}
 	}
 

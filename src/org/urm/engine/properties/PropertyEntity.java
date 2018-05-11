@@ -1,7 +1,6 @@
 package org.urm.engine.properties;
 
 import java.sql.ResultSet;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,14 +12,13 @@ import org.w3c.dom.Node;
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.core.DBEnumInterface;
-import org.urm.db.core.DBEnums.DBEnumChangeType;
 import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
-import org.urm.engine.data.EngineResources;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.loader.MatchItem;
+import org.urm.meta.engine.EngineResources;
 
 public class PropertyEntity {
 
@@ -28,7 +26,6 @@ public class PropertyEntity {
 	public DBEnumParamEntityType PARAMENTITY_TYPE;				// entity type
 	public boolean CUSTOM;										// user-defined properties
 	public boolean USE_PROPS;									// store data in properties
-	public boolean CHANGEABLE;									// has change_type field to manage draft mode
 	public String APP_TABLE;									// data table
 	public DBEnumObjectType OBJECT_TYPE;						// object type
 	public int META_OBJECT_ID;									// module object, owning entity meta
@@ -36,8 +33,7 @@ public class PropertyEntity {
 																// custom module meta: specific module object   
 	public DBEnumObjectVersionType META_OBJECTVERSION_TYPE;		// type of module object, owning entity meta
 	public DBEnumObjectVersionType DATA_OBJECTVERSION_TYPE;		// type of module object, owning entity data (can be different for different objects)
-	public String ID_FIELD;										// object identifier table field
-	public int PK_FIELD_COUNT;									// number of key fields (always first fields in associative entity)
+	public String ID_FIELD;										// object identifier table field 
 	public int VERSION;
 	
 	private List<EntityVar> list;
@@ -45,7 +41,7 @@ public class PropertyEntity {
 	private Map<String,EntityVar> map;
 	private Map<String,EntityVar> xmlmap;
 	
-	public PropertyEntity( int paramObjectId , DBEnumParamEntityType entityType , boolean custom , boolean saveAsProps , String appTable , DBEnumObjectType objectType , int metaObjectId , DBEnumObjectVersionType metaObjectVersionType , DBEnumObjectVersionType dataObjectVersionType , String idField , boolean changeable , int pkFieldCount ) {
+	public PropertyEntity( int paramObjectId , DBEnumParamEntityType entityType , boolean custom , boolean saveAsProps , String appTable , DBEnumObjectType objectType , int metaObjectId , DBEnumObjectVersionType metaObjectVersionType , DBEnumObjectVersionType dataObjectVersionType , String idField ) {
 		this.PARAM_OBJECT_ID = paramObjectId;
 		this.PARAMENTITY_TYPE = entityType;
 		this.CUSTOM = custom;
@@ -55,9 +51,7 @@ public class PropertyEntity {
 		this.META_OBJECT_ID = metaObjectId;
 		this.META_OBJECTVERSION_TYPE = metaObjectVersionType;
 		this.DATA_OBJECTVERSION_TYPE = dataObjectVersionType;
-		this.ID_FIELD = Common.nonull( idField );
-		this.CHANGEABLE = changeable;
-		this.PK_FIELD_COUNT = pkFieldCount;
+		this.ID_FIELD = idField;
 		this.VERSION = 0;
 		list = new LinkedList<EntityVar>();
 		dblist = new LinkedList<EntityVar>();
@@ -65,28 +59,23 @@ public class PropertyEntity {
 		xmlmap = new HashMap<String,EntityVar>();
 	}
 
-	public static PropertyEntity getAppObjectEntity( DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataObjectVersionType , String appTable , String idField , boolean changeable ) throws Exception {
-		PropertyEntity entity = new PropertyEntity( DBVersions.APP_ID , entityType , false , false , appTable , objectType , DBVersions.APP_ID , DBEnumObjectVersionType.APP , dataObjectVersionType , idField , changeable , 1 );
-		return( entity );
-	}
-	
-	public static PropertyEntity getAppAssociativeEntity( DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataObjectVersionType , String appTable , boolean changeable , int pkFieldCount ) throws Exception {
-		PropertyEntity entity = new PropertyEntity( DBVersions.APP_ID , entityType , false , false , appTable , objectType , DBVersions.APP_ID , DBEnumObjectVersionType.APP , dataObjectVersionType , null , changeable , pkFieldCount );
+	public static PropertyEntity getAppObjectEntity( DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataObjectVersionType , String appTable , String idField ) throws Exception {
+		PropertyEntity entity = new PropertyEntity( DBVersions.APP_ID , entityType , false , false , appTable , objectType , DBVersions.APP_ID , DBEnumObjectVersionType.APP , dataObjectVersionType , idField );
 		return( entity );
 	}
 	
 	public static PropertyEntity getAppPropsEntity( DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataObjectVersionType ) throws Exception {
-		PropertyEntity entity = new PropertyEntity( DBVersions.APP_ID , entityType , false , true , null , objectType , DBVersions.APP_ID , DBEnumObjectVersionType.APP , dataObjectVersionType , null , false , 1 );
+		PropertyEntity entity = new PropertyEntity( DBVersions.APP_ID , entityType , false , true , null , objectType , DBVersions.APP_ID , DBEnumObjectVersionType.APP , dataObjectVersionType , null );
 		return( entity );
 	}
 	
 	public static PropertyEntity getAppAttrsEntity( DBEnumObjectType objectType , DBEnumParamEntityType entityType , DBEnumObjectVersionType dataObjectVersionType ) throws Exception {
-		PropertyEntity entity = new PropertyEntity( DBVersions.APP_ID , entityType , false , false , null , objectType , DBVersions.APP_ID , DBEnumObjectVersionType.APP , dataObjectVersionType , null , false , 1 );
+		PropertyEntity entity = new PropertyEntity( DBVersions.APP_ID , entityType , false , false , null , objectType , DBVersions.APP_ID , DBEnumObjectVersionType.APP , dataObjectVersionType , null );
 		return( entity );
 	}
 	
 	public static PropertyEntity getCustomEntity( int paramObjectId , DBEnumObjectType objectType , DBEnumParamEntityType entityType , int metaObjectId , DBEnumObjectVersionType dataObjectVersionType ) throws Exception {
-		PropertyEntity entity = new PropertyEntity( paramObjectId , entityType , true , true , null , objectType , metaObjectId , dataObjectVersionType , dataObjectVersionType , null , false , 1 );
+		PropertyEntity entity = new PropertyEntity( paramObjectId , entityType , true , true , null , objectType , metaObjectId , dataObjectVersionType , dataObjectVersionType , null );
 		return( entity );
 	}
 	
@@ -101,9 +90,7 @@ public class PropertyEntity {
 				this.META_OBJECT_ID ,
 				this.META_OBJECTVERSION_TYPE ,
 				this.DATA_OBJECTVERSION_TYPE ,
-				this.ID_FIELD ,
-				this.CHANGEABLE ,
-				this.PK_FIELD_COUNT
+				this.ID_FIELD
 				);
 		r.VERSION = VERSION;
 		for( EntityVar var : list ) {
@@ -115,12 +102,6 @@ public class PropertyEntity {
 
 	public boolean isEmpty() {
 		return( list.isEmpty() );
-	}
-	
-	public boolean hasId() {
-		if( ID_FIELD.isEmpty() )
-			return( false );
-		return( true );
 	}
 	
 	public String[] getVarNames() {
@@ -246,16 +227,6 @@ public class PropertyEntity {
 		return( ConfReader.getIntegerAttrValue( root , var.XMLNAME , defaultValue ) );
 	}
 	
-	public Date importxmlDateAttr( Node root , String prop ) throws Exception {
-		EntityVar var = findVar( prop );
-		if( var == null )
-			Common.exitUnexpected();
-		String xmlvalue = ConfReader.getAttrValue( root , var.XMLNAME );
-		if( xmlvalue.isEmpty() )
-			return( null );
-		return( Common.getDateValue( xmlvalue ) );
-	}
-	
 	public int importxmlIntProperty( Node root , String prop ) throws Exception {
 		return( importxmlIntProperty( root , prop , 0 ) );
 	}
@@ -265,16 +236,6 @@ public class PropertyEntity {
 		if( var == null )
 			Common.exitUnexpected();
 		return( ConfReader.getIntegerPropertyValue( root , var.XMLNAME , defaultValue ) );
-	}
-	
-	public Date importxmlDateProperty( Node root , String prop ) throws Exception {
-		EntityVar var = findVar( prop );
-		if( var == null )
-			Common.exitUnexpected();
-		String xmlvalue = ConfReader.getPropertyValue( root , var.XMLNAME );
-		if( xmlvalue.isEmpty() )
-			return( null );
-		return( Common.getDateValue( xmlvalue ) );
 	}
 	
 	public int importxmlEnumAttr( Node root , String prop ) throws Exception {
@@ -349,22 +310,6 @@ public class PropertyEntity {
 		return( value );
 	}
 	
-	public Long loaddbLong( ResultSet rs , String prop ) throws Exception {
-		int column = getDatabaseColumn( prop );
-		long value = rs.getLong( column );
-		if( value == 0 )
-			return( null );
-		return( value );
-	}
-	
-	public Date loaddbDate( ResultSet rs , String prop ) throws Exception {
-		int column = getDatabaseColumn( prop );
-		java.sql.Date sqldate = rs.getDate( column );
-		if( sqldate == null )
-			return( sqldate );
-		return( new Date( sqldate.getTime() ) );
-	}
-	
 	public int loaddbInt( ResultSet rs , String prop ) throws Exception {
 		int column = getDatabaseColumn( prop );
 		return( rs.getInt( column ) );
@@ -396,14 +341,6 @@ public class PropertyEntity {
 		return( rs.getInt( dblist.size() + 2 ) );
 	}
 	
-	public DBEnumChangeType loaddbChangeType( ResultSet rs ) throws Exception {
-		if( CHANGEABLE ) {
-			int add = ( ID_FIELD.isEmpty() )? 2 : 3; 
-			return( DBEnumChangeType.getValue( rs.getInt( dblist.size() + add ) , true ) );
-		}
-		return( null );
-	}
-	
 	public MatchItem loaddbMatchItem( ResultSet rs , String propId , String propName ) throws Exception {
 		Integer id = loaddbObject( rs , propId );
 		if( id != null )
@@ -416,12 +353,6 @@ public class PropertyEntity {
 	
 	public String exportxmlString( String value ) {
 		return( value );
-	}
-	
-	public String exportxmlDate( Date value ) {
-		if( value == null )
-			return( "" );
-		return( Common.getDateValue( value ) );
 	}
 	
 	public String exportxmlEnum( Enum<?> value ) {

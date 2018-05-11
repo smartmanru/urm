@@ -5,17 +5,16 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
-import org.urm.db.core.DBEnums.*;
-import org.urm.engine.data.EngineMonitoring;
-import org.urm.engine.data.EngineSettings;
-import org.urm.engine.data.EngineEntities;
-import org.urm.engine.properties.ObjectMeta;
+import org.urm.db.core.DBEnums.DBEnumBuildModeType;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
+import org.urm.engine.TransactionBase;
+import org.urm.engine.properties.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertyEntity;
-import org.urm.engine.transaction.TransactionBase;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.engine.EngineMonitoring;
+import org.urm.meta.engine.EngineSettings;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
@@ -32,9 +31,10 @@ public class DBMetaSettings {
 	public static String ELEMENT_BUILD = "build";
 	public static String ELEMENT_MODE = "mode";
 	
-	public static void createdb( EngineLoader loader , AppProduct product , ProductMeta storage , ProductContext context ) throws Exception {
+	public static void createdb( EngineLoader loader , ProductMeta storage , ProductContext context ) throws Exception {
 		DBConnection c = loader.getConnection();
 		TransactionBase transaction = loader.getTransaction();
+		AppProduct product = storage.product;
 		EngineEntities entities = loader.getEntities();
 		
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
@@ -44,11 +44,11 @@ public class DBMetaSettings {
 		// context, custom, core settings
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
+		settings.setContextProperties( ops , context );
 		
 		EngineSettings engineSettings = context.settings;
 		ObjectProperties opsDefaults = engineSettings.getDefaultProductSettings();
 		ops.copyOriginalPropertiesToRaw( opsDefaults.getProperties() );
-		settings.setContextProperties( ops , context );
 		ops.recalculateProperties();
 		settings.createCoreSettings( ops );
 		
@@ -87,65 +87,8 @@ public class DBMetaSettings {
 		}
 	}
 	
-	public static void copydb( TransactionBase transaction , ProductMeta src , ProductContext context , ProductMeta dst ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		AppProduct product = dst.getProduct();
-		EngineEntities entities = c.getEntities();
-		
-		MetaProductSettings settings = new MetaProductSettings( dst , dst.meta );
-		dst.setSettings( settings );
-		int version = c.getNextProductVersion( dst );
-
-		// context, custom, core settings
-		AppSystem system = product.system;
-		MetaProductSettings settingsSrc = src.getSettings();
-		ObjectProperties opsSrc = settingsSrc.getParameters();
-		ObjectMeta metaSrc = opsSrc.getMeta();
-		PropertyEntity customSrc = metaSrc.getCustomEntity();
-		PropertyEntity custom = DBSettings.copydbCustomEntity( c , dst.ID , customSrc , version );
-		ObjectProperties ops = entities.createMetaProductProps( dst.ID , system.getParameters() , custom );
-		
-		ops.copyOriginalPropertiesToRaw( opsSrc.getProperties() );
-		settings.setContextProperties( ops , context );
-		ops.recalculateProperties();
-		settings.createCoreSettings( ops );
-		
-		DBSettings.savedbEntityCustom( c , ops , version );
-		DBSettings.savedbPropertyValues( transaction , ops , false , true , version );
-		
-		// monitoring settings
-		ObjectProperties mon = entities.createMetaMonitoringProps( ops );
-		ops.copyOriginalPropertiesToRaw( opsSrc.getProperties() );
-		ObjectProperties monSrc = settingsSrc.getMonitoringProperties();
-		mon.copyOriginalPropertiesToRaw( monSrc.getProperties() );
-		
-		DBSettings.savedbPropertyValues( transaction , mon , true , false , version );
-		mon.recalculateProperties();
-		settings.createMonitoringSettings( mon );
-		
-		// build settings
-		ObjectProperties opsBuildCommon = entities.createMetaBuildCommonProps( ops );
-		MetaProductBuildSettings buildSettingsSrc = settingsSrc.getBuildCommonSettings();
-		ObjectProperties opsBuildCommonSrc = buildSettingsSrc.getProperties();
-		opsBuildCommon.copyOriginalPropertiesToRaw( opsBuildCommonSrc.getProperties() );
-		DBSettings.savedbPropertyValues( transaction , opsBuildCommon , true , false , version );
-		settings.createBuildCommonSettings( opsBuildCommon );
-		
-		for( DBEnumBuildModeType mode : DBEnumBuildModeType.values() ) {
-			if( mode == DBEnumBuildModeType.UNKNOWN )
-				continue;
-			
-			ObjectProperties opsBuildMode = entities.createMetaBuildModeProps( opsBuildCommon , mode );
-			buildSettingsSrc = settingsSrc.getBuildModeSettings( mode );
-			ObjectProperties opsBuildModeSrc = buildSettingsSrc.getProperties();
-			opsBuildMode.copyOriginalPropertiesToRaw( opsBuildModeSrc.getProperties() );
-			DBSettings.savedbPropertyValues( transaction , opsBuildMode , true , false , version );
-			settings.createBuildModeSettings( mode , opsBuildMode );
-		}
-	}
-	
 	public static void importxml( EngineLoader loader , ProductMeta storage , ProductContext context , Node root ) throws Exception {
-		AppProduct product = storage.getProduct();
+		AppProduct product = storage.product;
 		EngineEntities entities = loader.getEntities();
 		
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
@@ -154,6 +97,7 @@ public class DBMetaSettings {
 		// context, custom settings
 		AppSystem system = product.system;
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
+		settings.setContextProperties( ops , context );
 		
 		EngineSettings engineSettings = context.settings;
 		ObjectProperties opsDefaults = engineSettings.getDefaultProductSettings();
@@ -165,7 +109,6 @@ public class DBMetaSettings {
 		if( coreNode == null )
 			Common.exitUnexpected();
 		DBSettings.importxmlApp( loader , coreNode , ops , storage.PV , DBEnumParamEntityType.PRODUCTDEFS );
-		settings.setContextProperties( ops , context );
 		ops.recalculateProperties();
 		settings.createCoreSettings( ops );
 
@@ -216,16 +159,15 @@ public class DBMetaSettings {
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
 		storage.setSettings( settings );
 
-		AppProduct product = storage.getProduct();
-		AppSystem system = product.system;
+		AppSystem system = storage.product.system;
 		
 		// context, custom, core settings
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
+		settings.setContextProperties( ops , context );
 		
 		DBSettings.loaddbCustomEntity( c , ops , false );
 		ops.createCustom();
 		DBSettings.loaddbValues( loader , ops );
-		settings.setContextProperties( ops , context );
 		ops.recalculateProperties();
 		settings.createCoreSettings( ops );
 
@@ -327,7 +269,7 @@ public class DBMetaSettings {
 
 	public static void updateMonitoringProperties( TransactionBase transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		AppProduct product = storage.getProduct();
+		AppProduct product = storage.product;
 		ActionBase action = transaction.getAction();
 		EngineMonitoring mon = transaction.getMonitoring();
 		

@@ -1,6 +1,6 @@
 package org.urm.action;
 
-import org.urm.engine.EventService;
+import org.urm.engine.events.EngineEvents;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.status.ObjectState;
@@ -24,11 +24,11 @@ public class ActionEventsSource extends EngineEventsSource {
 	}
 	
 	public void finishScopeItem( ScopeState state ) {
-		super.notify( EventService.OWNER_ENGINE , EventService.EVENT_FINISHSTATE , state );
+		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_FINISHSTATE , state );
 	}
 	
 	public void startScopeItem( ScopeState state ) {
-		super.notify( EventService.OWNER_ENGINE , EventService.EVENT_STARTSTATE , state );
+		super.notify( EngineEvents.OWNER_ENGINE , EngineEvents.EVENT_STARTSTATE , state );
 	}
 	
 	public void finishScopeItem( int eventOwner , int eventType , ScopeState state ) {

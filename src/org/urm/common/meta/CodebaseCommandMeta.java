@@ -24,7 +24,6 @@ public class CodebaseCommandMeta extends CommandMeta {
 	public static String METHOD_DROPBRANCH = "dropbranch";
 	public static String METHOD_DROPTAGS = "droptags";
 	public static String METHOD_EXPORT = "export";
-	public static String METHOD_LIST = "list";
 	public static String METHOD_RENAMEBRANCH = "renamebranch";
 	public static String METHOD_RENAMETAGS = "renametags";
 	public static String METHOD_SETVERSION = "setversion";
@@ -42,7 +41,7 @@ public class CodebaseCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDTAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "build from tag" , cmdOpts , "<TAG> [set [projects]]" ) );
 		
 		cmdOpts = "OPT_GET,OPT_DIST,OPT_CHECK,OPT_RELEASE,OPT_BRANCH,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "build release" , cmdOpts , "<RELEASELABEL> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_BUILDRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "build release" , cmdOpts , "[set [projects]]" ) );
 
 		cmdOpts = "";
 		super.defineAction( CommandMethodMeta.newInfo( this , METHOD_CHECKSET , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CONFIGURE , false , "check configuration variables" , "" , "" ) );
@@ -52,7 +51,7 @@ public class CodebaseCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETBUILD , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "download build items" , cmdOpts , "[set [projects]]" ) );
 
 		cmdOpts = "OPT_DIST,OPT_RELEASE,OPT_TAG,OPT_DATE,OPT_GROUP,OPT_VERSION";
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "download release build items" , cmdOpts , "<RELEASELABEL> [set [projects]]" ) );
+		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_GETRELEASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , false , "download release build items" , cmdOpts , "[set [projects]]" ) );
 		
 		cmdOpts = "OPT_RELEASE,OPT_BRANCH,OPT_TAG,OPT_DATE,OPT_GROUP";
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_CHECKOUT , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CODEBASE , true , "checkout sources to update" , cmdOpts , "<CODIR> [set [projects]]" ) );
@@ -65,7 +64,6 @@ public class CodebaseCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_DROPBRANCH , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "drop branches" , cmdOpts , "<BRANCH> [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_DROPTAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "drop tags" , cmdOpts , "<TAG> [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_EXPORT , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CODEBASE , true , "codebase export" , cmdOpts , "<CODIR> [set [projects]]" ) );
-		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_LIST , ACTION_ACCESS.PRODUCT , true , SecurityAction.ACTION_CODEBASE , true , "show codebase items" , cmdOpts , "{branches|tags} [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_RENAMEBRANCH , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "rename branch" , cmdOpts , "<SRCBRANCH> <DSTBRANCH> [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_RENAMETAGS , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "rename tag" , cmdOpts , "<SRCTAG> <DSTTAG> [set [projects]]" ) );
 		super.defineAction( CommandMethodMeta.newCritical( this , METHOD_SETVERSION , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_CODEBASE , true , "change version in pom.xml using maven" , cmdOpts , "<VERSION> [set [projects]]" ) );

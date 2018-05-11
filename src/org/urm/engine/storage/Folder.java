@@ -8,8 +8,8 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.Types.*;
 
 public abstract class Folder {
 
@@ -248,12 +248,12 @@ public abstract class Folder {
 		return( session.ls( action , Common.getPath( folderPath , folder ) ) );
 	}
 	
-	public String[] getTopDirs( ActionBase action ) throws Exception {
+	public List<String> getTopDirs( ActionBase action ) throws Exception {
 		ShellExecutor session = getSession( action ); 
 		List<String> dirs = new LinkedList<String>();  
 		List<String> files = new LinkedList<String>();  
 		session.getTopDirsAndFiles( action , folderPath , dirs , files );
-		return( dirs.toArray( new String[0] ) );
+		return( dirs );
 	}
 	
 	public List<String> getTopFiles( ActionBase action ) throws Exception {
@@ -514,12 +514,6 @@ public abstract class Folder {
 		String path = getFilePath( action , file );
 		File fo = new File( action.getLocalPath( path ) );
 		return( new Date( fo.lastModified() ) );
-	}
-	
-	public long getFileSize( ActionBase action , String file ) throws Exception {
-		String path = getFilePath( action , file );
-		File fo = new File( action.getLocalPath( path ) );
-		return( fo.length() );
 	}
 	
 }

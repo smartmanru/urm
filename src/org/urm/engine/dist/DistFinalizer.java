@@ -2,13 +2,11 @@ package org.urm.engine.dist;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
 import org.urm.engine.storage.FileSet;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.release.Release;
 
 public class DistFinalizer {
 
@@ -25,19 +23,17 @@ public class DistFinalizer {
 	}
 	
 	public boolean finish() throws Exception {
-		ReleaseDistScope scope = ReleaseDistScope.createScope( dist.release );
-		
 		// check consistency, drop empty directories
 		FileSet fsd = distFolder.getFileSet( action );
-		FileSet fsr = createExpectedFileSet( action , fsd , scope );  
-		if( !finishDist( action , fsd , fsr , scope ) )
+		FileSet fsr = createExpectedFileSet( action , fsd );  
+		if( !finishDist( action , fsd , fsr ) )
 			return( false );
 		
 		// finish release
 		return( true );
 	}
 	
-	private FileSet createExpectedFileSet( ActionBase action , FileSet fsd , ReleaseDistScope scope ) throws Exception {
+	private FileSet createExpectedFileSet( ActionBase action , FileSet fsd ) throws Exception {
 		FileSet fs = new FileSet( null );
 		
 		if( dist.isMaster() ) {
@@ -48,60 +44,52 @@ public class DistFinalizer {
 			}
 		}
 		else {
-			for( ReleaseDistScopeSet set : scope.getSets() ) {
-				if( set.CATEGORY == DBEnumScopeCategoryType.DB ) {
-					for( ReleaseDistScopeDelivery delivery : set.getDeliveries() )
-						createExpectedDatabaseDeliveryItem( action , fs , delivery );
-				}
-				else
-				if( set.CATEGORY == DBEnumScopeCategoryType.CONFIG ) {
-					for( ReleaseDistScopeDelivery delivery : set.getDeliveries() ) {
-						for( ReleaseDistScopeDeliveryItem item : delivery.getItems() )
-							createExpectedConfDeliveryItem( action , fs , delivery , item );
-					}
-				}
-				else
-				if( set.CATEGORY == DBEnumScopeCategoryType.BINARY ) {
-					for( ReleaseDistScopeDelivery delivery : set.getDeliveries() ) {
-						for( ReleaseDistScopeDeliveryItem item : delivery.getItems() )
-							createExpectedBinaryDeliveryItem( action , fs , delivery , item );
-					}
-				}
-				else
-				if( set.CATEGORY == DBEnumScopeCategoryType.DOC ) {
-					for( ReleaseDistScopeDelivery delivery : set.getDeliveries() ) {
-						for( ReleaseDistScopeDeliveryItem item : delivery.getItems() )
-							createExpectedDocDeliveryItem( action , fs , delivery , item );
-					}
-				}
+			dist.gatherFiles( action );
+			for( ReleaseDelivery delivery : info.getDeliveries() ) {
+				for( ReleaseTarget item : delivery.getConfItems() )
+					createExpectedConfDeliveryItem( action , fs , delivery , item );
+				for( ReleaseTargetItem item : delivery.getProjectItems() )
+					createExpectedProjectDeliveryItem( action , fs , delivery , item );
+				for( ReleaseTarget item : delivery.getManualItems() )
+					createExpectedManualDeliveryItem( action , fs , delivery , item );
+				for( ReleaseTargetItem item : delivery.getDocItems() )
+					createExpectedDocDeliveryItem( action , fs , delivery , item );
+				createExpectedDatabaseDeliveryItem( action , fs , delivery );
 			}
 		}
 		
 		return( fs );
 	}
 	
-	private void createExpectedConfDeliveryItem( ActionBase action , FileSet fs , ReleaseDistScopeDelivery delivery , ReleaseDistScopeDeliveryItem item ) throws Exception {
+	private void createExpectedConfDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryConfFolder( action , delivery.distDelivery ) );
-		dir.createDir( item.conf.NAME );
+		dir.createDir( item.distConfItem.NAME );
 	}
 	
-	private void createExpectedBinaryDeliveryItem( ActionBase action , FileSet fs , ReleaseDistScopeDelivery delivery , ReleaseDistScopeDeliveryItem item ) throws Exception {
+	private void createExpectedProjectDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTargetItem item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
-		String file = item.binary.getBaseFile(); 
+		String file = ( item.DISTFILE.isEmpty() )? item.distItem.getBaseFile() : item.DISTFILE; 
 		dir.addFile( file );
 		dir.addFile( file + ".md5" );
 	}
 	
-	private void createExpectedDocDeliveryItem( ActionBase action , FileSet fs , ReleaseDistScopeDelivery delivery , ReleaseDistScopeDeliveryItem item ) throws Exception {
+	private void createExpectedDocDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTargetItem item ) throws Exception {
 		FileSet dir = fs.createDir( dist.getDeliveryDocFolder( action , delivery.distDelivery ) );
-		String file = item.doc.getBaseFile(); 
-		action.trace( "FINISH: add doc=" + item.doc.NAME + ", dir=" + dir.dirPath + ", file=" + file );
+		String file = ( item.DISTFILE.isEmpty() )? item.doc.getBaseFile() : item.DISTFILE; 
+		action.trace( "FINISH: add doc=" + item.NAME + ", dir=" + dir.dirPath + ", file=" + file );
 		dir.addFile( file );
 		dir.addFile( file + ".md5" );
 	}
 	
-	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDistScopeDelivery delivery ) throws Exception {
-		if( delivery.distDelivery.hasDatabaseItems() )
+	private void createExpectedManualDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery , ReleaseTarget item ) throws Exception {
+		FileSet dir = fs.createDir( dist.getDeliveryBinaryFolder( action , delivery.distDelivery ) );
+		String file = ( item.DISTFILE.isEmpty() )? item.distManualItem.getBaseFile() : item.DISTFILE;  
+		dir.addFile( file );
+		dir.addFile( file + ".md5" );
+	}
+	
+	private void createExpectedDatabaseDeliveryItem( ActionBase action , FileSet fs , ReleaseDelivery delivery ) throws Exception {
+		if( delivery.hasDatabaseItems() )
 			fs.createDir( dist.getDeliveryDatabaseFolder( action , delivery.distDelivery , dist.release.RELEASEVER ) );
 	}
 	
@@ -116,13 +104,21 @@ public class DistFinalizer {
 		dir.addFile( file + ".md5" );
 	}
 	
-	private boolean finishDist( ActionBase action , FileSet fsd , FileSet fsr , ReleaseDistScope scope ) throws Exception {
+	private boolean finishDist( ActionBase action , FileSet fsd , FileSet fsr ) throws Exception {
 		// check expected directory set is the same as actual
 		// folders = deliveries
 		for( String dir : fsd.getAllDirNames() ) {
 			FileSet dirFilesDist = fsd.findDirByName( dir );
-			MetaDistr distr = dist.meta.getDistr();
-			MetaDistrDelivery delivery = distr.findDeliveryByFolder( dir );
+			MetaDistrDelivery delivery = null;
+			if( dist.isMaster() ) {
+				MetaDistr distr = dist.meta.getDistr();
+				delivery = distr.findDeliveryByFolder( dir );
+			}
+			else {
+				ReleaseDelivery deliveryRelease = info.findDeliveryByFolder( dir );
+				if( deliveryRelease != null )
+					delivery = deliveryRelease.distDelivery;
+			}
 			
 			if( delivery == null || delivery.isEmpty() ) {
 				if( dirFilesDist.hasFiles() ) {
@@ -162,7 +158,7 @@ public class DistFinalizer {
 		// check by category
 		for( String dir : fsd.getAllDirNames() ) {
 			FileSet dirFilesDist = fsd.findDirByName( dir );
-			FileSet dirFilesRelease = ( fsr == null )? null : fsr.findDirByName( dir );
+			FileSet dirFilesRelease = fsr.findDirByName( dir );
 			if( dirFilesRelease == null ) {
 				if( dir.equals( Dist.DATABASE_FOLDER ) ) {
 					if( !finishDistDeliveryDatabase( action , delivery , dirFilesDist , null ) )
@@ -210,13 +206,11 @@ public class DistFinalizer {
 			}
 		}
 
-		if( fsr != null ) {
-			for( String dir : fsr.getAllDirNames() ) {
-				FileSet dirFilesDist = fsd.findDirByName( dir );
-				if( dirFilesDist == null ) {
-					action.error( "distributive has missing delivery=" + delivery.NAME + ", dir=" + dir );
-					return( false );
-				}
+		for( String dir : fsr.getAllDirNames() ) {
+			FileSet dirFilesDist = fsd.findDirByName( dir );
+			if( dirFilesDist == null ) {
+				action.error( "distributive has missing delivery=" + delivery.NAME + ", dir=" + dir );
+				return( false );
 			}
 		}
 		
@@ -359,7 +353,7 @@ public class DistFinalizer {
 			return( false );
 		}
 		
-		String[] versions = dist.release.getApplyVersions();
+		String[] versions = dist.release.getApplyVersions( action );
 		for( String dir : fsd.getAllDirNames() ) {
 			FileSet dirFilesDist = fsd.findDirByName( dir );
 			if( !finishDistDeliveryDatabaseSet( action , delivery , dirFilesDist , versions ) )
@@ -393,7 +387,14 @@ public class DistFinalizer {
 	}
 	
 	private boolean finishDistMaster( ActionBase action ) throws Exception {
-		return( false );
+		MetaDistr distr = dist.meta.getDistr(); 
+		ReleaseMaster master = dist.release.master;
+		for( ReleaseMasterItem item : master.getMasterItems() ) {
+			if( distr.findBinaryItem( item.KEY ) == null )
+				master.removeMasterItem( item.KEY );
+		}
+		
+		return( true );
 	}
 
 	private boolean finishDistDeliveryMaster( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
@@ -406,7 +407,21 @@ public class DistFinalizer {
 	}
 
 	private boolean finishDistDeliveryMasterItem( ActionBase action , MetaDistrDelivery delivery , MetaDistrBinaryItem distItem ) throws Exception {
-		return( false );
+		ReleaseMaster master = dist.release.master;
+		ReleaseMasterItem masterItem = dist.release.findMasterItem( distItem );
+		DistItemInfo info = dist.getDistItemInfo( action , distItem , true , false );
+		if( !info.found ) {
+			String folder = Common.getPath( distItem.delivery.FOLDER , Dist.BINARY_FOLDER );
+			action.error( distItem.NAME + " - item not found (" + Common.getPath( folder , distItem.getBaseFile() ) + ")" );
+			return( false );
+		}
+		
+		if( masterItem == null )
+			master.addMasterItem( action , null , distItem , info );
+		else
+			masterItem.update( action , distItem , info );
+		
+		return( true );
 	}
 	
 }

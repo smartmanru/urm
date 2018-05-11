@@ -9,13 +9,13 @@ import org.urm.common.Common;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.shell.ShellExecutor;
+import org.urm.meta.Types;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.Types;
-import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.Types.*;
 
 public class RedistStateInfo {
 

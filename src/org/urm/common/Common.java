@@ -294,11 +294,6 @@ public class Common {
 		return( getTimeStamp( new Date() ) );
 	}
 
-	public static String getTime( Date date ) {
-        SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss" );
-        return( simpleFormat.format( date ) );
-	}
-	
 	public static String getTimeStamp( Date date ) {
         SimpleDateFormat simpleFormat = new SimpleDateFormat( "HH:mm:ss,SSS" );
         return( simpleFormat.format( date ) );
@@ -781,26 +776,6 @@ public class Common {
 		return( -1 );
 	}
 
-	public static int findItemInsertIndex( String value , String[] list ) {
-		if( value == null || value.isEmpty() )
-			return( -1 );
-		
-		for( int k = 0; k < list.length; k++ )
-			if( list[ k ].compareTo( value ) >= 0 )
-				return( k );
-		return( list.length );
-	}
-
-	public static int findItemInsertIndex( String value , List<String> list ) {
-		if( value == null || value.isEmpty() )
-			return( -1 );
-		
-		for( int k = 0; k < list.size(); k++ )
-			if( list.get( k ).compareTo( value ) >= 0 )
-				return( k );
-		return( list.size() );
-	}
-
 	public static boolean checkListItem( Object[] list , Object item ) {
 		for( Object xitem : list ) {
 			if( xitem.equals( item ) )
@@ -859,13 +834,6 @@ public class Common {
 	}
 
 	public static Map<String,String> copyListToMap( List<String> list ) {
-		Map<String,String> map = new HashMap<String,String>();
-		for( String s : list )
-			map.put( s , s );
-		return( map );
-	}
-
-	public static Map<String,String> copyListToMap( String[] list ) {
 		Map<String,String> map = new HashMap<String,String>();
 		for( String s : list )
 			map.put( s , s );

@@ -7,15 +7,15 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.DataService;
-import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.shell.Account;
+import org.urm.meta.EngineData;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.Datacenter;
+import org.urm.meta.engine.EngineInfrastructure;
 import org.urm.meta.engine.HostAccount;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
 
@@ -105,9 +105,6 @@ public class MetaEnvSegment extends EngineObject {
 	}
 	
 	public void setSegmentPrimary( String name , String desc , MatchItem baselineMatchItem , boolean offline , MatchItem dcMatchItem ) throws Exception {
-		if( !env.hasBaseline() )
-			baselineMatchItem = null;
-		
 		if( dcMatchItem == null )
 			Common.exitUnexpected();
 		
@@ -116,14 +113,10 @@ public class MetaEnvSegment extends EngineObject {
 		this.BASELINE = MatchItem.copy( baselineMatchItem );
 		this.OFFLINE = offline;
 		this.DC = MatchItem.copy( dcMatchItem );
+		
+		refreshPrimaryProperties();
 	}
 
-	public void refreshProperties() throws Exception {
-		refreshPrimaryProperties();
-		for( MetaEnvServer server : serverMap.values() )
-			server.refreshProperties();
-	}
-	
 	public void createSettings( ObjectProperties ops ) throws Exception {
 		this.ops = ops;
 	}
@@ -261,12 +254,16 @@ public class MetaEnvSegment extends EngineObject {
 		refreshPrimaryProperties();
 	}
 	
-	public void refreshPrimaryProperties() throws Exception {
+	private void refreshPrimaryProperties() throws Exception {
 		ops.clearProperties( DBEnumParamEntityType.ENV_SEGMENT_PRIMARY );
 		
 		ops.setStringProperty( PROPERTY_NAME , NAME );
 		ops.setStringProperty( PROPERTY_DESC , DESC );
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
+		
+		MetaEnvSegment sgBaseline = getBaseline();
+		if( sgBaseline != null )
+			ops.setStringProperty( PROPERTY_BASELINE , sgBaseline.NAME );
 		
 		Datacenter dc = getDatacenter();
 		if( dc != null )
@@ -312,6 +309,17 @@ public class MetaEnvSegment extends EngineObject {
 			server.getApplicationReferences( account , refs );
 	}
 
+	public void setStartInfo( MetaEnvStartInfo startInfo ) throws Exception {
+		this.startInfo = startInfo;
+		for( MetaEnvServer server : serverMap.values() )
+			server.setStartGroup( null );
+		
+		for( MetaEnvStartGroup group : startInfo.getForwardGroupList() ) {
+			for( MetaEnvServer server : group.getServers() )
+				server.setStartGroup( group );
+		}
+	}
+
 	public boolean isConfUsed( MetaDistrConfItem item ) throws Exception {
 		for( MetaEnvServer server : serverMap.values() ) {
 			if( server.hasConfItemDeployment( item ) )
@@ -321,7 +329,7 @@ public class MetaEnvSegment extends EngineObject {
 	}
 
 	public Datacenter getDatacenter() throws Exception {
-		DataService data = meta.getEngineData();
+		EngineData data = meta.getEngineData();
 		EngineInfrastructure infra = data.getInfrastructure();
 		return( infra.getDatacenter( DC ) );
 	}

@@ -8,9 +8,9 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseRegistryRelease.RELEASE_STATE;
 import org.urm.common.Common;
 import org.urm.common.action.CommandOptions.SQLMODE;
+import org.urm.engine.dist.Release;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDistrDelivery;
-import org.urm.meta.release.Release;
 
 public class DatabaseRegistry {
 
@@ -190,7 +190,7 @@ public class DatabaseRegistry {
 		}
 		
 		// check compatibility
-		if( !release.isCompatible( last.version ) ) {
+		if( !release.isCompatible( action , last.version ) ) {
 			action.error( "last release=" + last.version + " is not compatible with current, compatibility list={" + release.COMPATIBILITY + "}" );
 			return( false );
 		}
