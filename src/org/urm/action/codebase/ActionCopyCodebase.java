@@ -27,20 +27,17 @@ public class ActionCopyCodebase extends ActionBase {
 	protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget scopeProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		boolean res = false;
-		if( branchVAR1 == true && branchVAR2 == true && force == false )
-			res = vcs.copyBranchToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
+		if( branchVAR1 == true && branchVAR2 == true )
+			res = vcs.copyBranchToBranch( scopeProject.sourceProject , VAR1 , VAR2 , force );
 		else
 		if( branchVAR1 == true && branchVAR2 == false && force == true )
-			res = vcs.setTag( scopeProject.sourceProject , VAR1 , VAR2 , "" );
+			res = vcs.setTag( scopeProject.sourceProject , VAR1 , VAR2 , "" , force );
 		else
-		if( branchVAR1 == false && branchVAR2 == true && force == false )
-			res = vcs.copyTagToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
+		if( branchVAR1 == false && branchVAR2 == true )
+			res = vcs.copyTagToBranch( scopeProject.sourceProject , VAR1 , VAR2 , force );
 		else
-		if( branchVAR1 == false && branchVAR2 == false && force == false )
-			res = vcs.copyTagToNewTag( scopeProject.sourceProject , VAR1 , VAR2 );
-		else
-		if( branchVAR1 == false && branchVAR2 == false && force == true )
-			res = vcs.copyTagToTag( scopeProject.sourceProject , VAR1 , VAR2 );
+		if( branchVAR1 == false && branchVAR2 == false )
+			res = vcs.copyTagToTag( scopeProject.sourceProject , VAR1 , VAR2 , force );
 		else
 			exitNotImplemented();
 		

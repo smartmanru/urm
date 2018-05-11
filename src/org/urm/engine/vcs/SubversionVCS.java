@@ -146,7 +146,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	public boolean copyBranchToBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 , boolean deleteOld ) throws Exception {
 		// check source status
 		String BRANCH1X = BRANCH1;
 		if( !BRANCH1X.equals( "trunk" ) )
@@ -166,8 +166,13 @@ public class SubversionVCS extends GenericVCS {
 		
 		String branch2Path = Common.getPath( projectPath , BRANCH2X );
 		if( checkSvnPathExists( branch2Path ) ) {
-			action.error( "cannot copy branch to branch - target branch already exists" );
-			return( false );
+			if( !deleteOld ) {
+				action.error( "cannot copy branch to branch - target branch already exists" );
+				return( false );
+			}
+			
+			action.info( "drop already existing branch ..." );
+			dropBranchInternal( branch2Path , "drop branch before copy from branch=" + BRANCH1 );
 		}
 
 		String tracker = getTracker();
@@ -176,7 +181,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	public boolean renameBranchToBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 , boolean deleteOld ) throws Exception {
 		// check source status
 		String BRANCH1X = BRANCH1;
 		if( !BRANCH1X.equals( "trunk" ) )
@@ -196,8 +201,13 @@ public class SubversionVCS extends GenericVCS {
 		
 		String branch2Path = Common.getPath( projectPath , BRANCH2X );
 		if( checkSvnPathExists( branch2Path ) ) {
-			action.info( "skip rename branch to branch - target branch already exists" );
-			return( false );
+			if( !deleteOld ) {
+				action.info( "skip rename branch to branch - target branch already exists" );
+				return( false );
+			}
+			
+			action.info( "drop already existing branch ..." );
+			dropBranchInternal( branch2Path , "drop branch before rename from branch=" + BRANCH1 );
 		}
 
 		String tracker = getTracker();
@@ -206,7 +216,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 , boolean deleteOld ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -218,8 +228,13 @@ public class SubversionVCS extends GenericVCS {
 		// check destination status
 		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
 		if( checkSvnPathExists( tag2Path ) ) {
-			action.error( "cannot copy tag - target tag already exists" );
-			return( false );
+			if( !deleteOld ) {
+				action.error( "cannot copy tag - target tag already exists" );
+				return( false );
+			}
+			
+			action.info( "drop already existing tag ..." );
+			dropTagInternal( tag2Path , "drop tag before copy from tag=" + TAG1 );
 		}
 
 		String tracker = getTracker();
@@ -228,29 +243,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
-		// check source status
-		String projectPath = getProjectPath( project );
-		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
-		if( !checkSvnPathExists( tag1Path ) ) {
-			action.error( tag1Path + ": svn path does not exist" );
-			return( false );
-		}
-
-		// check destination status
-		String tracker = getTracker();
-		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
-		if( checkSvnPathExists( tag2Path ) ) {
-			action.info( "drop already existing new tag ..." );
-			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: drop tag before svn copy" ) , Shell.WAIT_DEFAULT );
-		}
-
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: create tag from " + TAG1 ) , Shell.WAIT_DEFAULT );
-		return( true );
-	}
-	
-	@Override 
-	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 , boolean deleteOld ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -263,8 +256,13 @@ public class SubversionVCS extends GenericVCS {
 		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
 		String tracker = getTracker();
 		if( checkSvnPathExists( tag2Path ) ) {
-			action.info( "drop already existing new tag ..." );
-			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: drop tag before svn rename" ) , Shell.WAIT_DEFAULT );
+			if( !deleteOld ) {
+				action.error( "cannot rename tag - target tag already exists" );
+				return( false );
+			}
+			
+			action.info( "drop already existing tag ..." );
+			dropTagInternal( tag2Path , "drop tag before rename tag=" + TAG1 );
 		}
 
 		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: rename tag" ) , Shell.WAIT_DEFAULT );
@@ -272,7 +270,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	@Override 
-	public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
+	public boolean copyTagToBranch( MetaSourceProject project , String TAG1 , String BRANCH2 , boolean deleteOld ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -287,8 +285,13 @@ public class SubversionVCS extends GenericVCS {
 			BRANCH2X = Common.getPath( "branches" , BRANCH2 );
 		String branch2Path = Common.getPath( projectPath , BRANCH2X );
 		if( checkSvnPathExists( branch2Path ) ) {
-			action.error( "cannot copy tag to branch - target branch already exists" );
-			return( false );
+			if( !deleteOld ) {
+				action.error( "cannot copy tag to branch - target branch already exists" );
+				return( false );
+			}
+			
+			action.info( "drop already existing branch ..." );
+			dropBranchInternal( branch2Path , "drop branch before create from tag=" + TAG1 );
 		}
 
 		String tracker = getTracker();
@@ -306,8 +309,7 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 		
-		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( tracker + "-0000: drop tag" ) , Shell.WAIT_DEFAULT );
+		dropTagInternal( tagPath , "drop tag" );
 		return( true );
 	}
 	
@@ -324,8 +326,7 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 		
-		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + branchPath + " -m " + Common.getQuoted( tracker + "-0000: drop branch" ) , Shell.WAIT_DEFAULT );
+		dropBranchInternal( branchPath , "drop branch" );
 		return( true );
 	}
 	
@@ -368,7 +369,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
+	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE , boolean deleteOld ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String BRANCHX = BRANCH;
@@ -383,8 +384,13 @@ public class SubversionVCS extends GenericVCS {
 		String tagPath = Common.getPath( projectPath , "tags" , TAG );
 		String tracker = getTracker();
 		if( checkSvnPathExists( tagPath ) ) {
+			if( !deleteOld ) {
+				action.error( "cannot set tag to branch - tag already exists" );
+				return( false );
+			}
+			
 			action.info( "drop already existing tag ..." );
-			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( tracker + "-0000: drop tag before svn rename" ) , Shell.WAIT_DEFAULT );
+			dropTagInternal( tagPath , "drop tag before set on branch" );
 		}
 		
 		if( !BRANCHDATE.isEmpty() )
@@ -674,6 +680,16 @@ public class SubversionVCS extends GenericVCS {
 	private String getTracker() {
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
 		return( core.CONFIG_ADM_TRACKER );
+	}
+
+	private void dropBranchInternal( String branchPath , String msg ) throws Exception {
+		String tracker = getTracker();
+		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + branchPath + " -m " + Common.getQuoted( tracker + "-0000: " + msg ) , Shell.WAIT_DEFAULT );
+	}
+
+	private void dropTagInternal( String tagPath , String msg ) throws Exception {
+		String tracker = getTracker();
+		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( tracker + "-0000: " + msg ) , Shell.WAIT_DEFAULT );
 	}
 	
 }

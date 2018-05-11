@@ -92,7 +92,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	public boolean copyBranchToBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 , boolean deleteOld ) throws Exception {
 		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
@@ -102,8 +102,15 @@ public class GitVCS extends GenericVCS {
 		}
 
 		if( repo.checkBranchExists( BRANCH2 ) ) {
-			action.error( project.NAME + ": skip copy branch to branch - target branch already exists" );
-			return( false );
+			if( !deleteOld ) {
+				action.error( project.NAME + ": skip copy branch to branch - target branch already exists" );
+				return( false );
+			}
+			
+			// drop branch
+			action.info( "drop already existing branch ..." );
+			repo.dropMirrorBranch( BRANCH2 );
+			repo.pushRepository();
 		}
 
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
@@ -113,7 +120,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
+	public boolean renameBranchToBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 , boolean deleteOld ) throws Exception {
 		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
@@ -123,8 +130,15 @@ public class GitVCS extends GenericVCS {
 		}
 
 		if( repo.checkBranchExists( BRANCH2 ) ) {
-			action.error( project.NAME + ": cannot rename branch to branch - target branch already exists" );
-			return( false );
+			if( !deleteOld ) {
+				action.error( project.NAME + ": target branch already exists" );
+				return( false );
+			}
+			
+			// drop branch
+			action.info( "drop already existing branch ..." );
+			repo.dropMirrorBranch( BRANCH2 );
+			repo.pushRepository();
 		}
 
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
@@ -135,7 +149,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 , boolean deleteOld ) throws Exception {
 		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
@@ -145,8 +159,15 @@ public class GitVCS extends GenericVCS {
 		}
 
 		if( repo.checkTagExists( TAG2 ) ) {
-			action.error( project.NAME + ": tag " + TAG2 + " already exists" );
-			return( false );
+			if( !deleteOld ) {
+				action.error( project.NAME + ": tag " + TAG2 + " already exists" );
+				return( false );
+			}
+			
+			// drop tag
+			action.info( "drop already existing tag ..." );
+			repo.dropMirrorTag( TAG2 );
+			repo.pushMirror();
 		}
 
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
@@ -156,7 +177,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 , boolean deleteOld ) throws Exception {
 		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
@@ -166,29 +187,13 @@ public class GitVCS extends GenericVCS {
 		}
 
 		if( repo.checkTagExists( TAG2 ) ) {
+			if( !deleteOld ) {
+				action.error( project.NAME + ": tag " + TAG2 + " already exist" );
+				return( false );
+			}
+				
 			// drop tag
-			repo.dropMirrorTag( TAG2 );
-			repo.pushMirror();
-		}
-
-		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		repo.copyMirrorTagFromTag( TAG1 , TAG2 , core.CONFIG_ADM_TRACKER + "-0000: create tag " + TAG2 + " from " + TAG1 );
-		repo.pushRepository();
-		return( true );
-	}
-
-	@Override 
-	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
-		GitProjectRepo repo = getRepo( project , "" );
-		repo.refreshRepository();
-		
-		if( !repo.checkTagExists( TAG1 ) ) {
-			action.error( project.NAME + ": tag " + TAG1 + " does not exist" );
-			return( false );
-		}
-
-		if( repo.checkTagExists( TAG2 ) ) {
-			// drop tag
+			action.info( "drop already existing tag ..." );
 			repo.dropMirrorTag( TAG2 );
 			repo.pushRepository();
 		}
@@ -201,7 +206,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
+	public boolean copyTagToBranch( MetaSourceProject project , String TAG1 , String BRANCH2 , boolean deleteOld ) throws Exception {
 		GitProjectRepo repo = getRepo( project , "" );
 		repo.refreshRepository();
 		
@@ -211,8 +216,15 @@ public class GitVCS extends GenericVCS {
 		}
 
 		if( repo.checkBranchExists( BRANCH2 ) ) {
-			action.error( project.NAME + ": cannot copy branch to branch - target branch already exists" );
-			return( false );
+			if( !deleteOld ) {
+				action.error( project.NAME + ": cannot copy branch to branch - target branch already exists" );
+				return( false );
+			}
+			
+			// drop branch
+			action.info( "drop already existing branch ..." );
+			repo.dropMirrorBranch( BRANCH2 );
+			repo.pushRepository();
 		}
 
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
@@ -275,7 +287,7 @@ public class GitVCS extends GenericVCS {
 	}
 
 	@Override 
-	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
+	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE , boolean deleteOld ) throws Exception {
 		GitProjectRepo repo = getRepo( project , BRANCH );
 		repo.refreshRepository();
 
@@ -288,6 +300,18 @@ public class GitVCS extends GenericVCS {
 			return( false );
 		}
 		
+		if( repo.checkTagExists( TAG ) ) {
+			if( !deleteOld ) {
+				action.error( project.NAME + ": tag " + TAG + " already exist" );
+				return( false );
+			}
+				
+			// drop tag
+			action.info( "drop already existing tag ..." );
+			repo.dropMirrorTag( TAG );
+			repo.pushRepository();
+		}
+
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
 		repo.setMirrorTag( CO_BRANCH , TAG , core.CONFIG_ADM_TRACKER + "-0000: create tag" , BRANCHDATE );
 		repo.pushRepository();

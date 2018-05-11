@@ -27,11 +27,11 @@ public class ActionRenameCodebase extends ActionBase {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		
 		boolean res = false;
-		if( branchVAR1 == true && branchVAR2 == true && force == false )
-			res = vcs.renameBranchToNewBranch( scopeProject.sourceProject , VAR1 , VAR2 );
+		if( branchVAR1 == true && branchVAR2 == true )
+			res = vcs.renameBranchToBranch( scopeProject.sourceProject , VAR1 , VAR2 , force );
 		else
-		if( branchVAR1 == false && branchVAR2 == false && force == true )
-			res = vcs.renameTagToTag( scopeProject.sourceProject , VAR1 , VAR2 );
+		if( branchVAR1 == false && branchVAR2 == false )
+			res = vcs.renameTagToTag( scopeProject.sourceProject , VAR1 , VAR2 , force );
 		else
 			exitNotImplemented();
 		

@@ -134,7 +134,7 @@ public class CodebaseCommand {
 	}
 	
 	public static void setTag( ScopeState parentState , ActionBase action , String TAG , ActionScope scope ) throws Exception {
-		ActionSetTagOnBuildBranch ca = new ActionSetTagOnBuildBranch( action , null , TAG );
+		ActionSetTagOnBuildBranch ca = new ActionSetTagOnBuildBranch( action , null , TAG , true );
 		if( !ca.runEachBuildableProject( parentState , scope , SecurityAction.ACTION_CODEBASE , false ) )
 			action.exit1( _Error.ProjectTagError1 , "Error tagging projects, tag=" + TAG , TAG );
 	}
