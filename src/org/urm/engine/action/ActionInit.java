@@ -26,6 +26,7 @@ import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.transaction.TransactionBase;
+import org.urm.meta.product.Meta;
 
 public class ActionInit extends ActionBase {
 
@@ -170,19 +171,19 @@ public class ActionInit extends ActionBase {
 		return( data.getMonitoring() );
 	}
 	
-	public EngineBase getEngineBase() {
+	public EngineBase getServerBase() {
 		return( data.getEngineBase() );
 	}
 
-	public EngineLifecycles getEngineLifecycles() {
+	public EngineLifecycles getServerReleaseLifecycles() {
 		return( data.getReleaseLifecycles() );
 	}
 	
-	public EngineInfrastructure getEngineInfrastructure() {
+	public EngineInfrastructure getServerInfrastructure() {
 		return( data.getInfrastructure() );
 	}
 	
-	public EngineMonitoring getEngineMonitoring() {
+	public EngineMonitoring getServerMonitoring() {
 		return( data.getMonitoring() );
 	}
 	
@@ -190,12 +191,47 @@ public class ActionInit extends ActionBase {
 		return( engine.getAuth() );
 	}
 	
-	public StateService getEngineStatus() {
+	public StateService getServerStatus() {
 		return( engine.getStatus() );
 	}
 	
-	public ScheduleService getEngineScheduler() {
+	public ScheduleService getServerScheduler() {
 		return( engine.getScheduler() );
 	}
 	
+	public Meta getActiveProductMetadata( String productName ) throws Exception {
+		if( transaction != null ) {
+			Meta meta = transaction.findTransactionSessionProductMetadata( productName );
+			if( meta != null )
+				return( meta );
+		}
+		return( data.getSessionProductMetadata( this , productName , false ) );
+	}
+
+	public Meta getActiveProductMetadata( int metaId ) throws Exception {
+		if( transaction != null ) {
+			Meta meta = transaction.findTransactionSessionProductMetadata( metaId );
+			if( meta != null )
+				return( meta );
+		}
+		return( data.getSessionProductMetadata( this , metaId , false ) );
+	}
+
+	public Meta findActiveProductMetadata( String productName ) {
+		if( transaction != null ) {
+			Meta meta = transaction.findTransactionSessionProductMetadata( productName );
+			if( meta != null )
+				return( meta );
+		}
+		return( data.findSessionProductMetadata( this , productName ) );
+	}
+
+	public void releaseProductMetadata( TransactionBase transaction , Meta sessionMeta ) throws Exception {
+		data.releaseSessionProductMetadata( transaction.action , sessionMeta );
+	}
+
+	public Meta reloadProductMetadata( String productName ) throws Exception {
+		return( data.getSessionProductMetadata( this , productName , true ) );
+	}
+
 }

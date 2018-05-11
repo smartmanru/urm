@@ -40,9 +40,9 @@ public class ReleaseCommandMeta extends CommandMeta {
 	public ReleaseCommandMeta( OptionsMeta options ) {
 		super( options , NAME , DESC );
 		
-		String releaseOpts = "OPT_BUILDMODE,OPT_COMPATIBILITY,OPT_CUMULATIVE";
+		String releaseOpts = "OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY,OPT_CUMULATIVE";
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_CREATE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "create release" , releaseOpts , "<RELEASELABEL> [<RELEASEDATE> [<LIFECYCLE>]]" ) );
-		releaseOpts = "OPT_BUILDMODE,OPT_COMPATIBILITY";
+		releaseOpts = "OPT_BUILDMODE,OPT_OBSOLETE,OPT_COMPATIBILITY";
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_MODIFY , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "set release properties" , releaseOpts , "<RELEASELABEL> [<RELEASEDATE> [<LIFECYCLE>]]" ) );
 		releaseOpts = "";
 		defineAction( CommandMethodMeta.newNormal( this , METHOD_PHASE , ACTION_ACCESS.PRODUCT , false , SecurityAction.ACTION_RELEASE , true , "set phase properties" , releaseOpts , "<RELEASELABEL> {next|deadline <PHASE> <DEADLINEDATE>|days <PHASE> <DURATIONDAYS>}" ) );

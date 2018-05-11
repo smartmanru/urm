@@ -6,11 +6,11 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.dist.ReleaseLabelInfo;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 
 public class ActionTouchRelease extends ActionBase {
@@ -28,10 +28,10 @@ public class ActionTouchRelease extends ActionBase {
 	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
 		
-		EngineProduct ep = meta.getEngineProduct();
-		synchronized( ep ) {
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
 			// update repository
-			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
+			DistRepository distrepoUpdated = method.changeDistRepository( releases );
 
 			// reload distributive
 			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( this , meta , RELEASELABEL );

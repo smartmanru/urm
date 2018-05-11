@@ -13,8 +13,8 @@ import org.urm.engine.AuthService;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.loader.MatchItem;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.MatchItem;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseChanges;
 import org.urm.meta.release.ReleaseTicket;
@@ -265,8 +265,7 @@ public class DBReleaseChanges {
 		method.checkUpdateRelease( release );
 		DBConnection c = method.getMethodConnection( action );
 		
-		ReleaseTicket ticketOld = set.findTicket( code );
-		if( ticketOld != null && ticketOld.ID != ticket.ID )
+		if( set.findTicket( code ) == null )
 			Common.exitUnexpected();
 		
 		ticket.modify( type , code , name , link , comments , owner , devdone );

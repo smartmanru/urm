@@ -1,4 +1,4 @@
-package org.urm.meta.loader;
+package org.urm.meta;
 
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumOwnerStatusType;

@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 
 import org.urm.action.ActionBase;
 import org.urm.db.DBConnection;
-import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
@@ -12,7 +11,7 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
-import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -75,7 +74,7 @@ public class DBReleaseDistTarget {
 				EngineDB.getLong( item.TARGETFILE_SIZE ) ,
 				EngineDB.getDate( item.TARGETFILE_TIME ) ,
 				EngineDB.getString( item.SOURCE_RELEASEDIR ) ,
-				EngineDB.getDate( item.SOURCE_RELEASETIME )
+				EngineDB.getString( item.SOURCE_RELEASETIME )
 				} , insert );
 	}
 
@@ -106,28 +105,6 @@ public class DBReleaseDistTarget {
 			scope.addDistTarget( target );
 		else
 			changes.addDistTarget( target );
-	}
-	
-	public static void loaddbReleaseDistItem( EngineLoader loader , Release release , ReleaseDist releaseDist , ResultSet rs ) throws Exception {
-		EngineEntities entities = loader.getEntities();
-		PropertyEntity entity = entities.entityAppReleaseDistItem;
-
-		ReleaseDistItem item = new ReleaseDistItem( release , releaseDist );
-		
-		item.ID = entity.loaddbId( rs );
-		item.RV = entity.loaddbVersion( rs );
-		item.create(
-				entity.loaddbObject( rs , DBReleaseData.FIELD_DISTITEM_DISTTARGET_ID ) ,
-				entity.loaddbString( rs , ReleaseDistItem.PROPERTY_FILE ) ,
-				entity.loaddbString( rs , ReleaseDistItem.PROPERTY_FILE_FOLDER ) ,
-				entity.loaddbString( rs , ReleaseDistItem.PROPERTY_FILE_HASH ) ,
-				entity.loaddbLong( rs , ReleaseDistItem.PROPERTY_FILE_SIZE ) ,
-				entity.loaddbDate( rs , ReleaseDistItem.PROPERTY_FILE_TIME ) ,
-				entity.loaddbString( rs , DBReleaseData.FIELD_DISTITEM_SOURCE_RELEASEDIR ) ,
-				entity.loaddbDate( rs , DBReleaseData.FIELD_DISTITEM_SOURCE_RELEASETIME )
-				);
-		
-		releaseDist.addDistItem( item );
 	}
 	
 	public static void exportxmlDistTarget( EngineLoader loader , Release release , ReleaseDistTarget target , Document doc , Element root ) throws Exception {
@@ -238,7 +215,10 @@ public class DBReleaseDistTarget {
 
 	public static void dropAllScopeDistItems( DBConnection c , Release release ) throws Exception {
 		EngineEntities entities = c.getEntities();
-		DBEngineEntities.dropAppObjects( c , entities.entityAppReleaseDistItem , DBQueries.FILTER_REL_RELEASE1 , new String[] { EngineDB.getInteger( release.ID ) } );
+		ReleaseScope scope = release.getScope();
+		int version = c.getNextReleaseVersion( release );
+		for( ReleaseDistTarget target : scope.getDistTargets() )
+			DBEngineEntities.deleteAppObject( c , entities.entityAppReleaseDistTarget , target.ID , version );
 	}
 
 	public static ReleaseDistItem createDistItem( EngineMethod method , ActionBase action , Release release , ReleaseDistTarget target , ReleaseDist releaseDist , DistItemInfo info ) throws Exception {

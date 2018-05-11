@@ -9,7 +9,7 @@ import org.urm.common.RunContext.VarOSTYPE;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
-import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.EngineLoader;
 
 public abstract class DBEnums {
 
@@ -220,7 +220,6 @@ public abstract class DBEnums {
 		BASE_CATEGORY(20,null) ,
 		BASE_GROUP(21,null) ,
 		BASE_ITEM(22,null) ,
-		BASE_ITEMDATA(23,null) ,
 		APPSYSTEM(30,null) ,
 		APPPRODUCT(31,null) ,
 		DBSCHEMA(50,null) ,
@@ -243,15 +242,11 @@ public abstract class DBEnums {
 		ENVIRONMENT(171,null) ,
 		ENVIRONMENT_SEGMENT(172,null) ,
 		ENVIRONMENT_SERVER(173,null) ,
-		ENVIRONMENT_SERVERDEP(174,null) ,
-		ENVIRONMENT_NODE(175,null) ,
+		ENVIRONMENT_NODE(174,null) ,
 		ENVIRONMENT_STARTGROUP(180,null) ,
-		ENVIRONMENT_STARTGROUPSERVER(181,null) ,
-		ENVIRONMENT_DEPLOYMENT(182,null) ,
-		ENVIRONMENT_MONTARGET(183,null) ,
-		ENVIRONMENT_MONITEM(184,null) ,
-		ENVIRONMENT_DUMP(185,null) ,
-		ENVIRONMENT_DUMPMASK(186,null) ,
+		ENVIRONMENT_DEPLOYMENT(181,null) ,
+		ENVIRONMENT_MONTARGET(182,null) ,
+		ENVIRONMENT_MONITEM(183,null) ,
 		RELEASE_REPOSITORY(201,null) ,
 		RELEASE_MAIN(202,null) ,
 		RELEASE_DIST(203,null) ,
@@ -775,7 +770,7 @@ public abstract class DBEnums {
 		PRODUCTBUILD(14,null) ,
 		BASEGROUP(15,null) ,
 		BASEITEM(16,null) ,
-		BASEITEMDATA(17,null) ,
+		MONITORING(17,null) ,
 		LIFECYCLE(18,null) ,
 		LIFECYCLEPHASE(19,null) ,
 		RESOURCE(20,null) ,
@@ -783,7 +778,6 @@ public abstract class DBEnums {
 		BUILDER(22,null) ,
 		BUILDREG(23,null) ,
 		LDAPSETTINGS(24,null) ,
-		MONITORING(25,null) ,
 		DATACENTER(31,null) ,
 		NETWORK(32,null) ,
 		HOST(33,null) ,
@@ -798,6 +792,7 @@ public abstract class DBEnums {
 		BASEITEM_CUSTOM(116,null) ,
 		SYSTEM_CUSTOM(141,null) ,
 		PRODUCT_CUSTOM(150,null) ,
+		PRODUCT_VERSION(151,null) ,
 		PRODUCT_MONITORING(152,null) ,
 		PRODUCT_UNIT(153,null) ,
 		PRODUCT_SCHEMA(154,null) ,
@@ -819,19 +814,15 @@ public abstract class DBEnums {
 		ENV_CUSTOM(303,null) ,
 		ENV_SEGMENT_PRIMARY(311,null) ,
 		ENV_SEGMENT_STARTGROUP(312,null) ,
-		ENV_SEGMENT_STARTGROUPSERVER(313,null) ,
-		ENV_SEGMENT_CUSTOM(314,null) ,
-		ENV_SEGMENT_MONTARGET(315,null) ,
-		ENV_SEGMENT_MONITEM(316,null) ,
+		ENV_SEGMENT_CUSTOM(313,null) ,
+		ENV_SEGMENT_MONTARGET(314,null) ,
+		ENV_SEGMENT_MONITEM(315,null) ,
 		ENV_SERVER_PRIMARY(321,null) ,
 		ENV_SERVER_EXTRA(322,null) ,
 		ENV_SERVER_CUSTOM(323,null) ,
-		ENV_SERVER_DEPENDENCY(324,null) ,
 		ENV_DEPLOYMENT(325,null) ,
 		ENV_NODE_PRIMARY(331,null) ,
 		ENV_NODE_CUSTOM(333,null) ,
-		ENV_DUMP(341,null) ,
-		ENV_DUMPMASK(342,null) ,
 		RELEASE_REPOSITORY(401,null) ,
 		RELEASE_MAIN(402,null) ,
 		RELEASE_DIST(403,null) ,
@@ -1165,7 +1156,7 @@ public abstract class DBEnums {
     	
 		return( null );
     }
-
+    
     public static void verifyDatabase( EngineLoader loader ) throws Exception {
     	DBConnection c = loader.getConnection();
     	ResultSet rs = c.query( DBQueries.QUERY_ENUMS_GETALL0 );

@@ -10,14 +10,15 @@ import org.urm.db.DBConnection;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
+import org.urm.engine.BlotterService;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.dist.VersionInfo;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;
@@ -62,7 +63,6 @@ public class DBRelease {
 		VersionInfo info = VersionInfo.getReleaseDirInfo( release.RELEASEVER );
 		DBEngineEntities.modifyAppObject( c , entities.entityAppReleaseMain , release.ID , release.RV , new String[] {
 				EngineDB.getObject( repo.ID ) ,
-				EngineDB.getObject( release.TRANSITION_REPO_ID ) ,
 				EngineDB.getString( release.NAME ) ,
 				EngineDB.getString( release.DESC ) ,
 				EngineDB.getBoolean( release.MASTER ) ,
@@ -99,8 +99,6 @@ public class DBRelease {
 				entity.loaddbBoolean( rs , Release.PROPERTY_ARCHIVED ) ,
 				entity.loaddbBoolean( rs , Release.PROPERTY_CANCELLED )
 				);
-		
-		release.setTransition( entity.loaddbObject( rs , DBReleaseData.FIELD_MAIN_TRANSITION_REPO_ID ) );
 		return( release );
 	}
 	
@@ -234,22 +232,6 @@ public class DBRelease {
 			for( Node nodePhase : nodeItems )
 				DBReleaseSchedulePhase.importxmlReleaseSchedulePhase( loader , release , schedule , nodePhase );
 			schedule.sortPhases();
-
-			// verify phase states
-			int current = schedule.CURRENT_PHASE;
-			if( current == -1 ) {
-				if( !schedule.COMPLETED )
-					Common.exitUnexpected();
-			}
-			else {
-				for( ReleaseSchedulePhase phase : schedule.phases ) {
-					int pos = phase.getSchedulePos();
-					if( phase.isStarted() && pos > current )
-						Common.exit2( _Error.ReleasePhaseInvalidStart2 , "phase has start date being before current, name=" + phase.NAME + ", pos=" + pos , phase.NAME , "" + pos );
-					if( phase.isFinished() && pos >= current )
-						Common.exit2( _Error.ReleasePhaseInvalidFinish2 , "phase has finish date being not after current, name=" + phase.NAME + ", pos=" + pos , phase.NAME , "" + pos );
-				}
-			}
 		}
 		
 		schedule.setDeadlines();
@@ -347,11 +329,11 @@ public class DBRelease {
 		return( release );
 	}
 
-	public static Release createMasterRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String masterName , String desc , String RELEASEVER ) throws Exception {
+	public static Release createMasterRelease( EngineMethod method , ActionBase action , ReleaseRepository repo , String RELEASEVER ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		
 		Release release = new Release( repo );
-		release.createMaster( action , masterName , desc , RELEASEVER );
+		release.createMaster( action , RELEASEVER );
 
 		modifyRelease( c , repo , release , true );
 		
@@ -420,6 +402,11 @@ public class DBRelease {
 		DBReleaseSchedule.complete( method , action , release , schedule );
 	}
 	
+	public static void finishStatus( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		BlotterService blotter = action.getServerBlotter();
+		blotter.runReleaseStatus( action , release );
+	}
+
 	private static void createFileRecords( EngineMethod method , ActionBase action , Release release , Dist dist ) throws Exception {
 		ReleaseScope scope = release.getScope();
 		ReleaseDist releaseDist = dist.releaseDist;

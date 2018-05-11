@@ -8,6 +8,7 @@ import org.urm.db.engine.DBEngineAuth;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineBuilders;
 import org.urm.db.engine.DBEngineContext;
+import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
@@ -16,13 +17,12 @@ import org.urm.db.engine.DBEngineResources;
 import org.urm.db.env.DBEnvData;
 import org.urm.db.product.DBProductData;
 import org.urm.db.release.DBReleaseData;
-import org.urm.db.system.DBSystemData;
 import org.urm.engine.Engine;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.BaseItem;
-import org.urm.meta.loader.EngineLoader;
 
 public class EngineEntities {
 
@@ -61,11 +61,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppEngineMonitoring;
 	public PropertyEntity entityAppBaseGroup;
 	public PropertyEntity entityAppBaseItem;
-	public PropertyEntity entityAppBaseItemData;
 	public PropertyEntity entityAppDirectorySystem;
 	public PropertyEntity entityAppDirectoryProduct;
-	public PropertyEntity entityAppProductPolicy;
-	public PropertyEntity entityAppProductPolicyLifecycle;
 	public PropertyEntity entityAppDatacenter;
 	public PropertyEntity entityAppNetwork;
 	public PropertyEntity entityAppNetworkHost;
@@ -79,6 +76,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppAuthUser;
 	public PropertyEntity entityAppAuthGroup;
 	public PropertyEntity entityAppMeta;
+	public PropertyEntity entityAppMetaVersion;
 	public PropertyEntity entityAppMetaMonitoring;
 	public PropertyEntity entityAppMetaUnit;
 	public PropertyEntity entityAppMetaSchema;
@@ -86,6 +84,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppMetaSourceProject;
 	public PropertyEntity entityAppMetaSourceItem;
 	public PropertyEntity entityAppMetaDoc;
+	public PropertyEntity entityAppMetaPolicy;
+	public PropertyEntity entityAppMetaPolicyLifecycle;
 	public PropertyEntity entityAppMetaDistrDelivery;
 	public PropertyEntity entityAppMetaDistrDeliverySchema;
 	public PropertyEntity entityAppMetaDistrDeliveryDoc;
@@ -97,16 +97,12 @@ public class EngineEntities {
 	public PropertyEntity entityAppEnvExtra;
 	public PropertyEntity entityAppSegmentPrimary;
 	public PropertyEntity entityAppSegmentStartGroup;
-	public PropertyEntity entityAppSegmentStartGroupServer;
 	public PropertyEntity entityAppSegmentMonTarget;
 	public PropertyEntity entityAppSegmentMonItem;
 	public PropertyEntity entityAppServerPrimary;
 	public PropertyEntity entityAppServerExtra;
 	public PropertyEntity entityAppServerDeployment;
-	public PropertyEntity entityAppServerDependency;
 	public PropertyEntity entityAppNodePrimary;
-	public PropertyEntity entityAppDump;
-	public PropertyEntity entityAppDumpMask;
 	public PropertyEntity entityAppReleaseRepository;
 	public PropertyEntity entityAppReleaseMain;
 	public PropertyEntity entityAppReleaseDist;
@@ -142,11 +138,8 @@ public class EngineEntities {
 		entityAppEngineMonitoring = DBEngineMonitoring.makeEntityEngineMonitoring( c , upgrade );
 		entityAppBaseGroup = DBEngineBase.makeEntityBaseGroup( c , upgrade );
 		entityAppBaseItem = DBEngineBase.makeEntityBaseItem( c , upgrade );
-		entityAppBaseItemData = DBEngineBase.makeEntityBaseItemData( c , upgrade );
-		entityAppDirectorySystem = DBSystemData.makeEntityDirectorySystem( c , upgrade );
-		entityAppDirectoryProduct = DBSystemData.makeEntityDirectoryProduct( c , upgrade );
-		entityAppProductPolicy = DBSystemData.makeEntityProductPolicy( c , upgrade );
-		entityAppProductPolicyLifecycle = DBSystemData.makeEntityProductPolicyLifecycle( c , upgrade );
+		entityAppDirectorySystem = DBEngineDirectory.makeEntityDirectorySystem( c , upgrade );
+		entityAppDirectoryProduct = DBEngineDirectory.makeEntityDirectoryProduct( c , upgrade );
 		entityAppDatacenter = DBEngineInfrastructure.makeEntityDatacenter( c , upgrade );
 		entityAppNetwork = DBEngineInfrastructure.makeEntityNetwork( c , upgrade );
 		entityAppNetworkHost = DBEngineInfrastructure.makeEntityNetworkHost( c , upgrade );
@@ -160,6 +153,7 @@ public class EngineEntities {
 		entityAppAuthUser = DBEngineAuth.makeEntityAuthUser( c , upgrade );
 		entityAppAuthGroup = DBEngineAuth.makeEntityAuthGroup( c , upgrade );
 		entityAppMeta = DBProductData.makeEntityMeta( c , upgrade );
+		entityAppMetaVersion = DBProductData.makeEntityMetaVersion( c , upgrade );
 		entityAppMetaMonitoring = DBProductData.makeEntityMetaMonitoring( c , upgrade );
 		entityAppMetaUnit = DBProductData.makeEntityMetaUnit( c , upgrade );
 		entityAppMetaSchema = DBProductData.makeEntityMetaSchema( c , upgrade );
@@ -167,6 +161,8 @@ public class EngineEntities {
 		entityAppMetaSourceProject = DBProductData.makeEntityMetaSourceProject( c , upgrade );
 		entityAppMetaSourceItem = DBProductData.makeEntityMetaSourceItem( c , upgrade );
 		entityAppMetaDoc = DBProductData.makeEntityMetaDoc( c , upgrade );
+		entityAppMetaPolicy = DBProductData.makeEntityMetaPolicy( c , upgrade );
+		entityAppMetaPolicyLifecycle = DBProductData.makeEntityMetaPolicyLifecycle( c , upgrade );
 		entityAppMetaDistrDelivery = DBProductData.makeEntityMetaDistrDelivery( c , upgrade );
 		entityAppMetaDistrDeliverySchema = DBProductData.makeEntityMetaDistrDeliverySchema( c , upgrade );
 		entityAppMetaDistrDeliveryDoc = DBProductData.makeEntityMetaDistrDeliveryDoc( c , upgrade );
@@ -178,16 +174,12 @@ public class EngineEntities {
 		entityAppEnvExtra = DBEnvData.makeEntityEnvExtra( c , upgrade );
 		entityAppSegmentPrimary = DBEnvData.makeEntitySegmentPrimary( c , upgrade );
 		entityAppSegmentStartGroup = DBEnvData.makeEntityStartGroup( c , upgrade );
-		entityAppSegmentStartGroupServer = DBEnvData.makeEntityStartGroupServer( c , upgrade );
 		entityAppSegmentMonTarget = DBEnvData.makeEntityMonitoringTarget( c , upgrade );
 		entityAppSegmentMonItem = DBEnvData.makeEntityMonitoringItem( c , upgrade );
 		entityAppServerPrimary = DBEnvData.makeEntityServerPrimary( c , upgrade );
 		entityAppServerExtra = DBEnvData.makeEntityServerExtra( c , upgrade );
 		entityAppServerDeployment = DBEnvData.makeEntityServerDeployment( c , upgrade );
-		entityAppServerDependency = DBEnvData.makeEntityServerDependency( c , upgrade );
 		entityAppNodePrimary = DBEnvData.makeEntityNodePrimary( c , upgrade );
-		entityAppDump = DBEnvData.makeEntityDump( c , upgrade );
-		entityAppDumpMask = DBEnvData.makeEntityDumpMask( c , upgrade );
 		entityAppReleaseRepository = DBReleaseData.makeEntityReleaseRepository( c , upgrade );
 		entityAppReleaseMain = DBReleaseData.makeEntityReleaseMain( c , upgrade );
 		entityAppReleaseDist = DBReleaseData.makeEntityReleaseDist( c , upgrade );
@@ -199,8 +191,9 @@ public class EngineEntities {
 		entityAppReleaseTicketTarget = DBReleaseData.makeEntityReleaseTicketTarget( c , upgrade );
 		entityAppReleaseTicket = DBReleaseData.makeEntityReleaseTicket( c , upgrade );
 		entityAppReleaseDistItem = DBReleaseData.makeEntityReleaseDistItem( c , upgrade );
-		entityCustomRC = DBEngineContext.makeEntityCustomRC( c , upgrade );
-		entityCustomEngine = DBEngineContext.makeEntityCustomEngine( c , upgrade );
+		
+		entityCustomRC = DBEngineContext.createEntityCustomRC( c );
+		entityCustomEngine = DBEngineContext.createEntityCustomEngine( c );
 	}
 	
 	public void updateEntity( PropertyEntity entity ) {
@@ -308,7 +301,7 @@ public class EngineEntities {
 	public ObjectProperties createBaseItemProps( ObjectProperties parent ) throws Exception {
 		ObjectProperties props = new ObjectProperties( DBEnumObjectType.ROOT , DBEnumObjectVersionType.CORE , DBEnumParamRoleType.DEFAULT , nameBaseItem , engine.execrc );
 		PropertyEntity custom = PropertyEntity.getCustomEntity( -1 , DBEnumObjectType.BASE_ITEM , DBEnumParamEntityType.BASEITEM_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
-		props.create( parent , new PropertyEntity[] { entityAppBaseItem , entityAppBaseItemData } , custom , true );
+		props.create( parent , entityAppBaseItem , custom , true );
 		return( props );
 	}
 

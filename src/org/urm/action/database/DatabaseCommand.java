@@ -9,7 +9,6 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
@@ -79,15 +78,15 @@ public class DatabaseCommand {
 		ma.runAll( parentState , maker.getScope() , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void importDatabase( ScopeState parentState , ActionBase action , String TASK , String CMD , String SCHEMA ) throws Exception {
-		AppProduct product = action.getContextProduct();
-		ActionImportDatabase ma = new ActionImportDatabase( action , null , product , TASK , CMD , SCHEMA );
+	public void importDatabase( ScopeState parentState , ActionBase action , String SERVER , String TASK , String CMD , String SCHEMA ) throws Exception {
+		MetaEnvServer server = action.context.sg.getServer( SERVER );
+		ActionImportDatabase ma = new ActionImportDatabase( action , null , server , TASK , CMD , SCHEMA );
 		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void exportDatabase( ScopeState parentState , ActionBase action , String TASK , String CMD , String SCHEMA ) throws Exception {
-		AppProduct product = action.getContextProduct();
-		ActionExportDatabase ma = new ActionExportDatabase( action , null , product , TASK , CMD , SCHEMA );
+	public void exportDatabase( ScopeState parentState , ActionBase action , String SERVER , String TASK , String CMD , String SCHEMA ) throws Exception {
+		MetaEnvServer server = action.context.sg.getServer( SERVER );
+		ActionExportDatabase ma = new ActionExportDatabase( action , null , server , TASK , CMD , SCHEMA );
 		ma.runSimpleEnv( parentState , action.context.env , SecurityAction.ACTION_SECURED , true );
 	}
 

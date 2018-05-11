@@ -6,7 +6,6 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.data.EngineContext;
-import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.shell.Account;
 import org.urm.engine.storage.RemoteFolder;
@@ -16,6 +15,7 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseRepository;
 
 public class DistRepository {
 
@@ -29,7 +29,7 @@ public class DistRepository {
 	static String REPO_FOLDER_RELEASES_NORMAL = "releases";
 	static String REPO_FOLDER_RELEASES_ARCHIVE = "archive";
 	
-	public EngineProductReleases releases;
+	public Meta meta;
 	
 	private RemoteFolder repoFolder;
 	private Map<String,DistRepositoryItem> normalMap; 
@@ -37,23 +37,23 @@ public class DistRepository {
 	
 	private boolean modifyState;
 	
-	private DistRepository( EngineProductReleases releases ) {
-		this.releases = releases;
+	private DistRepository( Meta meta ) {
+		this.meta = meta;
 		normalMap = new HashMap<String,DistRepositoryItem>();
 		masterMap = new HashMap<String,DistRepositoryItem>();
 		modifyState = false;
 	}
 	
-	public DistRepository copy( EngineProductReleases rreleases ) throws Exception {
-		DistRepository r = new DistRepository( rreleases );
+	public DistRepository copy( Meta rmeta , ReleaseRepository rrepo ) throws Exception {
+		DistRepository r = new DistRepository( rmeta );
 		r.repoFolder = repoFolder;
 		for( DistRepositoryItem item : normalMap.values() ) {
-			ReleaseDist rreleaseDist = rreleases.findReleaseDist( item.dist );
+			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
 			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
 			r.addNormalItem( ritem );
 		}
 		for( DistRepositoryItem item : masterMap.values() ) {
-			ReleaseDist rreleaseDist = rreleases.findReleaseDist( item.dist );
+			ReleaseDist rreleaseDist = rrepo.findReleaseDist( item.dist );
 			DistRepositoryItem ritem = item.copy( r , rreleaseDist );
 			r.addMasterItem( ritem );
 		}
@@ -73,14 +73,14 @@ public class DistRepository {
 		}
 	}
 	
-	public static DistRepository loadDistRepository( ActionBase action , EngineProductReleases releases , boolean importxml ) throws Exception {
-		DistRepository repo = new DistRepository( releases );
+	public static DistRepository loadDistRepository( ActionBase action , Meta meta , boolean importxml ) throws Exception {
+		DistRepository repo = new DistRepository( meta );
 		repo.open( action , importxml );
 		return( repo );
 	}
 
-	public static DistRepository createInitialRepository( ActionBase action , EngineProductReleases releases , boolean forceClear ) throws Exception {
-		DistRepository repo = new DistRepository( releases );
+	public static DistRepository createInitialRepository( ActionBase action , Meta meta , boolean forceClear ) throws Exception {
+		DistRepository repo = new DistRepository( meta );
 		repo.create( action , forceClear );
 		return( repo );
 	}
@@ -99,19 +99,20 @@ public class DistRepository {
 		}
 		
 		// read repository
+		ReleaseRepository releaseRepo = meta.getReleaseRepository();
 		RemoteFolder normalFolder = repoFolder.getSubFolder( action , REPO_FOLDER_RELEASES_NORMAL );
 		String[] folders = normalFolder.getTopDirs( action );
 		
 		for( String folder : folders ) {
 			try {
 				VersionInfo versionInfo = VersionInfo.getReleaseDirInfo( folder );
-				Release release = releases.findRelease( versionInfo.getFullVersion() );
+				Release release = releaseRepo.findRelease( versionInfo.getFullVersion() );
 				if( release == null )
 					continue;
 				
 				ReleaseDist releaseDist = release.findDistVariant( versionInfo.variant );
 				DistRepositoryItem item = new DistRepositoryItem( this );
-				ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , release.getMeta() , folder );
+				ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , folder );
 				item.createItem( action , info );
 				item.read( action , normalFolder.getSubFolder( action , folder ) , releaseDist );
 				addNormalItem( item );
@@ -194,8 +195,8 @@ public class DistRepository {
 		return( repoFolder.getSubFolder( action , "data/" + dataSet + "/log-import-" + location ) );
 	}
 	
-	public synchronized Dist getDistByLabel( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		ReleaseLabelInfo info = getLabelInfo( action , meta , RELEASELABEL );
+	public synchronized Dist getDistByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
+		ReleaseLabelInfo info = getLabelInfo( action , RELEASELABEL );
 		Dist dist = findDist( info );
 		if( dist == null )
 			Common.exitUnexpected();
@@ -215,7 +216,7 @@ public class DistRepository {
 		return( item );
 	}
 
-	public DistRepositoryItem createRepositoryMasterItem( EngineMethod method , ActionBase action , Meta meta ) throws Exception {
+	public DistRepositoryItem createRepositoryMasterItem( EngineMethod method , ActionBase action ) throws Exception {
 		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , ReleaseLabelInfo.LABEL_MASTER );
 		return( createRepositoryItem( method , action , info ) );
 	}
@@ -282,9 +283,9 @@ public class DistRepository {
 		}
 		else {
 			if( distPath.isEmpty() ) {
-				EngineContext sc = action.getEngineContext();
+				EngineContext sc = action.getServerContext();
 				distPath = sc.DIST_ROOT;
-				distPath = Common.getPath( distPath , releases.ep.productName );
+				distPath = Common.getPath( distPath , meta.name );
 			}
 			
 			if( distPath.isEmpty() )
@@ -301,7 +302,7 @@ public class DistRepository {
 		return( distFolder );
 	}
 	
-	public ReleaseLabelInfo getLabelInfo( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
+	public ReleaseLabelInfo getLabelInfo( ActionBase action , String RELEASELABEL ) throws Exception {
 		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , RELEASELABEL );
 		if( info.local )
 			info.setRepositoryPath( "." );
@@ -316,13 +317,13 @@ public class DistRepository {
 		return( info );
 	}
 	
-	public String getReleaseVerByLabel( ActionBase action , Meta meta , String RELEASELABEL ) throws Exception {
-		ReleaseLabelInfo info = getLabelInfo( action , meta , RELEASELABEL );
+	public String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
+		ReleaseLabelInfo info = getLabelInfo( action , RELEASELABEL );
 		return( info.RELEASEVER );
 	}
 	
 	public synchronized Dist createMasterInitial( ActionBase action , Release release , ReleaseDist releaseDist ) throws Exception {
-		ReleaseLabelInfo info = getLabelInfo( action , release.getMeta() , ReleaseLabelInfo.LABEL_MASTER );
+		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
 		
 		DistRepositoryItem item = new DistRepositoryItem( this );
 		item.createItem( action , info );
@@ -337,9 +338,8 @@ public class DistRepository {
 		if( !src.isCompleted() )
 			action.exit1( _Error.NotCompletedSource1 , "Unable to use incomplete source release " + src.RELEASEDIR , src.RELEASEDIR );
 
-		Meta meta = release.getMeta();
-		ReleaseLabelInfo info = getLabelInfo( action , meta , ReleaseLabelInfo.LABEL_MASTER );
-		DistRepositoryItem item = createRepositoryMasterItem( method , action , meta );
+		ReleaseLabelInfo info = getLabelInfo( action , ReleaseLabelInfo.LABEL_MASTER );
+		DistRepositoryItem item = createRepositoryMasterItem( method , action );
 		item.createItem( action , info );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.DISTPATH );
@@ -449,7 +449,7 @@ public class DistRepository {
 	}
 
 	public Dist copyDist( ActionBase action , Dist dist , String newName , ReleaseDist newReleaseDist ) throws Exception {
-		ReleaseLabelInfo info = getLabelInfo( action , newReleaseDist.release.getMeta() , newReleaseDist.getReleaseDir() );
+		ReleaseLabelInfo info = getLabelInfo( action , newReleaseDist.getReleaseDir() );
 		DistRepositoryItem newItem = new DistRepositoryItem( this );
 		newItem.createItem( action , info );
 		return( dist.copyDist( action , newName , newItem , newReleaseDist ) );
@@ -484,7 +484,7 @@ public class DistRepository {
 		method.checkUpdateDistItem( item );
 		
 		RemoteFolder distFolder = getDistFolder( action , item );
-		Dist dist = new Dist( releaseDist.release.getMeta() , item , releaseDist , distFolder );
+		Dist dist = new Dist( meta , item , releaseDist , distFolder );
 		dist.createNormal( action );
 		item.setDist( dist );
 		return( dist );

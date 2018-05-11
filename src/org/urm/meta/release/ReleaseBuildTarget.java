@@ -1,7 +1,7 @@
 package org.urm.meta.release;
 
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.loader.MatchItem;
+import org.urm.meta.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.MetaSourceProjectSet;

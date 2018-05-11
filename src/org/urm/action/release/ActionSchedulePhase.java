@@ -4,11 +4,11 @@ import java.util.Date;
 
 import org.urm.action.ActionBase;
 import org.urm.db.release.DBReleaseSchedule;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseSchedule;
@@ -80,10 +80,10 @@ public class ActionSchedulePhase extends ActionBase {
 		EngineMethod method = super.method;
 		
 		Meta meta = release.getMeta();
-		EngineProduct ep = meta.getEngineProduct();
-		synchronized( ep ) {
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
 			// update repository
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
 			ReleaseSchedule scheduleUpdated = releaseUpdated.getSchedule();
 			

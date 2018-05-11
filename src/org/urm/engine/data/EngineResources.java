@@ -8,11 +8,11 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumResourceType;
 import org.urm.engine.Engine;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
+import org.urm.meta.Types.EnumResourceCategory;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine._Error;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.MatchItem;
-import org.urm.meta.loader.Types.EnumResourceCategory;
 
 public class EngineResources extends EngineObject {
 

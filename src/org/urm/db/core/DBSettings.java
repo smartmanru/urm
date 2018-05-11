@@ -19,9 +19,9 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.properties.PropertyValue;
 import org.urm.engine.transaction.TransactionBase;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppSystem;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
@@ -672,10 +672,6 @@ public abstract class DBSettings {
 		meta.rebuild();
 	}
 
-	public static void loaddbCustomEntity( DBConnection c , PropertyEntity entity ) throws Exception {
-		loaddbEntity( c , entity , entity.META_OBJECT_ID , false );
-	}
-	
 	public static void loaddbAppEntity( DBConnection c , PropertyEntity entity ) throws Exception {
 		loaddbEntity( c , entity , DBVersions.APP_ID , false );
 	}
@@ -946,7 +942,7 @@ public abstract class DBSettings {
 		else
 		if( versionType == DBEnumObjectVersionType.PRODUCT ) {
 			Meta meta = transaction.getTransactionMetadata( objectId );
-			ProductMeta storage = meta.getStorage();
+			ProductMeta storage = transaction.getTransactionProductMetadata( meta );
 			version = c.getNextProductVersion( storage );
 		}
 		else

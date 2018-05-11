@@ -3,11 +3,11 @@ package org.urm.action.release;
 import org.urm.action.ActionBase;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
 
 public class ActionForceCloseDist extends ActionBase {
 
@@ -22,10 +22,10 @@ public class ActionForceCloseDist extends ActionBase {
 		EngineMethod method = super.method;
 		
 		Meta meta = dist.meta;
-		EngineProduct ep = meta.getEngineProduct();
-		synchronized( ep ) {
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
 			// update repository
-			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
+			DistRepository distrepoUpdated = method.changeDistRepository( releases );
 			Dist distUpdated = distrepoUpdated.findDefaultDist( dist.release );
 			
 			distUpdated.forceClose( this );

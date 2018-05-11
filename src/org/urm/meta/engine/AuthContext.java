@@ -4,8 +4,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.AuthService;
 import org.urm.engine.properties.PropertySet;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.Types.EnumAuthType;
+import org.urm.meta.EngineObject;
+import org.urm.meta.Types.EnumAuthType;
 
 public class AuthContext extends EngineObject {
 
@@ -65,12 +65,6 @@ public class AuthContext extends EngineObject {
 	public void setCurrentUser() {
 		METHOD = METHOD_USER;
 		USER = "";
-	}
-	
-	public boolean isCurrentUser() {
-		if( METHOD.equals( METHOD_USER ) )
-			return( true );
-		return( false );
 	}
 	
 	public boolean isAnonymous() {
@@ -137,8 +131,8 @@ public class AuthContext extends EngineObject {
 		if( isCommon() )
 			return( USER );
 		
-		AuthUser user = action.session.getUser();
-		return( user.NAME );
+		AuthContext login = action.session.getLoginAuth();
+		return( login.USER );
 	}
 	
 	public String getPassword( ActionBase action ) {

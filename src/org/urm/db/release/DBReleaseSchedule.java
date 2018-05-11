@@ -9,14 +9,10 @@ import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
-import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.AppProductPolicy;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseSchedulePhase;
@@ -39,7 +35,6 @@ public class DBReleaseSchedule {
 				entity.loaddbDate( rs , ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL ) ,
 				entity.loaddbBoolean( rs , ReleaseSchedule.PROPERTY_RELEASEDSTATUS ) ,
 				entity.loaddbBoolean( rs , ReleaseSchedule.PROPERTY_COMPLETEDSTATUS ) ,
-				entity.loaddbString( rs , ReleaseSchedule.PROPERTY_SCHEDULE ) ,
 				entity.loaddbInt( rs , ReleaseSchedule.PROPERTY_PHASE )
 				);
 	}
@@ -56,7 +51,6 @@ public class DBReleaseSchedule {
 				EngineDB.getDate( schedule.COMPLETE_DATE_ACTUAL ) ,
 				EngineDB.getBoolean( schedule.RELEASED ) ,
 				EngineDB.getBoolean( schedule.COMPLETED ) ,
-				EngineDB.getString( schedule.SCHEDULE_NAME ) ,
 				EngineDB.getInteger( schedule.CURRENT_PHASE )
 				} , insert );
 	}
@@ -73,7 +67,6 @@ public class DBReleaseSchedule {
 				entity.importxmlDateAttr( root , ReleaseSchedule.PROPERTY_COMPLETEDATEACTUAL ) ,
 				entity.importxmlBooleanAttr( root , ReleaseSchedule.PROPERTY_RELEASEDSTATUS , false ) ,
 				entity.importxmlBooleanAttr( root , ReleaseSchedule.PROPERTY_COMPLETEDSTATUS , false ) ,
-				entity.importxmlStringAttr( root , ReleaseSchedule.PROPERTY_SCHEDULE ) ,
 				entity.importxmlIntAttr( root , ReleaseSchedule.PROPERTY_PHASE )
 				);
 		modifySchedule( c , release , schedule , false );
@@ -93,7 +86,6 @@ public class DBReleaseSchedule {
 				entity.exportxmlDate( schedule.COMPLETE_DATE_ACTUAL ) ,
 				entity.exportxmlBoolean( schedule.RELEASED ) ,
 				entity.exportxmlBoolean( schedule.COMPLETED ) ,
-				entity.exportxmlString( schedule.SCHEDULE_NAME ) ,
 				entity.exportxmlInt( schedule.CURRENT_PHASE )
 		} , true );
 	}
@@ -113,14 +105,6 @@ public class DBReleaseSchedule {
 	public static void changeReleaseDate( EngineMethod method , ActionBase action , Release release , ReleaseSchedule schedule , Date releaseDate , ReleaseLifecycle lc ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		method.checkUpdateRelease( release );
-		
-		if( lc != null ) {
-			Meta meta = release.getMeta();
-			AppProduct product = meta.getProduct();
-			AppProductPolicy policy = product.getPolicy();
-			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , release.RELEASEVER );
-			lc = policy.getLifecycle( action , lc , info.getLifecycleType() );
-		}
 		
 		// change schedule
 		release.setReleaseDate( action , releaseDate , lc );

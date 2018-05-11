@@ -67,24 +67,26 @@ public abstract class DBEngineContext {
 		} ) );
 	}
 
-	public static PropertyEntity makeEntityCustomRC( DBConnection c , boolean upgrade ) throws Exception {
+	public static PropertyEntity createEntityCustomRC( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.LOCAL_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
-		if( !upgrade ) {
-			DBSettings.loaddbCustomEntity( c , entity );
-			return( entity );
-		}
-		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[0] ) ); 
 	}
 
-	public static PropertyEntity makeEntityCustomEngine( DBConnection c , boolean upgrade ) throws Exception {
+	public static PropertyEntity loaddbEntityCustomRC( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.LOCAL_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.RC_CUSTOM , DBVersions.LOCAL_ID , DBEnumObjectVersionType.LOCAL );
+		DBSettings.loaddbEntity( c , entity , DBVersions.LOCAL_ID , false );
+		return( entity );
+	}
+	
+	public static PropertyEntity createEntityCustomEngine( DBConnection c ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.CORE_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.ENGINE_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
-		if( !upgrade ) {
-			DBSettings.loaddbCustomEntity( c , entity );
-			return( entity );
-		}
-		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[0] ) ); 
 	}
 
+	public static PropertyEntity loaddbEntityCustomEngine( DBConnection c ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getCustomEntity( DBVersions.CORE_ID , DBEnumObjectType.ROOT , DBEnumParamEntityType.ENGINE_CUSTOM , DBVersions.CORE_ID , DBEnumObjectVersionType.CORE );
+		DBSettings.loaddbEntity( c , entity , DBVersions.CORE_ID , false );
+		return( entity );
+	}
+	
 }

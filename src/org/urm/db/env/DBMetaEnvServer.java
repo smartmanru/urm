@@ -16,15 +16,15 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineMatcher;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.BaseItem;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.loader.EngineMatcher;
-import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.ProductMeta;
 import org.w3c.dom.Document;
@@ -79,15 +79,19 @@ public class DBMetaEnvServer {
 	}
 	
 	public static void matchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvSegment baselineSegment ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		EngineMatcher matcher = loader.getMatcher();
 		DBConnection c = loader.getConnection();
 		
 		MatchItem BASELINE = server.getBaselineMatchItem();
 		if( BASELINE != null ) {
-			MetaEnvServer baseline = baselineSegment.findServer( BASELINE );
+			String value = matcher.matchEnvBefore( env , BASELINE.FKNAME , server.ID , entities.entityAppServerPrimary , MetaEnvServer.PROPERTY_BASELINE , null );
+			MetaEnvServer baseline = baselineSegment.findServer( value );
 			if( baseline != null ) {
 				BASELINE.match( baseline.ID );
 				modifyServerMatch( c , storage , env , server );
 			}
+			matcher.matchEnvDone( BASELINE );
 		}
 	}
 	
@@ -225,14 +229,15 @@ public class DBMetaEnvServer {
 	}
 	
 	private static void addDependencyServer( DBConnection c , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServer depServer , DBEnumServerDependencyType type ) throws Exception {
-		EngineEntities entities = c.getEntities();
 		int version = c.getNextEnvironmentVersion( env );
-		DBEngineEntities.modifyAppEntity( c , entities.entityAppServerDependency , version , new String[] { 
+		if( !c.modify( DBQueries.MODIFY_ENVSERVER_ADDDEPSERVER5 , new String[] { 
 				EngineDB.getInteger( server.ID ) , 
 				EngineDB.getInteger( depServer.ID ) ,
 				EngineDB.getInteger( env.ID ) ,
-				EngineDB.getEnum( type )
-				} , true );
+				EngineDB.getEnum( type ) ,
+				EngineDB.getInteger( version )
+				} ) )
+			Common.exitUnexpected();
 	}
 	
 	public static void loaddb( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
@@ -427,7 +432,7 @@ public class DBMetaEnvServer {
 	public static void modifyServer( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		server.modifyServer( name , desc , runType , accessType , sysname , osType , dbmsType , MatchItem.create( admSchema ) );
+		server.modifyServer( name , desc , runType , accessType , osType , dbmsType , MatchItem.create( admSchema ) );
  		modifyServer( c , storage , env , server , false );
  		server.sg.updateServer( server );
 	}
@@ -459,6 +464,20 @@ public class DBMetaEnvServer {
 		server.setOffline( offline );
 		
 		modifyServer( c , storage , env , server , false );
+	}
+	
+	public static void setDeployments( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , MetaEnvServerDeployment[] deployments ) throws Exception {
+		DBConnection c = transaction.getConnection();
+		
+		if( !c.modify( DBQueries.MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 , new String[] { EngineDB.getInteger( server.ID ) } ) )
+			Common.exitUnexpected();
+		
+		server.clearDeployments();
+		for( MetaEnvServerDeployment deployment : deployments ) {
+			deployment = deployment.copy( storage.meta , server );
+			server.addDeployment( deployment );
+			DBMetaEnvServerDeployment.modifyDeployment( c , storage , env , deployment , true );
+		}
 	}
 	
 	public static void updateCustomProperties( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server ) throws Exception {

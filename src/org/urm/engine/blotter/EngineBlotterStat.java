@@ -61,17 +61,17 @@ public class EngineBlotterStat {
 	}
 	
 	public void statAddItem( EngineBlotterActionItem item ) {
-		long itemDay = Common.getDayNoTime( item.startTime.getTime() );
+		long itemDay = Common.getDayNoTime( item.startTime );
 		if( itemDay != statDay )
 			return;
 		
 		dayItemsPrimaryRunning++;
 		dayItemsTotalRunning++;
-		dayLastRunTime = item.startTime.getTime();
+		dayLastRunTime = item.startTime;
 	}
 	
 	public void statFinishItem( EngineBlotterActionItem item ) {
-		long itemDay = Common.getDayNoTime( item.startTime.getTime() );
+		long itemDay = Common.getDayNoTime( item.startTime );
 		if( itemDay != statDay )
 			return;
 		
@@ -89,7 +89,7 @@ public class EngineBlotterStat {
 	}
 	
 	public void statAddChildItem( EngineBlotterActionItem baseItem , EngineBlotterTreeItem treeItem ) {
-		long itemDay = Common.getDayNoTime( baseItem.startTime.getTime() );
+		long itemDay = Common.getDayNoTime( baseItem.startTime );
 		if( itemDay != statDay )
 			return;
 		
@@ -98,7 +98,7 @@ public class EngineBlotterStat {
 	}
 	
 	public void statFinishChildItem( EngineBlotterItem baseItem , EngineBlotterTreeItem treeItem , boolean success ) {
-		long itemDay = Common.getDayNoTime( treeItem.startTime.getTime() );
+		long itemDay = Common.getDayNoTime( treeItem.startTime );
 		if( itemDay != statDay )
 			return;
 		

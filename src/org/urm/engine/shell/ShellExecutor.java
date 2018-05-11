@@ -18,9 +18,9 @@ import org.urm.engine.action.CommandOutput;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
+import org.urm.meta.Types.EnumSessionType;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.loader.Types.EnumSessionType;
 import org.urm.meta.product.Meta;
 
 public abstract class ShellExecutor extends Shell {
@@ -501,24 +501,24 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 
-	public synchronized void custom( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
-		custom( action , cmd , CommandOutput.LOGLEVEL_INFO , commandTimeoutMillis );
+	public synchronized void custom( ActionBase action , String cmd ) throws Exception {
+		custom( action , cmd , CommandOutput.LOGLEVEL_INFO );
 	}
 	
-	public synchronized void custom( ActionBase action , String cmd , int logLevel , int commandTimeoutMillis ) throws Exception {
+	public synchronized void custom( ActionBase action , String cmd , int logLevel ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.runCommand( action , cmd , logLevel , commandTimeoutMillis );
+			core.runCommand( action , cmd , logLevel );
 		}
 		finally {
 			opstop();
 		}
 	}
 	
-	public synchronized void custom( ActionBase action , String dir , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized void custom( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_INFO , commandTimeoutMillis );
+			core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_INFO );
 		}
 		finally {
 			opstop();
@@ -537,10 +537,10 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 
-	public synchronized void customCheckErrorsDebug( ActionBase action , String dir , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized void customCheckErrorsDebug( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE , commandTimeoutMillis );
+			core.runCommand( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE );
 			String err = core.getErr();
 			if( !err.isEmpty() )
 				action.exit2( _Error.ErrorExecutingCmd2 , "error executing CMD=" + cmd + ": " + err , core.cmdCurrent , err );
@@ -550,53 +550,53 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 
-	public synchronized void customCritical( ActionBase action , String dir , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized void customCritical( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
 			String cmdDir = core.getDirCmd( action , dir , cmd );
-			core.runCommandCritical( action , cmdDir , commandTimeoutMillis );
+			core.runCommandCritical( action , cmdDir );
 		}
 		finally {
 			opstop();
 		}
 	}
 	
-	public synchronized void customCritical( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized void customCritical( ActionBase action , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.runCommandCritical( action , cmd , commandTimeoutMillis );
+			core.runCommandCritical( action , cmd );
 		}
 		finally {
 			opstop();
 		}
 	}
 	
-	public synchronized int customGetStatus( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized int customGetStatus( ActionBase action , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			return( core.runCommandGetStatusDebug( action , cmd , commandTimeoutMillis ) );
+			return( core.runCommandGetStatusDebug( action , cmd ) );
 		}
 		finally {
 			opstop();
 		}
 	}
 	
-	public synchronized int customGetStatus( ActionBase action , String dir , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized int customGetStatus( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
 			String cmdDir = core.getDirCmd( action , dir , cmd );
-			return( core.runCommandGetStatusDebug( action , cmdDir , commandTimeoutMillis ) );
+			return( core.runCommandGetStatusDebug( action , cmdDir ) );
 		}
 		finally {
 			opstop();
 		}
 	}
 
-	public synchronized int customGetStatusCheckErrors( ActionBase action , String dir , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized int customGetStatusCheckErrors( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
 			String cmdDir = core.getDirCmd( action , dir , cmd );
-			int status = core.runCommandGetStatusDebug( action , cmdDir , commandTimeoutMillis );
+			int status = core.runCommandGetStatusDebug( action , cmdDir );
 			if( status != 0 )
 				return( status );
 			
@@ -611,111 +611,111 @@ public abstract class ShellExecutor extends Shell {
 		}
 	}
 	
-	public synchronized int customGetStatusNormal( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized int customGetStatusNormal( ActionBase action , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			return( core.runCommandGetStatusNormal( action , cmd , commandTimeoutMillis ) );
+			return( core.runCommandGetStatusNormal( action , cmd ) );
 		}
 		finally {
 			opstop();
 		}
 	}
 	
-	public synchronized int customGetStatusNormal( ActionBase action , String dir , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized int customGetStatusNormal( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
 			String cmdDir = core.getDirCmd( action , dir , cmd );
-			return( core.runCommandGetStatusNormal( action , cmdDir , commandTimeoutMillis ) );
+			return( core.runCommandGetStatusNormal( action , cmdDir ) );
 		}
 		finally {
 			opstop();
 		}
 	}
 	
-	public synchronized void customCheckStatus( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized void customCheckStatus( ActionBase action , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.runCommandCheckStatusDebug( action , cmd , commandTimeoutMillis );
+			core.runCommandCheckStatusDebug( action , cmd );
 		}
 		finally {
 			opstop();
 		}
 	}
 
-	public synchronized void customCheckStatus( ActionBase action , String dir , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized void customCheckStatus( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.runCommandCheckStatusDebug( action , dir , cmd , commandTimeoutMillis );
+			core.runCommandCheckStatusDebug( action , dir , cmd );
 		}
 		finally {
 			opstop();
 		}
 	}
 
-	public synchronized void customCheckErrorsDebug( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized void customCheckErrorsDebug( ActionBase action , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.runCommandCheckDebug( action , cmd , commandTimeoutMillis );
+			core.runCommandCheckDebug( action , cmd );
 		}
 		finally {
 			opstop();
 		}
 	}
 
-	public synchronized void customCheckErrorsNormal( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized void customCheckErrorsNormal( ActionBase action , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.runCommandCheckNormal( action , cmd , commandTimeoutMillis );
+			core.runCommandCheckNormal( action , cmd );
 		}
 		finally {
 			opstop();
 		}
 	}
 
-	public synchronized String customGetValueNoCheck( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized String customGetValueNoCheck( ActionBase action , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			return( core.runCommandGetValueNoCheck( action , cmd , CommandOutput.LOGLEVEL_TRACE , commandTimeoutMillis ) );
+			return( core.runCommandGetValueNoCheck( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 		}
 		finally {
 			opstop();
 		}
 	}
 
-	public synchronized String customGetValue( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized String customGetValue( ActionBase action , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			return( core.runCommandGetValueCheckDebug( action , cmd , commandTimeoutMillis ) );
+			return( core.runCommandGetValueCheckDebug( action , cmd ) );
 		}
 		finally {
 			opstop();
 		}
 	}
 
-	public synchronized String[] customGetLines( ActionBase action , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized String[] customGetLines( ActionBase action , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			return( core.runCommandGetLines( action , cmd , CommandOutput.LOGLEVEL_TRACE , commandTimeoutMillis ) );
+			return( core.runCommandGetLines( action , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 		}
 		finally {
 			opstop();
 		}
 	}
 
-	public synchronized String[] customGetLines( ActionBase action , String dir , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized String[] customGetLines( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			return( core.runCommandGetLines( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE , commandTimeoutMillis ) );
+			return( core.runCommandGetLines( action , dir , cmd , CommandOutput.LOGLEVEL_TRACE ) );
 		}
 		finally {
 			opstop();
 		}
 	}
 
-	public synchronized String customGetValue( ActionBase action , String dir , String cmd , int commandTimeoutMillis ) throws Exception {
+	public synchronized String customGetValue( ActionBase action , String dir , String cmd ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			return( core.runCommandGetValueCheckDebug( action , dir , cmd , commandTimeoutMillis ) );
+			return( core.runCommandGetValueCheckDebug( action , dir , cmd ) );
 		}
 		finally {
 			opstop();
@@ -765,7 +765,7 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void mvnCheckStatus( ActionBase action , String runDir , String MAVEN_CMD ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
-			core.runCommandCheckStatusNormal( action , runDir , MAVEN_CMD , 0 );
+			core.runCommandCheckStatusNormal( action , runDir , MAVEN_CMD );
 		}
 		finally {
 			opstop();
@@ -845,10 +845,12 @@ public abstract class ShellExecutor extends Shell {
 	public synchronized void scpFilesRemoteToLocal( ActionBase action , String srcPath , Account account , String dstPath ) throws Exception {
 		try {
 			ShellCore core = opstart( action );
+			int timeout = action.setTimeoutUnlimited();
 			if( account.isNativeScp() )
 				ShellProcess.scpFilesRemoteToLocal( action , srcPath , account , dstPath );
 			else
 				core.cmdScpFilesRemoteToLocal( action , srcPath , account , dstPath );
+			action.setTimeout( timeout );
 		}
 		finally {
 			opstop();
@@ -1214,7 +1216,7 @@ public abstract class ShellExecutor extends Shell {
 			else {
 				FBASENAME = Common.getBaseName( TARGETNAME );
 				TARGETDIRNAME = Common.getDirName( TARGETNAME );
-				core.runCommandCheckDebug( action , "mkdir -p " + TARGETDIRNAME , Shell.WAIT_DEFAULT );
+				core.runCommandCheckDebug( action , "mkdir -p " + TARGETDIRNAME );
 		
 				TARGETFINALNAME = TARGETNAME;
 			}
@@ -1222,11 +1224,11 @@ public abstract class ShellExecutor extends Shell {
 			action.debug( FBASENAME + ": wget " + URL + " ..." );
 	
 			// delete old if partial download
-			core.runCommandCheckDebug( action , "rm -rf " + TARGETFINALNAME + " " + TARGETFINALNAME + ".md5" , Shell.WAIT_DEFAULT );
+			core.runCommandCheckDebug( action , "rm -rf " + TARGETFINALNAME + " " + TARGETFINALNAME + ".md5" );
 			String cmd = "wget -q " + Common.getQuoted( URL ) + " -O " + TARGETFINALNAME;
 			if( auth != null && !auth.isEmpty() )
 				cmd += " " + auth;
-			int status = core.runCommandGetStatusDebug( action , cmd , Shell.WAIT_LONG );
+			int status = core.runCommandGetStatusDebug( action , cmd );
 		
 			if( status == 0 && checkFileExists( action , TARGETFINALNAME ) )
 				createMD5( action , TARGETFINALNAME );
@@ -1257,7 +1259,7 @@ public abstract class ShellExecutor extends Shell {
 					"x=`find . -type f " + mask + "`" +
 					"; if [ " + Common.getQuoted( "$x" ) + " != " + Common.getQuoted( "" ) + " ]; then sed -i " + Common.getQuoted( "s/\\r//" ) + " $x; fi" +
 					"; x=`find . -name " + Common.getQuoted( "*.sh" ) + "`" +
-					"; if [ " + Common.getQuoted( "$x" ) + " != " + Common.getQuoted( "" ) + " ]; then chmod 744 $x; fi" , Shell.WAIT_LONG );
+					"; if [ " + Common.getQuoted( "$x" ) + " != " + Common.getQuoted( "" ) + " ]; then chmod 744 $x; fi" );
 		}
 		finally {
 			opstop();

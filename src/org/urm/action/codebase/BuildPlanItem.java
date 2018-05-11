@@ -1,9 +1,5 @@
 package org.urm.action.codebase;
 
-import org.urm.action.ActionBase;
-import org.urm.engine.BlotterService;
-import org.urm.engine.blotter.EngineBlotterActionItem;
-import org.urm.engine.blotter.EngineBlotterSet;
 import org.urm.engine.dist.ReleaseBuildScopeProject;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
@@ -30,11 +26,8 @@ public class BuildPlanItem {
 	public boolean failedGet;
 	public boolean executeBuild;
 	public boolean executeGet;
-	public boolean executeGetAllowed;
 	public boolean noBuild;
 	public boolean noGet;
-	
-	private ActionBase patchAction;
 	
 	public BuildPlanItem( BuildPlanSet set , int pos , String key ) {
 		this.set = set;
@@ -44,7 +37,6 @@ public class BuildPlanItem {
 		execute = true;
 		executeBuild = false;
 		executeGet = false;
-		executeGetAllowed = true;
 		
 		startBuild = false;
 		startGet = false;
@@ -79,23 +71,37 @@ public class BuildPlanItem {
 	public void setExecute( boolean execute ) {
 		this.execute = execute;
 		executeBuild = ( execute && buildTarget != null && buildTarget.project.isBuildable() )? true : false;
-		boolean canGet = true;
-		if( buildTarget != null ) {
-			if( buildTarget.isEmpty() )
-				canGet = false;
-		}
-			
-		executeGet = ( canGet && execute && executeGetAllowed )? true : false;
+		boolean canGet = false;
+		if( buildTarget != null && !buildTarget.isEmpty() )
+			canGet = true;
+		executeGet = ( canGet && execute )? true : false;
 	}
 
-	public void setGet( boolean get ) {
-		executeGetAllowed = get;
-		boolean canGet = true;
-		if( buildTarget != null ) {
-			if( buildTarget.isEmpty() )
-				canGet = false;
-		}
-		executeGet = ( canGet && execute && executeGetAllowed )? true : false;
+	public void setTagStart() {
+		startTag = true;
+	}
+	
+	public void setBuildStart() {
+		startBuild = true;
+	}
+	
+	public void setGetStart() {
+		startGet = true;
+	}
+	
+	public void setTagDone( boolean success ) {
+		doneTag = true;
+		failedTag = ( success )? false : true;
+	}
+	
+	public void setBuildDone( boolean success ) {
+		doneBuild = true;
+		failedBuild = ( success )? false : true;
+	}
+	
+	public void setGetDone( boolean success ) {
+		doneGet = true;
+		failedGet = ( success )? false : true;
 	}
 	
 	public void clearRun() {
@@ -112,49 +118,6 @@ public class BuildPlanItem {
 			noBuild = true;
 		if( executeGet && doneGet == false )
 			noGet = true;
-	}
-
-	public synchronized void setTagStart() {
-		startTag = true;
-	}
-	
-	public synchronized void setBuildStart() {
-		startBuild = true;
-	}
-	
-	public synchronized void setPatchStart( ActionBase patchAction ) {
-		this.patchAction = patchAction;
-	}
-	
-	public synchronized void setGetStart() {
-		startGet = true;
-	}
-	
-	public synchronized void setTagDone( boolean success ) {
-		doneTag = true;
-		failedTag = ( success )? false : true;
-	}
-	
-	public synchronized void setBuildDone( boolean success ) {
-		doneBuild = true;
-		failedBuild = ( success )? false : true;
-	}
-	
-	public synchronized void setPatchDone( boolean success ) {
-	}
-	
-	public synchronized void setGetDone( boolean success ) {
-		doneGet = true;
-		failedGet = ( success )? false : true;
-	}
-	
-	public synchronized EngineBlotterActionItem findBlotterItem() {
-		if( patchAction == null )
-			return( null );
-		
-		BlotterService service = set.plan.engine.getBlotterService();
-		EngineBlotterSet set = service.getBuildBlotter();
-		return( set.findActionItem( patchAction ) );
 	}
 	
 }

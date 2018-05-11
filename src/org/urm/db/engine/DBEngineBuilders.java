@@ -16,8 +16,8 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.ProjectBuilder;
-import org.urm.meta.loader.EngineLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -40,7 +40,6 @@ public class DBEngineBuilders {
 	public static String FIELD_BUILDER_REMOTEOSTYPE = "remote_os_type";
 	public static String FIELD_BUILDER_REMOTE = "builder_remote";
 	public static String FIELD_BUILDER_ACCOUNT = "remote_account_id";
-	public static String FIELD_BUILDER_MIRRORPATH = "remote_mirrorpath";
 	
 	public static PropertyEntity makeEntityBuilder( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.BUILDER , DBEnumParamEntityType.BUILDER , DBEnumObjectVersionType.CORE , TABLE_BUILDER , FIELD_BUILDER_ID , false );
@@ -51,21 +50,20 @@ public class DBEngineBuilders {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( ProjectBuilder.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_DESC , FIELD_BUILDER_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_DESC , FIELD_BUILDER_DESC , ProjectBuilder.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( ProjectBuilder.PROPERTY_VERSION , "Version" , true , null ) ,
-				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_BUILDERTYPE , FIELD_BUILDER_METHOD , "Build method" , true , DBEnumBuilderMethodType.UNKNOWN ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_COMMAND , FIELD_BUILDER_COMMAND , "Method command" , true , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_HOMEPATH , FIELD_BUILDER_HOMEPATH , "Builder home path" , false , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_OPTIONS , FIELD_BUILDER_OPTIONS , "Builder options" , false , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_JAVA_JDKHOMEPATH , FIELD_BUILDER_JDKPATH , "JDK path" , false , null ) ,
-				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_TARGETTYPE , FIELD_BUILDER_TARGET , "Build target" , true , DBEnumBuilderTargetType.UNKNOWN ) ,
-				EntityVar.metaObjectVar( ProjectBuilder.PROPERTY_TARGETRESOURCE , FIELD_BUILDER_TARGET_RESOURCE , "Target resource" , DBEnumObjectType.RESOURCE , false ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPATH , FIELD_BUILDER_TARGET_PATH , "Target path" , false , null ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPLATFORM , FIELD_BUILDER_TARGET_PLATFORM , "Target platform" , false , null ) ,
-				EntityVar.metaBooleanVar( ProjectBuilder.PROPERTY_BUILDER_REMOTE , FIELD_BUILDER_REMOTE , "Remote build" , false , false ) ,
+				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_BUILDERTYPE , FIELD_BUILDER_METHOD , ProjectBuilder.PROPERTY_BUILDERTYPE , "Build method" , true , DBEnumBuilderMethodType.UNKNOWN ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_COMMAND , FIELD_BUILDER_COMMAND , ProjectBuilder.PROPERTY_BUILDER_COMMAND , "Method command" , true , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_HOMEPATH , FIELD_BUILDER_HOMEPATH , ProjectBuilder.PROPERTY_BUILDER_HOMEPATH , "Builder home path" , false , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_BUILDER_OPTIONS , FIELD_BUILDER_OPTIONS , ProjectBuilder.PROPERTY_BUILDER_OPTIONS , "Builder options" , false , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_JAVA_JDKHOMEPATH , FIELD_BUILDER_JDKPATH , ProjectBuilder.PROPERTY_JAVA_JDKHOMEPATH , "JDK path" , false , null ) ,
+				EntityVar.metaEnumVar( ProjectBuilder.PROPERTY_TARGETTYPE , FIELD_BUILDER_TARGET , ProjectBuilder.PROPERTY_TARGETTYPE , "Build target" , true , DBEnumBuilderTargetType.UNKNOWN ) ,
+				EntityVar.metaObjectVar( ProjectBuilder.PROPERTY_TARGETRESOURCE , FIELD_BUILDER_TARGET_RESOURCE , ProjectBuilder.PROPERTY_TARGETRESOURCE , "Target resource" , DBEnumObjectType.RESOURCE , false ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPATH , FIELD_BUILDER_TARGET_PATH , ProjectBuilder.PROPERTY_TARGETPATH , "Target path" , false , null ) ,
+				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_TARGETPLATFORM , FIELD_BUILDER_TARGET_PLATFORM , ProjectBuilder.PROPERTY_TARGETPLATFORM , "Target platform" , false , null ) ,
+				EntityVar.metaBooleanVar( ProjectBuilder.PROPERTY_BUILDER_REMOTE , FIELD_BUILDER_REMOTE , ProjectBuilder.PROPERTY_BUILDER_REMOTE , "Remote build" , false , false ) ,
 				EntityVar.metaStringXmlOnly( ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN , "Remote host account" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDER_ACCOUNT , "Remote host login" , DBEnumObjectType.HOSTACCOUNT , false ) ,
-				EntityVar.metaStringVar( ProjectBuilder.PROPERTY_REMOTEMIRRORPATH , FIELD_BUILDER_MIRRORPATH , "Remote mirror path" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_BUILDER_ACCOUNT , "Remote host login" , DBEnumObjectType.HOSTACCOUNT , false )
 		} ) );
 	}
 
@@ -106,18 +104,15 @@ public class DBEngineBuilders {
 		
 		boolean remote = entity.importxmlBooleanProperty( root , ProjectBuilder.PROPERTY_BUILDER_REMOTE , false );
 		Integer hostAccountId = null;
-		String remotePath = "";
 		if( remote ) {
 			String hostLogin = entity.importxmlStringProperty( root , ProjectBuilder.PROPERTY_REMOTEHOSTLOGIN );
 			if( hostLogin.isEmpty() )
 				Common.exitUnexpected();
-			
 			EngineInfrastructure infra = loader.getInfrastructure();
 			hostAccountId = infra.getHostAccountId( hostLogin );
-			remotePath = entity.importxmlStringProperty( root , ProjectBuilder.PROPERTY_REMOTEMIRRORPATH );
 		}
 		
-		builder.setRemoteData( remote , hostAccountId , remotePath );
+		builder.setRemoteData( remote , hostAccountId );
 		modifyBuilder( c , builder , true );
 
 		return( builder );
@@ -145,8 +140,7 @@ public class DBEngineBuilders {
 				EngineDB.getString( builder.TARGET_PATH ) ,
 				EngineDB.getString( builder.TARGET_PLATFORM ) ,
 				EngineDB.getBoolean( builder.BUILDER_REMOTE ) ,
-				EngineDB.getObject( builder.REMOTE_ACCOUNT_ID ) ,
-				EngineDB.getString( builder.REMOTE_MIRRORPATH )
+				EngineDB.getObject( builder.REMOTE_ACCOUNT_ID )
 		} , insert );
 	}
 
@@ -177,8 +171,7 @@ public class DBEngineBuilders {
 				entity.exportxmlString( builder.TARGET_PATH ) ,
 				entity.exportxmlString( builder.TARGET_PLATFORM ) ,
 				entity.exportxmlBoolean( builder.BUILDER_REMOTE ) ,
-				entity.exportxmlString( hostLogin ) ,
-				entity.exportxmlString( builder.REMOTE_MIRRORPATH ) ,
+				entity.exportxmlString( hostLogin )
 		} , false );
 	}
 
@@ -213,8 +206,7 @@ public class DBEngineBuilders {
 						);
 				builder.setRemoteData(
 						entity.loaddbBoolean( rs , ProjectBuilder.PROPERTY_BUILDER_REMOTE ) ,
-						entity.loaddbObject( rs , FIELD_BUILDER_ACCOUNT ) ,
-						entity.loaddbString( rs , ProjectBuilder.PROPERTY_REMOTEMIRRORPATH )
+						entity.loaddbObject( rs , FIELD_BUILDER_ACCOUNT )
 						);
 				builders.addBuilder( builder );
 			}
@@ -234,7 +226,7 @@ public class DBEngineBuilders {
 		builder.createBuilder( bdata.NAME , bdata.DESC , bdata.VERSION );
 		builder.setMethodData( bdata.BUILDER_METHOD_TYPE , bdata.BUILDER_COMMAND , bdata.BUILDER_HOMEPATH , bdata.BUILDER_OPTIONS , bdata.JAVA_JDKHOMEPATH );
 		builder.setTargetData( bdata.BUILDER_TARGET_TYPE , bdata.TARGET_RESOURCE_ID , bdata.TARGET_PATH , bdata.TARGET_PLATFORM );
-		builder.setRemoteData( bdata.BUILDER_REMOTE , bdata.REMOTE_ACCOUNT_ID , bdata.REMOTE_MIRRORPATH );
+		builder.setRemoteData( bdata.BUILDER_REMOTE , bdata.REMOTE_ACCOUNT_ID );
 		modifyBuilder( c , builder , true );
 		
 		builders.addBuilder( builder );
@@ -247,7 +239,7 @@ public class DBEngineBuilders {
 		builder.modifyBuilder( bdata.NAME , bdata.DESC , bdata.VERSION );
 		builder.setMethodData( bdata.BUILDER_METHOD_TYPE , bdata.BUILDER_COMMAND , bdata.BUILDER_HOMEPATH , bdata.BUILDER_OPTIONS , bdata.JAVA_JDKHOMEPATH );
 		builder.setTargetData( bdata.BUILDER_TARGET_TYPE , bdata.TARGET_RESOURCE_ID , bdata.TARGET_PATH , bdata.TARGET_PLATFORM );
-		builder.setRemoteData( bdata.BUILDER_REMOTE , bdata.REMOTE_ACCOUNT_ID , bdata.REMOTE_MIRRORPATH );
+		builder.setRemoteData( bdata.BUILDER_REMOTE , bdata.REMOTE_ACCOUNT_ID );
 		modifyBuilder( c , builder , false );
 		
 		builders.updateBuilder( builder );

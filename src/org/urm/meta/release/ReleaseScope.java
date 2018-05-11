@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumBuildTargetType;
 import org.urm.db.core.DBEnums.DBEnumDistTargetType;
-import org.urm.meta.loader.MatchItem;
+import org.urm.meta.MatchItem;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrConfItem;

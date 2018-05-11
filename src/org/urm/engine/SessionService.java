@@ -16,13 +16,13 @@ import org.urm.engine.action.ActionInit.RootActionType;
 import org.urm.meta.engine.AuthUser;
 import org.urm.meta.product.Meta;
 import org.urm.engine.action.CommandExecutor;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
 
 public class SessionService {
 
 	public Engine engine;
+	private DataService data;
 	
 	boolean running = false;
 	boolean stop = false;
@@ -36,8 +36,9 @@ public class SessionService {
 	
 	int sessionSequence = 0;
 	
-	public SessionService( Engine engine ) {
+	public SessionService( Engine engine , DataService data ) {
 		this.engine = engine;
+		this.data = data;
 	
 		sessions = new HashMap<Integer,EngineSession>(); 
 		calls = new HashMap<String,EngineCall>();
@@ -98,19 +99,15 @@ public class SessionService {
 		options.setAction( method , data );
 		
 		CommandMeta commandInfo = builder.createMeta( options.command );
-		if( commandInfo == null ) {
-			engine.error( "unable to create root action, method=" + options.command );
+		if( commandInfo == null )
 			return( null );
-		}
 		
 		EngineSession session = call.sessionContext;
 		session.setServerRemoteProductLayout( engine.serverAction );
 		
 		ActionInit action = engine.createRootAction( RootActionType.Command , options , session , "call-" + data.clientrc.product , call , false , "Run remote command=" + commandInfo.name + "::" + options.method );
-		if( action == null ) {
-			engine.error( "unable to create root action, method=" + options.method );
+		if( action == null )
 			return( null );
-		}
 
 		action.context.loadEnv( action , false );
 		return( action );
@@ -268,8 +265,7 @@ public class SessionService {
 	}
 
 	public void releaseSessionProductMetadata( ActionInit action , Meta meta ) throws Exception {
-		EngineProduct ep = meta.getEngineProduct();
-		ep.releaseSessionMeta( action , meta );
+		data.releaseSessionProductMetadata( action , meta );
 	}
 	
 }

@@ -1,16 +1,9 @@
-package org.urm.meta.loader;
+package org.urm.meta;
 
 import org.urm.common.Common;
 
 public class Types {
 
-	public enum EnumModifyType {
-		ORIGINAL ,
-		NORMAL ,
-		MATCH ,
-		SET
-	};
-	
 	public enum EnumResourceCategory {
 		ANY ,
 		VCS ,

@@ -1,5 +1,6 @@
 package org.urm.engine;
 
+import org.urm.action.ActionBase;
 import org.urm.common.RunContext;
 import org.urm.db.EngineDB;
 import org.urm.engine.data.EngineBase;
@@ -16,7 +17,10 @@ import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.AppSystem;
+import org.urm.meta.product.Meta;
+import org.urm.meta.product.ProductMeta;
 
 public class DataService {
 
@@ -24,10 +28,10 @@ public class DataService {
 	public RunContext execrc;
 	
 	private EngineDB db;
-	
+	private EngineProducts products;
+
 	private EngineCore core; 
 	private EngineDirectory directory;
-	private EngineProducts products;
 	private EngineMonitoring monitoring;
 	
 	public DataService( Engine engine ) {
@@ -36,7 +40,7 @@ public class DataService {
 		
 		db = new EngineDB( engine );
 		core = new EngineCore( engine );
-		products = new EngineProducts( engine , this ); 
+		products = new EngineProducts( engine ); 
 	}
 
 	public void init() throws Exception {
@@ -201,4 +205,36 @@ public class DataService {
 		monitoring = monitoringNew;
 	}
 
+	public void setProductMetadata( TransactionBase transaction , ProductMeta storageNew ) throws Exception {
+		products.setProductMetadata( storageNew );
+	}
+	
+	public void deleteProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
+		products.deleteProductMetadata( transaction , storage );
+	}
+
+	public ProductMeta findProductStorage( String productName ) {
+		return( products.findProductStorage( productName ) );
+	}
+	
+	public Meta createSessionProductMetadata( TransactionBase transaction , ProductMeta storage ) throws Exception {
+		return( products.createSessionProductMetadata( transaction.action , storage ) );
+	}
+	
+	public Meta findSessionProductMetadata( ActionBase action , String productName ) {
+		return( products.findSessionProductMetadata( action , productName ) );
+	}
+	
+	public Meta getSessionProductMetadata( ActionBase action , String productName , boolean primary ) throws Exception {
+		return( products.getSessionProductMetadata( action , productName , primary ) );
+	}
+
+	public Meta getSessionProductMetadata( ActionBase action , int metaId , boolean primary ) throws Exception {
+		return( products.getSessionProductMetadata( action , metaId , primary ) );
+	}
+
+	public void releaseSessionProductMetadata( ActionBase action , Meta meta ) throws Exception {
+		products.releaseSessionProductMetadata( action , meta );
+	}
+	
 }

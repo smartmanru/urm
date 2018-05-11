@@ -1,4 +1,4 @@
-package org.urm.meta.loader;
+package org.urm.meta;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
@@ -323,7 +323,7 @@ public class EngineLoaderCore {
 
 	public void loaddbDirectory() throws Exception {
 		trace( "load engine directory data ..." );
-		directoryNew = new EngineDirectory( engine , data );
+		directoryNew = new EngineDirectory( engine );
 		DBEngineDirectory.loaddb( loader , directoryNew );
 	}
 	
@@ -333,7 +333,7 @@ public class EngineLoaderCore {
 		Document doc = ConfReader.readXmlFile( execrc , registryFile );
 		Node root = doc.getDocumentElement();
 		
-		directoryNew = new EngineDirectory( engine , data );
+		directoryNew = new EngineDirectory( engine );
 		DBEngineDirectory.importxml( loader , directoryNew , root );
 	}
 	

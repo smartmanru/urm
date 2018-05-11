@@ -12,10 +12,8 @@ import org.urm.engine.Engine;
 import org.urm.engine.action.CommandMethod;
 import org.urm.engine.action.CommandExecutor;
 import org.urm.engine.dist.Dist;
-import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 
@@ -45,7 +43,6 @@ public class CommandExecutorCodebase extends CommandExecutor {
 		super.defineAction( new CodebaseDropBranch() , CodebaseCommandMeta.METHOD_DROPBRANCH );
 		super.defineAction( new CodebaseDropTags() , CodebaseCommandMeta.METHOD_DROPTAGS );
 		super.defineAction( new CodebaseExport() , CodebaseCommandMeta.METHOD_EXPORT );
-		super.defineAction( new CodebaseList() , CodebaseCommandMeta.METHOD_LIST );
 		super.defineAction( new CodebaseRenameBranch() , CodebaseCommandMeta.METHOD_RENAMEBRANCH );
 		super.defineAction( new CodebaseRenameTags() , CodebaseCommandMeta.METHOD_RENAMETAGS );
 		super.defineAction( new CodebaseSetVersion() , CodebaseCommandMeta.METHOD_SETVERSION );
@@ -65,40 +62,19 @@ public class CommandExecutorCodebase extends CommandExecutor {
 		action.logAction();
 
 		ActionScope scope;
+		Dist dist = null;
 		String RELEASELABEL = action.context.CTX_RELEASELABEL;
 		
+		Meta meta = action.getContextMeta();
 		if( !RELEASELABEL.isEmpty() ) {
-			Release release = super.getReleaseByLabel( action , RELEASELABEL );
-			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , release );
+			dist = action.getReleaseDist( meta , RELEASELABEL );
+			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 			maker.addScopeReleaseSet( SET , PROJECTS );
 			scope = maker.getScope();
 		}
 		else {
-			Meta meta = action.getContextMeta();
 			ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
 			maker.addScopeProductSet( SET , PROJECTS );
-			scope = maker.getScope();
-		}
-		
-		if( scope.isEmpty() )
-			action.exit0( _Error.ScopeEmpty0 , "nothing to do, scope is empty" );
-		
-		return( scope );
-	}
-
-	private ActionScope getCodebaseTargetsScope( ActionBase action , String SET , String[] TARGETS ) throws Exception {
-		ActionScope scope;
-		String RELEASELABEL = action.context.CTX_RELEASELABEL;
-		if( !RELEASELABEL.isEmpty() ) {
-			Release release = super.getReleaseByLabel( action , RELEASELABEL );
-			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , release );
-			maker.addScopeReleaseSet( SET , TARGETS );
-			scope = maker.getScope();
-		}
-		else {
-			Meta meta = action.getContextMeta();
-			ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
-			maker.addScopeProductSet( SET , TARGETS );
 			scope = maker.getScope();
 		}
 		
@@ -151,11 +127,27 @@ public class CommandExecutorCodebase extends CommandExecutor {
 		String[] TARGETS = getArgList( action , 1 );
 		action.logAction();
 		
-		ActionScope scope = getCodebaseTargetsScope( action , SET , TARGETS );
-		Meta meta = scope.release.getMeta();
-		AppProduct product = meta.getProduct();
-		EngineProductReleases releases = product.findReleases();
-		Dist dist = releases.findDefaultReleaseDist( scope.release );
+		ActionScope scope;
+		Dist dist = null;
+		String RELEASELABEL = action.context.CTX_RELEASELABEL;
+		Meta meta = action.getContextMeta();
+		if( !RELEASELABEL.isEmpty() ) {
+			dist = action.getReleaseDist( meta , RELEASELABEL );
+			ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
+			maker.addScopeReleaseSet( SET , TARGETS );
+			scope = maker.getScope();
+		}
+		else {
+			ActionProductScopeMaker maker = new ActionProductScopeMaker( action , meta );
+			maker.addScopeProductSet( SET , TARGETS );
+			scope = maker.getScope();
+		}
+		
+		if( scope.isEmpty() ) {
+			action.info( "nothing to get" );
+			return;
+		}
+		
 		CodebaseCommand.getAll( parentState , action , scope , dist );
 	}
 	}
@@ -273,14 +265,6 @@ public class CommandExecutorCodebase extends CommandExecutor {
 	}
 	}
 	
-	private class CodebaseList extends CommandMethod {
-	public void run( ScopeState parentState , ActionBase action ) throws Exception {
-		String CMD = getArg( action , 0 );
-		ActionScope scope = getCodebaseScope( action , 1 ); 
-		CodebaseCommand.list( parentState , action , scope , CMD );
-	}
-	}
-	
 	private class CodebaseRenameBranch extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String BRANCH1 = getRequiredArg( action , 0 , "BRANCH1" );
@@ -311,8 +295,8 @@ public class CommandExecutorCodebase extends CommandExecutor {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String RELEASELABEL = getRequiredArg( action , 0 , "RELEASELABEL" );
 		
-		AppProduct product = action.getContextProduct();
-		Dist dist = action.getReleaseDist( product , RELEASELABEL );
+		Meta meta = action.getContextMeta();
+		Dist dist = action.getReleaseDist( meta , RELEASELABEL );
 		
 		ActionReleaseScopeMaker maker = new ActionReleaseScopeMaker( action , dist.release );
 		ActionScopeTarget scopeProject = maker.addScopeReleaseProjectItemsTarget( "thirdparty" , null );

@@ -18,7 +18,6 @@ import org.urm.engine.events.SourceEvent;
 import org.urm.engine.shell.Account;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.engine.AppProduct;
@@ -43,8 +42,6 @@ public class ScopeExecutor implements EngineEventsListener {
 	ScopeState parentState;
 	ActionBase action;
 	boolean async;
-	Meta meta;
-	
 	CommandContext context;
 
 	boolean runUniqueHosts = false;
@@ -62,12 +59,10 @@ public class ScopeExecutor implements EngineEventsListener {
 	DBEnumScopeCategoryType[] asyncCategories;
 	EngineEventsSubscription asyncSub;
 	
-	public ScopeExecutor( ScopeState parentState , ActionBase action , boolean async , Meta meta ) {
+	public ScopeExecutor( ScopeState parentState , ActionBase action , boolean async ) {
 		this.parentState = parentState;
 		this.action = action;
 		this.async = async;
-		this.meta = meta;
-		
 		this.context = action.context;
 		this.eventsSource = action.eventSource;
 		runUniqueHosts = false;
@@ -128,9 +123,9 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( runSimple() );
 	}
 	
-	public boolean runSimpleProduct( SecurityAction sa , boolean readOnly ) {
+	public boolean runSimpleProduct( String productName , SecurityAction sa , boolean readOnly ) {
 		AuthService auth = action.engine.getAuth();
-		AppProduct product = meta.findProduct();
+		AppProduct product = action.findProduct( productName );
 		if( product == null ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", unknown product)" );
 			return( false );
@@ -141,9 +136,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 		
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSIMPLE;
 			return( runAsync() );
@@ -151,16 +143,13 @@ public class ScopeExecutor implements EngineEventsListener {
 		
 		return( runSimple() );
 	}
-
+	
 	public boolean runSimpleEnv( MetaEnv env , SecurityAction sa , boolean readOnly ) {
 		AuthService auth = action.engine.getAuth();
 		if( !auth.checkAccessProductAction( action , sa , env , readOnly ) ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", environment operation)" );
 			return( false );
 		}
-		
-		if( !updateContext() )
-			return( false );
 		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSIMPLE;
@@ -170,9 +159,9 @@ public class ScopeExecutor implements EngineEventsListener {
 		return( runSimple() );
 	}
 	
-	public boolean runProductBuild( SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
+	public boolean runProductBuild( String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
 		AuthService auth = action.engine.getAuth();
-		AppProduct product = meta.findProduct();
+		AppProduct product = action.findProduct( productName );
 		if( product == null ) {
 			accessDenied( "access denied (user=" + action.getUserName() + ", unknown product)" );
 			return( false );
@@ -182,9 +171,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			accessDenied( "access denied (user=" + action.getUserName() + ", build operation)" );
 			return( false );
 		}
-		
-		if( !updateContext() )
-			return( false );
 		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSIMPLE;
@@ -225,9 +211,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNCATEGORIES;
 			asyncScope = scope;
@@ -253,9 +236,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 		}
 		
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSCOPESET;
 			asyncScopeSet = set;
@@ -280,9 +260,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 		}
 
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSCOPESETTARGETS;
 			asyncScopeSet = set;
@@ -308,9 +285,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			}
 		}
 		
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNSCOPETARGET;
 			asyncScopeTarget = item;
@@ -327,9 +301,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 			
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNUNIQUEHOSTS;
 			asyncScope = scope;
@@ -351,9 +322,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			return( false );
 		}
 			
-		if( !updateContext() )
-			return( false );
-		
 		if( async ) {
 			asyncType = AsyncType.ASYNC_RUNUNIQUEACCOUNTS;
 			asyncScope = scope;
@@ -1201,19 +1169,6 @@ public class ScopeExecutor implements EngineEventsListener {
 			actionParent = actionParent.parent;
 			actionParent.eventSource.notifyCustomEvent( EventService.OWNER_ENGINE , EventService.EVENT_FINISHCHILDACTION , action );
 		}
-	}
-
-	private boolean updateContext() {
-		try {
-			AppProduct product = meta.getProduct();
-			action.updateContext( product , meta );
-		}
-		catch( Throwable e ) {
-			action.log( "run simple product" , e );
-			return( false );
-		}
-		
-		return( true );
 	}
 	
 }

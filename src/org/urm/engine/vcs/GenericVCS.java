@@ -2,6 +2,7 @@ package org.urm.engine.vcs;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.data.EngineBuilders;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
@@ -17,15 +18,13 @@ public abstract class GenericVCS {
 	Meta meta;
 	
 	public AuthResource res;
-	public ShellExecutor shell;
-	public ProjectBuilder builder;
+	ShellExecutor shell;
 	
-	protected GenericVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell , ProjectBuilder builder ) {
+	protected GenericVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell ) {
 		this.action = action;
 		this.meta = meta;
 		this.res = res;
 		this.shell = shell;
-		this.builder = builder;
 	}
 	
 	public abstract MirrorCase getMirror( MirrorRepository mirror ) throws Exception;
@@ -36,8 +35,6 @@ public abstract class GenericVCS {
 	public abstract boolean ignoreDir( String name );
 	public abstract boolean ignoreFile( String name );
 	
-	public abstract String[] getBranches( MetaSourceProject project ) throws Exception;
-	public abstract String[] getTags( MetaSourceProject project ) throws Exception;
 	public abstract boolean checkout( MetaSourceProject project , LocalFolder PATCHPATH , String BRANCH ) throws Exception;
 	public abstract boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHPATH , String MESSAGE ) throws Exception;
 	public abstract boolean copyBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) throws Exception;
@@ -72,38 +69,40 @@ public abstract class GenericVCS {
 	public abstract void deleteDirToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception;
 	
 	public static GenericVCS getVCS( ActionBase action , Meta meta , Integer resourceId ) throws Exception {
-		return( getVCS( action , meta , resourceId , false , null ) );
+		return( getVCS( action , meta , resourceId , "" , false ) );
 	}
 	
 	public static GenericVCS getVCS( ActionBase action , AuthResource res ) throws Exception {
-		return( getVCS( action , null , res , action.shell , null ) );
+		return( getVCS( action , null , res , action.shell ) );
 	}
 	
-	public static GenericVCS getVCS( ActionBase action , Meta meta , Integer resourceId , boolean noAuth , ProjectBuilder builder ) throws Exception {
+	public static GenericVCS getVCS( ActionBase action , Meta meta , Integer resourceId , String BUILDER , boolean noAuth ) throws Exception {
 		AuthResource res = action.getResource( resourceId );
 		if( !noAuth )
 			res.loadAuthData();
 		
 		ShellExecutor shell = action.shell;
-		if( builder != null ) {
+		if( !BUILDER.isEmpty() ) {
+			EngineBuilders builders = action.getServerBuilders();
+			ProjectBuilder builder = builders.getBuilder( BUILDER );
 			if( builder.BUILDER_REMOTE ) {
 				Account account = builder.getRemoteAccount( action );
 				shell = action.getShell( account );
 			}
 		}
 
-		return( getVCS( action , meta , res , shell , builder ) );
+		return( getVCS( action , meta , res , shell ) );
 	}
 
-	private static GenericVCS getVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell , ProjectBuilder builder ) throws Exception {
+	private static GenericVCS getVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell ) throws Exception {
 		res.loadAuthData();
 		if( res.isSvn() )
-			return( new SubversionVCS( action , meta , res , shell , builder ) );
+			return( new SubversionVCS( action , meta , res , shell ) );
 		
 		if( res.isGit() )
-			return( new GitVCS( action , meta , res , shell , builder ) );
+			return( new GitVCS( action , meta , res , shell ) );
 		
-		action.exit2( _Error.UnexectedVcsType2 , "unexpected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.RESOURCE_TYPE ) , res.NAME , Common.getEnumLower( res.RESOURCE_TYPE ) );
+		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.RESOURCE_TYPE ) , res.NAME , Common.getEnumLower( res.RESOURCE_TYPE ) );
 		return( null );
 	}
 	

@@ -38,7 +38,7 @@ import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.EngineLoader;
 
 public class Engine {
 
@@ -88,7 +88,7 @@ public class Engine {
 		auth = new AuthService( this );
 		events = new EventService( this );
 		scheduler = new ScheduleService( this ); 
-		sessions = new SessionService( this );
+		sessions = new SessionService( this , data );
 		status = new StateService( this );
 		blotter = new BlotterService( this );
 		
@@ -209,10 +209,6 @@ public class Engine {
 
 	public boolean isRunning() {
 		return( running );
-	}
-	
-	public BlotterService getBlotterService() {
-		return( blotter );
 	}
 	
 	public boolean prepareWeb() throws Exception {
@@ -408,6 +404,7 @@ public class Engine {
 		context.update( action );
 		
 		action.setLogLevel( context.logLevelLimit );
+		action.setTimeout( context.CTX_TIMEOUT );
 		
 		if( memoryOnly )
 			trace( "memory action created: actionId=" + action.ID + ", name=" + action.actionName );

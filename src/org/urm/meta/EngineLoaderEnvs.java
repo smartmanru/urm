@@ -1,14 +1,10 @@
-package org.urm.meta.loader;
+package org.urm.meta;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.db.DBConnection;
-import org.urm.db.env.DBEnvData;
 import org.urm.db.env.DBMetaEnv;
 import org.urm.db.env.DBMetaMonitoring;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.storage.ProductStorage;
-import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
@@ -42,18 +38,18 @@ public class EngineLoaderEnvs {
 		exportxmlMonitoring( ms );
 	}
 
-	public void importxmlAll( EngineProduct ep , ProductStorage ms , boolean update ) throws Exception {
+	public void importxmlAll( ProductStorage ms , boolean update ) throws Exception {
 		ProductEnvs envs = new ProductEnvs( set , set.meta );
 		set.setEnvs( envs );
 		
-		importxmlEnvs( ep , ms , update , envs );
+		importxmlEnvs( ms , update , envs );
 		importxmlMonitoring( ms , envs );
 	}
 	
-	private void importxmlEnvs( EngineProduct ep , ProductStorage ms , boolean update , ProductEnvs envs ) throws Exception {
+	private void importxmlEnvs( ProductStorage ms , boolean update , ProductEnvs envs ) throws Exception {
 		ActionBase action = loader.getAction();
 		for( String envFile : ms.getEnvFiles( action ) )
-			importxmlEnvData( ep , ms , envFile );
+			importxmlEnvData( ms , envFile );
 		
 		for( MetaEnv env : envs.getEnvs() ) {
 			DBMetaEnv.matchBaseline( loader , set , env );
@@ -82,7 +78,7 @@ public class EngineLoaderEnvs {
 			DBMetaMonitoring.importxml( loader , set , envs , root );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.NAME , set.NAME );
+			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.name , set.name );
 		}
 	}
 
@@ -113,7 +109,7 @@ public class EngineLoaderEnvs {
 		ms.saveFile( action , doc , file );
 	}
 	
-	private void importxmlEnvData( EngineProduct ep , ProductStorage ms , String envFile ) throws Exception {
+	private void importxmlEnvData( ProductStorage ms , String envFile ) throws Exception {
 		ActionBase action = loader.getAction();
 		try {
 			// read
@@ -122,10 +118,10 @@ public class EngineLoaderEnvs {
 			Document doc = action.readXmlFile( file );
 			Node root = doc.getDocumentElement();
 			
-			DBMetaEnv.importxml( loader , ep , set , root );
+			DBMetaEnv.importxml( loader , set , root );
 		}
 		catch( Throwable e ) {
-			loader.setLoadFailed( action , _Error.UnableLoadProductEnvironment2 , e , "unable to load environment metadata, product=" + set.NAME + ", env file=" + envFile , set.NAME , envFile );
+			loader.setLoadFailed( action , _Error.UnableLoadProductEnvironment2 , e , "unable to load environment metadata, product=" + set.name + ", env file=" + envFile , set.name , envFile );
 		}
 	}
 	
@@ -138,16 +134,6 @@ public class EngineLoaderEnvs {
 		
 		DBMetaEnv.exportxml( loader , set , env , doc , root );
 		ProductStorage.saveDoc( doc , file );
-	}
-
-	public void dropEnvs() throws Exception {
-		DBConnection c = loader.getConnection();
-		DBEnvData.dropEnvData( c , set );
-		
-		ProductEnvs envs = set.getEnviroments();
-		TransactionBase transaction = loader.getTransaction();
-		for( MetaEnv env : envs.getEnvs() )
-			envs.deleteEnv( transaction , env );
 	}
 	
 }

@@ -14,8 +14,8 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.transaction.EngineTransaction;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.EngineObject;
 
 public class EngineSettings extends EngineObject {
 

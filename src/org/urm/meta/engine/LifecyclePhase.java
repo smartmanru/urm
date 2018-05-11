@@ -2,7 +2,7 @@ package org.urm.meta.engine;
 
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.EngineObject;
 
 public class LifecyclePhase extends EngineObject {
 

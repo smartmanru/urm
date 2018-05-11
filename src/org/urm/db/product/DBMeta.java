@@ -8,57 +8,156 @@ import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
+import org.urm.db.core.DBNames;
+import org.urm.db.core.DBVersions;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
-import org.urm.db.release.DBReleaseRepository;
-import org.urm.engine.Engine;
 import org.urm.engine.data.EngineEntities;
-import org.urm.engine.dist._Error;
-import org.urm.engine.products.EngineProduct;
-import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.env.MetaEnv;
-import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.product.Meta;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.product.MetaProductVersion;
+import org.urm.meta.product.ProductContext;
 import org.urm.meta.product.ProductMeta;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class DBMeta {
 
-	public static void createdb( EngineLoader loader , AppProduct product , ProductMeta storage ) throws Exception {
+	public static void createdb( EngineLoader loader , ProductMeta storage ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
-		modifyMeta( c , product , storage , true );
+		MetaProductVersion version = new MetaProductVersion( storage , storage.meta );
+		storage.setVersion( version );
+		
+		version.createVersion( 1 , 0 , 0 , 0 , 1 , 1 , 1 , 1 ); 
+		modifyMeta( c , storage , version , true );
 	}
 	
-	public static void copydb( TransactionBase transaction , AppProduct product , ProductMeta src , ProductMeta dst ) throws Exception {
+	public static void copydb( TransactionBase transaction , ProductMeta src , ProductMeta dst ) throws Exception {
 		DBConnection c = transaction.getConnection();
+		MetaProductVersion version = src.getVersion();
+		version = version.copy( dst.meta );
+		dst.setVersion( version );
 		
-		modifyMeta( c , product , dst , true );
+		modifyMeta( c , dst , version , true );
 	}
 	
-	public static void importxml( EngineLoader loader , AppProduct product , ProductMeta storage , Node root ) throws Exception {
+	public static ProductContext[] getProducts( EngineLoader loader ) throws Exception {
 		DBConnection c = loader.getConnection();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppMeta;
+		List<ProductContext> products = new LinkedList<ProductContext>();
 		
-		modifyMeta( c , product , storage , true );
+		ResultSet rs = DBEngineEntities.listAppObjects( c , entity );
+		try {
+			while( rs.next() ) {
+				ProductContext context = new ProductContext(
+						entity.loaddbId( rs ) ,
+						entity.loaddbInt( rs , DBProductData.FIELD_META_PRODUCT_ID ) ,
+						entity.loaddbString( rs , DBProductData.FIELD_META_PRODUCT_NAME ) ,
+						entity.loaddbBoolean( rs , DBProductData.FIELD_META_PRODUCT_MATCHED ) ,
+						entity.loaddbVersion( rs )
+						);
+				products.add( context );
+			}
+		}
+		finally {
+			c.closeQuery();
+		}
+		
+		return( products.toArray( new ProductContext[0] ) );
 	}
 
-	private static void modifyMeta( DBConnection c , AppProduct product , ProductMeta storage , boolean insert ) throws Exception {
+	public static void importxml( EngineLoader loader , ProductMeta storage , Node root ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaVersion;
+		
+		MetaProductVersion version = new MetaProductVersion( storage , storage.meta );
+		storage.setVersion( version );
+		
+		version.createVersion( 
+				entity.importxmlIntProperty( root , MetaProductSettings.PROPERTY_LAST_MAJOR_FIRST , 1 ) ,
+				entity.importxmlIntProperty( root , MetaProductSettings.PROPERTY_LAST_MAJOR_SECOND , 0 ) ,
+				entity.importxmlIntProperty( root , MetaProductSettings.PROPERTY_LAST_MINOR_FIRST , 0 ) ,
+				entity.importxmlIntProperty( root , MetaProductSettings.PROPERTY_LAST_MINOR_SECOND , 0 ) ,
+				entity.importxmlIntProperty( root , MetaProductSettings.PROPERTY_NEXT_MAJOR_FIRST , 1 ) ,
+				entity.importxmlIntProperty( root , MetaProductSettings.PROPERTY_NEXT_MAJOR_SECOND , 1 ) ,
+				entity.importxmlIntProperty( root , MetaProductSettings.PROPERTY_NEXT_MINOR_FIRST , 1 ) ,
+				entity.importxmlIntProperty( root , MetaProductSettings.PROPERTY_NEXT_MINOR_SECOND , 1 )
+				);
+		
+		modifyMeta( c , storage , version , true );
+	}
+
+	public static void exportxml( EngineLoader loader , ProductMeta storage , Document doc , Element root ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		PropertyEntity entity = entities.entityAppMetaVersion;
+		
+		MetaProductVersion version = storage.getVersion();
+		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
+				entity.exportxmlInt( version.majorLastFirstNumber ) , 
+				entity.exportxmlInt( version.majorLastSecondNumber) , 
+				entity.exportxmlInt( version.lastProdTag ) , 
+				entity.exportxmlInt( version.lastUrgentTag ) , 
+				entity.exportxmlInt( version.majorNextFirstNumber ) , 
+				entity.exportxmlInt( version.majorNextSecondNumber ) , 
+				entity.exportxmlInt( version.nextProdTag ) , 
+				entity.exportxmlInt( version.nextUrgentTag ) 
+		} , false );
+	}
+
+	private static void modifyMeta( DBConnection c , ProductMeta storage , MetaProductVersion version , boolean insert ) throws Exception {
 		if( insert )
-			storage.ID = c.getNextSequenceValue();
+			storage.ID = DBNames.getNameIndex( c , DBVersions.CORE_ID , storage.name , DBEnumParamEntityType.PRODUCT );
+		else
+			DBNames.updateName( c , DBVersions.CORE_ID , storage.name , storage.ID , DBEnumParamEntityType.PRODUCT );
 		
 		storage.PV = c.getNextProductVersion( storage );
 		EngineEntities entities = c.getEntities();
 		DBEngineEntities.modifyAppObject( c , entities.entityAppMeta , storage.ID , storage.PV , new String[] {
-				EngineDB.getInteger( product.ID ) ,
-				EngineDB.getString( storage.NAME ) ,
-				EngineDB.getString( storage.REVISION ) ,
-				EngineDB.getBoolean( storage.DRAFT ) ,
-				EngineDB.getDate( storage.SAVEDATE ) ,
-				EngineDB.getBoolean( storage.MATCHED )
+				EngineDB.getInteger( storage.product.ID ) ,
+				EngineDB.getString( null ) ,
+				EngineDB.getBoolean( storage.MATCHED ) ,
+				EngineDB.getInteger( version.majorLastFirstNumber ) ,
+				EngineDB.getInteger( version.majorLastSecondNumber ) ,
+				EngineDB.getInteger( version.lastProdTag ) ,
+				EngineDB.getInteger( version.lastUrgentTag ) ,
+				EngineDB.getInteger( version.majorNextFirstNumber ) ,
+				EngineDB.getInteger( version.majorNextSecondNumber ) ,
+				EngineDB.getInteger( version.nextProdTag ) ,
+				EngineDB.getInteger( version.nextUrgentTag )
 				} , insert );
+	}
+
+	public static void loaddb( EngineLoader loader , ProductMeta storage ) throws Exception {
+		DBConnection c = loader.getConnection();
+		EngineEntities entities = c.getEntities();
+		PropertyEntity entity = entities.entityAppMeta;
+		
+		ResultSet rs = DBEngineEntities.listSingleAppObject( c , entity , storage.ID );
+		try {
+			MetaProductVersion version = new MetaProductVersion( storage , storage.meta );
+			storage.setVersion( version );
+			
+			version.createVersion( 
+					entity.loaddbInt( rs , DBProductData.FIELD_META_LAST_MAJOR1 ) ,
+					entity.loaddbInt( rs , DBProductData.FIELD_META_LAST_MAJOR2 ) ,
+					entity.loaddbInt( rs , DBProductData.FIELD_META_LAST_MINOR1 ) ,
+					entity.loaddbInt( rs , DBProductData.FIELD_META_LAST_MINOR2 ) ,
+					entity.loaddbInt( rs , DBProductData.FIELD_META_NEXT_MAJOR1 ) ,
+					entity.loaddbInt( rs , DBProductData.FIELD_META_NEXT_MAJOR2 ) ,
+					entity.loaddbInt( rs , DBProductData.FIELD_META_NEXT_MINOR1 ) ,
+					entity.loaddbInt( rs , DBProductData.FIELD_META_NEXT_MINOR2 )
+					);
+		}
+		finally {
+			c.closeQuery();
+		}
 	}
 
 	public static void setMatched( EngineLoader loader , ProductMeta storage , boolean matched ) throws Exception {
@@ -70,136 +169,13 @@ public class DBMeta {
 			Common.exitUnexpected();
 	}
 
-	public static ProductMeta[] loaddbMeta( EngineLoader loader , EngineProduct ep ) throws Exception {
-		DBConnection c = loader.getConnection();
-		EngineEntities entities = c.getEntities();
-		PropertyEntity entity = entities.entityAppMeta;
-		List<ProductMeta> products = new LinkedList<ProductMeta>();
-		
-		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_META_NAME1 , new String[] { EngineDB.getString( ep.productName ) } );
-		try {
-			while( rs.next() ) {
-				ProductMeta meta = new ProductMeta( loader.engine , ep );
-				meta.ID = entity.loaddbId( rs );
-				meta.PV = entity.loaddbVersion( rs );
-				meta.create(
-						entity.loaddbString( rs , DBProductData.FIELD_META_PRODUCT_REVISION ) ,
-						entity.loaddbBoolean( rs , DBProductData.FIELD_META_PRODUCT_DRAFT ) ,
-						entity.loaddbDate( rs , DBProductData.FIELD_META_PRODUCT_SAVEDATE ) ,
-						entity.loaddbBoolean( rs , DBProductData.FIELD_META_PRODUCT_MATCHED )
-						);
-				products.add( meta );
-			}
-		}
-		finally {
-			c.closeQuery();
-		}
-		
-		return( products.toArray( new ProductMeta[0] ) );
-	}
-
-	public static void renameRevision( TransactionBase transaction , ProductMeta storage , String name ) throws Exception {
+	public static void modifyVersion( EngineTransaction transaction , ProductMeta storage , MetaProductVersion version , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		AppProduct product = storage.getProduct();
-		EngineProductRevisions revisions = product.findRevisions();
+		version.modifyVersion( majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
+		modifyMeta( c , storage , version , false );
 		
-		ProductMeta metaOther = revisions.findRevision( name );
-		if( metaOther != null && metaOther.ID != storage.ID )
-			Common.exitUnexpected();
-		
-		storage.setRevision( name );
-		modifyMeta( c , product , storage , false );
-	}
-
-	public static void hideRevision( TransactionBase transaction , ProductMeta storage ) throws Exception {	
-		DBConnection c = transaction.getConnection();
-		if( !c.modify( DBQueries.MODIFY_META_HIDEREVISION2 , new String[] { 
-				EngineDB.getObject( storage.ID ) ,
-				EngineDB.getString( "" + storage.ID )
-				} ) )
-			Common.exitUnexpected();
-	}
-	
-	public static void saveRevision( TransactionBase transaction , ProductMeta storage ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		AppProduct product = storage.getProduct();
-		if( !storage.isDraft() )
-			Common.exitUnexpected();
-		
-		storage.setDraft( false );
-		modifyMeta( c , product , storage , false );
-	}
-
-	public static boolean checkReleaseExists( DBConnection c , ProductMeta storage , Boolean released , Boolean completed ) throws Exception {
-		EngineEntities entities = c.getEntities();
-		return( DBEngineEntities.existAppObjects( c , entities.entityAppReleaseSchedule , DBQueries.FILTER_REL_SCHEDULEMETA3 , new String[] { 
-				EngineDB.getInteger( storage.ID ) ,
-				EngineDB.getBoolean( released ) ,
-				EngineDB.getBoolean( completed )
-				} ) );
-	}
-	
-	public static void reopenRevision( TransactionBase transaction , ProductMeta storage ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		AppProduct product = storage.getProduct();
-		
-		if( storage.isDraft() )
-			Common.exitUnexpected();
-		
-		// verify there are no finalized releases assigned to revision
-		if( checkReleaseExists( c , storage , true , null ) )
-			Common.exit0( _Error.ActiveReleaseExists0 , "Unable to turn revision to draft as there is finalized release assigned to revision" );
-		
-		// verify there are no online production environments assigned to revision
-		ProductEnvs envs = storage.getEnviroments();
-		for( MetaEnv env : envs.getEnvs() ) {
-			if( env.isProd() && env.isOnline() )
-				Common.exit0( _Error.ActiveEnvExists0 , "Unable to turn revision to draft as there is online production environment assigned to revision" );
-		}
-		
-		storage.setDraft( true );
-		modifyMeta( c , product , storage , false );
-	}
-
-	public static Meta createRevision( TransactionBase transaction , AppProduct product , String name , Integer revSrc ) throws Exception {
-		EngineProduct ep = product.getEngineProduct();
-		EngineProductRevisions revisions = ep.getRevisions();
-		ProductMeta src = ( revSrc == null )? null : revisions.getRevision( revSrc );
-		
-		if( revisions.findRevision( name ) != null )
-			Common.exitUnexpected();
-		
-		Engine engine = transaction.engine;
-		EngineLoader loader = engine.createLoader( transaction );
-		
-		ProductMeta storage = null;
-		if( src == null )
-			storage = loader.createProductRevision( product , name , false );
-		else
-			storage = loader.copyProductRevision( product , name , src );
-		
-		if( storage == null )
-			Common.exitUnexpected();
-		
-		transaction.createProductMetadata( product , storage );
-		
-		return( storage.meta );
-	}
-
-	public static void deleteRevision( TransactionBase transaction , ProductMeta storage ) throws Exception {
-		DBConnection c = transaction.getConnection();
-		
-		// verify there are no releases assigned to revision
-		if( checkReleaseExists( c , storage , true , null ) )
-			Common.exit0( _Error.ReleaseExists0 , "Unable to delete revision because there is a release assigned to revision" );
-		
-		// verify there are no online production environments assigned to revision
-		ProductEnvs envs = storage.getEnviroments();
-		if( !envs.isEmpty() )
-			Common.exit0( _Error.EnvExists0 , "Unable to delete revision because there is an environment assigned to revision" );
-
-		DBReleaseRepository.dropRevisionRepository( c , storage );
-		DBProductData.dropProductData( c , storage );
+		MetaProductSettings settings = storage.getSettings();
+		settings.updateSettings( version );
 	}
 	
 }

@@ -4,16 +4,12 @@ import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.*;
-import org.urm.db.env.DBMetaDump;
 import org.urm.db.env.DBMetaEnv;
 import org.urm.db.env.DBMetaEnvSegment;
 import org.urm.db.env.DBMetaEnvServer;
-import org.urm.db.env.DBMetaEnvServerDeployment;
 import org.urm.db.env.DBMetaEnvServerNode;
-import org.urm.db.env.DBMetaEnvStartInfo;
 import org.urm.db.env.DBMetaMonitoring;
 import org.urm.db.product.*;
-import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
 import org.urm.engine.Engine;
 import org.urm.engine.AuthService;
@@ -36,19 +32,16 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.*;
 import org.urm.meta.env.MetaDump;
-import org.urm.meta.env.MetaDumpMask;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.env.MetaEnvStartInfo;
-import org.urm.meta.env.MetaMonitoringItem;
 import org.urm.meta.env.MetaMonitoringTarget;
-import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.*;
 
 public class EngineTransaction extends TransactionBase {
@@ -76,7 +69,6 @@ public class EngineTransaction extends TransactionBase {
 	//		product:
 	//			PRODUCT
 	//			ENVIRONMENT
-	//			REVISIONS
 	
 	// ################################################################################
 	// ################################################################################
@@ -207,6 +199,14 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineMirrors.dropDetachedMirror( this , repo.mirrors , repo );
 	}
 
+	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
+		ProductMeta storage = project.meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		
+		MetaSources sources = storage.getSources();
+		DBMetaSources.deleteProject( this , storage , sources , project , leaveManual );
+	}
+
 	public void createDetachedMirror( EngineMirrors mirrors , DBEnumMirrorType type , String product , String project ) throws Exception {
 		super.checkTransactionMirrors( mirrors );
 		DBEngineMirrors.createDetachedMirror( this , mirrors , type , product , project );
@@ -234,12 +234,6 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineBase.modifyGroup( this , base , group , name , desc );
 	}
 
-	public void setBaseGroupOffline( BaseGroup group , boolean offline ) throws Exception {
-		super.checkTransactionBase();
-		EngineBase base = super.getTransactionBase();
-		DBEngineBase.setGroupOffline( this , base , group , offline );
-	}
-
 	public BaseItem createBaseItem( BaseGroup group , String name , String desc ) throws Exception {
 		super.checkTransactionBase();
 		EngineBase base = super.getTransactionBase();
@@ -258,15 +252,9 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineBase.deleteItem( this , base , item );
 	}
 
-	public void setBaseItemOffline( BaseItem item , boolean offline ) throws Exception {
+	public void modifyBaseItemData( BaseItem item , boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCFILE , String SRCFILEDIR , String INSTALLPATH , String INSTALLLINK ) throws Exception {
 		super.checkTransactionBase();
-		EngineBase base = super.getTransactionBase();
-		DBEngineBase.setItemOffline( this , base , item , offline );
-	}
-
-	public void modifyBaseItemData( BaseItem item , boolean admin , String name , String version , DBEnumOSType ostype , DBEnumServerAccessType accessType , DBEnumBaseSrcType srcType , DBEnumBaseSrcFormatType srcFormat , String SRCDIR , String SRCFILE , String SRCFILEDIR , String INSTALLSCRIPT , String INSTALLPATH , String INSTALLLINK ) throws Exception {
-		super.checkTransactionBase();
-		DBEngineBase.modifyItemData( this , item , admin , name , version , ostype , accessType , srcType , srcFormat , SRCDIR , SRCFILE , SRCFILEDIR , INSTALLSCRIPT , INSTALLPATH , INSTALLLINK );
+		DBEngineBase.modifyItemData( this , item , admin , name , version , ostype , accessType , srcType , srcFormat , SRCFILE , SRCFILEDIR , INSTALLPATH , INSTALLLINK );
 	}
 
 	public void addBaseItemDependency( BaseItem item , BaseItem dep ) throws Exception {
@@ -461,7 +449,7 @@ public class EngineTransaction extends TransactionBase {
 	public void deleteSystem( AppSystem system , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		super.checkTransactionDirectory( system.directory );
 		
-		EngineMirrors mirrors = action.getEngineMirrors();
+		EngineMirrors mirrors = action.getServerMirrors();
 		for( String productName : system.getProductNames() ) {
 			AppProduct product = system.findProduct( productName );
 			DBEngineMirrors.deleteProductResources( this , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
@@ -470,19 +458,14 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineDirectory.deleteSystem( this , system.directory , system );
 	}
 	
-	public void updateCustomSystemProperties( AppSystem system ) throws Exception {
-		super.checkTransactionDirectory( system.directory );
-		DBAppSystem.updateCustomProperties( this , system );
-	}
-	
-	public AppProduct createProduct( AppSystem system , String name , String desc , String path ) throws Exception {
+	public AppProduct createProduct( AppSystem system , String name , String desc , String path , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
 		EngineDirectory directory = system.directory;
 		super.checkTransactionDirectory( directory );
 		
 		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 			action.exitUnexpectedState();
 
-		return( DBEngineProducts.createProduct( this , system , name , desc , path ) );
+		return( DBEngineProducts.createProduct( this , system , name , desc , path , forceClearMeta , forceClearDist ) );
 	}
 	
 	public void modifyProduct( AppProduct product , String name , String desc , String path ) throws Exception {
@@ -497,7 +480,6 @@ public class EngineTransaction extends TransactionBase {
 
 	public void deleteProduct( AppProduct product , boolean fsDeleteFlag , boolean vcsDeleteFlag , boolean logsDeleteFlag ) throws Exception {
 		super.checkTransactionDirectory( product.directory );
-		super.checkTransactionMirrors( super.getMirrors() );
 		
 		if( !checkSecurityServerChange( SecurityAction.ACTION_CONFIGURE ) )
 			action.exitUnexpectedState();
@@ -505,15 +487,9 @@ public class EngineTransaction extends TransactionBase {
 		DBEngineProducts.deleteProduct( this , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 	}
 
-	public void updateProductVersion( AppProduct product , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
-		super.checkTransactionDirectory( product.directory );
-		DBEngineDirectory.modifyProductVersion( this , product.directory , product , majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
-	}
-	
-	public void setProductLifecycles( AppProduct product , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
-		super.checkTransactionDirectory( product.directory );
-		AppProductPolicy policy = product.getPolicy();
-		DBAppProduct.setProductLifecycles( this , product , policy , major , minor , urgentsAll , urgents );
+	public void updateCustomSystemProperties( AppSystem system ) throws Exception {
+		super.checkTransactionDirectory( system.directory );
+		DBAppSystem.updateCustomProperties( this , system );
 	}
 	
 	// ################################################################################
@@ -661,6 +637,18 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaSettings.updateProductBuildModeProperties( this , storage , settings , mode );
 	}
 
+	public void updateProductVersion( MetaProductVersion version , int majorFirstNumber , int majorSecondNumber , int lastProdTag , int lastUrgentTag , int majorNextFirstNumber , int majorNextSecondNumber , int nextProdTag , int nextUrgentTag ) throws Exception {
+		ProductMeta storage = version.meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		DBMeta.modifyVersion( this , storage , version , majorFirstNumber , majorSecondNumber , lastProdTag , lastUrgentTag , majorNextFirstNumber , majorNextSecondNumber , nextProdTag , nextUrgentTag );
+	}
+
+	public void setProductLifecycles( MetaProductPolicy policy , String major , String minor , boolean urgentsAll , String[] urgents ) throws Exception {
+		ProductMeta storage = policy.meta.getStorage();
+		super.checkTransactionMetadata( storage );
+		DBMetaPolicy.setProductLifecycles( this , storage , policy , major , minor , urgentsAll , urgents );
+	}
+	
 	public MetaDistrDelivery createDistrDelivery( MetaDistr distr , String unitName , String name , String desc , String folder ) throws Exception {
 		ProductMeta storage = distr.meta.getStorage();
 		super.checkTransactionMetadata( storage );
@@ -874,32 +862,10 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaDistr.deleteComponentItem( this , storage , item.comp.dist , item.comp , item );
 	}
 
-	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name , String desc , int pos , boolean parallel ) throws Exception {
+	public MetaSourceProjectSet createSourceProjectSet( MetaSources sources , String name , String desc ) throws Exception {
 		ProductMeta storage = sources.meta.getStorage();
 		super.checkTransactionMetadata( storage );
-		return( DBMetaSources.createProjectSet( this , storage , sources , name , desc , pos , parallel ) );
-	}
-
-	public void changeProjectSetOrder( MetaSourceProjectSet set , int pos ) throws Exception {
-		ProductMeta storage = set.meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		
-		MetaSources sources = storage.getSources();
-		DBMetaSources.changeProjectSetOrder( this , storage , sources , set , pos );
-	}
-
-	public void modifySourceProjectSet( MetaSources sources , MetaSourceProjectSet set , String name , String desc , int pos , boolean parallel ) throws Exception {
-		ProductMeta storage = set.meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		DBMetaSources.modifyProjectSet( this , storage , sources , set , name , desc , pos , parallel );
-	}
-
-	public void deleteSourceProjectSet( MetaSourceProjectSet set ) throws Exception {
-		ProductMeta storage = set.meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		
-		MetaSources sources = storage.getSources();
-		DBMetaSources.deleteProjectSet( this , storage , sources , set );
+		return( DBMetaSources.createProjectSet( this , storage , sources , name , desc ) );
 	}
 
 	public MetaSourceProject createSourceProject( MetaSourceProjectSet set , 
@@ -958,14 +924,6 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaSources.modifySetOrder( this , storage , sources , set , namesOrdered );
 	}
 	
-	public void deleteSourceProject( MetaSourceProject project , boolean leaveManual ) throws Exception {
-		ProductMeta storage = project.meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		
-		MetaSources sources = storage.getSources();
-		DBMetaSources.deleteProject( this , storage , sources , project , leaveManual );
-	}
-
 	public MetaSourceProjectItem createSourceProjectItem( MetaSourceProject project , 
 			String name , String desc ,  
 			DBEnumSourceItemType srcType , String basename , String ext , String staticext , String path , String version , boolean internal ) throws Exception {
@@ -1065,46 +1023,11 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnvSegment.deleteSegment( this , storage , env , sg );
 	}
 
-	public MetaEnvStartGroup createStartGroup( MetaEnvStartInfo startInfo , String name , String desc ) throws Exception {
-		MetaEnv env = startInfo.sg.env;
+	public void setStartInfo( MetaEnvSegment sg , MetaEnvStartInfo startInfo ) throws Exception {
+		MetaEnv env = sg.env;
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		return( DBMetaEnvStartInfo.createStartGroup( this , storage , env , startInfo , name , desc ) );
-	}
-
-	public void modifyStartGroup( MetaEnvStartGroup startGroup , String name , String desc ) throws Exception {
-		MetaEnv env = startGroup.startInfo.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvStartInfo.modifyStartGroup( this , storage , env , startGroup , name , desc );
-	}
-
-	public void addStartGroupServer( MetaEnvStartGroup startGroup , MetaEnvServer server ) throws Exception {
-		MetaEnv env = startGroup.startInfo.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvStartInfo.addStartGroupServer( this , storage , env , startGroup.startInfo , startGroup , server );
-	}
-
-	public void deleteStartGroupServer( MetaEnvStartGroup startGroup , MetaEnvServer server ) throws Exception {
-		MetaEnv env = startGroup.startInfo.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvStartInfo.deleteStartGroupServer( this , storage , env , startGroup.startInfo , startGroup , server );
-	}
-
-	public void deleteStartGroup( MetaEnvStartGroup startGroup ) throws Exception {
-		MetaEnv env = startGroup.startInfo.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvStartInfo.deleteStartGroup( this , storage , env , startGroup.startInfo , startGroup );
-	}
-
-	public void moveStartGroup( MetaEnvStartGroup startGroup , int pos ) throws Exception {
-		MetaEnv env = startGroup.startInfo.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvStartInfo.moveStartGroup( this , storage , env , startGroup.startInfo , startGroup , pos );
+		DBMetaEnvSegment.setStartInfo( this , storage , env , sg , startInfo );
 	}
 
 	public MetaEnvServer createMetaEnvServer( MetaEnvSegment sg , String name , String desc , DBEnumOSType osType , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , DBEnumDbmsType dbmsType , Integer admSchema ) throws Exception {
@@ -1149,6 +1072,13 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnvServer.setServerOffline( this , storage , env , server , offline );
 	}
 	
+	public void modifyServerDeployments( MetaEnvServer server , MetaEnvServerDeployment[] deployments ) throws Exception {
+		MetaEnv env = server.sg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvServer.setDeployments( this , storage , env , server , deployments );
+	}
+
 	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
 		MetaEnv env = server.sg.env;
 		super.checkTransactionEnv( env );
@@ -1158,73 +1088,50 @@ public class EngineTransaction extends TransactionBase {
 	
 	public MetaEnvServerDeployment createMetaEnvServerBinaryDeployment( MetaEnvServer server , MetaDistrBinaryItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		MetaEnv env = server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		return( DBMetaEnvServerDeployment.createBinaryDeployment( this , storage , env , server , item , deployMode , deployPath , nodeType ) );
+		action.exitNotImplemented();
+		return( null );
 	}
 	
 	public MetaEnvServerDeployment createMetaEnvServerConfDeployment( MetaEnvServer server , MetaDistrConfItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		MetaEnv env = server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		return( DBMetaEnvServerDeployment.createConfDeployment( this , storage , env , server , item , deployMode , deployPath , nodeType ) );
+		action.exitNotImplemented();
+		return( null );
 	}
 	
 	public MetaEnvServerDeployment createMetaEnvServerDatabaseDeployment( MetaEnvServer server , MetaDatabaseSchema schema ,
 			DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
-		MetaEnv env = server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		return( DBMetaEnvServerDeployment.createDatabaseDeployment( this , storage , env , server , schema , deployMode , dbName , dbUser ) );
+		action.exitNotImplemented();
+		return( null );
 	}
 	
 	public MetaEnvServerDeployment createMetaEnvServerComponentDeployment( MetaEnvServer server , MetaDistrComponent comp , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		MetaEnv env = server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		return( DBMetaEnvServerDeployment.createComponentDeployment( this , storage , env , server , comp , deployMode , deployPath , nodeType ) );
+		action.exitNotImplemented();
+		return( null );
 	}
 	
 	public void modifyMetaEnvServerBinaryDeployment( MetaEnvServerDeployment deployment , MetaDistrBinaryItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		MetaEnv env = deployment.server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvServerDeployment.modifyBinaryDeployment( this , storage , env , deployment.server , deployment , item , deployMode , deployPath , nodeType );
+		action.exitNotImplemented();
 	}
 	
 	public void modifyMetaEnvServerConfDeployment( MetaEnvServerDeployment deployment , MetaDistrConfItem item , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		MetaEnv env = deployment.server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvServerDeployment.modifyConfDeployment( this , storage , env , deployment.server , deployment , item , deployMode , deployPath , nodeType );
+		action.exitNotImplemented();
 	}
 	
 	public void modifyMetaEnvServerDatabaseDeployment( MetaEnvServerDeployment deployment , MetaDatabaseSchema schema ,
 			DBEnumDeployModeType deployMode , String dbName , String dbUser ) throws Exception {
-		MetaEnv env = deployment.server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvServerDeployment.modifyDatabaseDeployment( this , storage , env , deployment.server , deployment , schema , deployMode , dbName , dbUser );
+		action.exitNotImplemented();
 	}
 	
 	public void modifyMetaEnvServerComponentDeployment( MetaEnvServerDeployment deployment , MetaDistrComponent comp , 
 			DBEnumDeployModeType deployMode , String deployPath , DBEnumNodeType nodeType ) throws Exception {
-		MetaEnv env = deployment.server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvServerDeployment.modifyComponentDeployment( this , storage , env , deployment.server , deployment , comp , deployMode , deployPath , nodeType );
+		action.exitNotImplemented();
 	}
 	
 	public void deleteMetaEnvServerDeployment( MetaEnvServerDeployment deployment ) throws Exception {
-		MetaEnv env = deployment.server.sg.env;
-		super.checkTransactionEnv( env );
-		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvServerDeployment.deleteDeployment( this , storage , env , deployment.server , deployment );
+		action.exitNotImplemented();
 	}
 	
 	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
@@ -1288,118 +1195,54 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnv.updateExtraProperties( this , storage , env );
 	}
 	
-	public MetaDump createDump( MetaEnvServer server , boolean export , String name , String desc , String dataset ) throws Exception {
+	public MetaDump createDump( MetaEnvServer server , MetaDatabase db , boolean export , String name , String desc , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
 		super.checkTransactionEnv( server.sg.env );
-		return( DBMetaDump.createDump( this , server , export , name , desc , dataset ) );
+		MetaDump dump = new MetaDump( db.meta , db );
+		dump.create( name , desc , export );
+		dump.setTarget( server , standby , setdbenv );
+		dump.setFiles( dataset , dumpdir , datapumpdir , nfs , postRefresh );
+		//db.createDump( this , dump );
+		return( dump );
 	}
 	
-	public void modifyDumpPrimary( MetaDump dump , String name , String desc , MetaEnvServer server , String dataset ) throws Exception {
+	public void modifyDump( MetaDump dump , String name , String desc , MetaEnvServer server , boolean standby , String setdbenv , String dataset , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
 		super.checkTransactionEnv( server.sg.env );
-		DBMetaDump.modifyDumpPrimary( this , dump , name , desc , server , dataset );
-	}
-	
-	public void modifyDumpExecution( MetaDump dump , boolean standby , String setdbenv , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		DBMetaDump.modifyDumpExecution( this , dump , standby , setdbenv , ownTables , dumpdir , datapumpdir , nfs , postRefresh );
+		dump.modify( name , desc );
+		dump.setTarget( server , standby , setdbenv );
+		dump.setFiles( dataset , dumpdir , datapumpdir , nfs , postRefresh );
+		dump.database.updateDump( dump );
 	}
 	
 	public void deleteDump( MetaDump dump ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		DBMetaDump.deleteDump( this , dump.env , dump );
+		//super.checkTransactionEnv( dump.server.sg.env );
+		//dump.database.deleteDump( this , dump );
 	}
 
-	public MetaDumpMask createDumpMask( MetaDump dump , MetaDatabaseSchema schema , boolean include , String tables ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		return( DBMetaDump.createDumpMask( this , dump.env , dump , schema , include , tables ) );
+	public void createDumpTables( MetaDump dump , String schema , String tables ) throws Exception {
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.addTables( schema , tables );
 	}
 	
-	public void modifyDumpMask( MetaDumpMask mask , MetaDatabaseSchema schema , boolean include , String tables ) throws Exception {
-		super.checkTransactionEnv( mask.dump.env );
-		DBMetaDump.modifyDumpMask( this , mask.dump.env , mask.dump , mask , schema , include , tables );
-	}
-	
-	public void deleteDumpMask( MetaDumpMask mask ) throws Exception {
-		super.checkTransactionEnv( mask.dump.env );
-		DBMetaDump.deleteDumpMask( this , mask.dump.env , mask.dump , mask );
+	public void deleteDumpTables( MetaDump dump , int index ) throws Exception {
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.deleteTables( index );
 	}
 
-	public void setDumpOnline( MetaDump dump , boolean offline ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		DBMetaDump.setDumpOffline( this , dump.env , dump , offline );
+	public void setDumpOnline( MetaDump dump , boolean online ) throws Exception {
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.setOnline( online );
 	}
 
 	public void setDumpSchedule( MetaDump dump , ScheduleProperties schedule ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		DBMetaDump.setDumpSchedule( this , dump.env , dump , schedule );
+		super.checkTransactionMetadata( dump.database.meta.getStorage() );
+		dump.setSchedule( schedule );
 	}
 
 	public MetaMonitoringTarget modifyMonitoringTarget( MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
 		MetaEnv env = sg.env;
-		Meta meta = env.meta;
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
 		return( DBMetaMonitoring.modifyTarget( this , storage , env , sg , major , enabled , maxTime , schedule ) );
 	}
 
-	public MetaMonitoringItem createMonitoringItem( MetaMonitoringTarget target , DBEnumMonItemType type , String url , String desc , String WSDATA , String WSCHECK ) throws Exception {
-		MetaEnv env = target.getEnv();
-		Meta meta = env.meta;
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		return( DBMetaMonitoring.createTargetItem( this , storage , env , target , type , url , desc , WSDATA , WSCHECK ) );
-	}
-	
-	public void modifyMonitoringItem( MetaMonitoringItem item , String url , String desc , String WSDATA , String WSCHECK ) throws Exception {
-		MetaEnv env = item.target.getEnv();
-		Meta meta = env.meta;
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		DBMetaMonitoring.modifyTargetItem( this , storage , env , item.target , item , url , desc , WSDATA , WSCHECK );
-	}
-	
-	public void deleteMonitoringItem( MetaMonitoringItem item ) throws Exception {
-		MetaEnv env = item.target.getEnv();
-		Meta meta = env.meta;
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		DBMetaMonitoring.deleteTargetItem( this , storage , env , item.target , item );
-	}
-
-	// ################################################################################
-	// ################################################################################
-	// REVISIONS
-	
-	public Meta createRevision( EngineDirectory directory , AppProduct product , String name , Integer revSrc ) throws Exception {
-		super.checkTransactionDirectory( directory );
-		return( DBMeta.createRevision( this , product , name , revSrc ) );
-	}
-
-	public void renameRevision( Meta meta , String name ) throws Exception {
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		
-		DBMeta.renameRevision( this , storage , name );
-	}
-
-	public void saveRevision( Meta meta ) throws Exception {
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		
-		DBMeta.saveRevision( this , storage );
-	}
-	
-	public void reopenRevision( Meta meta ) throws Exception {
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		
-		DBMeta.reopenRevision( this , storage );
-	}
-	
-	public void deleteRevision( Meta meta ) throws Exception {
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		
-		DBMeta.deleteRevision( this , storage );
-	}
-	
 }

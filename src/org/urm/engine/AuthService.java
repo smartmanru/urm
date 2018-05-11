@@ -15,11 +15,12 @@ import org.urm.common.RunContext;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.ActionInit;
-import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthContext;
 import org.urm.meta.engine.AuthGroup;
@@ -31,8 +32,6 @@ import org.urm.meta.engine.Network;
 import org.urm.meta.engine._Error;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 
 public class AuthService extends EngineObject {
@@ -444,28 +443,24 @@ public class AuthService extends EngineObject {
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , meta.findProduct() , null , DBEnumBuildModeType.UNKNOWN , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.getProduct() , null , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , DBEnumBuildModeType mode , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , meta.findProduct() , null , mode , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.getProduct() , null , mode , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , String envName , boolean readOnly ) {
 		ProductEnvs envs = meta.getEnviroments();
 		MetaEnv env = envs.findMetaEnv( envName );
-		return( checkAccessProductAction( action , sa , meta.findProduct() , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
-	}
-
-	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , MetaEnv env , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , product , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.getProduct() , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , String envName , boolean readOnly ) {
 		try {
-			EngineProductEnvs envs = product.findEnvs();
-			
-			MetaEnv env = envs.findEnv( envName );
+			Meta meta = product.getMeta( action );
+			ProductEnvs envs = meta.getEnviroments();
+			MetaEnv env = envs.findMetaEnv( envName );
 			return( checkAccessProductAction( action , sa , product , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 		}
 		catch( Throwable e ) {
@@ -479,11 +474,11 @@ public class AuthService extends EngineObject {
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , MetaEnv env , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , meta.findProduct() , env , null , readOnly ) );
+		return( checkAccessProductAction( action , sa , meta.getProduct() , env , null , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , MetaEnv env , boolean readOnly ) {
-		return( checkAccessProductAction( action , sa , env.meta.findProduct() , env , null , readOnly ) );
+		return( checkAccessProductAction( action , sa , env.meta.getProduct() , env , null , readOnly ) );
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , MetaEnv env , DBEnumBuildModeType mode , boolean readOnly ) {
@@ -617,18 +612,20 @@ public class AuthService extends EngineObject {
 		return( security.checkSpecial( sr ) );
 	}
 	
-	public boolean doLogin( SessionSecurity security , String password ) {
-		AuthUser user = security.getUser();
-		String username = user.NAME;
-		
+	public boolean checkLogin( String username , String password ) {
 		try {
+			AuthUser user = getUser( username );
+			if( user == null ) {
+				engine.trace( "unsuccessful login: unknown user=" + username );
+				return( false );
+			}
+			
 			if( user.LOCAL ) {
 				String authKey = getAuthKey( AUTH_GROUP_USER , username );
 				AuthContext ac = loadAuthData( authKey );
 				if( !ac.PUBLICKEY.isEmpty() ) {
 			        String checkMessage = ClientAuth.getCheckMessage( username );
 					if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {
-						security.setContext( ac );
 						engine.trace( "successful login using key: user=" + username );
 						return( true );
 					}
@@ -641,7 +638,6 @@ public class AuthService extends EngineObject {
 					String md5 = Common.getMD5( password );
 					if( ac.PASSWORDSAVE.equals( md5 ) ) {
 						ac.setOnlinePassword( password );
-						security.setContext( ac );
 						engine.trace( "successful login using password: user=" + username );
 						return( true );
 					}

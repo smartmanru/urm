@@ -8,7 +8,7 @@ import org.urm.engine.events.EngineEventsSubscription;
 import org.urm.engine.events.EngineEventsTimer;
 import org.urm.engine.events.NotifyEvent;
 import org.urm.engine.events.SourceEvent;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.EngineObject;
 
 public class EventService extends EngineObject {
 
@@ -32,8 +32,6 @@ public class EventService extends EngineObject {
 	public static int EVENT_STATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
-	public static int EVENT_STARTMACROSTATE = 14;
-	public static int EVENT_FINISHMACROSTATE = 15;
 	public static int EVENT_STARTCHILDACTION = 20;
 	public static int EVENT_FINISHCHILDACTION = 21;
 	public static int EVENT_ADDFACT = 22;

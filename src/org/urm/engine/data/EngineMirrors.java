@@ -5,9 +5,9 @@ import java.util.Map;
 
 import org.urm.common.Common;
 import org.urm.engine.Engine;
+import org.urm.meta.EngineObject;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine._Error;
-import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.MetaSourceProject;
 
 public class EngineMirrors extends EngineObject {

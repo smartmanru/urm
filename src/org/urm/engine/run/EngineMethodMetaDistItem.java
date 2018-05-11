@@ -3,13 +3,12 @@ package org.urm.engine.run;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.dist.DistRepositoryItem;
-import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
 import org.urm.meta.release.ReleaseRepository;
 
-public class EngineMethodProductDist {
+public class EngineMethodMetaDistItem {
 
-	public EngineMethodProduct emm;
+	public EngineMethodMeta emm;
 	public DistRepositoryItem item;
 	
 	public DistRepositoryItem itemNew;
@@ -19,7 +18,7 @@ public class EngineMethodProductDist {
 	public boolean update;
 	public boolean delete;
 	
-	public EngineMethodProductDist( EngineMethodProduct emm , DistRepositoryItem item ) {
+	public EngineMethodMetaDistItem( EngineMethodMeta emm , DistRepositoryItem item ) {
 		this.emm = emm;
 		this.item = item;
 		create = false;
@@ -32,12 +31,16 @@ public class EngineMethodProductDist {
 		this.itemNew = item;
 	}
 	
-	public void setUpdated( DistRepositoryItem itemUpdated ) throws Exception {
+	public void setUpdated( ReleaseRepository repoReleases ) throws Exception {
 		update = true;
 		if( itemNew != null )
 			return;
 
-		itemNew = itemUpdated;
+		DistRepository repo = emm.getDistRepository();
+		ReleaseDist releaseDist = repoReleases.findReleaseDist( item.dist );
+		itemNew = item.copy( repo , releaseDist );
+		repo.replaceItem( item , itemNew );
+		
 		item.modify( false );
 		itemOld = item;
 	}
@@ -55,11 +58,10 @@ public class EngineMethodProductDist {
 		if( itemOld != null )
 			itemOld.modify( true );
 		
+		ReleaseRepository releaserepo = emm.getReleaseRepository();
 		if( itemNew != null ) {
 			Dist dist = itemNew.dist;
-			ReleaseRepository releases = emm.getReleaseRepository( dist.meta.getStorage() );
-			Release release = releases.getRelease( dist.release.ID );
-			ReleaseDist releaseDist = release.getDistVariant( dist.releaseDist.ID );
+			ReleaseDist releaseDist = releaserepo.findReleaseDist( dist );
 			dist.setReleaseDist( releaseDist );
 		}
 	}

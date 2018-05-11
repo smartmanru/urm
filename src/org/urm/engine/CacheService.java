@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.urm.engine.cache.EngineCacheObject;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.EngineObject;
 
 public class CacheService extends EngineObject {
 

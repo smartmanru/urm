@@ -27,6 +27,7 @@ import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthGroup;
 import org.urm.meta.engine.AuthLdap;
@@ -35,7 +36,6 @@ import org.urm.meta.engine.AuthRoleSet;
 import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.Network;
-import org.urm.meta.loader.EngineLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -100,7 +100,7 @@ public class DBEngineAuth {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthUser.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AuthUser.PROPERTY_DESC , FIELD_USER_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( AuthUser.PROPERTY_DESC , FIELD_USER_DESC , AuthUser.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaString( AuthUser.PROPERTY_FULLNAME , "" , true , null ) ,
 				EntityVar.metaString( AuthUser.PROPERTY_EMAIL , "" , true , null ) ,
 				EntityVar.metaBoolean( AuthUser.PROPERTY_ADMIN , "" , true , false ) ,
@@ -117,7 +117,7 @@ public class DBEngineAuth {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthGroup.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AuthGroup.PROPERTY_DESC , FIELD_GROUP_DESC , "Description" , false , null ) ,
+				EntityVar.metaStringVar( AuthGroup.PROPERTY_DESC , FIELD_GROUP_DESC , AuthGroup.PROPERTY_DESC , "Description" , false , null ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_RESOURCES , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_PRODUCTS , "" , true , false ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthGroup.PROPERTY_ANY_NETWORKS , "" , true , false ) ,

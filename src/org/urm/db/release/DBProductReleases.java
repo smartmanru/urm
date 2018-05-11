@@ -7,75 +7,70 @@ import org.urm.db.DBConnection;
 import org.urm.db.DBQueries;
 import org.urm.db.EngineDB;
 import org.urm.db.core.DBNames;
-import org.urm.db.core.DBEnums.*;
+import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.product.ProductMeta;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.ReleaseRepository;
 
 public class DBProductReleases {
 
-	public static ReleaseRepository createdb( EngineLoader loader , ProductMeta storage , boolean forceClearMeta ) throws Exception {
-		DBConnection c = loader.getConnection();
+	public static void createdb( EngineLoader loader , ProductReleases releases , boolean forceClearMeta , boolean forceClearDist ) throws Exception {
+		matchRepositories( loader , releases );
 		
 		ReleaseRepository repo = null;
 		if( forceClearMeta )
-			DBReleaseData.dropAllMeta( c , storage );
+			DBReleaseData.dropAllMeta( loader , releases );
 		else
-			repo = loaddbRepository( loader , storage );
+			repo = loaddbRepository( loader , releases );
 		
 		if( repo == null )
-			repo = createdbRepository( loader , storage );
-		return( repo );
+			repo = createdbRepository( loader , releases );
+		releases.setReleaseRepository( repo );
 	}
 	
-	public static ReleaseRepository loaddb( EngineLoader loader , ProductMeta storage ) throws Exception {
-		ReleaseRepository repo = loaddbRepository( loader , storage );
-		if( repo == null )
-			Common.exitUnexpected();
-		return( repo );
-	} 
-
-	public static ReleaseRepository loaddbByImport( EngineLoader loader , ProductMeta storage , ProductMeta storageOld ) throws Exception {
-		ReleaseRepository repo = null;
-		if( storageOld == null )
-			repo = createdbRepository( loader , storage );
-		else {
-			repo = storageOld.getReleaseRepository();
-			DBReleaseData.rematchReleases( loader , repo , storage , storageOld );
+	public static void loaddb( EngineLoader loader , ProductReleases releases , boolean importxml ) throws Exception {
+		if( importxml )
+			matchRepositories( loader , releases );
+		
+		ReleaseRepository repo = loaddbRepository( loader , releases );
+		if( repo == null ) {
+			if( !importxml )
+				Common.exitUnexpected();
 			
-			repo = loaddbRepository( loader , storage );
+			repo = createdbRepository( loader , releases );
 		}
-		return( repo );
+		
+		releases.setReleaseRepository( repo );
 	} 
 
-	private static ReleaseRepository createdbRepository( EngineLoader loader , ProductMeta storage ) throws Exception {
+	private static ReleaseRepository createdbRepository( EngineLoader loader , ProductReleases releases ) throws Exception {
 		DBConnection c = loader.getConnection();
 		
-		ReleaseRepository repo = new ReleaseRepository( storage.meta );
+		ReleaseRepository repo = new ReleaseRepository( releases.meta , releases );
 		repo.createRepository( "main" , "default" );
 		modifyRepository( c , repo , true );
 		return( repo );
 	}
 	
-	private static ReleaseRepository loaddbRepository( EngineLoader loader , ProductMeta storage ) throws Exception {
+	private static ReleaseRepository loaddbRepository( EngineLoader loader , ProductReleases releases ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = loader.getEntities();
 		PropertyEntity entity = entities.entityAppReleaseRepository;
 		
 		ReleaseRepository repo = null;
 		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_REL_REPOMETA1 , 
-				new String[] { EngineDB.getInteger( storage.ID ) 
+				new String[] { EngineDB.getInteger( releases.meta.getId() ) 
 				} );
 		try {
 			while( rs.next() ) {
-				repo = new ReleaseRepository( storage.meta );
+				repo = new ReleaseRepository( releases.meta , releases );
 				repo.ID = entity.loaddbId( rs );
 				repo.createRepository(
-						entity.loaddbString( rs , DBReleaseData.FIELD_REPOSITORY_NAME ) ,
-						entity.loaddbString( rs , DBReleaseData.FIELD_REPOSITORY_DESC )
+						entity.loaddbString( rs , ReleaseRepository.PROPERTY_NAME ) ,
+						entity.loaddbString( rs , ReleaseRepository.PROPERTY_DESC )
 						);
 				break;
 			}
@@ -90,6 +85,12 @@ public class DBProductReleases {
 		return( repo );
 	}
 	
+	private static void matchRepositories( EngineLoader loader , ProductReleases releases ) throws Exception {
+		DBConnection c = loader.getConnection();
+		if( !c.modify( DBQueries.MODIFY_REL_REPO_MATCHMETA2 , new String[] { EngineDB.getInteger( releases.meta.getId() ) , EngineDB.getString( releases.meta.name ) } ) )
+			Common.exitUnexpected();
+	}
+
 	private static void modifyRepository( DBConnection c , ReleaseRepository repo , boolean insert ) throws Exception {
 		if( insert )
 			repo.ID = DBNames.getNameIndex( c , repo.meta.getId() , repo.NAME , DBEnumParamEntityType.RELEASE_REPOSITORY );
@@ -100,7 +101,8 @@ public class DBProductReleases {
 		DBEngineEntities.modifyAppObject( c , entities.entityAppReleaseRepository , repo.ID , EngineDB.APP_VERSION , new String[] {
 				EngineDB.getString( repo.NAME ) ,
 				EngineDB.getString( repo.DESC ) ,
-				EngineDB.getObject( repo.meta.getId() )
+				EngineDB.getObject( repo.meta.getId() ) ,
+				EngineDB.getString( null )
 		} , insert );
 	}
 

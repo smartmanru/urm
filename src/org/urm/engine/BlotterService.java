@@ -4,7 +4,25 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.action.ActionBase;
+import org.urm.action.codebase.ActionBuild;
 import org.urm.action.codebase.ActionPatch;
+import org.urm.action.release.ActionAddScope;
+import org.urm.action.release.ActionAppendMaster;
+import org.urm.action.release.ActionArchiveRelease;
+import org.urm.action.release.ActionCopyRelease;
+import org.urm.action.release.ActionCreateMaster;
+import org.urm.action.release.ActionCreateRelease;
+import org.urm.action.release.ActionDeleteRelease;
+import org.urm.action.release.ActionDescope;
+import org.urm.action.release.ActionFinishRelease;
+import org.urm.action.release.ActionCompleteRelease;
+import org.urm.action.release.ActionGetCumulative;
+import org.urm.action.release.ActionImportRelease;
+import org.urm.action.release.ActionModifyRelease;
+import org.urm.action.release.ActionReopenRelease;
+import org.urm.action.release.ActionSchedulePhase;
+import org.urm.action.release.ActionSetScope;
+import org.urm.action.release.ActionTouchRelease;
 import org.urm.common.Common;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.blotter.EngineBlotterActionItem;
@@ -109,10 +127,6 @@ public class BlotterService {
 			return( null );
 		return( set.getStatistics() ); 
 	}
-
-	public EngineBlotterSet getBuildBlotter() {
-		return( getBlotterSet( BlotterType.BLOTTER_BUILD ) );
-	}
 	
 	public EngineBlotterSet getBlotterSet( BlotterType type ) {
 		for( EngineBlotterSet set : blotters ) {
@@ -192,12 +206,113 @@ public class BlotterService {
 			baseItem = getBaseItem( rootItem , treeItem );
 			stopChildAction( action , rootItem , baseItem , treeItem , success );
 		}
+		
+		// release blotter
+		if( action instanceof ActionCopyRelease ) {
+			ActionCopyRelease xa = ( ActionCopyRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.CREATE , "copy distributive from " + xa.src.RELEASEVER + " to " + xa.RELEASEDIR ); 
+		}
+		else
+		if( action instanceof ActionCreateMaster ) {
+			ActionCreateMaster xa = ( ActionCreateMaster )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.CREATE , "create/copy production master distributive version=" + xa.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionCreateRelease ) {
+			ActionCreateRelease xa = ( ActionCreateRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.CREATE , "create release label=" + xa.RELEASELABEL ); 
+		}
+		else
+		if( action instanceof ActionImportRelease ) {
+			ActionImportRelease xa = ( ActionImportRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.CREATE , "create release label=" + xa.RELEASELABEL ); 
+		}
+		else
+		if( action instanceof ActionDeleteRelease ) {
+			ActionDeleteRelease xa = ( ActionDeleteRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.DROP , "drop release version=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionFinishRelease ) {
+			ActionFinishRelease xa = ( ActionFinishRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.FINISH , "finalize release version=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionReopenRelease ) {
+			ActionReopenRelease xa = ( ActionReopenRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.REOPEN , "reopen release version=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionCompleteRelease ) {
+			ActionCompleteRelease xa = ( ActionCompleteRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.COMPLETE , "finalize release version=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionArchiveRelease ) {
+			ActionArchiveRelease xa = ( ActionArchiveRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.ARCHIVE , "archive release version=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionTouchRelease ) {
+			ActionTouchRelease xa = ( ActionTouchRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.STATUS , "reload distributive releasedir=" + xa.RELEASELABEL ); 
+		}
+		else
+		if( action instanceof ActionAppendMaster ) {
+			ActionAppendMaster xa = ( ActionAppendMaster )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.PUT , "append master distributive releasedir=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionSchedulePhase ) {
+			ActionSchedulePhase xa = ( ActionSchedulePhase )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.PHASE , "phase control distributive releasedir=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionAddScope ) {
+			ActionAddScope xa = ( ActionAddScope )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.MODIFY , "extend scope of distributive releasedir=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionSetScope ) {
+			ActionSetScope xa = ( ActionSetScope )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.MODIFY , "set scope of distributive releasedir=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionDescope ) {
+			ActionDescope xa = ( ActionDescope )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.MODIFY , "reduce scope of distributive releasedir=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionGetCumulative ) {
+			ActionGetCumulative xa = ( ActionGetCumulative )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.PUT , "put cumulative items to distributive releasedir=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionModifyRelease ) {
+			ActionModifyRelease xa = ( ActionModifyRelease )action;
+			runReleaseAction( xa , success , xa.release , ReleaseOperation.MODIFY , "modify properties of distributive releasedir=" + xa.release.RELEASEVER ); 
+		}
+		else
+		if( action instanceof ActionBuild ) {
+			ActionBuild xa = ( ActionBuild )action;
+			if( xa.release != null )
+				runReleaseAction( xa , success , xa.release , ReleaseOperation.BUILD , "build release releasedir=" + xa.release.RELEASEVER ); 
+		}
 	}
 
-	public void runReleaseAction( ActionBase action , Release release , ReleaseOperation op , String msg ) {
+	public void runReleaseStatus( ActionBase action , Release release ) {
+		try {
+			blotterReleases.affectReleaseItem( action , true , ReleaseOperation.STATUS , release );
+		}
+		catch( Throwable e ) {
+			action.log( "change release status in blotter" , e );
+		}
+	}
+	
+	private void runReleaseAction( ActionBase action , boolean success , Release release , ReleaseOperation op , String msg ) {
 		try {
 			if( op != ReleaseOperation.STATUS && release != null )
-				blotterReleases.affectReleaseItem( action , op , release );
+				blotterReleases.affectReleaseItem( action , success , op , release );
 		}
 		catch( Throwable e ) {
 			action.log( "add release action to blotter" , e );

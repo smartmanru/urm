@@ -39,9 +39,6 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
-import org.urm.engine.products.EngineProduct;
-import org.urm.engine.products.EngineProductReleases;
-import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.run.EngineMethod;
@@ -57,6 +54,8 @@ import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
+import org.urm.meta.EngineObject;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.Datacenter;
@@ -68,15 +67,13 @@ import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.MatchItem;
-import org.urm.meta.loader.Types.*;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.Types.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -95,6 +92,8 @@ abstract public class ActionBase extends ActionCore {
 	public int outputChannel;
 	public ScopeExecutor scopeExecutor;
 
+	public int commandTimeoutMillis;
+	
 	protected SCOPESTATE executeSimple( ScopeState state ) throws Exception { return( SCOPESTATE.NotRun ); };
 	protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception { return( SCOPESTATE.NotRun ); };
 	protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { return( SCOPESTATE.NotRun ); };
@@ -120,6 +119,8 @@ abstract public class ActionBase extends ActionCore {
 		this.output = output;
 		this.outputChannel = -1;
 		this.artefactory = artefactory;
+		
+		commandTimeoutMillis = 0;
 	}
 
 	public ActionBase( ActionBase base , String stream , String actionInfo ) {
@@ -135,6 +136,7 @@ abstract public class ActionBase extends ActionCore {
 		this.artefactory = base.artefactory;
 		
 		this.shell = base.shell;
+		this.commandTimeoutMillis = base.commandTimeoutMillis;
 		
 		context = new CommandContext( this , base.context , stream );
 	}
@@ -326,112 +328,112 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public boolean runSimpleServer( ScopeState parentState , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , null );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runSimpleServer( sa , readOnly ) );
 	}
 
 	public boolean runSimpleServerAsync( ScopeState parentState , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , null );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runSimpleServer( sa , readOnly ) );
 	}
 
-	public boolean runSimpleProduct( ScopeState parentState , Meta meta , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , meta );
-		return( executor.runSimpleProduct( sa , readOnly ) );
+	public boolean runSimpleProduct( ScopeState parentState , String productName , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		return( executor.runSimpleProduct( productName , sa , readOnly ) );
 	}
 
-	public boolean runSimpleProductAsync( ScopeState parentState , Meta meta , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , meta );
-		return( executor.runSimpleProduct( sa , readOnly ) );
+	public boolean runSimpleProductAsync( ScopeState parentState , String productName , SecurityAction sa , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		return( executor.runSimpleProduct( productName , sa , readOnly ) );
 	}
 
-	public boolean runProductBuild( ScopeState parentState , Meta meta , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , meta );
-		return( executor.runProductBuild( sa , mode , readOnly ) );
+	public boolean runProductBuild( ScopeState parentState , String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
+		return( executor.runProductBuild( productName , sa , mode , readOnly ) );
 	}
 	
-	public boolean runProductBuildAsync( ScopeState parentState , Meta meta , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , meta );
-		return( executor.runProductBuild( sa , mode , readOnly ) );
+	public boolean runProductBuildAsync( ScopeState parentState , String productName , SecurityAction sa , DBEnumBuildModeType mode , boolean readOnly ) {
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
+		return( executor.runProductBuild( productName , sa , mode , readOnly ) );
 	}
 	
 	public boolean runSimpleEnv( ScopeState parentState , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , env.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runSimpleEnv( env , sa , readOnly ) );
 	}
 
 	public boolean runSimpleEnvAsync( ScopeState parentState , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , env.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runSimpleEnv( env , sa , readOnly ) );
 	}
 
 	public boolean runAll( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , scope.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runAll( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runAllAsync( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , scope.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runAll( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runAll( ScopeState parentState , ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , set.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runAll( set , env , sa , readOnly ) );
 	}
 	
 	public boolean runAllAsync( ScopeState parentState , ActionScopeSet set , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , set.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runAll( set , env , sa , readOnly ) );
 	}
 	
 	public boolean runSingleTarget( ScopeState parentState , ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , item.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runSingleTarget( item , env , sa , readOnly ) );
 	}
 	
 	public boolean runSingleTargetAsync( ScopeState parentState , ActionScopeTarget item , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , item.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runSingleTarget( item , env , sa , readOnly ) );
 	}
 	
 	public boolean runTargetList( ScopeState parentState , ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , set.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runTargetList( set , items , env , sa , readOnly ) );
 	}
 	
 	public boolean runTargetListAsync( ScopeState parentState , ActionScopeSet set , ActionScopeTarget[] items , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , set.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runTargetList( set , items , env , sa , readOnly ) );
 	}
 	
 	public boolean runCategories( ScopeState parentState , ActionScope scope , DBEnumScopeCategoryType[] categories , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , scope.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runCategories( scope , categories , sa , readOnly ) );
 	}
 	
 	public boolean runCategoriesAsync( ScopeState parentState , ActionScope scope , DBEnumScopeCategoryType[] categories , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , scope.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runCategories( scope , categories , sa , readOnly ) );
 	}
 	
 	public boolean runEnvUniqueHosts( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , scope.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runEnvUniqueHosts( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runEnvUniqueHostsAsync( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , scope.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runEnvUniqueHosts( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runEnvUniqueAccounts( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , false , scope.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , false );
 		return( executor.runEnvUniqueAccounts( scope , env , sa , readOnly ) );
 	}
 	
 	public boolean runEnvUniqueAccountsAsync( ScopeState parentState , ActionScope scope , MetaEnv env , SecurityAction sa , boolean readOnly ) {
-		ScopeExecutor executor = new ScopeExecutor( parentState , this , true , scope.meta );
+		ScopeExecutor executor = new ScopeExecutor( parentState , this , true );
 		return( executor.runEnvUniqueAccounts( scope , env , sa , readOnly ) );
 	}
 	
@@ -471,7 +473,7 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public ShellExecutor createDedicatedRemoteShell( String name , Account account , boolean setAction ) throws Exception {
-		EngineResources res = getEngineResources();
+		EngineResources res = getServerResources();
 		AuthResource ar = res.getResource( account.AUTHRESOURCE_ID );
 		ar.loadAuthData();
 		return( engine.shellPool.createDedicatedRemoteShell( this , name , account , ar , setAction ) );
@@ -511,7 +513,7 @@ abstract public class ActionBase extends ActionCore {
 		if( file.startsWith( "~/" ) )
 			file = shell.getHomePath() + file.substring( 1 );
 		
-		String path = shell.getLocalPath( file );
+		String path = shell.getOSPath( this , file );
 		String msg = "logging started to " + path;
 		outputChannel = output.startRedirect( context , outputChannel , file , msg , title );
 	}
@@ -586,7 +588,7 @@ abstract public class ActionBase extends ActionCore {
 		shell.appendExecuteLog( this , msg );
 	}
 	
-	public void executeCmdLive( Account account , String cmdRun , int commandTimeoutMillis ) throws Exception {
+	public void executeCmdLive( Account account , String cmdRun ) throws Exception {
 		if( !isExecute() ) {
 			info( account.getPrintName() + ": " + cmdRun + " (showonly)" );
 			return;
@@ -596,17 +598,17 @@ abstract public class ActionBase extends ActionCore {
 		ShellExecutor shell = getShell( account );
 		shell.appendExecuteLog( this , cmdRun );
 
-		shell.customCheckErrorsNormal( this , cmdRun , commandTimeoutMillis );
+		shell.customCheckErrorsNormal( this , cmdRun );
 	}
 
-	public void executeCmd( Account hostLogin , String cmdRun , int commandTimeoutMillis ) throws Exception {
+	public void executeCmd( Account hostLogin , String cmdRun ) throws Exception {
 		ShellExecutor shell = getShell( hostLogin );
-		shell.customCheckErrorsDebug( this , cmdRun , commandTimeoutMillis );
+		shell.customCheckErrorsDebug( this , cmdRun );
 	}
 
-	public String executeCmdGetValue( Account hostLogin , String cmdRun , int commandTimeoutMillis ) throws Exception {
+	public String executeCmdGetValue( Account hostLogin , String cmdRun ) throws Exception {
 		ShellExecutor shell = getShell( hostLogin );
-		return( shell.customGetValue( this , cmdRun , commandTimeoutMillis ) );
+		return( shell.customGetValue( this , cmdRun ) );
 	}
 
     public void sleep( long millis ) throws Exception {
@@ -618,6 +620,24 @@ abstract public class ActionBase extends ActionCore {
 		output.setLogLevel( this , logLevelLimit );
 	}
     
+	public int setTimeout( int timeoutMillis ) {
+		int saveTimeout = commandTimeoutMillis;
+		commandTimeoutMillis = timeoutMillis;
+		return( saveTimeout );
+	}
+    
+	public int setTimeoutUnlimited() {
+		return( setTimeout( 0 ) );
+	}
+	
+	public int setTimeoutDefault() {
+		return( setTimeout( context.CTX_TIMEOUT ) );
+	}
+
+	public String getOSPath( String dirPath ) throws Exception {
+		return( shell.getOSPath( this , dirPath ) );	
+	}
+
 	public boolean isLocalWindows() {
 		return( context.account.isWindows() );
 	}
@@ -679,16 +699,12 @@ abstract public class ActionBase extends ActionCore {
 		return( getShell( context.account ) );
 	}
 	
-	public Dist getReleaseDist( AppProduct product , String RELEASELABEL ) throws Exception {
-		EngineProduct ep = product.getEngineProduct();
-		EngineProductReleases releases = ep.getReleases();
-		return( releases.getDistByLabel( this , null , RELEASELABEL ) );
+	public Dist getReleaseDist( Meta meta , String RELEASELABEL ) throws Exception {
+		return( artefactory.getDistStorageByLabel( this , meta , RELEASELABEL ) );
 	}
 	
-	public Dist getMasterDist( AppProduct product ) throws Exception {
-		EngineProduct ep = product.getEngineProduct();
-		EngineProductReleases releases = ep.getReleases();
-		return( releases.getDistByLabel( this , null , ReleaseLabelInfo.LABEL_MASTER ) );
+	public Dist getMasterDist( Meta meta ) throws Exception {
+		return( artefactory.getDistStorageByLabel( this , meta , ReleaseLabelInfo.LABEL_MASTER ) );
 	}
 	
 	public String readFile( String path ) throws Exception {
@@ -774,87 +790,70 @@ abstract public class ActionBase extends ActionCore {
 		return( null );
 	}
 	
-	public EngineEntities getEngineEntities() {
+	public EngineEntities getServerEntities() {
 		return( actionInit.getActiveEntities() );
 	}
 	
-	public EngineResources getEngineResources() {
+	public EngineResources getServerResources() {
 		return( actionInit.getActiveResources() );
 	}
 	
-	public EngineBuilders getEngineBuilders() {
+	public EngineBuilders getServerBuilders() {
 		return( actionInit.getActiveBuilders() );
 	}
 	
-	public EngineDirectory getEngineDirectory() {
+	public EngineDirectory getServerDirectory() {
 		return( actionInit.getActiveDirectory() );
 	}
 	
-	public EngineSettings getEngineSettings() {
+	public EngineSettings getServerSettings() {
 		return( actionInit.getActiveServerSettings() );
 	}
 
-	public EngineContext getEngineContext() {
+	public EngineContext getServerContext() {
 		return( actionInit.getActiveServerContext() );
 	}
 	
-	public EngineMirrors getEngineMirrors() {
+	public EngineMirrors getServerMirrors() {
 		return( actionInit.getActiveMirrors() );
 	}
 	
-	public EngineBase getEngineBase() {
-		return( actionInit.getEngineBase() );
+	public EngineBase getServerBase() {
+		return( actionInit.getServerBase() );
 	}
 	
-	public StateService getEngineStatus() {
-		return( actionInit.getEngineStatus() );
+	public StateService getServerStatus() {
+		return( actionInit.getServerStatus() );
 	}
 	
-	public ScheduleService getEngineScheduler() {
-		return( actionInit.getEngineScheduler() );
+	public ScheduleService getServerScheduler() {
+		return( actionInit.getServerScheduler() );
 	}
 	
-	public EngineInfrastructure getEngineInfrastructure() {
-		return( actionInit.getEngineInfrastructure() );
+	public EngineInfrastructure getServerInfrastructure() {
+		return( actionInit.getServerInfrastructure() );
 	}
 	
-	public EngineLifecycles getEngineLifecycles() {
-		return( actionInit.getEngineLifecycles() );
+	public EngineLifecycles getServerReleaseLifecycles() {
+		return( actionInit.getServerReleaseLifecycles() );
 	}
 	
-	public EngineMonitoring getEngineMonitoring() {
-		return( actionInit.getEngineMonitoring() );
-	}
-	
-	public EngineProduct getEngineProduct( String name ) throws Exception {
-		AppProduct product = getProduct( name );
-		return( product.getEngineProduct() );
-	}
-	
-	public EngineProduct findEngineProduct( String name ) {
-		AppProduct product = findProduct( name );
-		if( product == null )
-			return( null );
-		return( product.findEngineProduct() );
-	}
-	
-	public EngineProduct getEngineProduct( int id ) throws Exception {
-		AppProduct product = getProduct( id );
-		return( product.getEngineProduct() );
+	public EngineMonitoring getServerMonitoring() {
+		return( actionInit.getServerMonitoring() );
 	}
 	
 	public AppProduct getProduct( String name ) throws Exception {
-		EngineDirectory directory = getEngineDirectory();
+		EngineDirectory directory = getServerDirectory();
 		return( directory.getProduct( name ) );
 	}
 	
 	public AppProduct getProduct( int id ) throws Exception {
-		EngineDirectory directory = getEngineDirectory();
+		EngineDirectory directory = getServerDirectory();
 		return( directory.getProduct( id ) );
 	}
 	
 	public AppProduct findProduct( String name ) {
-		EngineDirectory directory = getEngineDirectory();
+		EngineDirectory directory = getServerDirectory();
 		return( directory.findProduct( name ) );
 	}
 	
@@ -864,20 +863,20 @@ abstract public class ActionBase extends ActionCore {
 	}
 
 	public MirrorRepository getProjectMirror( MetaSourceProject project ) throws Exception {
-		EngineMirrors mirrors = getEngineMirrors();
+		EngineMirrors mirrors = getServerMirrors();
 		MirrorRepository repo = mirrors.findProjectRepository( project );
 		return( repo );
 	}
 
 	public MirrorRepository getMetaMirror( ProductMeta meta ) throws Exception {
-		EngineMirrors mirrors = getEngineMirrors();
-		MirrorRepository repo = mirrors.findProductMetaRepository( meta.NAME );
+		EngineMirrors mirrors = getServerMirrors();
+		MirrorRepository repo = mirrors.findProductMetaRepository( meta.name );
 		return( repo );
 	}
 
 	public MirrorRepository getConfigurationMirror( ProductMeta meta ) throws Exception {
-		EngineMirrors mirrors = getEngineMirrors();
-		MirrorRepository repo = mirrors.findProductDataRepository( meta.NAME );
+		EngineMirrors mirrors = getServerMirrors();
+		MirrorRepository repo = mirrors.findProductDataRepository( meta.name );
 		if( repo == null )
 			exit0( _Error.MissingMirrorConfig0 , "Missing product configuration files mirror" );
 		
@@ -888,7 +887,7 @@ abstract public class ActionBase extends ActionCore {
 		if( match == null )
 			return( null );
 		
-		EngineBuilders builders = getEngineBuilders();
+		EngineBuilders builders = getServerBuilders();
 		if( match.FKID != null )
 			return( builders.getBuilder( match.FKID ) );
 		return( builders.getBuilder( match.FKNAME ) );
@@ -899,47 +898,42 @@ abstract public class ActionBase extends ActionCore {
 	}
 	
 	public MirrorRepository getServerMirror() throws Exception {
-		EngineMirrors mirrors = getEngineMirrors();
+		EngineMirrors mirrors = getServerMirrors();
 		MirrorRepository repo = mirrors.findServerRepository();
 		return( repo );
 	}
 	
 	public AuthResource getResource( String name ) throws Exception {
-		EngineResources resources = getEngineResources();
+		EngineResources resources = getServerResources();
 		AuthResource res = resources.getResource( name );
 		return( res );
 	}
 	
 	public AuthResource getResource( Integer id ) throws Exception {
-		EngineResources resources = getEngineResources();
+		EngineResources resources = getServerResources();
 		AuthResource res = resources.getResource( id );
 		return( res );
 	}
 	
-	public AppProduct getContextProduct() throws Exception {
-		if( context.product != null )
-			return( context.product );
-		
-		if( !session.product )
-			exitUnexpectedState();
-		return( getProduct( session.productName ) );
-	}
-
 	public Meta getContextMeta() throws Exception {
 		if( context.meta != null )
 			return( context.meta );
 		
-		AppProduct product = getContextProduct();
-		EngineProduct ep = product.getEngineProduct();
-		if( ep == null )
-			return( null );
-		
-		EngineProductRevisions revisions = ep.getRevisions();
-		ProductMeta storage = revisions.getDraftRevision();
-		if( storage == null )
-			return( null );
-		
-		return( ep.getSessionMeta( this , storage , false ) );
+		if( !session.product )
+			exitUnexpectedState();
+		return( getProductMetadata( session.productName ) );
+	}
+
+	public Meta getProductMetadata( String productName ) throws Exception {
+		return( actionInit.getActiveProductMetadata( productName ) );
+	}
+
+	public Meta getProductMetadata( int metaId ) throws Exception {
+		return( actionInit.getActiveProductMetadata( metaId ) );
+	}
+
+	public Meta findMeta( String productName ) {
+		return( actionInit.findActiveProductMetadata( productName ) );
 	}
 
 	public boolean isProductOffline( Meta meta ) {
@@ -1045,10 +1039,6 @@ abstract public class ActionBase extends ActionCore {
 			if( env.isProd() )
 				options.setFlag( OptionsMeta.OPT_BACKUP , true );
 		}
-	}
-
-	public void updateContext( AppProduct product , Meta meta ) throws Exception {
-		context.update( this , product , meta );
 	}
 	
 }

@@ -109,7 +109,7 @@ public class MainExecutor extends CommandExecutor {
 		public void run( ScopeState parentState , ActionBase action ) throws Exception {
 			Meta meta = action.getContextMeta();
 			ActionSave ca = new ActionSave( action , null , meta );
-			ca.runSimpleProduct( parentState , meta , SecurityAction.ACTION_CONFIGURE , false );
+			ca.runSimpleProduct( parentState , meta.name , SecurityAction.ACTION_CONFIGURE , false );
 		}
 	}
 

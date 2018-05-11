@@ -18,7 +18,6 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistItemInfo;
 import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.VersionInfo;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.FileInfo;
@@ -462,7 +461,7 @@ public class ActionVerifyDeploy extends ActionBase {
 				}
 			}
 			else {
-				int status = shell.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile , Shell.WAIT_LONG );
+				int status = shell.customGetStatus( this , "diff -r " + liveFolder.folderPath + " " + distFolder.folderPath + " > " + diffFile );
 				if( status != 0 )
 					isdiff = true;
 			}

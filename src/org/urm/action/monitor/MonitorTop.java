@@ -35,7 +35,7 @@ public class MonitorTop {
 	}
 	
 	private void updateTime() throws Exception {
-		StateService status = targetAction.getEngineStatus();
+		StateService status = targetAction.getServerStatus();
 		status.updateRunTime( targetAction , targetAction.target.getSegment() );
 	}
 	

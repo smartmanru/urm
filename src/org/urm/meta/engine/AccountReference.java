@@ -23,7 +23,7 @@ public class AccountReference {
 	public static List<Meta> getReferencedProducts( ActionBase action , List<AccountReference> refs ) throws Exception {
 		List<Meta> products = new LinkedList<Meta>();
 		for( AccountReference ref : refs ) {
-			Meta meta = ref.node.meta;
+			Meta meta = action.getProductMetadata( ref.node.meta.name );
 			if( !products.contains( meta ) )
 				products.add( meta );
 		}

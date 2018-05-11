@@ -5,13 +5,15 @@ import org.urm.common.Common;
 import org.urm.common.ConfReader;
 import org.urm.engine.Engine;
 import org.urm.engine.DataService;
-import org.urm.engine.products.EngineProduct;
+import org.urm.engine.data.EngineProducts;
+import org.urm.engine.dist.DistRepository;
 import org.urm.engine.session.EngineSession;
+import org.urm.meta.EngineObject;
+import org.urm.meta.Types.*;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.loader.EngineObject;
-import org.urm.meta.loader.Types.*;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.env.MetaMonitoring;
 import org.w3c.dom.Document;
@@ -23,11 +25,13 @@ public class Meta extends EngineObject {
 	public String name;
 	public Engine engine;
 	public EngineSession session;
-	public EngineProduct ep;
 	
+	private EngineProducts products;
 	private ProductMeta storage;
 
+	private MetaProductVersion version;
 	private MetaProductSettings settings;
+	private MetaProductPolicy policy;
 	private MetaUnits units;
 	private MetaDatabase database;
 	private MetaDocs docs;
@@ -47,18 +51,13 @@ public class Meta extends EngineObject {
 
 	public static String PROPERTY_NAME = "name";
 	
-	public Meta( Engine engine , EngineProduct ep , ProductMeta storage , EngineSession session ) {
+	public Meta( EngineProducts products , ProductMeta storage , EngineSession session ) {
 		super( null );
-		this.ep = ep;
 		this.storage = storage;
+		this.products = products;
 		this.session = session;
-		this.engine = ep.engine;
-		name = storage.NAME;
-		
-		if( session != null )
-			engine.trace( "new run session meta object, id=" + super.objectId + ", session=" + session.objectId );
-		else
-			engine.trace( "new run revision meta object, id=" + super.objectId );
+		this.engine = products.engine;
+		name = storage.name;
 	}
 	
 	@Override
@@ -70,33 +69,21 @@ public class Meta extends EngineObject {
 		return( storage.ID );
 	}
 	
-	public EngineProduct getEngineProduct() {
-		return( ep );
-	}
-	
-	public AppProduct getProduct() throws Exception {
-		return( ep.getProduct() );
-	}
-
-	public AppProduct findProduct() {
-		return( ep.findProduct() );
+	public AppProduct getProduct() {
+		return( storage.product );
 	}
 
 	public boolean isPrimary() {
 		return( storage.isPrimary() );
 	}
 
-	public boolean isDraft() {
-		return( storage.isDraft() );
-	}
-	
-	public String getRevision() {
-		return( storage.REVISION );
-	}
-	
-	public void setStorage( ProductMeta storage ) {
+	public void replaceStorage( ActionBase action , ProductMeta storage ) throws Exception {
+		products.releaseSessionProductMetadata( action , this );
+		
 		// clear old refs
+		version = null;
 		settings = null;
+		policy = null;
 		units = null;
 		database = null;
 		docs = null;
@@ -105,6 +92,8 @@ public class Meta extends EngineObject {
 		monitoring = null;
 		
 		this.storage = storage;
+		storage.addSessionMeta( this );
+		session.addProductMeta( this );
 	}
 
 	private static String createConfigurableExtensions() {
@@ -117,8 +106,16 @@ public class Meta extends EngineObject {
 		return( configurableExtensionsFindOptions );
 	}
 	
+	public void setVersion( MetaProductVersion version ) {
+		this.version = version;
+	}
+	
 	public void setSettings( MetaProductSettings settings ) {
 		this.settings = settings;
+	}
+	
+	public void setPolicy( MetaProductPolicy policy ) {
+		this.policy = policy;
 	}
 	
 	public void setUnits( MetaUnits units ) {
@@ -143,6 +140,18 @@ public class Meta extends EngineObject {
 
 	public synchronized ProductMeta getStorage() {
 		return( storage );
+	}
+
+	public synchronized MetaProductVersion getVersion() {
+		if( version == null )
+			version = storage.getVersion();
+		return( version );
+	}
+
+	public synchronized MetaProductPolicy getPolicy() {
+		if( policy == null )
+			policy = storage.getPolicy();
+		return( policy );
 	}
 
 	public synchronized MetaProductCoreSettings getProductCoreSettings() {
@@ -198,8 +207,24 @@ public class Meta extends EngineObject {
 		return( storage.getEnviroments() );
 	}
 	
-	public ReleaseRepository getReleases() {
+	public ProductReleases getReleases() {
+		return( storage.getReleases() );
+	}
+	
+	public DistRepository getDistRepository() {
+		return( storage.getDistRepository() );
+	}
+	
+	public ReleaseRepository getReleaseRepository() {
 		return( storage.getReleaseRepository() );
+	}
+	
+	public void setDistRepository( DistRepository repo ) {
+		storage.setDistRepository( repo );
+	}
+	
+	public void setReleaseRepository( ReleaseRepository repo ) {
+		storage.setReleaseRepository( repo );
 	}
 	
 	public static String getConfigurableExtensionsFindOptions( ActionBase action ) throws Exception {
@@ -257,11 +282,6 @@ public class Meta extends EngineObject {
     public MetaEnv findEnv( String name ) {
     	ProductEnvs envs = storage.getEnviroments();
     	return( envs.findMetaEnv( name ) );
-    }
-
-    public MetaEnv findEnv( int id ) {
-    	ProductEnvs envs = storage.getEnviroments();
-    	return( envs.findMetaEnv( id ) );
     }
 
 	public static Integer getObject( MetaDistrBinaryItem item ) {

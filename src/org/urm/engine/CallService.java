@@ -108,7 +108,7 @@ public class CallService {
 		jmxOwner = new EngineMBean();
 		int port = action.context.CTX_PORT;
 		if( port <= 0 ) {
-			EngineSettings settings = action.getEngineSettings();
+			EngineSettings settings = action.getServerSettings();
 			port = settings.context.CONNECTION_JMX_PORT;
 			if( port <= 0 )
 				port = RemoteCall.DEFAULT_SERVER_PORT;
@@ -199,7 +199,7 @@ public class CallService {
 	
 	public void addProducts() throws Exception {
 		// create meta jmx for products
-		EngineDirectory directory = action.actionInit.getEngineDirectory();
+		EngineDirectory directory = action.actionInit.getServerDirectory();
 		for( String name : directory.getProductNames() ) {
 			AppProduct product = directory.getProduct( name );
 			if( product.isMatched() )
@@ -208,9 +208,6 @@ public class CallService {
 	}		
 	
 	public void addProduct( AppProduct product ) throws Exception {
-		if( productObjects.get( product.ID ) != null )
-			return;
-		
 		action.trace( "register jmx connector, product=" + product.NAME + " ..." );
 		List<String> objects = new LinkedList<String>();
 		productObjects.put( product.ID , objects );

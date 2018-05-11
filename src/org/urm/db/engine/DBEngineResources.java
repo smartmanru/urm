@@ -20,9 +20,9 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine._Error;
-import org.urm.meta.loader.EngineLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -44,8 +44,8 @@ public class DBEngineResources {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( AuthResource.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( AuthResource.PROPERTY_DESC , FIELD_RESOURCE_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnumVar( AuthResource.PROPERTY_RESOURCE_TYPE , XMLPROP_RESOURCE_TYPE , "Function type" , true , DBEnumResourceType.UNKNOWN ) ,
+				EntityVar.metaStringVar( AuthResource.PROPERTY_DESC , FIELD_RESOURCE_DESC , AuthResource.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( AuthResource.PROPERTY_RESOURCE_TYPE , XMLPROP_RESOURCE_TYPE , AuthResource.PROPERTY_RESOURCE_TYPE , "Function type" , true , DBEnumResourceType.UNKNOWN ) ,
 				EntityVar.metaString( AuthResource.PROPERTY_BASEURL , "Base URL" , false , null ) ,
 				EntityVar.metaBooleanDatabaseOnly( AuthResource.PROPERTY_VERIFIED , "Access verified" , false , false ) ,
 		} ) );
@@ -205,7 +205,7 @@ public class DBEngineResources {
 			return;
 		
 		ActionBase action = transaction.getAction();
-		EngineMirrors mirrors = action.getEngineMirrors();
+		EngineMirrors mirrors = action.getServerMirrors();
 		DBEngineMirrors.dropResourceMirrors( transaction , mirrors , rc );
 	}
 	

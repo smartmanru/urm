@@ -3,7 +3,6 @@ package org.urm.action;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
 import org.urm.meta.env.MetaEnv;
-import org.urm.meta.product.Meta;
 
 public class ActionSetItem implements Runnable {
 
@@ -22,7 +21,7 @@ public class ActionSetItem implements Runnable {
 	public ScopeState parentState;
 	ActionScope scope;
 	
-	Meta meta;
+	String productName;
 	MetaEnv env;
 	SecurityAction sa;
 	boolean readOnly;
@@ -32,11 +31,11 @@ public class ActionSetItem implements Runnable {
 		this.threadName = threadName;
 	}
 
-	public void createSimpleProduct( ScopeState parentState , ActionBase action , Meta meta , SecurityAction sa , boolean readOnly ) throws Exception {
+	public void createSimpleProduct( ScopeState parentState , ActionBase action , String productName , SecurityAction sa , boolean readOnly ) throws Exception {
 		runSimpleProduct = true;
 		this.parentState = parentState;
 		this.action = action;
-		this.meta = meta;
+		this.productName = productName;
 		this.sa = sa;
 		this.readOnly = readOnly;
 	}
@@ -88,7 +87,7 @@ public class ActionSetItem implements Runnable {
 
     private void execute() throws Exception {
     	if( runSimpleProduct ) {
-    		if( !action.runSimpleProduct( parentState , meta , sa , readOnly ) )
+    		if( !action.runSimpleProduct( parentState , productName , sa , readOnly ) )
     			failed = true;
     	}
     	else

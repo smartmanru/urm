@@ -1,4 +1,4 @@
-package org.urm.meta.loader;
+package org.urm.meta;
 
 public class EngineRef<ItemType extends EngineObject> {
 	public ItemType value;

@@ -8,7 +8,7 @@ import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.NexusStorage;
 import org.urm.engine.vcs.GenericVCS;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.EngineObject;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 

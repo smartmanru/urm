@@ -354,10 +354,8 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 	private String notifyExecute( String name , Object[] args ) throws Exception {
 		if( name.equals( RemoteCall.GENERIC_ACTION_NAME ) ) {
 			int sessionId = notifyExecuteGeneric( args );
-			if( sessionId < 0 ) {
-				action.trace( "generic failed, name=" + name );
+			if( sessionId < 0 )
 				return( null );
-			}
 			return( "" + sessionId );
 		}
 		
@@ -372,17 +370,12 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		}
 		
 		if( name.equals( RemoteCall.WAITCONNECT_ACTION_NAME ) ) {
-			String responce = notifyExecuteWaitConnect( args );
-			if( responce == null )
-				action.trace( "wait connect failed, name=" + name );
-			return( responce );
+			return( notifyExecuteWaitConnect( args ) );
 		}
 		
 		int sessionId = notifyExecuteSpecific( name , args );
-		if( sessionId < 0 ) {
-			action.trace( "specific failed, name=" + name );
+		if( sessionId < 0 )
 			return( null );
-		}
 		
 		return( "" + sessionId );
 	}
@@ -439,25 +432,16 @@ public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster
 		String password = ( String )args[4];
 		
 		AuthService auth = engine.getAuth();
+		if( !auth.checkLogin( user , password ) )
+			return( -1 );
+		
 		SessionSecurity security = auth.createUserSecurity( user );
-		if( security == null ) {
-			action.error( "unable to get user security user=" + user );
-			return( -1 );
-		}
-		
-		if( !auth.doLogin( security , password ) ) {
-			action.error( "unable to login user=" + user );
-			return( -1 );
-		}
-		
 		EngineSession sessionContext = engine.sessions.createSession( security , data.clientrc , true );
 		action.debug( "operation invoked, sessionId=" + sessionContext.sessionId );
 		
 		RemoteServerCall thread = new RemoteServerCall( engine , sessionContext , clientId , this , actionName , data );
-		if( !thread.start() ) {
-			action.error( "unable to start executor thread command=" + meta.name );
+		if( !thread.start() )
 			return( -1 );
-		}
 		
 		return( sessionContext.sessionId );
 	}

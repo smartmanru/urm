@@ -15,7 +15,6 @@ import org.urm.common.RunError;
 import org.urm.common.action.CommandOptions;
 import org.urm.common.meta.ReleaseCommandMeta;
 import org.urm.db.core.DBEnums.DBEnumScopeCategoryType;
-import org.urm.engine.Engine;
 import org.urm.engine.EventService;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseBuildScope;
@@ -46,13 +45,12 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	public static int EVENT_ITEMTAGFINISHED = 1001;
 	public static int EVENT_ITEMBUILDSTARTED = 1002;
 	public static int EVENT_ITEMBUILDFINISHED = 1003;
-	public static int EVENT_ITEMPATCHSTARTED = 1004;
-	public static int EVENT_ITEMPATCHFINISHED = 1005;
-	public static int EVENT_ITEMGETSTARTED = 1010;
-	public static int EVENT_ITEMGETFINISHED = 1011;
+	public static int EVENT_ITEMGETSTARTED = 1004;
+	public static int EVENT_ITEMGETFINISHED = 1005;
 	public static int EVENT_PLANFINISHED = 1100;
 	
-	public Engine engine;
+	List<BuildPlanSet> listSets;
+	Map<String,BuildPlanSet> mapSets;
 	public Dist dist;
 	public BuildPlanSet selectSet;
 	public RunError error;
@@ -64,12 +62,8 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 	public ReleaseBuildScope buildScope;
 	public ReleaseDistScope distScope;
 
-	List<BuildPlanSet> listSets;
-	Map<String,BuildPlanSet> mapSets;
-	
-	private BuildPlan( Engine engine , Dist dist , EventService events , String id ) {
+	private BuildPlan( Dist dist , EventService events , String id ) {
 		super( events , id );
-		this.engine = engine;
 		this.dist = dist;
 		
 		listSets = new LinkedList<BuildPlanSet>();
@@ -134,17 +128,12 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 				if( state.type == STATETYPE.TypeScopeTarget )
 					addBuildStatus( state.target.sourceProject , start , state.state );
 			}
-			else
-			if( state.action instanceof ActionPatch ) {
-				ActionPatch action = ( ActionPatch )state.action; 
-				addCompileStatus( action , start , state.state );
-			}
 		}
 	}
 	
 	public static BuildPlan create( ActionBase action , EngineEventsApp app , EngineEventsListener listener , Dist dist ) throws Exception {
 		EventService events = action.engine.getEvents();
-		BuildPlan plan = new BuildPlan( action.engine , dist , events , "build-plan-" + action.ID );
+		BuildPlan plan = new BuildPlan( dist , events , "build-plan-" + action.ID );
 		app.subscribe( plan , listener );
 		plan.buildScope = ReleaseBuildScope.createScope( dist.release );
 		plan.distScope = ReleaseDistScope.createScope( dist.release );
@@ -565,23 +554,6 @@ public class BuildPlan extends EngineEventsSource implements EngineEventsListene
 		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
 		item.setBuildDone( success );
 		super.notify( EventService.OWNER_ENGINEBUILDPLAN , EVENT_ITEMBUILDFINISHED , item );
-	}
-	
-	private void addCompileStatus( ActionPatch action , boolean start , SCOPESTATE state ) {
-		MetaSourceProject sourceProject = action.builder.project; 
-		BuildPlanItem item = getItem( sourceProject );
-		if( item == null )
-			return;
-		
-		if( start ) {
-			item.setPatchStart( action );
-			super.notify( EventService.OWNER_ENGINEBUILDPLAN , EVENT_ITEMPATCHSTARTED , item );
-			return;
-		}
-		
-		boolean success = ( state == SCOPESTATE.RunSuccess )? true : false;
-		item.setPatchDone( success );
-		super.notify( EventService.OWNER_ENGINEBUILDPLAN , EVENT_ITEMPATCHFINISHED , item );
 	}
 	
 }

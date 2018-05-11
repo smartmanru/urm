@@ -36,6 +36,7 @@ public class OptionsMeta {
 	public final static String OPT_CHECK = "OPT_CHECK";
 	public final static String OPT_REPLACE = "OPT_REPLACE";
 	public final static String OPT_BACKUP = "OPT_BACKUP";
+	public final static String OPT_OBSOLETE = "OPT_OBSOLETE";
 	public final static String OPT_DEPLOYCONF = "OPT_DEPLOYCONF";
 	public final static String OPT_PARTIALCONF = "OPT_PARTIALCONF";
 	public final static String OPT_DEPLOYBINARY = "OPT_DEPLOYBINARY";
@@ -127,6 +128,7 @@ public class OptionsMeta {
 		defineVar( CommandVar.newFlagVar( OPT_CHECK , true , "Check Source" , "run source checks before build" ) );
 		defineVar( CommandVar.newFlagVar( OPT_REPLACE , true , "Replace" , "replace all item contents on deploy" ) );
 		defineVar( CommandVar.newFlagVar( OPT_BACKUP , true , "Backup" , "prepare backup before deploy" ) );
+		defineVar( CommandVar.newFlagVar( OPT_OBSOLETE , true , "Obsolete" , "ignore new layout" ) );
 		defineVar( CommandVar.newFlagVar( OPT_DEPLOYCONF , true , "Deploy Conf" , "deploy configuration files" ) );
 		defineVar( CommandVar.newFlagVar( OPT_PARTIALCONF , true , "Partial Conf" , "ignore missing configuration files" ) );
 		defineVar( CommandVar.newFlagVar( OPT_DEPLOYBINARY , true , "Deploy Binary" , "deploy binary files" ) );
@@ -182,6 +184,8 @@ public class OptionsMeta {
 		defineOption( CommandOption.newFlagNoOption( this , "nreplace" , OPT_REPLACE , true , "do not replace exiting items on deploy" ) );
 		defineOption( CommandOption.newFlagYesOption( this , "backup" , OPT_BACKUP , true , "prepare backup before deploy" ) );
 		defineOption( CommandOption.newFlagNoOption( this , "nbackup" , OPT_BACKUP , true , "do not backup before deploy" ) );
+		defineOption( CommandOption.newFlagYesOption( this , "obsolete" , OPT_OBSOLETE , true , "ignore new layout" ) );
+		defineOption( CommandOption.newFlagNoOption( this , "nobsolete" , OPT_OBSOLETE , true , "use new layout" ) );
 		defineOption( CommandOption.newFlagYesOption( this , "conf" , OPT_DEPLOYCONF , true , "deploy configuration files" ) );
 		defineOption( CommandOption.newFlagNoOption( this , "nconf" , OPT_DEPLOYCONF , true , "do not deploy configuration files" ) );
 		defineOption( CommandOption.newFlagYesOption( this , "partial" , OPT_PARTIALCONF , true , "ignore missing configuration files" ) );

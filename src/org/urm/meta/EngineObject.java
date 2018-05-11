@@ -1,4 +1,4 @@
-package org.urm.meta.loader;
+package org.urm.meta;
 
 import java.util.LinkedList;
 import java.util.List;

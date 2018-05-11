@@ -111,15 +111,6 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 		return( plan );
 	}
 
-	public void clear() {
-		listSg.clear();
-		mapSg.clear();
-		
-		selectSg = null;
-		selectSet = null;
-		error = null;
-	}
-	
 	public void cancelRun() {
 	}
 	
@@ -164,13 +155,6 @@ public class DeployPlan extends EngineEventsSource implements EngineEventsListen
 
 	public void setDeploy( boolean deploy ) {
 		this.deploy = deploy;
-		for( DeployPlanSegment sg : listSg ) {
-			for( DeployPlanSet set : sg.listSets ) {
-				for( DeployPlanItem item : set.listItems ) {
-					item.setExecute( item.execute );
-				}
-			}
-		}
 	}
 	
 	public boolean hasExecute() {

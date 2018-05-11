@@ -138,34 +138,6 @@ public class VersionInfo {
 				Common.exit1( _Error.InvalidReleaseVersion1 , "Invalid release version=" + version , version );
 		}
 	}
-
-	public boolean isMajor() {
-		if( type == DBEnumLifecycleType.MAJOR )
-			return( true );
-		return( false );
-	}
-	
-	public boolean isMinor() {
-		if( type == DBEnumLifecycleType.MINOR )
-			return( true );
-		return( false );
-	}
-	
-	public boolean isUrgent() {
-		if( type == DBEnumLifecycleType.URGENT )
-			return( true );
-		return( false );
-	}
-	
-	public String getNextVersion() {
-		if( isMajor() )
-			return( v1 + "." + (v2+1) );
-		if( isMinor() )
-			return( v1 + "." + v2 + "." + (v3+1) );
-		if( isUrgent() )
-			return( v1 + "." + v2 + "." + v3 + "." + (v4+1) );
-		return( "" );
-	}
 	
 	private int parseNumber( String number ) throws Exception {
 		return( Integer.parseInt( number ) );
@@ -300,14 +272,4 @@ public class VersionInfo {
 		return( value );
 	}
 
-	public static String getNextVersion( String RELEASEVER ) {
-		try {
-			VersionInfo info = VersionInfo.getReleaseDirInfo( RELEASEVER );
-			return( info.getNextVersion() );
-		}
-		catch( Throwable e ) {
-			return( "" );
-		}
-	}
-	
 }

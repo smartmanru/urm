@@ -17,7 +17,7 @@ public class BaseRepository {
 	
 	public static BaseRepository getBaseRepository( ActionBase action , Artefactory artefactory ) throws Exception {
 		BaseRepository repo = new BaseRepository( artefactory );
-		EngineSettings settings = action.getEngineSettings();
+		EngineSettings settings = action.getServerSettings();
 		EngineContext context = settings.getServerContext();
 		repo.repoFolder = new RemoteFolder( action.getLocalAccount() , context.DIST_PLATFORMPATH );
 		return( repo );

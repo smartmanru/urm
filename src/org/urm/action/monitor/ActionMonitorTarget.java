@@ -18,17 +18,15 @@ import org.urm.meta.env.MetaMonitoringTarget;
 public class ActionMonitorTarget extends ActionBase {
 	
 	public MonitorTargetInfo info;
-	public String name;
 	public MetaMonitoringTarget target;
 	
 	volatile boolean running;
 	volatile ActionBase currentAction;
 	
-	public ActionMonitorTarget( ActionBase action , String stream , MonitorTargetInfo info , String name ) {
+	public ActionMonitorTarget( ActionBase action , String stream , MonitorTargetInfo info ) {
 		super( action , stream , "monitoring, check target" );
 		this.info = info;
 		this.target = info.target;
-		this.name = name;
 		running = false;
 	}
 
@@ -71,7 +69,7 @@ public class ActionMonitorTarget extends ActionBase {
 		info.stop( this );
 
 		if( sg != null ) { 
-			StateService status = super.getEngineStatus();
+			StateService status = super.getServerStatus();
 			StatusSource source = status.getObjectSource( sg );
 			if( source != null )
 				source.customEvent( EventService.OWNER_ENGINE , EventService.EVENT_MONITORGRAPHCHANGED , info );
@@ -87,7 +85,7 @@ public class ActionMonitorTarget extends ActionBase {
 		long timeStart = System.currentTimeMillis();
 		boolean ok = true;
 		
-		StateService engineStatus = super.getEngineStatus();
+		StateService engineStatus = super.getServerStatus();
 		String name = sg.env.NAME + "::" + sg.NAME;
 		
 		for( MetaEnvServer server : sg.getServers() ) {

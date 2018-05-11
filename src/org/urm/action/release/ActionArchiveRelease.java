@@ -4,11 +4,11 @@ import org.urm.action.ActionBase;
 import org.urm.db.release.DBReleaseRepository;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.DistRepository;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
+import org.urm.meta.release.ProductReleases;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
 
@@ -25,12 +25,12 @@ public class ActionArchiveRelease extends ActionBase {
 		EngineMethod method = super.method;
 		
 		Meta meta = release.getMeta();
-		EngineProduct ep = meta.getEngineProduct();
-		synchronized( ep ) {
+		ProductReleases releases = meta.getReleases();
+		synchronized( releases ) {
 			// update repository
-			ReleaseRepository repoUpdated = method.changeReleaseRepository( meta );
+			ReleaseRepository repoUpdated = method.changeReleaseRepository( releases );
 			Release releaseUpdated = method.changeRelease( repoUpdated , release );
-			DistRepository distrepoUpdated = method.changeDistRepository( meta.getProduct() );
+			DistRepository distrepoUpdated = method.changeDistRepository( releases );
 			Dist distUpdated = distrepoUpdated.findDefaultDist( releaseUpdated );
 			
 			// change database

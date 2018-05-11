@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
@@ -303,12 +302,9 @@ public class DistState {
 
 		if( state != DISTSTATE.DIRTY ) {
 			String dataHashCurrent = getDataHashValue( action );
-			if( dataHashCurrent.equals( dataHash ) == false )
-				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, data hash value differs from declared (" + dataHash + " / " + dataHashCurrent + ")" );
-			
 			String metaHashCurrent = getMetaHashValue( action );
-			if( metaHashCurrent.equals( metaHash ) == false )
-				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, meta hash value differs from declared (" + metaHash + " / " + metaHashCurrent + ")" );
+			if( dataHashCurrent.equals( dataHash ) == false || metaHashCurrent.equals( metaHash ) == false )
+				action.exit0( _Error.DistributiveHashDiffers0 , "distributive is not ready for use, hash value differs from declared" );
 		}
 	}
 
@@ -363,7 +359,7 @@ public class DistState {
 		String hash;
 		if( shell.account.isLinux() ) {
 			String cmd = "find . -type f -printf " + Common.getQuoted( "%p %s %TD %Tr\\n" ) + " | sort | grep -v state.txt | grep -v release.xml | md5sum | cut -d \" \" -f1";
-			hash = shell.customGetValue( action , distFolder.folderPath , cmd , Shell.WAIT_DEFAULT );
+			hash = shell.customGetValue( action , distFolder.folderPath , cmd );
 		}
 		else {
 			Map<String,File> fileMap = new HashMap<String,File>(); 

@@ -14,7 +14,6 @@ import org.urm.engine.storage.Artefactory;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.NexusDownloadInfo;
 import org.urm.engine.storage.NexusStorage;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
@@ -169,8 +168,7 @@ public class SpecificPGU {
 	}
 	
 	private void getAllWarAppCopyProd() throws Exception {
-		AppProduct product = meta.getProduct();
-		Dist distStorage = action.getMasterDist( product );
+		Dist distStorage = action.getMasterDist( meta );
 
 		action.debug( "copy libraries from " + distStorage.RELEASEDIR + "/servicecall." + SERVICECALL_EXT + " to servicecall-prod-libs ..." );
 		distStorage.unzipDistFileToFolder( action , downloadFolder , "servicecall-*." + SERVICECALL_EXT , servicecallItem.delivery.FOLDER , Common.getQuoted( SERVICECALL_DIR + "/lib/*" ) , "servicecall-prod-libs" );

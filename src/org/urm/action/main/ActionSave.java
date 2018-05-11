@@ -47,11 +47,11 @@ public class ActionSave extends ActionBase {
 		saveProduct( pf , false );
 		
 		UrmStorage urm = artefactory.getUrmStorage();
-		EngineDirectory directory = actionInit.getEngineDirectory();
+		EngineDirectory directory = actionInit.getServerDirectory();
 		for( String name : directory.getProductNames() ) {
 			info( "save product=" + name + " ..." );
 			
-			LocalFolder folder = urm.getProductHome( this , meta.findProduct() );
+			LocalFolder folder = urm.getProductHome( this , meta.getProduct() );
 			saveProduct( folder , false );
 		}
 	}

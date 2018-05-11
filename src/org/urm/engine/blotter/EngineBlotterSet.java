@@ -14,12 +14,11 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
-import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.run.EngineMethod;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.release.Release;
+import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
 
 public class EngineBlotterSet extends EngineEventsSource {
@@ -57,17 +56,17 @@ public class EngineBlotterSet extends EngineEventsSource {
 	}
 
 	public synchronized void startReleaseSet( ActionInit action ) throws Exception {
-		EngineDirectory directory = action.getEngineDirectory();
+		EngineDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProductNames() ) {
-			AppProduct product = directory.findProduct( productName );
-			EngineProductReleases releases =  product.findReleases();
-			startReleaseSetRepo( action , releases );
+			Meta meta = action.getProductMetadata( productName );
+			ReleaseRepository repo = meta.getReleaseRepository();
+			startReleaseSetRepo( action , repo );
 		}
 	}
 
-	public synchronized void startReleaseSetRepo( ActionInit action , EngineProductReleases releases ) throws Exception {
-		for( String version : releases.getActiveVersions() ) {
-			Release release = releases.findRelease( version );
+	public synchronized void startReleaseSetRepo( ActionInit action , ReleaseRepository repo ) throws Exception {
+		for( String version : repo.getActiveVersions() ) {
+			Release release = repo.findRelease( version );
 			String key = getReleaseKey( release );
 			EngineBlotterReleaseItem item = new EngineBlotterReleaseItem( this , key );
 			item.createReleaseItem( release );
@@ -144,7 +143,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 	public synchronized void finishItem( EngineBlotterActionItem item ) {
 		EngineBlotterMemo memo = item.memo;
 		if( memo != null && item.success ) {
-			long elapsed = item.stopTime.getTime() - item.startTime.getTime();
+			long elapsed = item.stopTime - item.startTime;
 			memo.addEvent( elapsed );
 		}
 		
@@ -235,17 +234,8 @@ public class EngineBlotterSet extends EngineEventsSource {
 		stat.statAddItem( item );
 	}
 
-	public EngineBlotterActionItem findActionItem( ActionBase action ) {
-		String ID = "action-" + action.ID;
-		EngineBlotterItem item = items.get( ID );
-		if( item == null )
-			return( null );
-		if( item instanceof EngineBlotterActionItem )
-			return( ( EngineBlotterActionItem )item );
-		return( null );
-	}
 	
-	public synchronized EngineBlotterReleaseItem affectReleaseItem( ActionBase action , ReleaseOperation op , Release release ) {
+	public synchronized EngineBlotterReleaseItem affectReleaseItem( ActionBase action , boolean success , ReleaseOperation op , Release release ) {
 		String key = getReleaseKey( release );
 		
 		EngineBlotterReleaseItem item = null;
@@ -260,7 +250,7 @@ public class EngineBlotterSet extends EngineEventsSource {
 			if( item == null )
 				return( null );
 			
-			if( op == ReleaseOperation.DROP || op == ReleaseOperation.ARCHIVE ) {
+			if( success && ( op == ReleaseOperation.DROP || op == ReleaseOperation.ARCHIVE ) ) {
 				items.remove( item.ID );
 				notifyItem( action , item , BlotterEvent.BLOTTER_STOP );
 			}

@@ -5,13 +5,10 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.data.EngineDirectory;
-import org.urm.engine.products.EngineProduct;
-import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.shell.Account;
+import org.urm.meta.EngineObject;
 import org.urm.meta.env.ProductEnvs;
-import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
-import org.urm.meta.product.ProductMeta;
 
 public class HostAccount extends EngineObject {
 
@@ -73,17 +70,11 @@ public class HostAccount extends EngineObject {
 	}
 
 	public void getApplicationReferences( ActionBase action , List<AccountReference> refs ) {
-		EngineDirectory directory = action.getEngineDirectory();
+		EngineDirectory directory = action.getServerDirectory();
 		for( String productName : directory.getProductNames() ) {
-			AppProduct product = directory.findProduct( productName );
-			EngineProduct ep = product.findEngineProduct();
-			EngineProductRevisions epr = ep.getRevisions();
-			
-			for( ProductMeta storage : epr.getRevisions() ) {
-				Meta meta = ep.findSessionMeta( action , storage , true );
-				ProductEnvs envs = meta.getEnviroments();
-				envs.getApplicationReferences( this , refs );
-			}
+			Meta meta = action.findMeta( productName );
+			ProductEnvs envs = meta.getEnviroments();
+			envs.getApplicationReferences( this , refs );
 		}
 	}
 

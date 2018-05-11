@@ -13,9 +13,9 @@ import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.TransactionBase;
+import org.urm.meta.EngineLoader;
 import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AppSystem;
-import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
@@ -32,9 +32,10 @@ public class DBMetaSettings {
 	public static String ELEMENT_BUILD = "build";
 	public static String ELEMENT_MODE = "mode";
 	
-	public static void createdb( EngineLoader loader , AppProduct product , ProductMeta storage , ProductContext context ) throws Exception {
+	public static void createdb( EngineLoader loader , ProductMeta storage , ProductContext context ) throws Exception {
 		DBConnection c = loader.getConnection();
 		TransactionBase transaction = loader.getTransaction();
+		AppProduct product = storage.product;
 		EngineEntities entities = loader.getEntities();
 		
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
@@ -89,7 +90,7 @@ public class DBMetaSettings {
 	
 	public static void copydb( TransactionBase transaction , ProductMeta src , ProductContext context , ProductMeta dst ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		AppProduct product = dst.getProduct();
+		AppProduct product = dst.product;
 		EngineEntities entities = c.getEntities();
 		
 		MetaProductSettings settings = new MetaProductSettings( dst , dst.meta );
@@ -145,7 +146,7 @@ public class DBMetaSettings {
 	}
 	
 	public static void importxml( EngineLoader loader , ProductMeta storage , ProductContext context , Node root ) throws Exception {
-		AppProduct product = storage.getProduct();
+		AppProduct product = storage.product;
 		EngineEntities entities = loader.getEntities();
 		
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
@@ -216,8 +217,7 @@ public class DBMetaSettings {
 		MetaProductSettings settings = new MetaProductSettings( storage , storage.meta );
 		storage.setSettings( settings );
 
-		AppProduct product = storage.getProduct();
-		AppSystem system = product.system;
+		AppSystem system = storage.product.system;
 		
 		// context, custom, core settings
 		ObjectProperties ops = entities.createMetaProductProps( storage.ID , system.getParameters() );
@@ -327,7 +327,7 @@ public class DBMetaSettings {
 
 	public static void updateMonitoringProperties( TransactionBase transaction , ProductMeta storage , MetaProductSettings settings ) throws Exception {
 		DBConnection c = transaction.getConnection();
-		AppProduct product = storage.getProduct();
+		AppProduct product = storage.product;
 		ActionBase action = transaction.getAction();
 		EngineMonitoring mon = transaction.getMonitoring();
 		

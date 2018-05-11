@@ -18,9 +18,9 @@ import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.engine.data.EngineResources;
+import org.urm.meta.EngineLoader;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AuthResource;
-import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.loader.MatchItem;
 
 public class PropertyEntity {
 
@@ -349,14 +349,6 @@ public class PropertyEntity {
 		return( value );
 	}
 	
-	public Long loaddbLong( ResultSet rs , String prop ) throws Exception {
-		int column = getDatabaseColumn( prop );
-		long value = rs.getLong( column );
-		if( value == 0 )
-			return( null );
-		return( value );
-	}
-	
 	public Date loaddbDate( ResultSet rs , String prop ) throws Exception {
 		int column = getDatabaseColumn( prop );
 		java.sql.Date sqldate = rs.getDate( column );
@@ -397,10 +389,8 @@ public class PropertyEntity {
 	}
 	
 	public DBEnumChangeType loaddbChangeType( ResultSet rs ) throws Exception {
-		if( CHANGEABLE ) {
-			int add = ( ID_FIELD.isEmpty() )? 2 : 3; 
-			return( DBEnumChangeType.getValue( rs.getInt( dblist.size() + add ) , true ) );
-		}
+		if( CHANGEABLE )
+			return( DBEnumChangeType.getValue( rs.getInt( dblist.size() + 3 ) , true ) );
 		return( null );
 	}
 	

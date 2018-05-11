@@ -6,13 +6,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.urm.engine.products.EngineProduct;
-import org.urm.engine.products.EngineProductEnvs;
-import org.urm.engine.transaction.TransactionBase;
+import org.urm.action.ActionBase;
+import org.urm.common.Common;
+import org.urm.engine.storage.ProductStorage;
+import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.MatchItem;
 import org.urm.meta.engine.AccountReference;
 import org.urm.meta.engine.HostAccount;
-import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.product.MetaDistrBinaryItem;
+import org.urm.meta.product.MetaDistrComponent;
+import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
 
@@ -29,7 +34,7 @@ public class ProductEnvs {
 		
 		mapEnvs = new HashMap<String,MetaEnv>();
 		mapEnvsById = new HashMap<Integer,MetaEnv>();
-		mon = new MetaMonitoring( this );
+		mon = new MetaMonitoring( storage , meta );
 	}
 	
 	public ProductEnvs copy( Meta rmeta ) throws Exception {
@@ -44,8 +49,6 @@ public class ProductEnvs {
 		for( MetaEnv renv : r.getEnvs() )
 			renv.refreshProperties();
 		
-		r.mon = mon.copy( r );
-		
 		return( r );
 	}
 
@@ -53,26 +56,6 @@ public class ProductEnvs {
 		// resolve properties
 		for( MetaEnv env : getEnvs() )
 			env.copyResolveExternals();
-	}
-
-	public MetaEnv getProductEnv( MatchItem item ) throws Exception {
-		EngineProduct ep = meta.getEngineProduct();
-		EngineProductEnvs envs = ep.getEnvs();
-		return( envs.getEnv( item ) );
-	}
-	
-	public String getProductEnvName( MatchItem item ) throws Exception {
-		if( item == null )
-			return( "" );
-		
-		MetaEnv env = getProductEnv( item );
-		return( env.NAME );
-	}
-	
-	public MetaEnv getProductEnv( int id ) throws Exception {
-		EngineProduct ep = meta.getEngineProduct();
-		EngineProductEnvs envs = ep.getEnvs();
-		return( envs.getEnv( id ) );
 	}
 	
 	public MetaMonitoring getMonitoring() {
@@ -96,18 +79,64 @@ public class ProductEnvs {
 		return( mapEnvs.values().toArray( new MetaEnv[0] ) );
 	}
 	
-	public void deleteEnv( TransactionBase transaction , MetaEnv env ) throws Exception {
+	public void deleteEnv( EngineTransaction transaction , MetaEnv env ) throws Exception {
+		String envFile = env.NAME + ".xml";
 		mapEnvs.remove( env.NAME );
-		mapEnvsById.remove( env.ID );
+		
+		ActionBase action = transaction.getAction();
+		ProductStorage storage = action.artefactory.getMetadataStorage( action , env.meta );
+		storage.deleteEnvConfFile( action , envFile );
 		env.deleteObject();
+	}
+
+	public void removeBinaryItemFromEnvironments( MetaDistrBinaryItem item ) throws Exception {
+		for( MetaEnv env : getEnvs() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.removeBinaryItem( item );
+	}
+
+	public void removeConfItemFromEnvironments( MetaDistrConfItem item ) throws Exception {
+		for( MetaEnv env : getEnvs() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.removeConfItem( item );
+	}
+
+	public void removeComponentFromEnvironments( MetaDistrComponent item ) throws Exception {
+		for( MetaEnv env : getEnvs() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.removeComponent( item );
+	}
+
+	public void removeDatabaseSchemaFromEnvironments( MetaDatabaseSchema schema ) throws Exception {
+		for( MetaEnv env : getEnvs() )
+			for( MetaEnvSegment sg : env.getSegments() )
+				for( MetaEnvServer server : sg.getServers() )
+					server.removeSchema( schema );
 	}
 
 	public MetaEnv findMetaEnv( int id ) {
 		return( mapEnvsById.get( id ) );
 	}
 
+	public MetaEnv getMetaEnv( int id ) throws Exception {
+		MetaEnv env = mapEnvsById.get( id );
+		if( env == null )
+			Common.exitUnexpected();
+		return( env );
+	}
+
 	public MetaEnv findMetaEnv( String name ) {
 		return( mapEnvs.get( name ) );
+	}
+
+	public MetaEnv getMetaEnv( String name ) throws Exception {
+		MetaEnv env = mapEnvs.get( name );
+		if( env == null )
+			Common.exitUnexpected();
+		return( env );
 	}
 
     public MetaEnv findMetaEnv( MetaEnv env ) {
@@ -122,6 +151,21 @@ public class ProductEnvs {
 		if( env.MATCHED )
 			return( findMetaEnv( env.FKID ) );
 		return( findMetaEnv( env.FKNAME ) );
+	}
+	
+	public MetaEnv getMetaEnv( MatchItem item ) throws Exception {
+		if( item == null )
+			return( null );
+		if( item.MATCHED )
+			return( getMetaEnv( item.FKID ) );
+		return( getMetaEnv( item.FKNAME ) );
+	}
+	
+	public String getMetaEnvName( MatchItem item ) throws Exception {
+		if( item == null )
+			return( "" );
+		MetaEnv env = getMetaEnv( item );
+		return( env.NAME );
 	}
 	
     public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {
@@ -156,8 +200,4 @@ public class ProductEnvs {
 			env.getApplicationReferences( account , refs );
 	}
 
-	public boolean isEmpty() {
-		return( mapEnvsById.isEmpty() );
-	}
-	
 }

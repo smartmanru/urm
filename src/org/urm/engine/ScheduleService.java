@@ -12,7 +12,7 @@ import org.urm.engine.schedule.ScheduleDispatcherTask;
 import org.urm.engine.schedule.ScheduleExecutorTask;
 import org.urm.engine.schedule.ScheduleTask;
 import org.urm.engine.schedule.ScheduleTaskSet;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.EngineObject;
 
 public class ScheduleService extends EngineObject {
 

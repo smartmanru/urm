@@ -7,7 +7,7 @@ import org.urm.engine.data.EngineBuilders;
 import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.shell.Account;
 import org.urm.engine.shell.ShellExecutor;
-import org.urm.meta.loader.EngineObject;
+import org.urm.meta.EngineObject;
 
 public class ProjectBuilder extends EngineObject {
 
@@ -29,7 +29,6 @@ public class ProjectBuilder extends EngineObject {
 	
 	public static String PROPERTY_BUILDER_REMOTE = "remote";
 	public static String PROPERTY_REMOTEHOSTLOGIN = "hostlogin";
-	public static String PROPERTY_REMOTEMIRRORPATH = "mirrorpath";
 	
 	public EngineBuilders builders;
 
@@ -53,7 +52,6 @@ public class ProjectBuilder extends EngineObject {
 
 	public boolean BUILDER_REMOTE;
 	public Integer REMOTE_ACCOUNT_ID;
-	public String REMOTE_MIRRORPATH;
 	public int CV;
 	
 	public ProjectBuilder( EngineBuilders builders ) {
@@ -89,7 +87,6 @@ public class ProjectBuilder extends EngineObject {
 
 		r.BUILDER_REMOTE = BUILDER_REMOTE;
 		r.REMOTE_ACCOUNT_ID = REMOTE_ACCOUNT_ID;
-		r.REMOTE_MIRRORPATH = REMOTE_MIRRORPATH;
 		
 		r.CV = CV;
 		return( r );
@@ -168,28 +165,18 @@ public class ProjectBuilder extends EngineObject {
 		this.TARGET_PLATFORM = Common.nonull( platform );
 	}
 	
-	public void setRemoteData( boolean remote , Integer accountId , String mirrorPath ) {
+	public void setRemoteData( boolean remote , Integer accountId ) {
 		this.BUILDER_REMOTE = remote;
 		this.REMOTE_ACCOUNT_ID = accountId;
-		this.REMOTE_MIRRORPATH = mirrorPath;
 	}
 	
 	public Account getRemoteAccount( ActionBase action ) throws Exception {
 		if( !BUILDER_REMOTE )
 			return( action.getLocalAccount() );
 		
-		EngineInfrastructure infra = action.getEngineInfrastructure();
+		EngineInfrastructure infra = action.getServerInfrastructure();
 		HostAccount account = infra.getHostAccount( REMOTE_ACCOUNT_ID );
 		return( account.getAccount() );
-	}
-
-	public HostAccount getHostAccount( ActionBase action ) throws Exception {
-		if( !BUILDER_REMOTE )
-			return( null );
-		
-		EngineInfrastructure infra = action.getEngineInfrastructure();
-		HostAccount account = infra.getHostAccount( REMOTE_ACCOUNT_ID );
-		return( account );
 	}
 
 	public ShellExecutor createShell( ActionBase action , boolean dedicated ) throws Exception {

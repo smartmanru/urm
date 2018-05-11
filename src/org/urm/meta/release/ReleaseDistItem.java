@@ -23,7 +23,7 @@ public class ReleaseDistItem {
 	public Long TARGETFILE_SIZE;
 	public Date TARGETFILE_TIME;
 	public String SOURCE_RELEASEDIR;
-	public Date SOURCE_RELEASETIME;
+	public String SOURCE_RELEASETIME;
 	public int RV;
 
 	public ReleaseDistItem( Release release , ReleaseDist releaseDist ) {
@@ -46,18 +46,6 @@ public class ReleaseDistItem {
 		r.RV = RV;
 		
 		return( r );
-	}
-	
-	public void create( int DISTTARGET_ID ,	String TARGETFILE , String TARGETFILE_FOLDER , String TARGETFILE_HASH ,	Long TARGETFILE_SIZE , Date TARGETFILE_TIME , 
-			String SOURCE_RELEASEDIR , Date SOURCE_RELEASETIME ) {
-		this.DISTTARGET_ID = DISTTARGET_ID;
-		this.TARGETFILE = TARGETFILE;
-		this.TARGETFILE_FOLDER = TARGETFILE_FOLDER;
-		this.TARGETFILE_HASH = TARGETFILE_HASH;
-		this.TARGETFILE_SIZE = TARGETFILE_SIZE;
-		this.TARGETFILE_TIME = TARGETFILE_TIME;
-		this.SOURCE_RELEASEDIR = SOURCE_RELEASEDIR;
-		this.SOURCE_RELEASETIME = SOURCE_RELEASETIME;
 	}
 	
 	public void create( ReleaseDistTarget target , DistItemInfo info ) {
