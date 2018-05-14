@@ -42,10 +42,10 @@ import org.urm.meta.engine.BaseItem;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.Network;
+import org.urm.meta.engine.ProductDump;
+import org.urm.meta.engine.ProductDumpMask;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.env.MetaDump;
-import org.urm.meta.env.MetaDumpMask;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -991,6 +991,31 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
+	public boolean requestChangeProduct( AppProduct product ) throws Exception {
+		synchronized( engine ) {
+			try {
+				if( !continueTransaction() )
+					return( false );
+
+				if( !checkSecurityProductChange( product , null ) )
+					return( false );
+				
+				EngineProduct ep = product.getEngineProduct();
+				TransactionProduct tm = createProductTransaction( product , ep );
+				if( tm.changeProduct() ) {
+					useDatabase();
+					return( true );
+				}
+			}
+			catch( Throwable e ) {
+				handle( e , "unable to change product" );
+			}
+			
+			abortTransaction( false );
+			return( false );
+		}
+	}
+	
 	public boolean requestChangeMetadata( Meta meta , boolean draft ) {
 		synchronized( engine ) {
 			try {
@@ -1155,6 +1180,13 @@ public class TransactionBase extends EngineObject {
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 	}
 
+	protected void checkTransactionProduct( AppProduct product ) throws Exception {
+		checkTransaction();
+		TransactionProduct tm = findProductTransaction( product.NAME );
+		if( tm == null || !tm.checkTransactionProduct() )
+			exit( _Error.TransactionMissingMetadataChanges0 , "Missing product changes" , null );
+	}
+
 	protected void checkTransactionCustomProperty( ObjectProperties ops ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
@@ -1304,6 +1336,16 @@ public class TransactionBase extends EngineObject {
 			return( directoryNew.getProduct( product.NAME ) );
 		EngineDirectory directory = data.getDirectory();
 		return( directory.getProduct( product.ID ) );
+	}
+	
+	public ProductDump getDump( ProductDump dump ) throws Exception {
+		AppProduct productNew = getProduct( dump.dumps.product );
+		return( productNew.getDump( dump.ID ) );
+	}
+	
+	public ProductDumpMask getDumpMask( ProductDumpMask mask ) throws Exception {
+		ProductDump dumpNew = getDump( mask.dump );
+		return( dumpNew.getDumpMask( mask.ID ) );
 	}
 	
 	public Meta getMeta( Meta meta ) throws Exception {
@@ -1492,18 +1534,6 @@ public class TransactionBase extends EngineObject {
 		return( baseChange.getItem( item.ID ) );
 	}
 
-	public MetaDump getDump( MetaDump dump ) throws Exception {
-		MetaEnv env = getTransactionEnv( dump.env );
-		if( dump.MODEEXPORT )
-			return( env.findExportDump( dump.NAME ) );
-		return( env.findImportDump( dump.NAME ) );
-	}
-	
-	public MetaDumpMask getDumpMask( MetaDumpMask mask ) throws Exception {
-		MetaDump dump = getDump( mask.dump );
-		return( dump.getDumpMask( mask.ID ) );
-	}
-	
 	public MetaMonitoringTarget getMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
 		Meta meta = getMeta( target.envs.meta );
 		MetaMonitoring mon = meta.getMonitoring();

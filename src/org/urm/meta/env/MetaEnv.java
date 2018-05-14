@@ -77,8 +77,6 @@ public class MetaEnv extends EngineObject {
 
 	private Map<String,MetaEnvSegment> sgMap;
 	private Map<Integer,MetaEnvSegment> sgMapById;
-	public Map<Integer,MetaDump> mapExportById;
-	public Map<Integer,MetaDump> mapImportById;
 
 	public MetaEnv( ProductMeta storage , Meta meta , ProductEnvs envs ) {
 		super( null );
@@ -90,8 +88,6 @@ public class MetaEnv extends EngineObject {
 		MATCHED = false;
 		sgMap = new HashMap<String,MetaEnvSegment>();
 		sgMapById = new HashMap<Integer,MetaEnvSegment>();
-		mapExportById = new HashMap<Integer,MetaDump>();
-		mapImportById = new HashMap<Integer,MetaDump>();
 	}
 	
 	@Override
@@ -124,16 +120,6 @@ public class MetaEnv extends EngineObject {
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvSegment rsg = sg.copy( rmeta , r );
 			r.addSegment( rsg );
-		}
-		
-		for( MetaDump dump : mapExportById.values() ) {
-			MetaDump rdump = dump.copy( rmeta , r );
-			r.addDump( rdump );
-		}
-		
-		for( MetaDump dump : mapImportById.values() ) {
-			MetaDump rdump = dump.copy( rmeta , r );
-			r.addDump( rdump );
 		}
 		
 		r.scatterExtraProperties();
@@ -434,67 +420,4 @@ public class MetaEnv extends EngineObject {
 		return( server );
 	}
 	
-	public String[] getExportDumpNames() {
-		List<String> list = new LinkedList<String>();
-		for( MetaDump dump : mapExportById.values() )
-			list.add( dump.NAME );
-		return( Common.getSortedList( list ) );
-	}
-
-	public String[] getImportDumpNames() {
-		List<String> list = new LinkedList<String>();
-		for( MetaDump dump : mapImportById.values() )
-			list.add( dump.NAME );
-		return( Common.getSortedList( list ) );
-	}
-
-	public MetaDump findExportDump( String name ) {
-		for( MetaDump dump : mapExportById.values() ) {
-			if( name.equals( dump.NAME ) )
-				return( dump );
-		}
-		return( null );
-	}
-	
-	public MetaDump findImportDump( String name ) {
-		for( MetaDump dump : mapImportById.values() ) {
-			if( name.equals( dump.NAME ) )
-				return( dump );
-		}
-		return( null );
-	}
-	
-	public void addDump( MetaDump dump ) {
-		if( dump.MODEEXPORT )
-			mapExportById.put( dump.ID , dump );
-		else
-			mapImportById.put( dump.ID , dump );
-	}
-	
-	public void removeDump( MetaDump dump ) {
-		if( dump.MODEEXPORT )
-			mapExportById.remove( dump.ID );
-		else
-			mapImportById.remove( dump.ID );
-	}
-
-	public MetaDump findDump( int id ) {
-		MetaDump dump = mapExportById.get( id );
-		if( dump != null )
-			return( dump );
-		
-		dump = mapImportById.get( id );
-		if( dump != null )
-			return( dump );
-		
-		return( null );
-	}
-	
-	public MetaDump getDump( int id ) throws Exception {
-		MetaDump dump = findDump( id );
-		if( dump == null )
-			Common.exit1( _Error.UnknownDump1 , "unknown dump=" + id , "" + id );
-		return( dump );
-	}
-
 }

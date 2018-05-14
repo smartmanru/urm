@@ -10,7 +10,7 @@ import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.db.EngineDB;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.env.MetaDumpMask;
+import org.urm.meta.engine.ProductDumpMask;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.w3c.dom.Document;
@@ -123,7 +123,7 @@ public class ProductStorage {
 		return( files.fileList.toArray( new String[0] ) );
 	}
 	
-	public void createdbDatapumpSet( ActionBase action , Map<String,List<MetaDumpMask>> tableSet , MetaEnvServer server , boolean standby , boolean export ) throws Exception {
+	public void createdbDatapumpSet( ActionBase action , Map<String,List<ProductDumpMask>> tableSet , MetaEnvServer server , boolean standby , boolean export ) throws Exception {
 		String table = ( export )? "urm_export" : "urm_import";  
 		action.info( "create table " + table + " in administrative database ..." );
 		
@@ -138,10 +138,10 @@ public class ProductStorage {
 			
 		for( String SN : tableSet.keySet() ) {
 			MetaDatabaseSchema schema = serverSchemas.get( SN );
-			List<MetaDumpMask> tables = tableSet.get( SN );
+			List<ProductDumpMask> tables = tableSet.get( SN );
 			
 			String dbschema = server.getSchemaDBName( schema );
-			for( MetaDumpMask s : tables ) {
+			for( ProductDumpMask s : tables ) {
 				String bv = ( s.INCLUDE )? "Y" : "N";
 				data.add( new String[] { Common.getSQLQuoted( dbschema ) , Common.getSQLQuoted( s.TABLEMASK ) , Common.getSQLQuoted( bv ) } );
 			}
@@ -154,7 +154,7 @@ public class ProductStorage {
 		client.createTableData( action , server.getAdmSchema() , table , columns , columntypes , data );  
 	}
 
-	public void saveDatapumpSet( ActionBase action , Map<String,List<MetaDumpMask>> tableSet , MetaEnvServer server , String filePath ) throws Exception {
+	public void saveDatapumpSet( ActionBase action , Map<String,List<ProductDumpMask>> tableSet , MetaEnvServer server , String filePath ) throws Exception {
 		Map<String,MetaDatabaseSchema> serverSchemas = new HashMap<String,MetaDatabaseSchema>();
 		for( MetaDatabaseSchema schema : server.getSchemaSet() )
 			serverSchemas.put( schema.NAME , schema );
@@ -163,10 +163,10 @@ public class ProductStorage {
 		
 		for( String SN : tableSet.keySet() ) {
 			MetaDatabaseSchema schema = serverSchemas.get( SN );
-			List<MetaDumpMask> tables = tableSet.get( SN );
+			List<ProductDumpMask> tables = tableSet.get( SN );
 
 			String dbschema = server.getSchemaDBName( schema );
-			for( MetaDumpMask s : tables ) {
+			for( ProductDumpMask s : tables ) {
 				String bv = ( s.INCLUDE )? "include" : "exclude";
 				conf.add( dbschema + "/" + s.TABLEMASK + "/" + bv );
 			}

@@ -4,7 +4,6 @@ import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.*;
-import org.urm.db.env.DBMetaDump;
 import org.urm.db.env.DBMetaEnv;
 import org.urm.db.env.DBMetaEnvSegment;
 import org.urm.db.env.DBMetaEnvServer;
@@ -15,6 +14,7 @@ import org.urm.db.env.DBMetaMonitoring;
 import org.urm.db.product.*;
 import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
+import org.urm.db.system.DBAppProductDumps;
 import org.urm.engine.Engine;
 import org.urm.engine.AuthService;
 import org.urm.engine.DataService;
@@ -37,8 +37,6 @@ import org.urm.engine.properties.PropertySet;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.*;
-import org.urm.meta.env.MetaDump;
-import org.urm.meta.env.MetaDumpMask;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -1288,49 +1286,57 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnv.updateExtraProperties( this , storage , env );
 	}
 	
-	public MetaDump createDump( MetaEnvServer server , boolean export , String name , String desc , String dataset ) throws Exception {
-		super.checkTransactionEnv( server.sg.env );
-		return( DBMetaDump.createDump( this , server , export , name , desc , dataset ) );
+	public ProductDump createDump( AppProduct product , MetaEnvServer server , boolean export , String name , String desc , String dataset ) throws Exception {
+		super.checkTransactionProduct( product );
+		return( DBAppProductDumps.createDump( this , product , server , export , name , desc , dataset ) );
 	}
 	
-	public void modifyDumpPrimary( MetaDump dump , String name , String desc , MetaEnvServer server , String dataset ) throws Exception {
-		super.checkTransactionEnv( server.sg.env );
-		DBMetaDump.modifyDumpPrimary( this , dump , name , desc , server , dataset );
+	public void modifyDumpPrimary( ProductDump dump , String name , String desc , MetaEnvServer server , String dataset ) throws Exception {
+		AppProduct product = dump.dumps.product;
+		super.checkTransactionProduct( product );
+		DBAppProductDumps.modifyDumpPrimary( this , product , dump , name , desc , server , dataset );
 	}
 	
-	public void modifyDumpExecution( MetaDump dump , boolean standby , String setdbenv , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		DBMetaDump.modifyDumpExecution( this , dump , standby , setdbenv , ownTables , dumpdir , datapumpdir , nfs , postRefresh );
+	public void modifyDumpExecution( ProductDump dump , boolean standby , String setdbenv , boolean ownTables , String dumpdir , String datapumpdir , boolean nfs , String postRefresh ) throws Exception {
+		AppProduct product = dump.dumps.product;
+		super.checkTransactionProduct( product );
+		DBAppProductDumps.modifyDumpExecution( this , product , dump , standby , setdbenv , ownTables , dumpdir , datapumpdir , nfs , postRefresh );
 	}
 	
-	public void deleteDump( MetaDump dump ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		DBMetaDump.deleteDump( this , dump.env , dump );
+	public void deleteDump( ProductDump dump ) throws Exception {
+		AppProduct product = dump.dumps.product;
+		super.checkTransactionProduct( product );
+		DBAppProductDumps.deleteDump( this , product , dump );
 	}
 
-	public MetaDumpMask createDumpMask( MetaDump dump , MetaDatabaseSchema schema , boolean include , String tables ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		return( DBMetaDump.createDumpMask( this , dump.env , dump , schema , include , tables ) );
+	public ProductDumpMask createDumpMask( ProductDump dump , MetaDatabaseSchema schema , boolean include , String tables ) throws Exception {
+		AppProduct product = dump.dumps.product;
+		super.checkTransactionProduct( product );
+		return( DBAppProductDumps.createDumpMask( this , product , dump , schema , include , tables ) );
 	}
 	
-	public void modifyDumpMask( MetaDumpMask mask , MetaDatabaseSchema schema , boolean include , String tables ) throws Exception {
-		super.checkTransactionEnv( mask.dump.env );
-		DBMetaDump.modifyDumpMask( this , mask.dump.env , mask.dump , mask , schema , include , tables );
+	public void modifyDumpMask( ProductDumpMask mask , MetaDatabaseSchema schema , boolean include , String tables ) throws Exception {
+		AppProduct product = mask.dump.dumps.product;
+		super.checkTransactionProduct( product );
+		DBAppProductDumps.modifyDumpMask( this , product , mask.dump , mask , schema , include , tables );
 	}
 	
-	public void deleteDumpMask( MetaDumpMask mask ) throws Exception {
-		super.checkTransactionEnv( mask.dump.env );
-		DBMetaDump.deleteDumpMask( this , mask.dump.env , mask.dump , mask );
+	public void deleteDumpMask( ProductDumpMask mask ) throws Exception {
+		AppProduct product = mask.dump.dumps.product;
+		super.checkTransactionProduct( product );
+		DBAppProductDumps.deleteDumpMask( this , product , mask.dump , mask );
 	}
 
-	public void setDumpOnline( MetaDump dump , boolean offline ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		DBMetaDump.setDumpOffline( this , dump.env , dump , offline );
+	public void setDumpOnline( ProductDump dump , boolean offline ) throws Exception {
+		AppProduct product = dump.dumps.product;
+		super.checkTransactionProduct( product );
+		DBAppProductDumps.setDumpOffline( this , product , dump , offline );
 	}
 
-	public void setDumpSchedule( MetaDump dump , ScheduleProperties schedule ) throws Exception {
-		super.checkTransactionEnv( dump.env );
-		DBMetaDump.setDumpSchedule( this , dump.env , dump , schedule );
+	public void setDumpSchedule( ProductDump dump , ScheduleProperties schedule ) throws Exception {
+		AppProduct product = dump.dumps.product;
+		super.checkTransactionProduct( product );
+		DBAppProductDumps.setDumpSchedule( this , product , dump , schedule );
 	}
 
 	public MetaMonitoringTarget modifyMonitoringTarget( MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {

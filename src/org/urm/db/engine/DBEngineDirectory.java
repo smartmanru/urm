@@ -7,6 +7,7 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
+import org.urm.db.system.DBSystemData;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.products.EngineProductRevisions;
@@ -67,9 +68,9 @@ public abstract class DBEngineDirectory {
 		
 		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_POLICY );
 		if( node == null )
-			DBAppProduct.createdbPolicy( c , directory , product );
+			DBAppProduct.createdbPolicy( c , product );
 		else
-			DBAppProduct.importxmlPolicy( loader , directory , product , node );
+			DBAppProduct.importxmlPolicy( loader , product , node );
 				
 		return( product );
 	}
@@ -117,7 +118,7 @@ public abstract class DBEngineDirectory {
 		AppProduct[] products = DBAppProduct.loaddb( loader , directory );
 		
 		for( AppProduct product : products )
-			DBAppProduct.loaddbPolicy( loader , product );
+			DBAppProduct.loaddbData( loader , product );
 		
 		for( AppProduct product : products )
 			directory.addUnmatchedProduct( product );
@@ -192,7 +193,7 @@ public abstract class DBEngineDirectory {
 		DBAppProduct.modifyProduct( c , product , true );
 		
 		// create initial policy
-		DBAppProduct.createdbPolicy( c , directory , product );
+		DBAppProduct.createdbPolicy( c , product );
 		
 		directory.addMatchedProduct( product );
 		return( product );
@@ -222,7 +223,7 @@ public abstract class DBEngineDirectory {
 		if( directory.getProduct( product.ID ) != product )
 			transaction.exit( _Error.UnknownProduct1 , "product=" + product.NAME + " is unknown or mismatched" , new String[] { product.NAME } );
 		
-		DBAppProduct.deleteProduct( c , product );
+		DBSystemData.dropProductData( c , product );
 		directory.removeProduct( product );
 		
 		if( fsDeleteFlag ) {

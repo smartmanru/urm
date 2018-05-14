@@ -66,6 +66,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppDirectoryProduct;
 	public PropertyEntity entityAppProductPolicy;
 	public PropertyEntity entityAppProductPolicyLifecycle;
+	public PropertyEntity entityAppProductDump;
+	public PropertyEntity entityAppProductDumpMask;
 	public PropertyEntity entityAppDatacenter;
 	public PropertyEntity entityAppNetwork;
 	public PropertyEntity entityAppNetworkHost;
@@ -105,8 +107,6 @@ public class EngineEntities {
 	public PropertyEntity entityAppServerDeployment;
 	public PropertyEntity entityAppServerDependency;
 	public PropertyEntity entityAppNodePrimary;
-	public PropertyEntity entityAppDump;
-	public PropertyEntity entityAppDumpMask;
 	public PropertyEntity entityAppReleaseRepository;
 	public PropertyEntity entityAppReleaseMain;
 	public PropertyEntity entityAppReleaseDist;
@@ -147,6 +147,8 @@ public class EngineEntities {
 		entityAppDirectoryProduct = DBSystemData.makeEntityDirectoryProduct( c , upgrade );
 		entityAppProductPolicy = DBSystemData.makeEntityProductPolicy( c , upgrade );
 		entityAppProductPolicyLifecycle = DBSystemData.makeEntityProductPolicyLifecycle( c , upgrade );
+		entityAppProductDump = DBSystemData.makeEntityDump( c , upgrade );
+		entityAppProductDumpMask = DBSystemData.makeEntityDumpMask( c , upgrade );
 		entityAppDatacenter = DBEngineInfrastructure.makeEntityDatacenter( c , upgrade );
 		entityAppNetwork = DBEngineInfrastructure.makeEntityNetwork( c , upgrade );
 		entityAppNetworkHost = DBEngineInfrastructure.makeEntityNetworkHost( c , upgrade );
@@ -186,8 +188,6 @@ public class EngineEntities {
 		entityAppServerDeployment = DBEnvData.makeEntityServerDeployment( c , upgrade );
 		entityAppServerDependency = DBEnvData.makeEntityServerDependency( c , upgrade );
 		entityAppNodePrimary = DBEnvData.makeEntityNodePrimary( c , upgrade );
-		entityAppDump = DBEnvData.makeEntityDump( c , upgrade );
-		entityAppDumpMask = DBEnvData.makeEntityDumpMask( c , upgrade );
 		entityAppReleaseRepository = DBReleaseData.makeEntityReleaseRepository( c , upgrade );
 		entityAppReleaseMain = DBReleaseData.makeEntityReleaseMain( c , upgrade );
 		entityAppReleaseDist = DBReleaseData.makeEntityReleaseDist( c , upgrade );

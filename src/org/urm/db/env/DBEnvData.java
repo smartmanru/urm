@@ -7,11 +7,10 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.core.DBSettings;
 import org.urm.db.engine.DBEngineEntities;
+import org.urm.db.system.DBSystemData;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.env.MetaDump;
-import org.urm.meta.env.MetaDumpMask;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -34,8 +33,6 @@ public class DBEnvData {
 	public static String TABLE_MONTARGET = "urm_env_montarget";
 	public static String TABLE_MONITEM = "urm_env_monitem";
 	public static String TABLE_SERVERDEP = "urm_env_server_deps";
-	public static String TABLE_DUMP = "urm_env_dbdump";
-	public static String TABLE_DUMPMASK = "urm_env_tablemask";
 	public static String FIELD_ENV_ID = "env_id";
 	public static String FIELD_ENV_META_ID = "meta_id";
 	public static String FIELD_ENV_TRANSITION_META_ID = "transition_meta_id";
@@ -108,20 +105,6 @@ public class DBEnvData {
 	public static String FIELD_MONITEM_TARGET_ID = "montarget_id";
 	public static String FIELD_MONITEM_TYPE = "monitem_type";
 	public static String FIELD_MONITEM_DESC = "xdesc";
-	public static String FIELD_DUMP_ID = "dump_id";
-	public static String FIELD_DUMP_DESC = "xdesc";
-	public static String FIELD_DUMP_SERVER_ID = "server_id";
-	public static String FIELD_DUMP_EXPORT = "modeexport";
-	public static String FIELD_DUMP_SETDBENV = "remote_setdbenv";
-	public static String FIELD_DUMP_DATAPUMPDIR = "database_datapumpdir";
-	public static String FIELD_DUMP_STANDBY = "usestandby";
-	public static String FIELD_DUMP_NFS = "usenfs";
-	public static String FIELD_DUMPMASK_ID = "tablemask_id";
-	public static String FIELD_DUMPMASK_DUMP_ID = "dump_id";
-	public static String FIELD_DUMPMASK_INCLUDE = "modeinclude";
-	public static String FIELD_DUMPMASK_SCHEMA_ID = "schema_fkid";
-	public static String FIELD_DUMPMASK_SCHEMA_NAME = "schema_fkname";
-	public static String FIELD_DUMPMASK_MASK = "tablemask";
 	
 	public static PropertyEntity makeEntityEnvPrimary( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID , false );
@@ -378,57 +361,11 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity makeEntityDump( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_DUMP , DBEnumParamEntityType.ENV_DUMP , DBEnumObjectVersionType.ENVIRONMENT , TABLE_DUMP , FIELD_DUMP_ID , false );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
-				EntityVar.metaString( MetaDump.PROPERTY_NAME , "name" , true , null ) ,
-				EntityVar.metaStringVar( MetaDump.PROPERTY_DESC , FIELD_DUMP_DESC , "description" , false , null ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_DUMP_SERVER_ID , "server id" , DBEnumObjectType.ENVIRONMENT_SERVER , true ) ,
-				EntityVar.metaStringXmlOnly( MetaDump.PROPERTY_SEGMENT , "segment name" , true , null ) ,
-				EntityVar.metaStringXmlOnly( MetaDump.PROPERTY_SERVER , "server name" , true , null ) ,
-				EntityVar.metaBooleanVar( MetaDump.PROPERTY_EXPORT , FIELD_DUMP_EXPORT , "export direction" , true , true ) ,
-				EntityVar.metaString( MetaDump.PROPERTY_DATASET , "dataset folder" , true , null ) ,
-				EntityVar.metaBoolean( MetaDump.PROPERTY_OWNTABLESET , "own table set" , true , false ) ,
-				EntityVar.metaString( MetaDump.PROPERTY_DUMPDIR , "dump directory to put/get files" , false , null ) ,
-				EntityVar.metaStringVar( MetaDump.PROPERTY_SETDBENV , FIELD_DUMP_SETDBENV , "context setup script" , false , null ) ,
-				EntityVar.metaStringVar( MetaDump.PROPERTY_DATAPUMPDIR , FIELD_DUMP_DATAPUMPDIR , "dump directory seen from database" , false , null ) ,
-				EntityVar.metaString( MetaDump.PROPERTY_POSTREFRESH , "product data folder where there are postrefresh scripts to be applied after import" , false , null ) ,
-				EntityVar.metaString( MetaDump.PROPERTY_SCHEDULE , "schedule to perform dump" , false , null ) ,
-				EntityVar.metaBooleanVar( MetaDump.PROPERTY_STANDBY , FIELD_DUMP_STANDBY , "use stand by node to export dump" , true , false ) ,
-				EntityVar.metaBooleanVar( MetaDump.PROPERTY_NFS , FIELD_DUMP_NFS , "assume nfs is used and avoid copy dump files" , true , false ) ,
-				EntityVar.metaBoolean( MetaDump.PROPERTY_OFFLINE , "dump operation is offline" , true , true )
-		} ) );
-	}
-
-	public static PropertyEntity makeEntityDumpMask( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_DUMPMASK , DBEnumParamEntityType.ENV_DUMPMASK , DBEnumObjectVersionType.ENVIRONMENT , TABLE_DUMPMASK , FIELD_DUMPMASK_ID , false );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_DUMPMASK_DUMP_ID , "dump id" , DBEnumObjectType.ENVIRONMENT_DUMP , true ) ,
-				EntityVar.metaBooleanVar( MetaDumpMask.PROPERTY_INCLUDE , FIELD_DUMPMASK_INCLUDE , "if tables by mask are included" , true , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_DUMPMASK_SCHEMA_ID , "database schema id" , DBEnumObjectType.DBSCHEMA , false ) ,
-				EntityVar.metaStringVar( MetaDumpMask.PROPERTY_SCHEMA , FIELD_DUMPMASK_SCHEMA_NAME , "database schema name" , false , null ) ,
-				EntityVar.metaStringVar( MetaDumpMask.PROPERTY_MASK , FIELD_DUMPMASK_MASK , "table mask" , false , null )
-		} ) );
-	}
-
 	public static void dropEnvData( DBConnection c , ProductMeta storage ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		
-		// dump data
-		DBEngineEntities.dropAppObjects( c , entities.entityAppDump , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppDumpMask , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		// cascade drop instance data
+		DBSystemData.dropEnvData( c , storage );
 		// design data
 		// mon data
 		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonItem , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
@@ -449,9 +386,8 @@ public class DBEnvData {
 	public static void dropEnvData( DBConnection c , MetaEnv env ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		
-		// dump data
-		DBEngineEntities.dropAppObjects( c , entities.entityAppDump , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppDumpMask , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		// cascade drop instance data
+		DBSystemData.dropEnvData( c , env );
 		// design data
 		// mon data
 		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonItem , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );

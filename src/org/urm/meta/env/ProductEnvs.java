@@ -124,6 +124,15 @@ public class ProductEnvs {
 		return( findMetaEnv( env.FKNAME ) );
 	}
 	
+	public MetaEnvSegment findMetaEnvSegment( int id ) {
+		for( MetaEnv env : mapEnvsById.values() ) {
+			MetaEnvSegment sg = env.findSegment( id );
+			if( sg != null )
+				return( sg );
+		}
+		return( null );
+	}
+	
     public MetaEnvSegment findMetaEnvSegment( MetaEnvSegment sg ) {
     	if( sg == null )
     		return( null );
@@ -142,6 +151,15 @@ public class ProductEnvs {
     	return( sg.findServer( server.NAME ) );
     }
 
+	public MetaEnvServer findMetaEnvServer( int id ) {
+		for( MetaEnv env : mapEnvsById.values() ) {
+			MetaEnvServer server = env.findServer( id );
+			if( server != null )
+				return( server );
+		}
+		return( null );
+	}
+	
     public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) {
     	if( node == null )
     		return( null );

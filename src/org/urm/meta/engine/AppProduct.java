@@ -45,6 +45,7 @@ public class AppProduct extends EngineObject {
 	public int SV;
 	
 	public AppProductPolicy policy;
+	public AppProductDumps dumps;
 	private boolean matched;
 	
 	public AppProduct( EngineDirectory directory , AppSystem system ) {
@@ -54,7 +55,8 @@ public class AppProduct extends EngineObject {
 		this.ID = -1;
 		this.SV = 0;
 		
-		policy = new AppProductPolicy( directory , this );
+		policy = new AppProductPolicy( this );
+		dumps = new AppProductDumps( this );
 		matched = false;
 	}
 	
@@ -86,7 +88,7 @@ public class AppProduct extends EngineObject {
 		r.NEXT_MINOR2 = NEXT_MINOR2;
 		r.SV = SV;
 		
-		r.policy = policy.copy( nr ,  r );
+		r.policy = policy.copy( r );
 		
 		return( r );
 	}
@@ -195,5 +197,25 @@ public class AppProduct extends EngineObject {
 			return( null );
 		return( ep.getRevisions() ); 
 	}
+
+	public ProductDump findImportDump( String name ) {
+		return( dumps.findImportDump( name ) );
+	}
 	
+	public ProductDump findExportDump( String name ) {
+		return( dumps.findExportDump( name ) );
+	}
+
+	public ProductDump getDump( int id ) throws Exception {
+		return( dumps.getDump( id ) );
+	}
+
+	public String[] getExportDumpNames() {
+		return( dumps.getExportDumpNames() );
+	}
+	
+	public String[] getImportDumpNames() {
+		return( dumps.getImportDumpNames() );
+	}
+
 }

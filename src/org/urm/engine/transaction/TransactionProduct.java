@@ -20,10 +20,12 @@ public class TransactionProduct {
 
 	TransactionBase transaction;
 	AppProduct product;
+	AppProduct productNew;
 	EngineProduct ep;
 
 	protected boolean deleteProduct;
 	protected boolean createProduct;
+	protected boolean changeProduct;
 	protected boolean importProduct;
 	private List<TransactionMetadata> productMeta;
 	
@@ -34,6 +36,7 @@ public class TransactionProduct {
 		
 		productMeta = new LinkedList<TransactionMetadata>();
 		deleteProduct = false;
+		changeProduct = false;
 		createProduct = false;
 		importProduct = false;
 	}
@@ -201,6 +204,12 @@ public class TransactionProduct {
 		return( true );
 	}
 
+	public boolean checkTransactionProduct() throws Exception {
+		if( !changeProduct )
+			return( false );
+		return( true );
+	}
+	
 	public Meta[] getTransactionProductMetadataList() {
 		List<Meta> list = new LinkedList<Meta>();
 		for( TransactionMetadata tm : productMeta ) {
@@ -235,6 +244,12 @@ public class TransactionProduct {
 
 	public boolean createProduct() {
 		createProduct = true;
+		return( true );
+	}
+	
+	public boolean changeProduct() {
+		changeProduct = true;
+		productNew = product.copy( transaction.getDirectory() , product.system );
 		return( true );
 	}
 	

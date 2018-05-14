@@ -10,7 +10,6 @@ import org.urm.action.conf.ConfBuilder;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.products.EngineProduct;
-import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
@@ -23,8 +22,8 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.env.MetaDump;
-import org.urm.meta.env.MetaDumpMask;
+import org.urm.meta.engine.ProductDump;
+import org.urm.meta.engine.ProductDumpMask;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaProductCoreSettings;
@@ -49,8 +48,8 @@ public class ActionImportDatabase extends ActionBase {
 	boolean NFS;
 
 	Map<String,MetaDatabaseSchema> serverSchemas;
-	Map<String,List<MetaDumpMask>> tableSet;
-	MetaDump dump;
+	Map<String,List<ProductDumpMask>> tableSet;
+	ProductDump dump;
 	MetaEnvServer server;
 	
 	LocalFolder workFolder;
@@ -88,8 +87,7 @@ public class ActionImportDatabase extends ActionBase {
 	}
 	
 	private void loadImportSettings() throws Exception {
-		EngineProductEnvs envs = product.findEnvs();
-		dump = envs.findImportDump( TASK );
+		dump = product.findImportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownImportTask1 , "import task " + TASK + " is not found in product database configuraton" , TASK );
 

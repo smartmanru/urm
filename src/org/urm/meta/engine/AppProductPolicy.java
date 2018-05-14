@@ -7,7 +7,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.engine.DataService;
-import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineLifecycles;
 
 public class AppProductPolicy {
@@ -17,7 +16,6 @@ public class AppProductPolicy {
 	public static String PROPERTY_RELEASELC_URGENTANY = "urgentany";
 	public static String PROPERTY_RELEASELC_URGENTS = "urgentset";
 
-	public EngineDirectory directory;
 	public AppProduct product;
 	
 	private Integer LC_MAJOR;
@@ -26,15 +24,14 @@ public class AppProductPolicy {
 	private Integer[] LC_URGENT_LIST;
 	public int SV;
 	
-	public AppProductPolicy( EngineDirectory directory , AppProduct product ) {
-		this.directory = directory;
+	public AppProductPolicy( AppProduct product ) {
 		this.product = product;
 		LC_URGENT_All = false;
 		LC_URGENT_LIST = new Integer[0];
 	}
 
-	public AppProductPolicy copy( EngineDirectory rdirectory , AppProduct rproduct ) {
-		AppProductPolicy r = new AppProductPolicy( rdirectory , rproduct );
+	public AppProductPolicy copy( AppProduct rproduct ) {
+		AppProductPolicy r = new AppProductPolicy( rproduct );
 		
 		// stored
 		r.LC_MAJOR = LC_MAJOR;
@@ -111,7 +108,7 @@ public class AppProductPolicy {
 	}
 	
 	private ReleaseLifecycle findLifecycle( int id ) {
-		DataService data = directory.engine.getData();
+		DataService data = product.directory.engine.getData();
 		EngineLifecycles lifecycles = data.getReleaseLifecycles();
 		return( lifecycles.findLifecycle( id ) );
 	}

@@ -161,8 +161,8 @@ public abstract class DBAppProduct {
 		DBEngineEntities.deleteAppObject( c , entities.entityAppDirectoryProduct , product.ID , version );
 	}
 
-	public static void createdbPolicy( DBConnection c , EngineDirectory directory , AppProduct product ) throws Exception {
-		AppProductPolicy policy = new AppProductPolicy( directory , product );
+	public static void createdbPolicy( DBConnection c , AppProduct product ) throws Exception {
+		AppProductPolicy policy = new AppProductPolicy( product );
 		product.setPolicy( policy );
 		
 		// policy record
@@ -179,11 +179,11 @@ public abstract class DBAppProduct {
 				} , insert );
 	}
 	
-	public static void importxmlPolicy( EngineLoader loader , EngineDirectory directory , AppProduct product , Node root ) throws Exception {
+	public static void importxmlPolicy( EngineLoader loader , AppProduct product , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineLifecycles lifecycles = loader.getLifecycles();
 		
-		AppProductPolicy policy = new AppProductPolicy( directory , product );
+		AppProductPolicy policy = new AppProductPolicy( product );
 		product.setPolicy( policy );
 		
 		// policy record
@@ -256,13 +256,18 @@ public abstract class DBAppProduct {
 		}
 	}
 
+	public static void loaddbData( EngineLoader loader , AppProduct product ) throws Exception {
+		loaddbPolicy( loader , product );
+		DBAppProductDumps.loaddbAll( loader , product );
+	}
+	
 	public static void loaddbPolicy( EngineLoader loader , AppProduct product ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
 		PropertyEntity entity = entities.entityAppProductPolicy;
 		EngineLifecycles lifecycles = loader.getLifecycles();
 
-		AppProductPolicy policy = new AppProductPolicy( product.directory , product );
+		AppProductPolicy policy = new AppProductPolicy( product );
 		product.setPolicy( policy );
 		
 		// master attrs

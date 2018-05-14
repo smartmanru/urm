@@ -9,7 +9,6 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.dist.DistRepository;
 import org.urm.engine.products.EngineProduct;
-import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.status.ScopeState;
@@ -20,8 +19,8 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.engine.AppProduct;
-import org.urm.meta.env.MetaDump;
-import org.urm.meta.env.MetaDumpMask;
+import org.urm.meta.engine.ProductDump;
+import org.urm.meta.engine.ProductDumpMask;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDatabaseSchema;
@@ -41,8 +40,8 @@ public class ActionExportDatabase extends ActionBase {
 	boolean NFS;
 	
 	Map<String,MetaDatabaseSchema> serverSchemas;
-	Map<String,List<MetaDumpMask>> tableSet;
-	MetaDump dump;
+	Map<String,List<ProductDumpMask>> tableSet;
+	ProductDump dump;
 	MetaEnvServer server;
 
 	DistRepository repository;
@@ -86,8 +85,7 @@ public class ActionExportDatabase extends ActionBase {
 	}
 
 	private void loadExportSettings() throws Exception {
-		EngineProductEnvs envs = product.findEnvs();
-		dump = envs.findExportDump( TASK );
+		dump = product.findExportDump( TASK );
 		if( dump == null )
 			exit1( _Error.UnknownExportTask1 , "export task " + TASK + " is not found in product database configuraton" , TASK );
 		
