@@ -1,9 +1,8 @@
 package org.urm.meta.system;
 
 import org.urm.db.core.DBEnums.*;
-import org.urm.meta.env.ProductEnvs;
 
-public class MetaMonitoringItem {
+public class AppProductMonitoringItem {
 
 	public static String PROPERTY_TYPE = "type";
 	public static String PROPERTY_DESC = "desc";
@@ -11,8 +10,8 @@ public class MetaMonitoringItem {
 	public static String PROPERTY_WSDATA = "wsdata";
 	public static String PROPERTY_WSCHECK = "wscheck";
 	
-	public ProductEnvs envs;
-	public MetaMonitoringTarget target;
+	public AppProduct product;
+	public AppProductMonitoringTarget target;
 	
 	public int ID;
 	public DBEnumMonItemType MONITEM_TYPE;
@@ -20,15 +19,15 @@ public class MetaMonitoringItem {
 	public String URL;
 	public String WSDATA;
 	public String WSCHECK;
-	public int EV;
+	public int SV;
 
-	public MetaMonitoringItem( ProductEnvs envs , MetaMonitoringTarget target ) {
-		this.envs = envs; 
+	public AppProductMonitoringItem( AppProduct product , AppProductMonitoringTarget target ) {
+		this.product = product; 
 		this.target = target;
 	}
 
-	public MetaMonitoringItem copy( ProductEnvs renvs , MetaMonitoringTarget rtarget ) {
-		MetaMonitoringItem r = new MetaMonitoringItem( renvs , rtarget );
+	public AppProductMonitoringItem copy( AppProduct rproduct , AppProductMonitoringTarget rtarget ) {
+		AppProductMonitoringItem r = new AppProductMonitoringItem( rproduct , rtarget );
 		
 		r.ID = ID;
 		r.MONITEM_TYPE = MONITEM_TYPE;
@@ -36,7 +35,7 @@ public class MetaMonitoringItem {
 		r.URL = URL;
 		r.WSDATA = WSDATA;
 		r.WSCHECK = WSCHECK;
-		r.EV = EV;
+		r.SV = SV;
 		return( r );
 	}		
 

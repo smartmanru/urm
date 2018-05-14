@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.urm.common.Common;
-import org.urm.db.core.DBEnums.DBEnumMonItemType;
+import org.urm.db.core.DBEnums.*;
+import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env.ProductEnvs;
+import org.urm.meta.loader.MatchItem;
 
-public class MetaMonitoringTarget {
+public class AppProductMonitoringTarget {
 
 	public static String PROPERTY_NAME = "name";
 	public static String PROPERTY_ENV = "env";
@@ -24,65 +25,66 @@ public class MetaMonitoringTarget {
 	public static String PROPERTY_MINOR_SCHEDULE = "minor.schedule";
 	public static String PROPERTY_MINOR_MAXTIME = "minor.maxtime";
 
-	public ProductEnvs envs;
-	public MetaMonitoring mon;
+	public AppProduct product;
+	public AppProductMonitoring mon;
 	
 	public int ID;
-	public int ENV_ID;
-	public int SEGMENT_ID;
+	public MatchItem SEGMENT;
+	public String FKENV;
+	public String FKSG;
 	public boolean MAJOR_ENABLED;
 	public int MAJOR_MAXTIME;
 	public boolean MINOR_ENABLED;
 	public int MINOR_MAXTIME;
-	public int EV;
+	public int SV;
 
 	public ScheduleProperties majorSchedule;
 	public ScheduleProperties minorSchedule;
 
-	private Map<Integer,MetaMonitoringItem> mapItems;
-	private List<MetaMonitoringItem> listUrls;
-	private List<MetaMonitoringItem> listWS;
+	private Map<Integer,AppProductMonitoringItem> mapItems;
+	private List<AppProductMonitoringItem> listUrls;
+	private List<AppProductMonitoringItem> listWS;
 
-	public MetaMonitoringTarget( ProductEnvs envs , MetaMonitoring mon ) {
-		this.envs = envs;
+	public AppProductMonitoringTarget( AppProduct product , AppProductMonitoring mon ) {
 		this.mon = mon;
 		
 		ID = -1;
-		EV = -1;
+		SV = -1;
 		
-		listUrls = new LinkedList<MetaMonitoringItem>();
-		listWS = new LinkedList<MetaMonitoringItem>();
-		mapItems = new HashMap<Integer,MetaMonitoringItem>(); 
+		listUrls = new LinkedList<AppProductMonitoringItem>();
+		listWS = new LinkedList<AppProductMonitoringItem>();
+		mapItems = new HashMap<Integer,AppProductMonitoringItem>(); 
 	}
 
-	public MetaMonitoringTarget copy( ProductEnvs renvs , MetaMonitoring rmon ) {
-		MetaMonitoringTarget r = new MetaMonitoringTarget( renvs , rmon );
+	public AppProductMonitoringTarget copy( AppProduct rproduct , AppProductMonitoring rmon ) {
+		AppProductMonitoringTarget r = new AppProductMonitoringTarget( rproduct , rmon );
 		
 		r.ID = ID;
-		r.ENV_ID = ENV_ID;
-		r.SEGMENT_ID = SEGMENT_ID;
+		r.SEGMENT = MatchItem.copy( SEGMENT );
+		r.FKENV = FKENV;
+		r.FKSG = FKSG;
 		r.MAJOR_ENABLED = MAJOR_ENABLED;
 		r.MAJOR_MAXTIME = MAJOR_MAXTIME;
 		r.MINOR_ENABLED = MINOR_ENABLED;
 		r.MINOR_MAXTIME = MINOR_MAXTIME;
 		r.majorSchedule = majorSchedule.copy();
 		r.minorSchedule = minorSchedule.copy();
-		r.EV = EV;
+		r.SV = SV;
 		
-		for( MetaMonitoringItem item : listUrls ) {
-			MetaMonitoringItem ritem = item.copy( renvs , r );
+		for( AppProductMonitoringItem item : listUrls ) {
+			AppProductMonitoringItem ritem = item.copy( rproduct , r );
 			r.addUrl( ritem );
 		}
 		
-		for( MetaMonitoringItem item : listWS ) {
-			MetaMonitoringItem ritem = item.copy( renvs , r );
+		for( AppProductMonitoringItem item : listWS ) {
+			AppProductMonitoringItem ritem = item.copy( rproduct , r );
 			r.addWS( ritem );
 		}
 		
 		return( r );
 	}
 	
-	public void addItem( MetaMonitoringItem item ) {
+	public void addItem( AppProductMonitoringItem item ) {
 		if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKURL )
 			addUrl( item );
 		else
@@ -90,32 +92,34 @@ public class MetaMonitoringTarget {
 			addWS( item );
 	}
 	
-	public void addUrl( MetaMonitoringItem item ) {
+	public void addUrl( AppProductMonitoringItem item ) {
 		listUrls.add( item );
 		mapItems.put( item.ID , item );
 	}
 	
-	public void addWS( MetaMonitoringItem item ) {
+	public void addWS( AppProductMonitoringItem item ) {
 		listWS.add( item );
 		mapItems.put( item.ID , item );
 	}
 	
-	public MetaMonitoringItem[] getUrlsList() {
-		return( listUrls.toArray( new MetaMonitoringItem[0] ) );
+	public AppProductMonitoringItem[] getUrlsList() {
+		return( listUrls.toArray( new AppProductMonitoringItem[0] ) );
 	}
 	
-	public MetaMonitoringItem[] getWSList() {
-		return( listWS.toArray( new MetaMonitoringItem[0] ) );
+	public AppProductMonitoringItem[] getWSList() {
+		return( listWS.toArray( new AppProductMonitoringItem[0] ) );
 	}
 	
 	public void createTarget( MetaEnvSegment sg ) throws Exception {
-		this.ENV_ID = sg.env.ID;
-		this.SEGMENT_ID = sg.ID;
+		SEGMENT = MatchItem.create( sg.ID );
+		FKENV = "";
+		FKSG = "";
+		
 		majorSchedule = new ScheduleProperties();
 		minorSchedule = new ScheduleProperties();
 	}
 
-	public void removeItem( MetaMonitoringItem item ) {
+	public void removeItem( AppProductMonitoringItem item ) {
 		if( item.MONITEM_TYPE == DBEnumMonItemType.CHECKURL )
 			listUrls.remove( item );
 		else
@@ -137,17 +141,29 @@ public class MetaMonitoringTarget {
 		}
 	}
 
-	public MetaEnv getEnv() {
-		return( envs.findMetaEnv( ENV_ID ) );
+	public MetaEnv findEnv() {
+		if( SEGMENT.MATCHED ) {
+			MetaEnvSegment sg = findSegment();
+			if( sg == null )
+				return( null );
+			
+			return( sg.env );
+		}
+		EngineProductEnvs envs = product.findEnvs();
+		return( envs.findEnv( FKENV ) );
 	}
 	
-	public MetaEnvSegment getSegment() {
-		MetaEnv env = envs.findMetaEnv( ENV_ID );
-		return( env.findSegment( SEGMENT_ID ) );
+	public MetaEnvSegment findSegment() {
+		EngineProductEnvs envs = product.findEnvs();
+		if( SEGMENT.MATCHED )
+			return( envs.findSegment( SEGMENT.FKID ) );
+
+		MetaEnv env = findEnv();
+		return( env.findSegment( FKSG ) );
 	}
 
-	public MetaMonitoringItem getItem( int id ) throws Exception {
-		MetaMonitoringItem item = mapItems.get( id );
+	public AppProductMonitoringItem getItem( int id ) throws Exception {
+		AppProductMonitoringItem item = mapItems.get( id );
 		if( item == null )
 			Common.exitUnexpected();
 		return( item );
