@@ -179,7 +179,7 @@ public class EngineLoaderSystems {
 	}
 
 	public void exportxmlDumps() throws Exception {
-		String file = getMonitoringFile();
+		String file = getDumpsFile();
 		trace( "export dumps file " + file + "..." );
 		Document doc = Common.xmlCreateDoc( XML_ROOT_DUMPS );
 		Element root = doc.getDocumentElement();
