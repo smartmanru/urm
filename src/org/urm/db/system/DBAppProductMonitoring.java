@@ -11,11 +11,9 @@ import org.urm.db.EngineDB;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
-import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.transaction.EngineTransaction;
-import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.system.AppProduct;
@@ -56,13 +54,7 @@ public class DBAppProductMonitoring {
 		String envName = entity.importxmlStringProperty( root , AppProductMonitoringTarget.PROPERTY_ENV );
 		String sgName = entity.importxmlStringProperty( root , AppProductMonitoringTarget.PROPERTY_SEGMENT );
 		
-		EngineProductEnvs envs = product.findEnvs();
-		MetaEnv env = envs.findEnv( envName );
-		if( env == null )
-			Common.exitUnexpected();
-		
-		MetaEnvSegment sg = env.getSegment( sgName );
-		target.createTarget( sg );
+		target.createTarget( null , envName , sgName );
 		
 		ScheduleProperties propsMajor = new ScheduleProperties();
 		propsMajor.setScheduleData( action , entity.importxmlStringProperty( root , AppProductMonitoringTarget.PROPERTY_MAJOR_SCHEDULE ) );
@@ -145,7 +137,6 @@ public class DBAppProductMonitoring {
 		ActionBase action = loader.getAction();
 		EngineEntities entities = loader.getEntities();
 		AppProductMonitoring mon = product.getMonitoring();
-		EngineProductEnvs envs = product.findEnvs();
 		PropertyEntity entity = entities.entityAppProductMonTarget;
 
 		// targets
@@ -158,9 +149,11 @@ public class DBAppProductMonitoring {
 				target.ID = entity.loaddbId( rs );
 				target.SV = entity.loaddbVersion( rs );
 				
-				int segmentId = entity.loaddbObject( rs , DBSystemData.FIELD_MONTARGET_SEGMENT_ID );
-				MetaEnvSegment sg = envs.getSegment( segmentId );
-				target.createTarget( sg );
+				target.createTarget( 
+						entity.loaddbObject( rs , DBSystemData.FIELD_MONTARGET_SEGMENT_ID ) ,
+						entity.loaddbString( rs , AppProductMonitoringTarget.PROPERTY_ENV ) ,
+						entity.loaddbString( rs , AppProductMonitoringTarget.PROPERTY_SEGMENT )
+						);
 
 				target.majorSchedule.setScheduleData( action , entity.loaddbString( rs , AppProductMonitoringTarget.PROPERTY_MAJOR_SCHEDULE ) );
 				target.modifyTarget( true ,  

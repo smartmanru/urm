@@ -29,8 +29,8 @@ public class DBSystemData {
 	public static String TABLE_POLICYCYCLE = "urm_product_lifecycle";
 	public static String TABLE_DUMP = "urm_product_dbdump";
 	public static String TABLE_DUMPMASK = "urm_product_tablemask";
-	public static String TABLE_MONTARGET = "urm_env_montarget";
-	public static String TABLE_MONITEM = "urm_env_monitem";
+	public static String TABLE_MONTARGET = "urm_product_montarget";
+	public static String TABLE_MONITEM = "urm_product_monitem";
 	public static String FIELD_SYSTEM_ID = "system_id";
 	public static String FIELD_SYSTEM_DESC = "xdesc";
 	public static String FIELD_SYSTEM_MATCHED = "matched";
@@ -70,7 +70,9 @@ public class DBSystemData {
 	public static String FIELD_DUMPMASK_SCHEMA_NAME = "schema_fkname";
 	public static String FIELD_DUMPMASK_MASK = "tablemask";
 	public static String FIELD_MONTARGET_ID = "montarget_id";
-	public static String FIELD_MONTARGET_SEGMENT_ID = "segment_id";
+	public static String FIELD_MONTARGET_SEGMENT_ID = "target_fkid";
+	public static String FIELD_MONTARGET_FKENV = "target_fkenv";
+	public static String FIELD_MONTARGET_FKSG = "target_fksg";
 	public static String FIELD_MONTARGET_MAJOR_ENABLED = "major_enabled";
 	public static String FIELD_MONTARGET_MAJOR_SCHEDULE = "major_schedule";
 	public static String FIELD_MONTARGET_MAJOR_MAXTIME = "major_maxtime";
@@ -203,8 +205,8 @@ public class DBSystemData {
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaObjectDatabaseOnly( FIELD_PRODUCT_ID , "product id" , DBEnumObjectType.APPPRODUCT , true ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
-				EntityVar.metaStringXmlOnly( AppProductMonitoringTarget.PROPERTY_ENV , "environment name" , true , null ) ,
-				EntityVar.metaStringXmlOnly( AppProductMonitoringTarget.PROPERTY_SEGMENT , "segment name" , true , null ) ,
+				EntityVar.metaStringVar( AppProductMonitoringTarget.PROPERTY_ENV , FIELD_MONTARGET_FKENV , "environment name" , true , null ) ,
+				EntityVar.metaStringVar( AppProductMonitoringTarget.PROPERTY_SEGMENT , FIELD_MONTARGET_FKSG , "segment name" , true , null ) ,
 				EntityVar.metaBooleanVar( AppProductMonitoringTarget.PROPERTY_MAJOR_ENABLED , FIELD_MONTARGET_MAJOR_ENABLED , "Enabled major monitoring" , true , false ) ,
 				EntityVar.metaStringVar( AppProductMonitoringTarget.PROPERTY_MAJOR_SCHEDULE , FIELD_MONTARGET_MAJOR_SCHEDULE , "major schedule" , false , null ) ,
 				EntityVar.metaIntegerVar( AppProductMonitoringTarget.PROPERTY_MAJOR_MAXTIME , FIELD_MONTARGET_MAJOR_MAXTIME , "major max time" , true , 300000 ) ,

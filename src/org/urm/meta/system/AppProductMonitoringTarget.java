@@ -53,7 +53,10 @@ public class AppProductMonitoringTarget {
 		
 		listUrls = new LinkedList<AppProductMonitoringItem>();
 		listWS = new LinkedList<AppProductMonitoringItem>();
-		mapItems = new HashMap<Integer,AppProductMonitoringItem>(); 
+		mapItems = new HashMap<Integer,AppProductMonitoringItem>();
+		
+		majorSchedule = new ScheduleProperties();
+		minorSchedule = new ScheduleProperties();
 	}
 
 	public AppProductMonitoringTarget copy( AppProduct rproduct , AppProductMonitoring rmon ) {
@@ -109,14 +112,17 @@ public class AppProductMonitoringTarget {
 	public AppProductMonitoringItem[] getWSList() {
 		return( listWS.toArray( new AppProductMonitoringItem[0] ) );
 	}
+
+	public void createTarget( Integer sgId , String envName , String sgName ) throws Exception {
+		SEGMENT = MatchItem.create( sgId );
+		this.FKENV = envName;
+		this.FKSG = sgName;
+	}
 	
 	public void createTarget( MetaEnvSegment sg ) throws Exception {
 		SEGMENT = MatchItem.create( sg.ID );
 		FKENV = "";
 		FKSG = "";
-		
-		majorSchedule = new ScheduleProperties();
-		minorSchedule = new ScheduleProperties();
 	}
 
 	public void removeItem( AppProductMonitoringItem item ) {

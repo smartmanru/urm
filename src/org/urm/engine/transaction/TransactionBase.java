@@ -1361,7 +1361,7 @@ public class TransactionBase extends EngineObject {
 	}
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
-		Meta meta = getTransactionMetadata( env.meta );
+		Meta meta = getMeta( env.meta );
 		ProductEnvs envs = meta.getEnviroments();
 		return( envs.findMetaEnv( env.NAME ) );
 	}
