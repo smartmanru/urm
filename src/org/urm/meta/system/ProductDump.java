@@ -135,6 +135,21 @@ public class ProductDump {
 		this.USESTANDBY = standby;
 		this.REMOTE_SETDBENV = setdbenv;
 	}
+
+	public void setTargetServer( Integer serverId , String fkEnv , String fkSegment , String fkServer ) {
+		if( serverId != null ) {
+			this.DB = MatchItem.create( serverId );
+			this.DB_FKENV = "";
+			this.DB_FKSG = "";
+			this.DB_FKSERVER = "";
+		}
+		else {
+			this.DB = MatchItem.create( fkServer );
+			this.DB_FKENV = fkEnv;
+			this.DB_FKSG = fkSegment;
+			this.DB_FKSERVER = fkServer;
+		}
+	}
 	
 	public void setTargetServer( MetaEnvServer server ) {
 		this.DB = MatchItem.create( server.ID );

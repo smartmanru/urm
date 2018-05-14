@@ -259,7 +259,6 @@ public class DBAppProductDumps {
 		PropertyEntity entity = entities.entityAppProductDump;
 
 		AppProductDumps dumps = product.dumps;
-		EngineProductEnvs envs = product.findEnvs();
 		ResultSet rs = DBEngineEntities.listAppObjectsFiltered( c , entity , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
 		try {
 			while( rs.next() ) {
@@ -272,10 +271,13 @@ public class DBAppProductDumps {
 						entity.loaddbBoolean( rs , ProductDump.PROPERTY_EXPORT )
 						);
 				
-				int serverId = entity.loaddbObject( rs , DBSystemData.FIELD_DUMP_SERVER_ID );
-				MetaEnvServer server = envs.getServer( serverId );
-				dump.setTarget( 
-						server , 
+				Integer serverId = entity.loaddbObject( rs , DBSystemData.FIELD_DUMP_SERVER_ID );
+				String fkEnv = entity.loaddbString( rs , ProductDump.PROPERTY_ENV );
+				String fkSegment = entity.loaddbString( rs , ProductDump.PROPERTY_SEGMENT );
+				String fkServer = entity.loaddbString( rs , ProductDump.PROPERTY_SERVER );
+				dump.setTargetServer( serverId , fkEnv , fkSegment , fkServer );
+				
+				dump.setTargetDetails( 
 						entity.loaddbBoolean( rs , ProductDump.PROPERTY_STANDBY ) ,
 						entity.loaddbString( rs , ProductDump.PROPERTY_SETDBENV )
 						);

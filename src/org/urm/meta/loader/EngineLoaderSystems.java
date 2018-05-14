@@ -50,7 +50,7 @@ public class EngineLoaderSystems {
 		directoryNew = new EngineDirectory( engine , data );
 		DBEngineDirectory.loaddb( loader , directoryNew );
 		
-		for( AppProduct product : directoryNew.getProducts() )
+		for( AppProduct product : directoryNew.getProductsUnmatched() )
 			loaddbProductData( loader , product );
 		
 		// match systems to engine
