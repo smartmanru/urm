@@ -1321,10 +1321,14 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public ProjectBuilder getBuilder( ProjectBuilder builder ) throws Exception {
+		if( builder == null )
+			return( null );
 		return( buildersNew.getBuilder( builder.ID ) );
 	}
 	
 	public AppSystem getSystem( AppSystem system ) throws Exception {
+		if( system == null )
+			return( null );
 		if( directoryNew != null )
 			return( directoryNew.getSystem( system.ID ) );
 		EngineDirectory directory = data.getDirectory();
@@ -1332,6 +1336,8 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public AppProduct getProduct( AppProduct product ) throws Exception {
+		if( product == null )
+			return( null );
 		if( directoryNew != null )
 			return( directoryNew.getProduct( product.NAME ) );
 		
@@ -1346,52 +1352,72 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public ProductDump getDump( ProductDump dump ) throws Exception {
+		if( dump == null )
+			return( null );
 		AppProduct productNew = getProduct( dump.dumps.product );
 		return( productNew.getDump( dump.ID ) );
 	}
 	
 	public ProductDumpMask getDumpMask( ProductDumpMask mask ) throws Exception {
+		if( mask == null )
+			return( null );
 		ProductDump dumpNew = getDump( mask.dump );
 		return( dumpNew.getDumpMask( mask.ID ) );
 	}
 	
 	public Meta getMeta( Meta meta ) throws Exception {
+		if( meta == null )
+			return( null );
 		EngineProduct ep = meta.getEngineProduct();
 		return( ep.findSessionMeta( action , meta.getStorage() , true ) );
 	}
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
+		if( env == null )
+			return( null );
 		Meta meta = getMeta( env.meta );
 		ProductEnvs envs = meta.getEnviroments();
 		return( envs.findMetaEnv( env.NAME ) );
 	}
 
 	public MetaEnvSegment getMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
+		if( sg == null )
+			return( null );
 		MetaEnv env = getMetaEnv( sg.env );
 		return( env.findSegment( sg.NAME ) );
 	}
 
 	public MetaEnvStartInfo getStartInfo( MetaEnvStartInfo startInfo ) throws Exception {
+		if( startInfo == null )
+			return( null );
 		MetaEnvSegment sg = getMetaEnvSegment( startInfo.sg );
 		return( sg.getStartInfo() );
 	}
 	
 	public MetaEnvStartGroup getStartGroup( MetaEnvStartGroup startGroup ) throws Exception {
+		if( startGroup == null )
+			return( null );
 		MetaEnvStartInfo startInfo = getStartInfo( startGroup.startInfo );
 		return( startInfo.getStartGroup( startGroup.ID ) );
 	}
 	
 	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {
+		if( server == null )
+			return( null );
 		MetaEnvSegment sg = getMetaEnvSegment( server.sg );
 		return( sg.findServer( server.NAME ) );
 	}
 
 	public MetaEnvServerDeployment getMetaEnvServerDeployment( MetaEnvServerDeployment deployment ) throws Exception {
+		if( deployment == null )
+			return( null );
 		MetaEnvServer server = getMetaEnvServer( deployment.server );
 		return( server.getDeployment( deployment.ID ) );
 	}
 
 	public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
+		if( node == null )
+			return( null );
 		MetaEnvServer server = getMetaEnvServer( node.server );
 		return( server.getNodeByPos( node.POS ) );
 	}

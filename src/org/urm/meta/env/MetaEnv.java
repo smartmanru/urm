@@ -294,16 +294,6 @@ public class MetaEnv extends EngineObject {
 		return( sgMap.size() > 1 );
 	}
 	
-	public MetaEnvSegment getMainSegment() throws Exception {
-		if( sgMap.isEmpty() )
-			Common.exit0( _Error.NoSegmentDefined0 , "no segment defined" );
-		if( sgMap.size() > 1 )
-			Common.exitUnexpected();
-		for( MetaEnvSegment sg : sgMap.values() )
-			return( sg );
-		return( null );
-	}
-	
 	public void removeSegment( MetaEnvSegment sg ) {
 		sgMap.remove( sg.NAME );
 	}

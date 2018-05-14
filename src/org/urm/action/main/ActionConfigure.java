@@ -27,6 +27,7 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env._Error;
 
 public class ActionConfigure extends ActionBase {
 
@@ -358,7 +359,7 @@ public class ActionConfigure extends ActionBase {
 			if( env.isMultiSegment() )
 				CTXSG = "";
 			else
-				CTXSG = env.getMainSegment().NAME;
+				CTXSG = getMainSegment( env );
 		}
 		configureExecutorContextDeployment( ep , ef , ENVFILE , CTXSG , linux );
 
@@ -378,6 +379,13 @@ public class ActionConfigure extends ActionBase {
 			if( !cmdAction.top )
 				configureExecutorWrapper( efDB , dbe , cmdAction.name , linux , xpdb , ".." );
 		}
+	}
+	
+	private String getMainSegment( MetaEnv env ) throws Exception {
+		String[] names = env.getSegmentNames();
+		if( names.length != 1 )
+			return( "" );
+		return( names[0] );
 	}
 	
 	private void configureBuildMode( EngineProduct ep , LocalFolder ef , CommandMeta executor , DBEnumBuildModeType mode , boolean linux ) throws Exception {
