@@ -100,6 +100,10 @@ public class AppSystem extends EngineObject {
 		mapProducts.put( product.NAME , product );
 	}
 	
+	public void replaceProduct( AppProduct product ) {
+		mapProducts.put( product.NAME , product );
+	}
+	
 	public void updateProduct( AppProduct product ) throws Exception {
 		Common.changeMapKey( mapProducts , product , product.NAME );
 	}

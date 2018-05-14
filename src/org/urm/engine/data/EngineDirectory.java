@@ -214,6 +214,13 @@ public class EngineDirectory extends EngineObject {
 		product.system.addProduct( product );
 	}
 	
+	public void replaceProduct( AppProduct product ) {
+		mapProductUnmatched.remove( product.ID );
+		mapProducts.put( product.NAME , product );
+		mapProductsById.put( product.ID , product );
+		product.system.replaceProduct( product );
+	}
+	
 	public void updateSystem( AppSystem system ) throws Exception {
 		Common.changeMapKey( mapSystems , system , system.NAME );
 	}

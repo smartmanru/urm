@@ -259,6 +259,9 @@ public class TransactionProduct {
 		else
 		if( importProduct )
 			importProductFinish( product );
+		else
+		if( changeProduct )
+			changeProductFinish( productNew );
 		
 		for( TransactionMetadata tm : productMeta ) {
 			if( !tm.commitTransaction() )
@@ -294,6 +297,16 @@ public class TransactionProduct {
 		mon.transactionCommitCreateProduct( transaction , product );
 		
 		jmx.addProduct( product );
+	}
+	
+	private void changeProductFinish( AppProduct product ) throws Exception {
+		EngineDirectory directory = product.directory;
+		directory.replaceProduct( product );
+		
+		EngineMonitoring mon = transaction.action.getEngineMonitoring();
+
+		mon.transactionCommitDeleteProduct( transaction , product );
+		mon.transactionCommitCreateProduct( transaction , product );
 	}
 	
 	private void deleteProductFinish( AppProduct product ) throws Exception {

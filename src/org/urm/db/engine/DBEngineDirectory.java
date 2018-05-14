@@ -6,8 +6,6 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.system.DBAppProduct;
-import org.urm.db.system.DBAppProductDumps;
-import org.urm.db.system.DBAppProductMonitoring;
 import org.urm.db.system.DBAppSystem;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.data.EngineDirectory;

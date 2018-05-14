@@ -7,6 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.engine.EventService;
 import org.urm.engine.StateService;
 import org.urm.engine.StateService.StatusType;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.engine.transaction.TransactionBase;
@@ -23,13 +24,13 @@ public class EngineStatusProduct extends EngineObject {
 
 	StateService engineStatus;
 	EventService events;
-	public AppProduct product;
+	public EngineProduct ep;
 	
 	private Map<EngineObject,StatusSource> productSources;
 	
-	public EngineStatusProduct( StateService engineStatus , AppProduct product ) {
+	public EngineStatusProduct( StateService engineStatus , EngineProduct ep ) {
 		super( engineStatus );
-		this.product = product;
+		this.ep = ep;
 		this.engineStatus = engineStatus;
 		this.events = engineStatus.events;
 		productSources = new HashMap<EngineObject,StatusSource>();
@@ -37,11 +38,11 @@ public class EngineStatusProduct extends EngineObject {
 
 	@Override
 	public String getName() {
-		return( "engine-status-" + product.NAME );
+		return( "engine-status-" + ep.productName );
 	}
 
 	public void start( ActionBase action ) {
-		EngineProductEnvs envs = product.findEnvs();
+		EngineProductEnvs envs = ep.getEnvs();
 		for( String envName : envs.getEnvNames() ) {
 			MetaEnv env = envs.findEnv( envName );
 			startEnvironment( action , env );
@@ -106,7 +107,6 @@ public class EngineStatusProduct extends EngineObject {
 	
 	public void modifyProduct( TransactionBase transaction , ProductMeta storageOld , ProductMeta storageNew ) throws Exception {
 		ActionBase action = transaction.getAction();
-		product = transaction.getProduct( product );
 		
 		ProductEnvs envs = storageNew.getEnviroments();
 		ProductEnvs envsOld = storageOld.getEnviroments();
@@ -388,7 +388,7 @@ public class EngineStatusProduct extends EngineObject {
 
 	private void recalculateProduct( ActionBase action ) {
 		OBJECT_STATE finalState = OBJECT_STATE.STATE_NODATA;
-		EngineProductEnvs envs = product.findEnvs();
+		EngineProductEnvs envs = ep.getEnvs();
 		for( String envName : envs.getEnvNames() ) {
 			MetaEnv env = envs.findEnv( envName );
 			StatusSource envSource = getObjectSource( env );
@@ -396,6 +396,7 @@ public class EngineStatusProduct extends EngineObject {
 				finalState = StatusData.addState( finalState , envSource.state.state );
 		}
 
+		AppProduct product = ep.findProduct();
 		engineStatus.setProductStatus( action , product , finalState );
 	}
 	

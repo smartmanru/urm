@@ -8,6 +8,7 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
+import org.urm.engine.products.EngineProduct;
 import org.urm.engine.status.AppStatus;
 import org.urm.engine.status.EngineStatusProduct;
 import org.urm.engine.status.NodeStatus;
@@ -264,7 +265,8 @@ public class StateService extends EngineObject {
 		action.trace( "start status tracking for product=" + product.NAME + " ..." );
 		createGlobalSource( StatusType.PRODUCT , product , product.NAME , new ProductStatus( product ) );
 		
-		EngineStatusProduct productStatus = new EngineStatusProduct( this , product );
+		EngineProduct ep = product.findEngineProduct();
+		EngineStatusProduct productStatus = new EngineStatusProduct( this , ep );
 		products.put( product.NAME , productStatus );
 		
 		productStatus.start( action );
@@ -329,7 +331,8 @@ public class StateService extends EngineObject {
 		if( source != null ) {
 			source.updateRunTime();
 			
-			AppProduct product = productStatus.product;
+			EngineProduct ep = productStatus.ep;
+			AppProduct product = ep.findProduct();
 			source = getGlobalSource( StatusType.PRODUCT , product.NAME );
 			if( source != null ) {
 				source.updateRunTime();
@@ -383,7 +386,8 @@ public class StateService extends EngineObject {
 		if( source != null ) {
 			source.finishUpdate();
 			
-			AppProduct product = productStatus.product;
+			EngineProduct ep = productStatus.ep;
+			AppProduct product = ep.findProduct();
 			source = getGlobalSource( StatusType.PRODUCT , product.NAME );
 			if( source != null ) {
 				source.finishUpdate();
