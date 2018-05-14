@@ -15,9 +15,9 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.system.AppProduct;
 import org.urm.meta.system.AppSystem;
-import org.urm.meta.system.MetaMonitoring;
-import org.urm.meta.system.MetaMonitoringTarget;
-import org.urm.meta.system.MonitoringProduct;
+import org.urm.meta.system.AppProductMonitoring;
+import org.urm.meta.system.AppProductMonitoringTarget;
+import org.urm.meta.system.RunProductMonitoring;
 
 public class EngineMonitoring extends EngineObject {
 
@@ -31,7 +31,7 @@ public class EngineMonitoring extends EngineObject {
 	
 	private Engine engine;
 
-	Map<Integer,MonitoringProduct> mapProduct;
+	Map<Integer,RunProductMonitoring> mapProduct;
 	boolean running;
 	public boolean ENABLED;
 	
@@ -41,7 +41,7 @@ public class EngineMonitoring extends EngineObject {
 		super( null );
 		this.engine = engine;
 		
-		mapProduct = new HashMap<Integer,MonitoringProduct>();
+		mapProduct = new HashMap<Integer,RunProductMonitoring>();
 		running = false;
 	}
 
@@ -73,12 +73,12 @@ public class EngineMonitoring extends EngineObject {
 	}
 
 	private void startAll( ActionBase action ) throws Exception {
-		for( MonitoringProduct mon : mapProduct.values() )
+		for( RunProductMonitoring mon : mapProduct.values() )
 			mon.start( action );
 	}
 	
 	private void stopAll( ActionBase action ) throws Exception {
-		for( MonitoringProduct mon : mapProduct.values() )
+		for( RunProductMonitoring mon : mapProduct.values() )
 			mon.stop( action );
 	}
 	
@@ -89,7 +89,7 @@ public class EngineMonitoring extends EngineObject {
 		}
 	}
 
-	private void addProduct( AppProduct product , MonitoringProduct monp ) {
+	private void addProduct( AppProduct product , RunProductMonitoring monp ) {
 		mapProduct.put( product.ID , monp );
 	}
 	
@@ -97,7 +97,7 @@ public class EngineMonitoring extends EngineObject {
 		mapProduct.remove( product.ID );
 	}
 	
-	private MonitoringProduct getProduct( AppProduct product ) {
+	private RunProductMonitoring getProduct( AppProduct product ) {
 		return( mapProduct.get( product.ID ) );
 	}
 	
@@ -115,9 +115,9 @@ public class EngineMonitoring extends EngineObject {
 		return( ops );
 	}
 	
-	public void modifyTarget( EngineTransaction transaction , MetaMonitoringTarget target ) throws Exception {
+	public void modifyTarget( EngineTransaction transaction , AppProductMonitoringTarget target ) throws Exception {
 		EngineDirectory directory = transaction.getDirectory();
-		AppProduct product = directory.getProduct( target.envs.meta.name );
+		AppProduct product = directory.getProduct( target.product.NAME );
 		ActionBase action = transaction.getAction();
 		stopProduct( action , product );
 	}
@@ -136,7 +136,7 @@ public class EngineMonitoring extends EngineObject {
 	
 	private synchronized void createProduct( ActionBase action , AppProduct product ) throws Exception {
 		EngineProduct ep = product.getEngineProduct();
-		MonitoringProduct monp = new MonitoringProduct( this , ep );
+		RunProductMonitoring monp = new RunProductMonitoring( this , ep );
 		addProduct( product , monp );
 		startProduct( action , product );
 	}
@@ -163,13 +163,13 @@ public class EngineMonitoring extends EngineObject {
 		if( !ENABLED )
 			return;
 		
-		MonitoringProduct mon = getProduct( product );
+		RunProductMonitoring mon = getProduct( product );
 		if( mon != null )
 			mon.start( action );
 	}
 	
 	public synchronized void stopProduct( ActionBase action , AppProduct product ) throws Exception {
-		MonitoringProduct mon = getProduct( product );
+		RunProductMonitoring mon = getProduct( product );
 		if( mon != null )
 			mon.stop( action );
 	}
@@ -185,7 +185,7 @@ public class EngineMonitoring extends EngineObject {
 	}
 	
 	public boolean isRunning( AppProduct product ) {
-		MonitoringProduct mon = getProduct( product );
+		RunProductMonitoring mon = getProduct( product );
 		return( mon != null && isRunning( product.system ) && product.OFFLINE == false && product.MONITORING_ENABLED );
 	}
 	
@@ -201,12 +201,12 @@ public class EngineMonitoring extends EngineObject {
 		if( product == null )
 			return( false );
 		
-		MonitoringProduct mon = getProduct( product );
+		RunProductMonitoring mon = getProduct( product );
 		if( mon == null )
 			return( false );
 		
-		MetaMonitoring metamon = sg.meta.getMonitoring();
-		MetaMonitoringTarget target = metamon.findTarget( sg );
+		AppProductMonitoring metamon = product.getMonitoring();
+		AppProductMonitoringTarget target = metamon.findTarget( sg );
 		return( target != null && isRunning( sg.env ) && sg.OFFLINE == false && ( target.MAJOR_ENABLED || target.MINOR_ENABLED ) );
 	}	
 	

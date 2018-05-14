@@ -52,6 +52,13 @@ public class EngineProductEnvs {
 		return( null ); 
 	}
 
+	public MetaEnvSegment getSegment( int id ) throws Exception {
+		MetaEnvSegment sg = findSegment( id );
+		if( sg == null )
+			Common.exitUnexpected();
+		return( sg );
+	}
+	
 	public MetaEnvSegment findSegment( int id ) {
 		EngineProductRevisions revisions = ep.getRevisions();
 		for( ProductMeta storage : revisions.getRevisions() ) {

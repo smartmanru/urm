@@ -156,8 +156,6 @@ public abstract class DBAppProduct {
 	public static void deleteProduct( DBConnection c , AppProduct product ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		int version = c.getNextSystemVersion( product.system );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicyLifecycle , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
-		DBEngineEntities.deleteAppObject( c , entities.entityAppProductPolicy , product.ID , version );
 		DBEngineEntities.deleteAppObject( c , entities.entityAppDirectoryProduct , product.ID , version );
 	}
 
@@ -259,6 +257,7 @@ public abstract class DBAppProduct {
 	public static void loaddbData( EngineLoader loader , AppProduct product ) throws Exception {
 		loaddbPolicy( loader , product );
 		DBAppProductDumps.loaddbAll( loader , product );
+		DBAppProductMonitoring.loaddbAll( loader , product );
 	}
 	
 	public static void loaddbPolicy( EngineLoader loader , AppProduct product ) throws Exception {

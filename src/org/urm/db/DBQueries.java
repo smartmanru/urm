@@ -12,6 +12,8 @@ public abstract class DBQueries {
 	public static String FILTER_DUMP_META1 = "dump_id in ( select dump_id from urm_product_dbdump where db_fkid in ( select server_id from meta_env_server where env_id in ( select env_id from urm_env where meta_id = @1@ ) ) )";
 	public static String FILTER_DUMP_ENV1 = "dump_id in ( select dump_id from urm_product_dbdump where db_fkid in ( select server_id from meta_env_server where env_id = @1@ ) )";
 	public static String FILTER_DUMP_ID1 = "dump_id = @1@";
+	public static String FILTER_MONTARGET_META1 = "montarget_id in ( select montarget_id from urm_product_montarget where target_fkid in ( select segment_id from meta_env_segment where env_id in ( select env_id from urm_env where meta_id = @1@ ) ) )";
+	public static String FILTER_MONTARGET_ENV1 = "montarget_id in ( select montarget_id from urm_product_montarget where target_fkid in ( select segment_id from meta_env_segment where env_id = @1@ ) )";
 	public static String FILTER_ENV_STARTGROUP1 = "startgroup_id = @1@";
 	public static String FILTER_ENV_STARTGROUPSERVER2 = "startgroup_id = @1@ and server_id = @2@";
 	public static String FILTER_REL_META1 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_id = @1@ )";

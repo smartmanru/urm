@@ -47,6 +47,8 @@ public class AppProduct extends EngineObject {
 	
 	public AppProductPolicy policy;
 	public AppProductDumps dumps;
+	public AppProductMonitoring mon;
+	
 	private boolean matched;
 	
 	public AppProduct( EngineDirectory directory , AppSystem system ) {
@@ -58,6 +60,8 @@ public class AppProduct extends EngineObject {
 		
 		policy = new AppProductPolicy( this );
 		dumps = new AppProductDumps( this );
+		mon = new AppProductMonitoring( this );
+		
 		matched = false;
 	}
 	
@@ -66,10 +70,6 @@ public class AppProduct extends EngineObject {
 		return( NAME );
 	}
 
-	public void setPolicy( AppProductPolicy policy ) {
-		this.policy = policy;
-	}
-	
 	public AppProduct copy( EngineDirectory nr , AppSystem rs ) {
 		AppProduct r = new AppProduct( nr , rs );
 		
@@ -90,12 +90,22 @@ public class AppProduct extends EngineObject {
 		r.SV = SV;
 		
 		r.policy = policy.copy( r );
+		r.dumps = dumps.copy( r );
+		r.mon = mon.copy( r );
 		
 		return( r );
 	}
 	
 	public AppProductPolicy getPolicy() {
 		return( policy );
+	}
+	
+	public void setPolicy( AppProductPolicy policy ) {
+		this.policy = policy;
+	}
+	
+	public AppProductMonitoring getMonitoring() {
+		return( mon );
 	}
 	
 	public boolean isValid() {

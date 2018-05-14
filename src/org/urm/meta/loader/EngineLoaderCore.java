@@ -8,7 +8,6 @@ import org.urm.db.DBConnection;
 import org.urm.db.engine.DBEngineAuth;
 import org.urm.db.engine.DBEngineBase;
 import org.urm.db.engine.DBEngineBuilders;
-import org.urm.db.engine.DBEngineDirectory;
 import org.urm.db.engine.DBEngineInfrastructure;
 import org.urm.db.engine.DBEngineLifecycles;
 import org.urm.db.engine.DBEngineMirrors;
@@ -21,7 +20,6 @@ import org.urm.engine.DataService;
 import org.urm.engine.data.EngineBase;
 import org.urm.engine.data.EngineBuilders;
 import org.urm.engine.data.EngineContext;
-import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineInfrastructure;
 import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.data.EngineMirrors;
@@ -45,7 +43,6 @@ public class EngineLoaderCore {
 	private EngineSettings settingsNew;
 	private EngineResources resourcesNew;
 	private EngineBuilders buildersNew;
-	private EngineDirectory directoryNew;
 	private EngineMirrors mirrorsNew;
 	private EngineBase baseNew;
 	private EngineInfrastructure infraNew;
@@ -75,12 +72,6 @@ public class EngineLoaderCore {
 		if( buildersNew != null )
 			return( buildersNew );
 		return( data.getBuilders() );
-	}
-
-	public EngineDirectory getDirectory() {
-		if( directoryNew != null )
-			return( directoryNew );
-		return( data.getDirectory() );
 	}
 
 	public EngineMirrors getMirrors() {
@@ -129,9 +120,6 @@ public class EngineLoaderCore {
 		exportxmlMonitoring();
 		exportxmlMirrors();
 		exportxmlBuilders();
-		
-		if( includingSystems )
-			exportxmlDirectory();
 	}
 
 	private void exportAuth( AuthService auth ) throws Exception {
@@ -155,11 +143,6 @@ public class EngineLoaderCore {
 		if( buildersNew != null ) {
 			data.setBuilders( buildersNew );
 			buildersNew = null;
-		}
-		
-		if( directoryNew != null ) {
-			data.setDirectory( directoryNew );
-			directoryNew = null;
 		}
 		
 		if( mirrorsNew != null ) {
@@ -321,22 +304,6 @@ public class EngineLoaderCore {
 		DBEngineBuilders.loaddb( loader , buildersNew );
 	}
 
-	public void loaddbDirectory() throws Exception {
-		trace( "load engine directory data ..." );
-		directoryNew = new EngineDirectory( engine , data );
-		DBEngineDirectory.loaddb( loader , directoryNew );
-	}
-	
-	public void importxmlDirectory() throws Exception {
-		trace( "import engine directory data ..." );
-		String registryFile = getDirectoryFile();
-		Document doc = ConfReader.readXmlFile( execrc , registryFile );
-		Node root = doc.getDocumentElement();
-		
-		directoryNew = new EngineDirectory( engine , data );
-		DBEngineDirectory.importxml( loader , directoryNew , root );
-	}
-	
 	public void importxmlAuth( AuthService auth ) throws Exception {
 		trace( "import engine auth data ..." );
 		String authFile = getAuthFile();
@@ -378,15 +345,6 @@ public class EngineLoaderCore {
 		Common.xmlSaveDoc( doc , propertyFile );
 	}
 	
-	private void exportxmlDirectory() throws Exception {
-		trace( "export engine directory data ..." );
-		String propertyFile = getDirectoryFile();
-		Document doc = Common.xmlCreateDoc( "directory" );
-		Element root = doc.getDocumentElement();
-		DBEngineDirectory.exportxml( loader , data.getDirectory() , doc , root );
-		Common.xmlSaveDoc( doc , propertyFile );
-	}
-
 	private void exportxmlBase() throws Exception {
 		trace( "export engine base data ..." );
 		String propertyFile = getBaseFile();
@@ -491,12 +449,6 @@ public class EngineLoaderCore {
 	private String getBuildersFile() throws Exception {
 		String path = Common.getPath( execrc.installPath , "etc" );
 		String propertyFile = Common.getPath( path , "builders.xml" );
-		return( propertyFile );
-	}
-
-	private String getDirectoryFile() throws Exception {
-		String path = Common.getPath( execrc.installPath , "etc" );
-		String propertyFile = Common.getPath( path , "directory.xml" );
 		return( propertyFile );
 	}
 

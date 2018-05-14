@@ -71,9 +71,9 @@ import org.urm.meta.product.MetaUnits;
 import org.urm.meta.product.ProductMeta;
 import org.urm.meta.system.AppProduct;
 import org.urm.meta.system.AppSystem;
-import org.urm.meta.system.MetaMonitoring;
-import org.urm.meta.system.MetaMonitoringItem;
-import org.urm.meta.system.MetaMonitoringTarget;
+import org.urm.meta.system.AppProductMonitoring;
+import org.urm.meta.system.AppProductMonitoringItem;
+import org.urm.meta.system.AppProductMonitoringTarget;
 import org.urm.meta.system.ProductDump;
 import org.urm.meta.system.ProductDumpMask;
 
@@ -1334,6 +1334,13 @@ public class TransactionBase extends EngineObject {
 	public AppProduct getProduct( AppProduct product ) throws Exception {
 		if( directoryNew != null )
 			return( directoryNew.getProduct( product.NAME ) );
+		
+		TransactionProduct tm = findProductTransaction( product.NAME );
+		if( tm != null ) {
+			if( tm.productNew != null )
+				return( tm.productNew );
+		}
+		
 		EngineDirectory directory = data.getDirectory();
 		return( directory.getProduct( product.ID ) );
 	}
@@ -1389,6 +1396,16 @@ public class TransactionBase extends EngineObject {
 		return( server.getNodeByPos( node.POS ) );
 	}
 
+	public AppProduct getTransactionProduct( AppProduct product ) throws Exception {
+		AppProduct productUpdated = null;
+		TransactionProduct tm = findProductTransaction( product.NAME );
+		if( tm != null )
+			productUpdated = tm.productNew;
+		if( productUpdated == null )
+			exit1( _Error.TransactionMissingProductChanges1 , "Missing changes in product=" + product.NAME , product.NAME );
+		return( productUpdated );
+	}
+	
 	public Meta[] getTransactionProductMetadataList() {
 		List<Meta> list = new LinkedList<Meta>();
 		for( TransactionProduct tm : productChanges.values() ) {
@@ -1534,17 +1551,22 @@ public class TransactionBase extends EngineObject {
 		return( baseChange.getItem( item.ID ) );
 	}
 
-	public MetaMonitoringTarget getMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
-		Meta meta = getMeta( target.envs.meta );
-		MetaMonitoring mon = meta.getMonitoring();
-		MetaMonitoringTarget targetUpdated = mon.getTarget( target.ID );
+	public AppProductMonitoringTarget getMonitoringTarget( AppProductMonitoringTarget target ) throws Exception {
+		TransactionProduct tp = findProductTransaction( target.product.NAME );
+		if( tp == null )
+			Common.exitUnexpected();
+		
+		AppProduct productUpdated = getTransactionProduct( target.product );
+		
+		AppProductMonitoring mon = productUpdated.getMonitoring();
+		AppProductMonitoringTarget targetUpdated = mon.getTarget( target.ID );
 		if( targetUpdated == null )
 			Common.exitUnexpected();
 		return( targetUpdated );
 	}
 
-	public MetaMonitoringItem getMonitoringItem( MetaMonitoringItem item ) throws Exception {
-		MetaMonitoringTarget targetUpdated = getMonitoringTarget( item.target );
+	public AppProductMonitoringItem getMonitoringItem( AppProductMonitoringItem item ) throws Exception {
+		AppProductMonitoringTarget targetUpdated = getMonitoringTarget( item.target );
 		return( targetUpdated.getItem( item.ID ) );
 	}
 	

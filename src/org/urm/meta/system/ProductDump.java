@@ -65,7 +65,7 @@ public class ProductDump {
 		tables = new HashMap<Integer,ProductDumpMask>();
 	}
 	
-	public ProductDump copy( AppProductDumps rdumps ) throws Exception {
+	public ProductDump copy( AppProductDumps rdumps ) {
 		ProductDump r = new ProductDump( rdumps );
 		
 		r.ID = ID;

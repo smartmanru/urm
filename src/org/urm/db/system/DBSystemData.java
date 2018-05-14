@@ -14,6 +14,8 @@ import org.urm.meta.env.MetaEnv;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.ProductMeta;
 import org.urm.meta.system.AppProduct;
+import org.urm.meta.system.AppProductMonitoringItem;
+import org.urm.meta.system.AppProductMonitoringTarget;
 import org.urm.meta.system.AppProductPolicy;
 import org.urm.meta.system.AppSystem;
 import org.urm.meta.system.ProductDump;
@@ -27,6 +29,8 @@ public class DBSystemData {
 	public static String TABLE_POLICYCYCLE = "urm_product_lifecycle";
 	public static String TABLE_DUMP = "urm_product_dbdump";
 	public static String TABLE_DUMPMASK = "urm_product_tablemask";
+	public static String TABLE_MONTARGET = "urm_env_montarget";
+	public static String TABLE_MONITEM = "urm_env_monitem";
 	public static String FIELD_SYSTEM_ID = "system_id";
 	public static String FIELD_SYSTEM_DESC = "xdesc";
 	public static String FIELD_SYSTEM_MATCHED = "matched";
@@ -65,6 +69,18 @@ public class DBSystemData {
 	public static String FIELD_DUMPMASK_SCHEMA_ID = "schema_fkid";
 	public static String FIELD_DUMPMASK_SCHEMA_NAME = "schema_fkname";
 	public static String FIELD_DUMPMASK_MASK = "tablemask";
+	public static String FIELD_MONTARGET_ID = "montarget_id";
+	public static String FIELD_MONTARGET_SEGMENT_ID = "segment_id";
+	public static String FIELD_MONTARGET_MAJOR_ENABLED = "major_enabled";
+	public static String FIELD_MONTARGET_MAJOR_SCHEDULE = "major_schedule";
+	public static String FIELD_MONTARGET_MAJOR_MAXTIME = "major_maxtime";
+	public static String FIELD_MONTARGET_MINOR_ENABLED = "minor_enabled";
+	public static String FIELD_MONTARGET_MINOR_SCHEDULE = "minor_schedule";
+	public static String FIELD_MONTARGET_MINOR_MAXTIME = "minor_maxtime";
+	public static String FIELD_MONITEM_ID = "monitem_id";
+	public static String FIELD_MONITEM_TARGET_ID = "montarget_id";
+	public static String FIELD_MONITEM_TYPE = "monitem_type";
+	public static String FIELD_MONITEM_DESC = "xdesc";
 	
 	public static PropertyEntity makeEntityDirectorySystem( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPSYSTEM , DBEnumParamEntityType.APPSYSTEM , DBEnumObjectVersionType.SYSTEM , TABLE_SYSTEM , FIELD_SYSTEM_ID , false );
@@ -177,12 +193,54 @@ public class DBSystemData {
 		} ) );
 	}
 
+	public static PropertyEntity makeEntityMonitoringTarget( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT_MONTARGET , DBEnumParamEntityType.APPPRODUCT_MONTARGET , DBEnumObjectVersionType.SYSTEM , TABLE_MONTARGET , FIELD_MONTARGET_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_PRODUCT_ID , "product id" , DBEnumObjectType.APPPRODUCT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
+				EntityVar.metaStringXmlOnly( AppProductMonitoringTarget.PROPERTY_ENV , "environment name" , true , null ) ,
+				EntityVar.metaStringXmlOnly( AppProductMonitoringTarget.PROPERTY_SEGMENT , "segment name" , true , null ) ,
+				EntityVar.metaBooleanVar( AppProductMonitoringTarget.PROPERTY_MAJOR_ENABLED , FIELD_MONTARGET_MAJOR_ENABLED , "Enabled major monitoring" , true , false ) ,
+				EntityVar.metaStringVar( AppProductMonitoringTarget.PROPERTY_MAJOR_SCHEDULE , FIELD_MONTARGET_MAJOR_SCHEDULE , "major schedule" , false , null ) ,
+				EntityVar.metaIntegerVar( AppProductMonitoringTarget.PROPERTY_MAJOR_MAXTIME , FIELD_MONTARGET_MAJOR_MAXTIME , "major max time" , true , 300000 ) ,
+				EntityVar.metaBooleanVar( AppProductMonitoringTarget.PROPERTY_MINOR_ENABLED , FIELD_MONTARGET_MINOR_ENABLED , "Enabled minor monitoring" , true , false ) ,
+				EntityVar.metaStringVar( AppProductMonitoringTarget.PROPERTY_MINOR_SCHEDULE , FIELD_MONTARGET_MINOR_SCHEDULE , "minor schedule" , false , null ) ,
+				EntityVar.metaIntegerVar( AppProductMonitoringTarget.PROPERTY_MINOR_MAXTIME , FIELD_MONTARGET_MINOR_MAXTIME , "minor max time" , true , 300000 ) ,
+		} ) );
+	}
+
+	public static PropertyEntity makeEntityMonitoringItem( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.APPPRODUCT_MONITEM , DBEnumParamEntityType.APPPRODUCT_MONITEM , DBEnumObjectVersionType.SYSTEM , TABLE_MONITEM , FIELD_MONITEM_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_PRODUCT_ID , "product id" , DBEnumObjectType.APPPRODUCT , true ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_MONITEM_TARGET_ID , "monitoring target id" , DBEnumObjectType.APPPRODUCT_MONTARGET , true ) ,
+				EntityVar.metaStringVar( AppProductMonitoringItem.PROPERTY_DESC , FIELD_MONITEM_DESC , "description" , false , null ) ,
+				EntityVar.metaEnumVar( AppProductMonitoringItem.PROPERTY_TYPE , FIELD_MONITEM_TYPE , "monitoring item type" , true , DBEnumMonItemType.UNKNOWN ) ,
+				EntityVar.metaString( AppProductMonitoringItem.PROPERTY_URL , "check url" , false , null ) ,
+				EntityVar.metaString( AppProductMonitoringItem.PROPERTY_WSDATA , "check request" , false , null ) ,
+				EntityVar.metaString( AppProductMonitoringItem.PROPERTY_WSCHECK , "check request response" , false , null )
+		} ) );
+	}
+
 	public static void dropEnvData( DBConnection c , ProductMeta storage ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		
 		// dump data
 		DBEngineEntities.dropAppObjects( c , entities.entityAppProductDump , DBQueries.FILTER_DUMP_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppProductDumpMask , DBQueries.FILTER_DUMP_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		// mon data
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductMonItem , DBQueries.FILTER_MONTARGET_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductMonTarget , DBQueries.FILTER_MONTARGET_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 	}
 	
 	public static void dropEnvData( DBConnection c , MetaEnv env ) throws Exception {
@@ -191,6 +249,9 @@ public class DBSystemData {
 		// dump data
 		DBEngineEntities.dropAppObjects( c , entities.entityAppProductDump , DBQueries.FILTER_DUMP_ENV1 , new String[] { EngineDB.getInteger( env.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppProductDumpMask , DBQueries.FILTER_DUMP_ENV1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		// mon data
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductMonItem , DBQueries.FILTER_MONTARGET_ENV1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductMonTarget , DBQueries.FILTER_MONTARGET_ENV1 , new String[] { EngineDB.getInteger( env.ID ) } );
 	}
 	
 	public static void dropSystemData( EngineLoader loader ) throws Exception {
@@ -204,6 +265,10 @@ public class DBSystemData {
 		if( !res )
 			Common.exitUnexpected();
 		
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductDump );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductDumpMask );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductMonItem );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductMonTarget );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicyLifecycle );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicy );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppDirectoryProduct );
@@ -211,6 +276,18 @@ public class DBSystemData {
 	}
 	
 	public static void dropProductData( DBConnection c , AppProduct product ) throws Exception {
+		EngineEntities entities = c.getEntities();
+		
+		// dump data
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductDump , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductDumpMask , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+		// mon data
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductMonItem , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductMonTarget , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+		// policy
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicyLifecycle , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicy , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+		
 		DBAppProduct.deleteProduct( c , product );
 	}
 	

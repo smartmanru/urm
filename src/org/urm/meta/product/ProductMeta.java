@@ -12,7 +12,6 @@ import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.release.ReleaseRepository;
 import org.urm.meta.system.AppProduct;
-import org.urm.meta.system.MetaMonitoring;
 
 public class ProductMeta extends EngineObject {
 
@@ -208,10 +207,6 @@ public class ProductMeta extends EngineObject {
 		return( envs );
 	}
 
-	public MetaMonitoring getMonitoring() {
-		return( envs.getMonitoring() );
-	}
-	
 	public boolean isMatched() {
 		return( MATCHED );
 	}

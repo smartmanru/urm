@@ -15,7 +15,6 @@ import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.MetaMonitoring;
 
 public class ProductEnvs {
 
@@ -23,14 +22,12 @@ public class ProductEnvs {
 	
 	private Map<String,MetaEnv> mapEnvs;
 	private Map<Integer,MetaEnv> mapEnvsById;
-	private MetaMonitoring mon;
 	
 	public ProductEnvs( ProductMeta storage , Meta meta ) {
 		this.meta = meta;
 		
 		mapEnvs = new HashMap<String,MetaEnv>();
 		mapEnvsById = new HashMap<Integer,MetaEnv>();
-		mon = new MetaMonitoring( this );
 	}
 	
 	public ProductEnvs copy( Meta rmeta ) throws Exception {
@@ -44,8 +41,6 @@ public class ProductEnvs {
 
 		for( MetaEnv renv : r.getEnvs() )
 			renv.refreshProperties();
-		
-		r.mon = mon.copy( r );
 		
 		return( r );
 	}
@@ -74,10 +69,6 @@ public class ProductEnvs {
 		EngineProduct ep = meta.getEngineProduct();
 		EngineProductEnvs envs = ep.getEnvs();
 		return( envs.getEnv( id ) );
-	}
-	
-	public MetaMonitoring getMonitoring() {
-		return( mon );
 	}
 	
 	public void addEnv( MetaEnv env ) {

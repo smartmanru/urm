@@ -18,8 +18,6 @@ import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.MetaMonitoringItem;
-import org.urm.meta.system.MetaMonitoringTarget;
 
 public class DBEnvData {
 
@@ -30,8 +28,6 @@ public class DBEnvData {
 	public static String TABLE_STARTGROUP = "urm_env_startgroup";
 	public static String TABLE_STARTGROUPSERVER = "urm_env_startgroup_server";
 	public static String TABLE_DEPLOYMENT = "urm_env_deployment";
-	public static String TABLE_MONTARGET = "urm_env_montarget";
-	public static String TABLE_MONITEM = "urm_env_monitem";
 	public static String TABLE_SERVERDEP = "urm_env_server_deps";
 	public static String FIELD_ENV_ID = "env_id";
 	public static String FIELD_ENV_META_ID = "meta_id";
@@ -93,18 +89,6 @@ public class DBEnvData {
 	public static String FIELD_SERVERDEP_SERVER_ID = "server_id";
 	public static String FIELD_SERVERDEP_SERVER_DEP_ID = "dep_server_id";
 	public static String FIELD_SERVERDEP_TYPE = "serverdependency_type";
-	public static String FIELD_MONTARGET_ID = "montarget_id";
-	public static String FIELD_MONTARGET_SEGMENT_ID = "segment_id";
-	public static String FIELD_MONTARGET_MAJOR_ENABLED = "major_enabled";
-	public static String FIELD_MONTARGET_MAJOR_SCHEDULE = "major_schedule";
-	public static String FIELD_MONTARGET_MAJOR_MAXTIME = "major_maxtime";
-	public static String FIELD_MONTARGET_MINOR_ENABLED = "minor_enabled";
-	public static String FIELD_MONTARGET_MINOR_SCHEDULE = "minor_schedule";
-	public static String FIELD_MONTARGET_MINOR_MAXTIME = "minor_maxtime";
-	public static String FIELD_MONITEM_ID = "monitem_id";
-	public static String FIELD_MONITEM_TARGET_ID = "montarget_id";
-	public static String FIELD_MONITEM_TYPE = "monitem_type";
-	public static String FIELD_MONITEM_DESC = "xdesc";
 	
 	public static PropertyEntity makeEntityEnvPrimary( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID , false );
@@ -322,54 +306,12 @@ public class DBEnvData {
 		} ) );
 	}
 
-	public static PropertyEntity makeEntityMonitoringTarget( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONTARGET , DBEnumParamEntityType.ENV_SEGMENT_MONTARGET , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONTARGET , FIELD_MONTARGET_ID , false );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_MONTARGET_SEGMENT_ID , "segment id" , DBEnumObjectType.ENVIRONMENT_SEGMENT , true ) ,
-				EntityVar.metaStringXmlOnly( MetaMonitoringTarget.PROPERTY_ENV , "environment name" , true , null ) ,
-				EntityVar.metaStringXmlOnly( MetaMonitoringTarget.PROPERTY_SEGMENT , "segment name" , true , null ) ,
-				EntityVar.metaBooleanVar( MetaMonitoringTarget.PROPERTY_MAJOR_ENABLED , FIELD_MONTARGET_MAJOR_ENABLED , "Enabled major monitoring" , true , false ) ,
-				EntityVar.metaStringVar( MetaMonitoringTarget.PROPERTY_MAJOR_SCHEDULE , FIELD_MONTARGET_MAJOR_SCHEDULE , "major schedule" , false , null ) ,
-				EntityVar.metaIntegerVar( MetaMonitoringTarget.PROPERTY_MAJOR_MAXTIME , FIELD_MONTARGET_MAJOR_MAXTIME , "major max time" , true , 300000 ) ,
-				EntityVar.metaBooleanVar( MetaMonitoringTarget.PROPERTY_MINOR_ENABLED , FIELD_MONTARGET_MINOR_ENABLED , "Enabled minor monitoring" , true , false ) ,
-				EntityVar.metaStringVar( MetaMonitoringTarget.PROPERTY_MINOR_SCHEDULE , FIELD_MONTARGET_MINOR_SCHEDULE , "minor schedule" , false , null ) ,
-				EntityVar.metaIntegerVar( MetaMonitoringTarget.PROPERTY_MINOR_MAXTIME , FIELD_MONTARGET_MINOR_MAXTIME , "minor max time" , true , 300000 ) ,
-		} ) );
-	}
-
-	public static PropertyEntity makeEntityMonitoringItem( DBConnection c , boolean upgrade ) throws Exception {
-		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_MONITEM , DBEnumParamEntityType.ENV_SEGMENT_MONITEM , DBEnumObjectVersionType.ENVIRONMENT , TABLE_MONITEM , FIELD_MONITEM_ID , false );
-		if( !upgrade ) {
-			DBSettings.loaddbAppEntity( c , entity );
-			return( entity );
-		}
-		
-		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
-				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
-				EntityVar.metaObjectDatabaseOnly( FIELD_MONITEM_TARGET_ID , "monitoring target id" , DBEnumObjectType.ENVIRONMENT_MONTARGET , true ) ,
-				EntityVar.metaStringVar( MetaMonitoringItem.PROPERTY_DESC , FIELD_MONITEM_DESC , "description" , false , null ) ,
-				EntityVar.metaEnumVar( MetaMonitoringItem.PROPERTY_TYPE , FIELD_MONITEM_TYPE , "monitoring item type" , true , DBEnumMonItemType.UNKNOWN ) ,
-				EntityVar.metaString( MetaMonitoringItem.PROPERTY_URL , "check url" , false , null ) ,
-				EntityVar.metaString( MetaMonitoringItem.PROPERTY_WSDATA , "check request" , false , null ) ,
-				EntityVar.metaString( MetaMonitoringItem.PROPERTY_WSCHECK , "check request response" , false , null )
-		} ) );
-	}
-
 	public static void dropEnvData( DBConnection c , ProductMeta storage ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		
 		// cascade drop instance data
 		DBSystemData.dropEnvData( c , storage );
 		// design data
-		// mon data
-		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonItem , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonTarget , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		// core data
 		if( !c.modify( DBQueries.MODIFY_ENVALL_DELETEALL_PARAMVALUES1 , new String[] { EngineDB.getInteger( storage.ID ) } ) )
 			Common.exitUnexpected();
@@ -389,9 +331,6 @@ public class DBEnvData {
 		// cascade drop instance data
 		DBSystemData.dropEnvData( c , env );
 		// design data
-		// mon data
-		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonItem , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
-		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentMonTarget , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( env.ID ) } );
 		// core data
 		if( !c.modify( DBQueries.MODIFY_ENV_DELETEALL_PARAMVALUES1 , new String[] { EngineDB.getInteger( env.ID ) } ) )
 			Common.exitUnexpected();

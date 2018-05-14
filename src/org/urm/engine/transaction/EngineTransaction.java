@@ -10,10 +10,10 @@ import org.urm.db.env.DBMetaEnvServer;
 import org.urm.db.env.DBMetaEnvServerDeployment;
 import org.urm.db.env.DBMetaEnvServerNode;
 import org.urm.db.env.DBMetaEnvStartInfo;
-import org.urm.db.env.DBMetaMonitoring;
 import org.urm.db.product.*;
 import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
+import org.urm.db.system.DBAppProductMonitoring;
 import org.urm.db.system.DBAppProductDumps;
 import org.urm.engine.Engine;
 import org.urm.engine.AuthService;
@@ -49,8 +49,8 @@ import org.urm.meta.product.*;
 import org.urm.meta.system.AppProduct;
 import org.urm.meta.system.AppProductPolicy;
 import org.urm.meta.system.AppSystem;
-import org.urm.meta.system.MetaMonitoringItem;
-import org.urm.meta.system.MetaMonitoringTarget;
+import org.urm.meta.system.AppProductMonitoringItem;
+import org.urm.meta.system.AppProductMonitoringTarget;
 import org.urm.meta.system.ProductDump;
 import org.urm.meta.system.ProductDumpMask;
 
@@ -1344,36 +1344,27 @@ public class EngineTransaction extends TransactionBase {
 		DBAppProductDumps.setDumpSchedule( this , product , dump , schedule );
 	}
 
-	public MetaMonitoringTarget modifyMonitoringTarget( MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
-		MetaEnv env = sg.env;
-		Meta meta = env.meta;
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		return( DBMetaMonitoring.modifyTarget( this , storage , env , sg , major , enabled , maxTime , schedule ) );
+	public AppProductMonitoringTarget modifyMonitoringTarget( AppProduct product , MetaEnvSegment sg , boolean major , boolean enabled , int maxTime , ScheduleProperties schedule ) throws Exception {
+		super.checkTransactionProduct( product );
+		return( DBAppProductMonitoring.modifyTarget( this , product , sg , major , enabled , maxTime , schedule ) );
 	}
 
-	public MetaMonitoringItem createMonitoringItem( MetaMonitoringTarget target , DBEnumMonItemType type , String url , String desc , String WSDATA , String WSCHECK ) throws Exception {
-		MetaEnv env = target.getEnv();
-		Meta meta = env.meta;
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		return( DBMetaMonitoring.createTargetItem( this , storage , env , target , type , url , desc , WSDATA , WSCHECK ) );
+	public AppProductMonitoringItem createMonitoringItem( AppProductMonitoringTarget target , DBEnumMonItemType type , String url , String desc , String WSDATA , String WSCHECK ) throws Exception {
+		AppProduct product = target.product;
+		super.checkTransactionProduct( product );
+		return( DBAppProductMonitoring.createTargetItem( this , product , target , type , url , desc , WSDATA , WSCHECK ) );
 	}
 	
-	public void modifyMonitoringItem( MetaMonitoringItem item , String url , String desc , String WSDATA , String WSCHECK ) throws Exception {
-		MetaEnv env = item.target.getEnv();
-		Meta meta = env.meta;
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		DBMetaMonitoring.modifyTargetItem( this , storage , env , item.target , item , url , desc , WSDATA , WSCHECK );
+	public void modifyMonitoringItem( AppProductMonitoringItem item , String url , String desc , String WSDATA , String WSCHECK ) throws Exception {
+		AppProduct product = item.target.product;
+		super.checkTransactionProduct( product );
+		DBAppProductMonitoring.modifyTargetItem( this , product , item.target , item , url , desc , WSDATA , WSCHECK );
 	}
 	
-	public void deleteMonitoringItem( MetaMonitoringItem item ) throws Exception {
-		MetaEnv env = item.target.getEnv();
-		Meta meta = env.meta;
-		ProductMeta storage = meta.getStorage();
-		super.checkTransactionMetadata( storage );
-		DBMetaMonitoring.deleteTargetItem( this , storage , env , item.target , item );
+	public void deleteMonitoringItem( AppProductMonitoringItem item ) throws Exception {
+		AppProduct product = item.target.product;
+		super.checkTransactionProduct( product );
+		DBAppProductMonitoring.deleteTargetItem( this , product , item.target , item );
 	}
 
 	// ################################################################################

@@ -46,6 +46,7 @@ public class EngineLoader {
 	private ActionBase action;
 
 	private EngineLoaderCore ldc;
+	private EngineLoaderSystems lds;
 	private EngineLoaderProducts ldp;
 	
 	public EngineLoader( Engine engine , DataService data , ActionBase action ) {
@@ -56,6 +57,7 @@ public class EngineLoader {
 		this.entities = data.getEntities();
 		
 		ldc = new EngineLoaderCore( this , data );
+		lds = new EngineLoaderSystems( this , data );
 		ldp = new EngineLoaderProducts( this , data );
 	}
 
@@ -116,7 +118,7 @@ public class EngineLoader {
 	}
 
 	public EngineDirectory getDirectory() {
-		return( ldc.getDirectory() );
+		return( lds.getDirectory() );
 	}
 
 	public EngineMirrors getMirrors() {
@@ -167,8 +169,10 @@ public class EngineLoader {
 	}
 	
 	public void closeConnection( boolean commit ) throws Exception {
-		if( commit )
+		if( commit ) {
 			ldc.setData();
+			lds.setData();
+		}
 
 		if( connection != null ) {
 			if( transaction == null )
@@ -180,8 +184,10 @@ public class EngineLoader {
 	}
 
 	public void saveConnection( boolean commit ) throws Exception {
-		if( commit )
+		if( commit ) {
 			ldc.setData();
+			lds.setData();
+		}
 
 		if( connection != null )
 			connection.save( commit );
@@ -308,8 +314,10 @@ public class EngineLoader {
 	}
 	
 	public void exportRepo( MirrorRepository repo ) throws Exception {
-		if( repo.isServer() )
+		if( repo.isServer() ) {
 			ldc.exportEngine();
+			lds.exportDirectory();
+		}
 		else {
 			if( repo.productId == null )
 				Common.exitUnexpected();
@@ -415,15 +423,15 @@ public class EngineLoader {
 			// systems
 			if( importxml ) {
 				if( withSystems ) {
-					ldc.importxmlDirectory();
+					lds.importxmlDirectory();
 					saveConnection( true );
 					trace( "successfully completed import of engine directory data" );
 				}
 				else
-					ldc.loaddbDirectory();
+					lds.loaddbDirectory();
 			}
 			else
-				ldc.loaddbDirectory();
+				lds.loaddbDirectory();
 			
 			closeConnection( true );
 		}

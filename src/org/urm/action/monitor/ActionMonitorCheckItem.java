@@ -15,19 +15,19 @@ import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.MetaDistrComponent;
 import org.urm.meta.product.MetaDistrComponentItem;
-import org.urm.meta.system.MetaMonitoringItem;
-import org.urm.meta.system.MetaMonitoringTarget;
+import org.urm.meta.system.AppProductMonitoringItem;
+import org.urm.meta.system.AppProductMonitoringTarget;
 
 public class ActionMonitorCheckItem extends ActionBase {
 
-	MetaMonitoringTarget target;
-	public MetaMonitoringItem item;
+	AppProductMonitoringTarget target;
+	public AppProductMonitoringItem item;
 	public MetaEnvServer server;
 	
 	public ServerStatus serverStatus;
 	List<NodeStatus> nodeData;
 	
-	public ActionMonitorCheckItem( ActionBase action , String stream , MetaMonitoringTarget target , MetaMonitoringItem item , MetaEnvServer server ) {
+	public ActionMonitorCheckItem( ActionBase action , String stream , AppProductMonitoringTarget target , AppProductMonitoringItem item , MetaEnvServer server ) {
 		super( action , stream , "Monitoring, check item" );
 		this.target = target;
 		this.item = item;

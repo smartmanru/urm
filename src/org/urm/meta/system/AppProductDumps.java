@@ -21,7 +21,7 @@ public class AppProductDumps {
 		mapImportById = new HashMap<Integer,ProductDump>();
 	}
 
-	public AppProductDumps copy( AppProduct rproduct ) throws Exception {
+	public AppProductDumps copy( AppProduct rproduct ) {
 		AppProductDumps r = new AppProductDumps( rproduct );
 		
 		for( ProductDump dump : mapExportById.values() ) {

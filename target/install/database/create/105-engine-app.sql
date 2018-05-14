@@ -39,6 +39,12 @@ CREATE TABLE main.urm_product_montarget (
                 target_fkenv VARCHAR(30),
                 target_fksg VARCHAR(30),
                 target_fkid INTEGER,
+                major_enabled BOOLEAN NOT NULL,
+                major_schedule VARCHAR,
+                major_maxtime INTEGER,
+                minor_enabled BOOLEAN NOT NULL,
+                minor_schedule VARCHAR,
+                minor_maxtime INTEGER,
                 sv INTEGER NOT NULL,
                 CONSTRAINT urm_product_montarget_pk PRIMARY KEY (montarget_id)
 );
