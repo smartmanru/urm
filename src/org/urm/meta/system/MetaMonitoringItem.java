@@ -1,6 +1,7 @@
-package org.urm.meta.env;
+package org.urm.meta.system;
 
 import org.urm.db.core.DBEnums.*;
+import org.urm.meta.env.ProductEnvs;
 
 public class MetaMonitoringItem {
 

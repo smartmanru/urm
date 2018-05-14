@@ -12,8 +12,8 @@ import org.urm.engine.status.StatusSource;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.env.MetaMonitoringItem;
-import org.urm.meta.env.MetaMonitoringTarget;
+import org.urm.meta.system.MetaMonitoringItem;
+import org.urm.meta.system.MetaMonitoringTarget;
 
 public class ActionMonitorTarget extends ActionBase {
 	

@@ -17,8 +17,8 @@ import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.Meta;
+import org.urm.meta.system.MetaMonitoringTarget;
 
 public class MonitorTargetInfo {
 

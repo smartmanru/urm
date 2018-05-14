@@ -15,6 +15,7 @@ import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.MetaMonitoring;
 
 public class ProductEnvs {
 

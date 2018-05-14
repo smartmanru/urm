@@ -3,9 +3,9 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
+import org.urm.meta.system.MetaMonitoringTarget;
 
 public class MonitoringStorage {
 

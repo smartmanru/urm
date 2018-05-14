@@ -17,9 +17,9 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaEnvStartGroup;
-import org.urm.meta.env.MetaMonitoringItem;
-import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.MetaMonitoringItem;
+import org.urm.meta.system.MetaMonitoringTarget;
 
 public class DBEnvData {
 
