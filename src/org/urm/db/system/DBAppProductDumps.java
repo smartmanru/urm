@@ -21,6 +21,7 @@ import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.loader.MatchItem;
+import org.urm.meta.loader._Error;
 import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.system.AppProduct;
@@ -33,8 +34,27 @@ import org.w3c.dom.Node;
 
 public class DBAppProductDumps {
 
+	public static String ELEMENT_DUMP = "dump";
 	public static String ELEMENT_TABLESET = "data";
 	public static String ELEMENT_DUMPMASK = "tables";
+
+	public static void importxmlAll( EngineLoader loader , AppProduct product , Node root ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_DUMP );
+		if( items == null )
+			return;
+		
+		for( Node node : items ) {
+			ActionBase action = loader.getAction();
+			try {
+				// dump settings
+				DBAppProductDumps.importxmlDump( loader , product , node );
+			}
+			catch( Throwable e ) {
+				loader.log( "import dump metadata" , e );
+				loader.setLoadFailed( action , _Error.UnableLoadProductDumps1 , e , "unable to import dump metadata, product=" + product.NAME , product.NAME );
+			}
+		}
+	}
 	
 	public static ProductDump importxmlDump( EngineLoader loader , AppProduct product , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
@@ -163,6 +183,22 @@ public class DBAppProductDumps {
 				EngineDB.getMatchName( mask.SCHEMA ) ,
 				EngineDB.getString( mask.TABLEMASK )
 				} , insert );
+	}
+	
+	public static void exportxmlAll( EngineLoader loader , AppProduct product , Document doc , Element root ) throws Exception {
+		AppProductDumps dumps = product.dumps;
+		
+		for( String name : dumps.getExportDumpNames() ) {
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DUMP );
+			ProductDump dump = dumps.findExportDump( name );
+			exportxmlDump( loader , product , dump , doc , node );
+		}
+		
+		for( String name : dumps.getImportDumpNames() ) {
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DUMP );
+			ProductDump dump = dumps.findImportDump( name );
+			exportxmlDump( loader , product , dump , doc , node );
+		}
 	}
 	
 	public static void exportxmlDump( EngineLoader loader , AppProduct product , ProductDump dump , Document doc , Element root ) throws Exception {

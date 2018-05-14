@@ -305,8 +305,8 @@ public class EngineLoader {
 	
 	public void exportRepo( MirrorRepository repo ) throws Exception {
 		if( repo.isServer() ) {
-			ldc.exportEngine();
-			lds.exportDirectory();
+			ldc.exportxmlEngine();
+			lds.exportxmlDirectory();
 		}
 		else {
 			if( repo.productId == null )

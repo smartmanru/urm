@@ -6,6 +6,8 @@ import org.urm.common.ConfReader;
 import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.system.DBAppProduct;
+import org.urm.db.system.DBAppProductDumps;
+import org.urm.db.system.DBAppProductMonitoring;
 import org.urm.db.system.DBAppSystem;
 import org.urm.db.system.DBSystemData;
 import org.urm.engine.data.EngineDirectory;
@@ -103,9 +105,6 @@ public abstract class DBEngineDirectory {
 	public static void loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
 		loaddbSystems( loader , directory );
 		loaddbProducts( loader , directory );
-		
-		// match systems to engine
-		matchSystems( loader , directory , false );
 	}
 	
 	private static void loaddbSystems( EngineLoader loader , EngineDirectory directory ) throws Exception {
@@ -116,9 +115,6 @@ public abstract class DBEngineDirectory {
 	
 	private static void loaddbProducts( EngineLoader loader , EngineDirectory directory ) throws Exception {
 		AppProduct[] products = DBAppProduct.loaddb( loader , directory );
-		
-		for( AppProduct product : products )
-			DBAppProduct.loaddbData( loader , product );
 		
 		for( AppProduct product : products )
 			directory.addUnmatchedProduct( product );

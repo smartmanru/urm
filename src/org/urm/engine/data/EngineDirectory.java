@@ -96,6 +96,10 @@ public class EngineDirectory extends EngineObject {
 		return( mapProducts.values().toArray( new AppProduct[0] ) );
 	}
 	
+	public AppProduct[] getProductsUnmatched() {
+		return( mapProductUnmatched.values().toArray( new AppProduct[0] ) );
+	}
+	
 	public String[] getSystemProductNames( String systemName ) {
 		AppSystem system = findSystem( systemName );
 		if( system == null )

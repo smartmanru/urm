@@ -16,6 +16,7 @@ import org.urm.engine.schedule.ScheduleProperties;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.loader.EngineLoader;
+import org.urm.meta.loader._Error;
 import org.urm.meta.system.AppProduct;
 import org.urm.meta.system.AppProductMonitoring;
 import org.urm.meta.system.AppProductMonitoringItem;
@@ -30,7 +31,19 @@ public class DBAppProductMonitoring {
 	public static String ELEMENT_CHECKURL = "checkurl";
 	public static String ELEMENT_CHECKWS = "checkws";
 	
-	public static void importxml( EngineLoader loader , AppProduct product , Node root ) throws Exception {
+	public static void importxmlAll( EngineLoader loader , AppProduct product , Node root ) throws Exception {
+		ActionBase action = loader.getAction();
+		try {
+			// monitoring settings
+			DBAppProductMonitoring.importxmlTargets( loader , product , root );
+		}
+		catch( Throwable e ) {
+			loader.log( "import monitoring data" , e );
+			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + product.NAME , product.NAME );
+		}
+	}
+
+	public static void importxmlTargets( EngineLoader loader , AppProduct product , Node root ) throws Exception {
 		AppProductMonitoring mon = product.getMonitoring();
 		
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_TARGET );
@@ -249,7 +262,7 @@ public class DBAppProductMonitoring {
 				} , insert );
 	}
 	
-	public static void exportxml( EngineLoader loader , AppProduct product , Document doc , Element root ) throws Exception {
+	public static void exportxmlAll( EngineLoader loader , AppProduct product , Document doc , Element root ) throws Exception {
 		AppProductMonitoring mon = product.getMonitoring();
 		
 		for( AppProductMonitoringTarget target : mon.getTargets() ) {

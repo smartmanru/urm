@@ -104,7 +104,7 @@ public class EngineLoaderCore {
 		return( data.getReleaseLifecycles() );
 	}
 
-	public void exportEngine() throws Exception {
+	public void exportxmlEngine() throws Exception {
 		exportCore( true );
 		exportAuth( engine.getAuth() );
 	}

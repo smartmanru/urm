@@ -254,12 +254,6 @@ public abstract class DBAppProduct {
 		}
 	}
 
-	public static void loaddbData( EngineLoader loader , AppProduct product ) throws Exception {
-		loaddbPolicy( loader , product );
-		DBAppProductDumps.loaddbAll( loader , product );
-		DBAppProductMonitoring.loaddbAll( loader , product );
-	}
-	
 	public static void loaddbPolicy( EngineLoader loader , AppProduct product ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineEntities entities = c.getEntities();
