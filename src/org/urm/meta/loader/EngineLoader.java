@@ -50,6 +50,20 @@ public class EngineLoader {
 	private EngineLoaderProducts ldp;
 	
 	public EngineLoader( Engine engine , DataService data , ActionBase action ) {
+		create( engine , data , action );
+	}
+
+	public EngineLoader( Engine engine , DataService data , EngineMethod method , ActionBase action ) {
+		create( engine , data , action );
+		this.method = method;
+	}
+
+	public EngineLoader( Engine engine , DataService data , TransactionBase transaction ) {
+		create( engine , data , transaction.action );
+		this.transaction = transaction;
+	}
+
+	private void create( Engine engine , DataService data , ActionBase action ) {
 		this.engine = engine;
 		this.data = data;
 		this.action = action;
@@ -60,31 +74,7 @@ public class EngineLoader {
 		lds = new EngineLoaderSystems( this , data );
 		ldp = new EngineLoaderProducts( this , data );
 	}
-
-	public EngineLoader( Engine engine , DataService data , EngineMethod method , ActionBase action ) {
-		this.engine = engine;
-		this.data = data;
-		this.method = method;
-		this.action = action;
-		this.execrc = engine.execrc;
-		this.entities = data.getEntities();
-		
-		ldc = new EngineLoaderCore( this , data );
-		ldp = new EngineLoaderProducts( this , data );
-	}
-
-	public EngineLoader( Engine engine , DataService data , TransactionBase transaction ) {
-		this.engine = engine;
-		this.data = data;
-		this.transaction = transaction;
-		this.action = transaction.action;
-		this.execrc = engine.execrc;
-		this.entities = data.getEntities();
-		
-		ldc = new EngineLoaderCore( this , data );
-		ldp = new EngineLoaderProducts( this , data );
-	}
-
+	
 	public TransactionBase getTransaction() {
 		return( transaction );
 	}
