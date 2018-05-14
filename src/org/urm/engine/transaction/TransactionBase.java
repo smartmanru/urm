@@ -1183,7 +1183,7 @@ public class TransactionBase extends EngineObject {
 	protected void checkTransactionProduct( AppProduct product ) throws Exception {
 		checkTransaction();
 		TransactionProduct tm = findProductTransaction( product.NAME );
-		if( tm == null || !tm.checkTransactionProduct() )
+		if( tm == null || !tm.checkTransactionProduct( product ) )
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing product changes" , null );
 	}
 

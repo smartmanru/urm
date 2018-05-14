@@ -204,8 +204,8 @@ public class TransactionProduct {
 		return( true );
 	}
 
-	public boolean checkTransactionProduct() throws Exception {
-		if( !changeProduct )
+	public boolean checkTransactionProduct( AppProduct product ) throws Exception {
+		if( changeProduct == false || product != productNew )
 			return( false );
 		return( true );
 	}
