@@ -27,7 +27,6 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.env._Error;
 
 public class ActionConfigure extends ActionBase {
 
