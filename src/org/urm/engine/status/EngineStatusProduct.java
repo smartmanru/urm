@@ -10,7 +10,6 @@ import org.urm.engine.StateService.StatusType;
 import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -18,6 +17,7 @@ import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.AppProduct;
 
 public class EngineStatusProduct extends EngineObject {
 

@@ -10,9 +10,9 @@ import org.urm.engine.Engine;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.AppProduct;
 
 public class EngineProducts {
 

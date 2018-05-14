@@ -62,7 +62,6 @@ import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -77,6 +76,7 @@ import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.AppProduct;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 

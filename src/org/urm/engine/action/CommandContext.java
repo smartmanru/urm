@@ -14,13 +14,13 @@ import org.urm.engine.Engine;
 import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.shell.Account;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.system.AppProduct;
 
 public class CommandContext {
 

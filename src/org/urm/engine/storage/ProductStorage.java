@@ -9,10 +9,10 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.db.EngineDB;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.ProductDumpMask;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDatabaseSchema;
+import org.urm.meta.system.AppProduct;
+import org.urm.meta.system.ProductDumpMask;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 

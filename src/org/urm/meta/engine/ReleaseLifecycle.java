@@ -15,6 +15,8 @@ import org.urm.engine.products.EngineProductReleases;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseSchedule;
+import org.urm.meta.system.AppProduct;
+import org.urm.meta.system.AppProductPolicy;
 
 public class ReleaseLifecycle extends EngineObject {
 

@@ -18,11 +18,11 @@ import org.urm.engine.dist.DistRepositoryItem;
 import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.status.ScopeState;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository;
+import org.urm.meta.system.AppProduct;
 
 public class EngineMethod extends EngineExecutorTask {
 	

@@ -1,6 +1,6 @@
 package org.urm.engine.status;
 
-import org.urm.meta.engine.AppProduct;
+import org.urm.meta.system.AppProduct;
 
 public class ProductStatus extends Status {
 

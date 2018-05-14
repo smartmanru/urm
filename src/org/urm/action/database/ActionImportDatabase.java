@@ -21,13 +21,13 @@ import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
 import org.urm.engine.storage.SourceStorage;
 import org.urm.engine.storage.UrmStorage;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.ProductDump;
-import org.urm.meta.engine.ProductDumpMask;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.MetaDatabaseSchema;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
+import org.urm.meta.system.AppProduct;
+import org.urm.meta.system.ProductDump;
+import org.urm.meta.system.ProductDumpMask;
 
 public class ActionImportDatabase extends ActionBase {
 

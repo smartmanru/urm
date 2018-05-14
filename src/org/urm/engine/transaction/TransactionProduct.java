@@ -11,10 +11,10 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductRevisions;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.AppProduct;
 
 public class TransactionProduct {
 

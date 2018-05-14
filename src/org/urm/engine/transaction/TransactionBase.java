@@ -33,8 +33,6 @@ import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.BaseCategory;
 import org.urm.meta.engine.BaseGroup;
@@ -42,8 +40,6 @@ import org.urm.meta.engine.BaseItem;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.Network;
-import org.urm.meta.engine.ProductDump;
-import org.urm.meta.engine.ProductDumpMask;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.env.MetaEnv;
@@ -76,6 +72,10 @@ import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaUnits;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.AppProduct;
+import org.urm.meta.system.AppSystem;
+import org.urm.meta.system.ProductDump;
+import org.urm.meta.system.ProductDumpMask;
 
 public class TransactionBase extends EngineObject {
 

@@ -11,9 +11,9 @@ import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.status.ScopeState;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
+import org.urm.meta.system.AppProduct;
 
 abstract public class CommandMethod {
 

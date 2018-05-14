@@ -15,9 +15,9 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
+import org.urm.meta.system.AppProduct;
 
 public class CommandExecutorCodebase extends CommandExecutor {
 

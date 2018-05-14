@@ -29,8 +29,8 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.MirrorRepository;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.AppProduct;
 
 public class EngineLoader {
 

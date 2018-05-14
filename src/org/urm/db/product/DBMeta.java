@@ -17,12 +17,12 @@ import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.TransactionBase;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.AppProduct;
 import org.w3c.dom.Node;
 
 public class DBMeta {

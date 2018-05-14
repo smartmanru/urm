@@ -1,6 +1,6 @@
 package org.urm.engine.status;
 
-import org.urm.meta.engine.AppSystem;
+import org.urm.meta.system.AppSystem;
 
 public class SystemStatus extends Status {
 

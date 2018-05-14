@@ -10,14 +10,14 @@ import org.urm.db.engine.DBEngineEntities;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.engine.AppProduct;
-import org.urm.meta.engine.AppProductPolicy;
-import org.urm.meta.engine.AppSystem;
-import org.urm.meta.engine.ProductDump;
-import org.urm.meta.engine.ProductDumpMask;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.ProductMeta;
+import org.urm.meta.system.AppProduct;
+import org.urm.meta.system.AppProductPolicy;
+import org.urm.meta.system.AppSystem;
+import org.urm.meta.system.ProductDump;
+import org.urm.meta.system.ProductDumpMask;
 
 public class DBSystemData {
 

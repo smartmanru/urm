@@ -9,7 +9,7 @@ import org.urm.db.core.DBEnums.*;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.engine.AppProduct;
+import org.urm.meta.system.AppProduct;
 
 public class MetaProductSettings {
 

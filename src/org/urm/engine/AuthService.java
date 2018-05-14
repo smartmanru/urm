@@ -20,7 +20,6 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertySet;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
-import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthContext;
 import org.urm.meta.engine.AuthGroup;
 import org.urm.meta.engine.AuthLdap;
@@ -34,6 +33,7 @@ import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.loader.MatchItem;
 import org.urm.meta.product.Meta;
+import org.urm.meta.system.AppProduct;
 
 public class AuthService extends EngineObject {
 
