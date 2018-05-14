@@ -18,6 +18,7 @@ import org.w3c.dom.Node;
 public class EngineLoaderSystems {
 
 	public static String XML_ROOT_MONITORING = "monitoring";
+	public static String XML_ROOT_DUMPS = "dumps";
 	public static String ELEMENT_PRODUCT = "product";
 	
 	private EngineLoader loader;
@@ -180,7 +181,7 @@ public class EngineLoaderSystems {
 	public void exportxmlDumps() throws Exception {
 		String file = getMonitoringFile();
 		trace( "export dumps file " + file + "..." );
-		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_DUMPS );
 		Element root = doc.getDocumentElement();
 
 		EngineDirectory directory = getDirectory();
