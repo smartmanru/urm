@@ -145,9 +145,9 @@ public class DBAppProductDumps {
 		else
 			DBNames.updateName( c , product.ID , dump.NAME , dump.ID , DBEnumParamEntityType.APPPRODUCT_DUMP );
 		
-		dump.EV = c.getNextSystemVersion( product.system );
+		dump.SV = c.getNextSystemVersion( product.system );
 		EngineEntities entities = c.getEntities();
-		DBEngineEntities.modifyAppObject( c , entities.entityAppProductDump , dump.ID , dump.EV , new String[] {
+		DBEngineEntities.modifyAppObject( c , entities.entityAppProductDump , dump.ID , dump.SV , new String[] {
 				EngineDB.getInteger( product.ID ) , 
 				EngineDB.getString( dump.NAME ) ,
 				EngineDB.getString( dump.DESC ) ,
@@ -173,9 +173,9 @@ public class DBAppProductDumps {
 		if( insert )
 			mask.ID = c.getNextSequenceValue();
 		
-		mask.EV = c.getNextSystemVersion( product.system );
+		mask.SV = c.getNextSystemVersion( product.system );
 		EngineEntities entities = c.getEntities();
-		DBEngineEntities.modifyAppObject( c , entities.entityAppProductDumpMask , dump.ID , dump.EV , new String[] {
+		DBEngineEntities.modifyAppObject( c , entities.entityAppProductDumpMask , mask.ID , mask.SV , new String[] {
 				EngineDB.getObject( product.ID ) , 
 				EngineDB.getObject( dump.ID ) , 
 				EngineDB.getBoolean( mask.INCLUDE ) ,
@@ -264,7 +264,7 @@ public class DBAppProductDumps {
 			while( rs.next() ) {
 				ProductDump dump = new ProductDump( dumps );
 				dump.ID = entity.loaddbId( rs );
-				dump.EV = entity.loaddbVersion( rs );
+				dump.SV = entity.loaddbVersion( rs );
 				dump.create( 
 						entity.loaddbString( rs , ProductDump.PROPERTY_NAME ) , 
 						entity.loaddbString( rs , ProductDump.PROPERTY_DESC ) ,
@@ -315,17 +315,13 @@ public class DBAppProductDumps {
 			while( rs.next() ) {
 				int dumpId = entity.loaddbObject( rs , DBSystemData.FIELD_DUMPMASK_DUMP_ID );
 				ProductDump dump = product.getDump( dumpId );
-				MetaEnvServer server = dump.getServer();
-				MetaDatabase db = server.meta.getDatabase();
-				
 				MatchItem SCHEMA = entity.loaddbMatchItem( rs , DBSystemData.FIELD_DUMPMASK_SCHEMA_ID , ProductDumpMask.PROPERTY_SCHEMA );
-				MetaDatabaseSchema schema = db.getSchema( SCHEMA );
 				
 				ProductDumpMask mask = new ProductDumpMask( dump );
 				mask.ID = entity.loaddbId( rs );
-				mask.EV = entity.loaddbVersion( rs );
-				mask.create( 
-						schema , 
+				mask.SV = entity.loaddbVersion( rs );
+				mask.create(  
+						SCHEMA , 
 						entity.loaddbBoolean( rs , ProductDumpMask.PROPERTY_INCLUDE ) , 
 						entity.loaddbString( rs , ProductDumpMask.PROPERTY_MASK )
 						);

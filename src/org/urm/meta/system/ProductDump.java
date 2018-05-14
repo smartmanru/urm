@@ -53,7 +53,7 @@ public class ProductDump {
 	public boolean USESTANDBY;
 	public boolean USENFS;
 	public boolean OFFLINE;
-	public int EV;
+	public int SV;
 
 	public ScheduleProperties schedule;
 	Map<Integer,ProductDumpMask> tables;
@@ -85,13 +85,13 @@ public class ProductDump {
 		r.USESTANDBY = USESTANDBY;
 		r.USENFS = USENFS;
 		r.OFFLINE = OFFLINE;
-		r.EV = EV;
+		r.SV = SV;
 
 		r.schedule = schedule.copy();
 		
 		for( ProductDumpMask mask : tables.values() ) {
 			ProductDumpMask rmask = mask.copy( r );
-			addTableMask( rmask );
+			r.addTableMask( rmask );
 		}
 		
 		return( r );

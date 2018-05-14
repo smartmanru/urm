@@ -17,13 +17,13 @@ public class ProductDumpMask {
 	public MatchItem SCHEMA;
 	public boolean INCLUDE;
 	public String TABLEMASK;
-	public int EV;
+	public int SV;
 	
 	public ProductDumpMask( ProductDump dump ) {
 		this.dump = dump;
 		
 		ID = -1;
-		EV = -1;
+		SV = -1;
 	}
 
 	public ProductDumpMask copy( ProductDump rdump ) {
@@ -33,11 +33,17 @@ public class ProductDumpMask {
 		r.SCHEMA = MatchItem.copy( SCHEMA );
 		r.INCLUDE = INCLUDE;
 		r.TABLEMASK = TABLEMASK;
-		r.EV = EV;
+		r.SV = SV;
 		 
 		return( r );
 	}
 
+	public void create( MatchItem schema , boolean include , String tablemask ) {
+		this.SCHEMA = schema;
+		this.INCLUDE = include;
+		this.TABLEMASK = tablemask;
+	}
+	
 	public void create( MetaDatabaseSchema schema , boolean include , String tablemask ) {
 		modify( schema , include , tablemask );
 	}
