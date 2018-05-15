@@ -25,5 +25,6 @@ public class _Error {
 	public static final int ProjectCopyTagError3 = ErrorBase + 16;
 	public static final int ProjectSetTagError2 = ErrorBase + 17;
 	public static final int UnableChangeProjectCodebase1 = ErrorBase + 18;
+	public static final int UnableCommitProjectCodebase1 = ErrorBase + 19;
 	
 }

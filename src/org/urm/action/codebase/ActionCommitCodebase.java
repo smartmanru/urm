@@ -23,7 +23,8 @@ public class ActionCommitCodebase extends ActionBase {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
 		LocalFolder COPATH = CODIR.getSubFolder( this , scopeProject.sourceProject.NAME );
 		String BRANCH = scopeProject.sourceProject.getDefaultBranch( this );
-		vcs.commit( scopeProject.sourceProject , BRANCH , COPATH , MESSAGE );
+		if( !vcs.commit( scopeProject.sourceProject , BRANCH , COPATH , MESSAGE ) )
+			super.ifexit1( _Error.UnableCommitProjectCodebase1 , "Unable to commit codebase project=" + scopeProject.sourceProject.NAME , scopeProject.sourceProject.NAME );
 		return( SCOPESTATE.RunSuccess );
 	}
 	
