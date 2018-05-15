@@ -109,7 +109,7 @@ public class CommandExecutorCodebase extends CommandExecutor {
 	}
 	
 	private String getCODIR( ActionBase action , int argpos ) throws Exception {
-		String CODIR = getRequiredArg( action , argpos , "CODIR is empty" );
+		String CODIR = getRequiredArg( action , argpos , "CODIR" );
 		if( CODIR.startsWith( "/" ) || CODIR.startsWith( "." ) || CODIR.startsWith( "$" ) || CODIR.startsWith( "~" ) )
 			return( CODIR );
 		
