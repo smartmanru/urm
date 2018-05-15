@@ -117,9 +117,9 @@ public class ShellProcess {
 		
 		ShellExecutor master = shell.pool.master;
 		if( action.isLocalLinux() )
-			master.custom( action , "pkill -9 -P " + processId + "; kill -9 " + processId , CommandOutput.LOGLEVEL_TRACE );
+			master.custom( action , "pkill -9 -P " + processId + "; kill -9 " + processId , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );
 		else
-			master.custom( action , "taskkill /T /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE );	
+			master.custom( action , "taskkill /T /pid " + processId + " /f" , CommandOutput.LOGLEVEL_TRACE , Shell.WAIT_DEFAULT );	
 	}
 
 	public void destroy( ActionBase action ) {

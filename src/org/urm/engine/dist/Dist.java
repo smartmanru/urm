@@ -685,6 +685,9 @@ public class Dist {
 		parent.copyDir( action , RELEASEDIR , newName );
 		RemoteFolder folderNew = parent.getSubFolder( action , newName );
 		Dist distNew = newItem.read( action , folderNew , newReleaseDist );
+		if( distNew == null )
+			Common.exitUnexpected();
+		
 		return( distNew );
 	}
 

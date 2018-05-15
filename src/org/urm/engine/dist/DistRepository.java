@@ -16,6 +16,7 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseDist;
+import org.urm.meta.release.ReleaseRepository;
 
 public class DistRepository {
 
@@ -120,6 +121,28 @@ public class DistRepository {
 				action.log( "unable to read release" , e );
 			}
 		}
+		
+		// master if any
+		Release release = releases.findDefaultMaster();
+		if( release == null )
+			return;
+		
+		RemoteFolder masterFolder = repoFolder.getSubFolder( action , REPO_FOLDER_RELEASES_MASTER );
+		if( !repoFolder.checkExists( action ) ) {
+			action.error( "missing master release folder at " + masterFolder.getLocalPath( action ) );
+			return;
+		}
+			
+		ReleaseDist releaseDist = release.getDefaultReleaseDist();
+		if( releaseDist == null )
+			Common.exitUnexpected();
+		
+		DistRepositoryItem item = new DistRepositoryItem( this );
+		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , release.getMeta() , ReleaseLabelInfo.LABEL_MASTER );
+		item.createItem( action , info );
+		Dist dist = item.read( action , masterFolder , releaseDist );
+		if( dist != null )
+			addMasterItem( item );
 	}
 	
 	private void create( ActionBase action , boolean forceClear ) throws Exception {
@@ -251,6 +274,11 @@ public class DistRepository {
 		method.checkUpdateDistItem( item );
 		
 		Dist dist = item.dist;
+		if( dist == null ) {
+			action.error( "distributive is missing, ignored" );
+			return;
+		}
+		
 		if( force )
 			dist.forceDrop( action );
 		else
@@ -474,7 +502,7 @@ public class DistRepository {
 	}
 
 	public Dist findDefaultMasterDist() {
-		DistRepositoryItem item = findNormalItem( REPO_FOLDER_RELEASES_MASTER );
+		DistRepositoryItem item = findMasterItem( ReleaseRepository.MASTER_NAME_PRIMARY );
 		if( item == null )
 			return( null );
 		return( item.dist );
@@ -497,6 +525,8 @@ public class DistRepository {
 	
 	public DistRepositoryItem findDefaultItem( Release release ) {
 		ReleaseDist dist = release.getDefaultReleaseDist();
+		if( release.isMaster() )
+			return( findMasterItem( release.NAME ) );
 		return( findNormalItem( dist.getReleaseDir() ) );
 	}
 	
