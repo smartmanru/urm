@@ -32,13 +32,13 @@ import org.urm.engine.vcs.GenericVCS;
 import org.urm.engine.vcs.MirrorCase;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine._Error;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -64,12 +64,12 @@ public class DBEngineMirrors {
 		
 		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
 				EntityVar.metaString( MirrorRepository.PROPERTY_NAME , "Name" , true , null ) ,
-				EntityVar.metaStringVar( MirrorRepository.PROPERTY_DESC , FIELD_MIRROR_DESC , "Description" , false , null ) ,
-				EntityVar.metaEnumVar( MirrorRepository.PROPERTY_MIRROR_TYPE , FIELD_MIRROR_TYPE , "Function type" , true , DBEnumMirrorType.UNKNOWN ) ,
-				EntityVar.metaObjectVar( MirrorRepository.PROPERTY_RESOURCE , FIELD_MIRROR_RESOURCE_ID , "Mirror resource" , DBEnumObjectType.RESOURCE , false ) ,
-				EntityVar.metaStringVar( MirrorRepository.PROPERTY_RESOURCE_REPO , FIELD_MIRROR_RESOURCE_REPO , "Resource repository" , false , null ) ,
-				EntityVar.metaStringVar( MirrorRepository.PROPERTY_RESOURCE_ROOT , FIELD_MIRROR_RESOURCE_ROOT , "Repository root" , false , null ) ,
-				EntityVar.metaStringVar( MirrorRepository.PROPERTY_RESOURCE_DATA , FIELD_MIRROR_RESOURCE_DATA , "Repository data path" , false , null )
+				EntityVar.metaStringVar( MirrorRepository.PROPERTY_DESC , FIELD_MIRROR_DESC , MirrorRepository.PROPERTY_DESC , "Description" , false , null ) ,
+				EntityVar.metaEnumVar( MirrorRepository.PROPERTY_MIRROR_TYPE , FIELD_MIRROR_TYPE , MirrorRepository.PROPERTY_MIRROR_TYPE , "Function type" , true , DBEnumMirrorType.UNKNOWN ) ,
+				EntityVar.metaObjectVar( MirrorRepository.PROPERTY_RESOURCE , FIELD_MIRROR_RESOURCE_ID , MirrorRepository.PROPERTY_RESOURCE , "Mirror resource" , DBEnumObjectType.RESOURCE , false ) ,
+				EntityVar.metaStringVar( MirrorRepository.PROPERTY_RESOURCE_REPO , FIELD_MIRROR_RESOURCE_REPO , MirrorRepository.PROPERTY_RESOURCE_REPO , "Resource repository" , false , null ) ,
+				EntityVar.metaStringVar( MirrorRepository.PROPERTY_RESOURCE_ROOT , FIELD_MIRROR_RESOURCE_ROOT , MirrorRepository.PROPERTY_RESOURCE_ROOT , "Repository root" , false , null ) ,
+				EntityVar.metaStringVar( MirrorRepository.PROPERTY_RESOURCE_DATA , FIELD_MIRROR_RESOURCE_DATA , MirrorRepository.PROPERTY_RESOURCE_DATA , "Repository data path" , false , null )
 		} ) );
 	}
 

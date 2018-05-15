@@ -18,11 +18,11 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.engine.AppProductPolicy;
+import org.urm.meta.engine.AppSystem;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.loader.EngineLoader;
-import org.urm.meta.system.AppProduct;
-import org.urm.meta.system.AppProductPolicy;
-import org.urm.meta.system.AppSystem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -156,11 +156,13 @@ public abstract class DBAppProduct {
 	public static void deleteProduct( DBConnection c , AppProduct product ) throws Exception {
 		EngineEntities entities = c.getEntities();
 		int version = c.getNextSystemVersion( product.system );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppProductPolicyLifecycle , DBQueries.FILTER_PRODUCT_ID1 , new String[] { EngineDB.getInteger( product.ID ) } );
+		DBEngineEntities.deleteAppObject( c , entities.entityAppProductPolicy , product.ID , version );
 		DBEngineEntities.deleteAppObject( c , entities.entityAppDirectoryProduct , product.ID , version );
 	}
 
-	public static void createdbPolicy( DBConnection c , AppProduct product ) throws Exception {
-		AppProductPolicy policy = new AppProductPolicy( product );
+	public static void createdbPolicy( DBConnection c , EngineDirectory directory , AppProduct product ) throws Exception {
+		AppProductPolicy policy = new AppProductPolicy( directory , product );
 		product.setPolicy( policy );
 		
 		// policy record
@@ -177,11 +179,11 @@ public abstract class DBAppProduct {
 				} , insert );
 	}
 	
-	public static void importxmlPolicy( EngineLoader loader , AppProduct product , Node root ) throws Exception {
+	public static void importxmlPolicy( EngineLoader loader , EngineDirectory directory , AppProduct product , Node root ) throws Exception {
 		DBConnection c = loader.getConnection();
 		EngineLifecycles lifecycles = loader.getLifecycles();
 		
-		AppProductPolicy policy = new AppProductPolicy( product );
+		AppProductPolicy policy = new AppProductPolicy( directory , product );
 		product.setPolicy( policy );
 		
 		// policy record
@@ -260,7 +262,7 @@ public abstract class DBAppProduct {
 		PropertyEntity entity = entities.entityAppProductPolicy;
 		EngineLifecycles lifecycles = loader.getLifecycles();
 
-		AppProductPolicy policy = new AppProductPolicy( product );
+		AppProductPolicy policy = new AppProductPolicy( product.directory , product );
 		product.setPolicy( policy );
 		
 		// master attrs

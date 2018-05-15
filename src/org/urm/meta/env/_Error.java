@@ -20,8 +20,5 @@ public class _Error {
 	public static final int MissingProxyNode0 = ErrorBase + 11;
 	public static final int MissingRootPath1 = ErrorBase + 12;
 	public static final int MissingBinPath1 = ErrorBase + 13;
-	public static final int DuplicateComponent1 = ErrorBase + 14;
-	public static final int DuplicateBinaryItem1 = ErrorBase + 15;
-	public static final int DuplicateConfItem1 = ErrorBase + 16;
-	public static final int DuplicateSchemaItem1 = ErrorBase + 17;
+	
 }

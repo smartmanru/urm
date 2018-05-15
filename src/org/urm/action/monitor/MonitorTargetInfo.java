@@ -17,11 +17,13 @@ import org.urm.common.Common;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.system.AppProductMonitoringTarget;
+import org.urm.meta.env.MetaMonitoringTarget;
+import org.urm.meta.product.Meta;
 
 public class MonitorTargetInfo {
 
-	public AppProductMonitoringTarget target;
+	public Meta meta;
+	public MetaMonitoringTarget target;
 	public MonitoringStorage storage;
 	
 	public long timeLastMajor;
@@ -35,8 +37,9 @@ public class MonitorTargetInfo {
 	boolean rrdDbFail;
 	String F_RRDFILE;
 	
-	public MonitorTargetInfo( AppProductMonitoringTarget target , MonitoringStorage storage ) {
+	public MonitorTargetInfo( MetaMonitoringTarget target , MonitoringStorage storage ) {
 		this.target = target;
+		this.meta = target.envs.meta;
 		this.storage = storage;
 		rrdDbFail = false;
 		validMajor = false;
@@ -135,21 +138,15 @@ public class MonitorTargetInfo {
 	}
 	
 	public void addCheckEnvData( ActionBase action , long timeMillis , boolean status ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
-		if( sg == null )
-			Common.exitUnexpected();
-		
-		action.info( "addCheckEnvData: product=" + sg.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
+		MetaEnvSegment sg = target.getSegment();
+		action.info( "addCheckEnvData: product=" + target.envs.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
 				", timeMillis=" + timeMillis + ", succeeded:" + Common.getBooleanValue( status ) );
 		setLastMajor( status , timeMillis );
 	}
 
 	public void addCheckMinorsData( ActionBase action , long timeMillis , boolean status ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
-		if( sg == null )
-			Common.exitUnexpected();
-		
-		action.info( "addCheckMinorsData: product=" + sg.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
+		MetaEnvSegment sg = target.getSegment();
+		action.info( "addCheckMinorsData: product=" + target.envs.meta.name + ", env=" + sg.env.NAME + ", sg=" + sg.NAME + 
 				", succeeded:" + Common.getBooleanValue( status ) );
 		setLastMinor( status , timeMillis );
 	}
@@ -208,9 +205,7 @@ public class MonitorTargetInfo {
 			" DEF:lineb=" + rrdfile + ":checkenv-time:MAX:step=60 LINE1:lineb" + max_color + ":" + Common.getQuoted( "Max" ) ); 
 		 */
 		
-		MetaEnvSegment sg = target.findSegment();
-		if( sg == null )
-			Common.exitUnexpected();
+		MetaEnvSegment sg = target.getSegment();
 		
 		RrdGraphDef gDef = new RrdGraphDef();
 		long endTime = Util.getTime();
@@ -243,9 +238,7 @@ public class MonitorTargetInfo {
 	}
 
 	private void updateReport( ActionBase action ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
-		if( sg == null )
-			Common.exitUnexpected();
+		MetaEnvSegment sg = target.getSegment();
 		
 		LocalFolder resourceFolder = storage.getResourceFolder( action );
 		if( !resourceFolder.checkExists( action ) ) {

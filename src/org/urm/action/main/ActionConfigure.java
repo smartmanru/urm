@@ -358,7 +358,7 @@ public class ActionConfigure extends ActionBase {
 			if( env.isMultiSegment() )
 				CTXSG = "";
 			else
-				CTXSG = getMainSegment( env );
+				CTXSG = env.getMainSegment().NAME;
 		}
 		configureExecutorContextDeployment( ep , ef , ENVFILE , CTXSG , linux );
 
@@ -378,13 +378,6 @@ public class ActionConfigure extends ActionBase {
 			if( !cmdAction.top )
 				configureExecutorWrapper( efDB , dbe , cmdAction.name , linux , xpdb , ".." );
 		}
-	}
-	
-	private String getMainSegment( MetaEnv env ) throws Exception {
-		String[] names = env.getSegmentNames();
-		if( names.length != 1 )
-			return( "" );
-		return( names[0] );
 	}
 	
 	private void configureBuildMode( EngineProduct ep , LocalFolder ef , CommandMeta executor , DBEnumBuildModeType mode , boolean linux ) throws Exception {

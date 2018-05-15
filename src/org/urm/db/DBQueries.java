@@ -3,17 +3,11 @@ package org.urm.db;
 // all queries executed versus database
 public abstract class DBQueries {
 
-	public static String FILTER_PRODUCT_ID1 = "product_id = @1@";
 	public static String FILTER_META_ID1 = "meta_id = @1@";
 	public static String FILTER_META_NAME1 = "name = @1@";
 	public static String FILTER_DELIVERY_ID1 = "delivery_id = @1@";
 	public static String FILTER_ENV_ID1 = "env_id = @1@";
 	public static String FILTER_ENV_META1 = "env_id in ( select env_id from urm_env where meta_id = @1@ )";
-	public static String FILTER_DUMP_META1 = "dump_id in ( select dump_id from urm_product_dbdump where db_fkid in ( select server_id from meta_env_server where env_id in ( select env_id from urm_env where meta_id = @1@ ) ) )";
-	public static String FILTER_DUMP_ENV1 = "dump_id in ( select dump_id from urm_product_dbdump where db_fkid in ( select server_id from meta_env_server where env_id = @1@ ) )";
-	public static String FILTER_DUMP_ID1 = "dump_id = @1@";
-	public static String FILTER_MONTARGET_META1 = "montarget_id in ( select montarget_id from urm_product_montarget where target_fkid in ( select segment_id from meta_env_segment where env_id in ( select env_id from urm_env where meta_id = @1@ ) ) )";
-	public static String FILTER_MONTARGET_ENV1 = "montarget_id in ( select montarget_id from urm_product_montarget where target_fkid in ( select segment_id from meta_env_segment where env_id = @1@ ) )";
 	public static String FILTER_ENV_STARTGROUP1 = "startgroup_id = @1@";
 	public static String FILTER_ENV_STARTGROUPSERVER2 = "startgroup_id = @1@ and server_id = @2@";
 	public static String FILTER_REL_META1 = "release_id in ( select release_id from urm_rel_repository a , urm_rel_main b where a.repo_id = b.repo_id and a.meta_id = @1@ )";
@@ -29,6 +23,7 @@ public abstract class DBQueries {
 	public static String FILTER_REL_BUILDTARGET_TICKETSET1 = "buildtarget_id in ( select buildtarget_id from urm_rel_tickettarget where ticketset_id = @1@ and buildtarget_id is not null )";
 	public static String FILTER_REL_DISTTARGET_TICKETSET1 = "disttarget_id in ( select disttarget_id from urm_rel_tickettarget where ticketset_id = @1@ and disttarget_id is not null )";
 	public static String FILTER_LIFECYCLE_ID1 = "lifecycle_id = @1@";
+	public static String FILTER_PRODUCT_ID1 = "product_id = @1@";
 	
 	public static String QUERY_SEQ_GETNEXTVAL0 = "select nextval( 'urm_object_seq' )";
 
@@ -155,6 +150,8 @@ public abstract class DBQueries {
 	public static String MODIFY_ENVSG_MATCHBASELINE2 = "update urm_env_segment set baseline_segment_fkid = @2@ , baseline_segment_fkname = null where segment_id = @1@";
 	public static String MODIFY_ENVSERVER_MATCHBASELINE2 = "update urm_env_server set baseline_server_fkid = @2@ , baseline_server_fkname = null where server_id = @1@";
 
+	public static String MODIFY_ENV_CASCADESERVER_ALLDEPLOYMENTS1 = "delete from urm_env_deployment where server_id = @1@";
+	
 	public static String MODIFY_REL_CHANGEREPOREVISION2 = "update urm_rel_repository set meta_id = @2@ where repo_id = @1@";
 	public static String MODIFY_REL_REMATCHBUILDTARGETSRCSET2 = "update urm_rel_buildtarget set " +
 			"srcset_fkid = dst.srcset_id " +

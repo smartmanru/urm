@@ -95,25 +95,26 @@ public class ReleaseLabelInfo {
 	private String getReleaseVerByLabel( ActionBase action , String RELEASELABEL ) throws Exception {
 		action.checkRequired( RELEASELABEL , "RELEASELABEL" );
 
-		if( meta != null ) {
-			MetaProductBuildSettings build = action.getBuildSettings( meta );
-			
-			String RELEASEVER = "";
-			if( RELEASELABEL.equals( "last" ) ) {
-				RELEASEVER = build.CONFIG_RELEASE_LASTMINOR;
-				if( RELEASEVER.isEmpty() )
-					action.exit0( _Error.LastMinorVersionNotSet0 , "Last minor release version is not set in product settings" );
-	
-				return( RELEASEVER );
-			}
-			
-			if( RELEASELABEL.equals( "next" ) ) {
-				RELEASEVER = build.CONFIG_RELEASE_NEXTMINOR;
-				if( RELEASEVER.isEmpty() )
-					action.exit0( _Error.NextMinorVersionNotSet0 , "Next minor release version is not set in product settings" );
-	
-				return( RELEASEVER );
-			}
+		if( meta == null )
+			Common.exitUnexpected();
+		
+		MetaProductBuildSettings build = action.getBuildSettings( meta );
+		
+		String RELEASEVER = "";
+		if( RELEASELABEL.equals( "last" ) ) {
+			RELEASEVER = build.CONFIG_RELEASE_LASTMINOR;
+			if( RELEASEVER.isEmpty() )
+				action.exit0( _Error.LastMinorVersionNotSet0 , "Last minor release version is not set in product settings" );
+
+			return( RELEASEVER );
+		}
+		
+		if( RELEASELABEL.equals( "next" ) ) {
+			RELEASEVER = build.CONFIG_RELEASE_NEXTMINOR;
+			if( RELEASEVER.isEmpty() )
+				action.exit0( _Error.NextMinorVersionNotSet0 , "Next minor release version is not set in product settings" );
+
+			return( RELEASEVER );
 		}
 		
 		if( RELEASELABEL.indexOf( "-" ) < 0 ) {

@@ -148,6 +148,12 @@ public class MetaEnv extends EngineObject {
 		ops.setStringProperty( PROPERTY_NAME , NAME );
 		ops.setStringProperty( PROPERTY_DESC , DESC );
 		ops.setEnumProperty( PROPERTY_ENVTYPE , ENV_TYPE );
+		
+		if( BASELINE != null ) {
+			MetaEnv env = envs.getMetaEnv( BASELINE );
+			ops.setStringProperty( PROPERTY_BASELINE , env.NAME );
+		}
+		
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		
 		if( ENVKEY != null ) {
@@ -219,7 +225,7 @@ public class MetaEnv extends EngineObject {
 	}
 	
 	public MetaEnv getBaseline() throws Exception {
-		MetaEnv env = envs.getProductEnv( BASELINE );
+		MetaEnv env = envs.getMetaEnv( BASELINE );
 		return( env );
 	}
 	
@@ -232,14 +238,6 @@ public class MetaEnv extends EngineObject {
 		Common.changeMapKey( sgMap , sg , sg.NAME );
 	}
 	
-	public MetaEnvSegment findSegment( MatchItem item ) {
-		if( item == null )
-			return( null );
-		if( item.MATCHED )
-			return( findSegment( item.FKID ) );
-		return( findSegment( item.FKNAME ) );
-	}
-
 	public MetaEnvSegment findSegment( String name ) {
 		return( sgMap.get( name ) );
 	}
@@ -292,6 +290,16 @@ public class MetaEnv extends EngineObject {
 	
 	public boolean isMultiSegment() throws Exception {
 		return( sgMap.size() > 1 );
+	}
+	
+	public MetaEnvSegment getMainSegment() throws Exception {
+		if( sgMap.isEmpty() )
+			Common.exit0( _Error.NoSegmentDefined0 , "no segment defined" );
+		if( sgMap.size() > 1 )
+			Common.exitUnexpected();
+		for( MetaEnvSegment sg : sgMap.values() )
+			return( sg );
+		return( null );
 	}
 	
 	public void removeSegment( MetaEnvSegment sg ) {
@@ -394,20 +402,15 @@ public class MetaEnv extends EngineObject {
 		return( null );
 	}
 	
-	public MetaEnvServer findServer( int id ) {
+	public MetaEnvServer getServer( int id ) throws Exception {
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvServer server = sg.findServer( id );
 			if( server != null )
 				return( server );
 		}
+		
+		Common.exitUnexpected();
 		return( null );
-	}
-	
-	public MetaEnvServer getServer( int id ) throws Exception {
-		MetaEnvServer server = findServer( id );
-		if( server == null )
-			Common.exitUnexpected();
-		return( server );
 	}
 	
 }

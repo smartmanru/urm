@@ -62,6 +62,7 @@ import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
@@ -76,7 +77,6 @@ import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -95,6 +95,8 @@ abstract public class ActionBase extends ActionCore {
 	public int outputChannel;
 	public ScopeExecutor scopeExecutor;
 
+	public int commandTimeoutMillis;
+	
 	protected SCOPESTATE executeSimple( ScopeState state ) throws Exception { return( SCOPESTATE.NotRun ); };
 	protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception { return( SCOPESTATE.NotRun ); };
 	protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception { return( SCOPESTATE.NotRun ); };
@@ -120,6 +122,8 @@ abstract public class ActionBase extends ActionCore {
 		this.output = output;
 		this.outputChannel = -1;
 		this.artefactory = artefactory;
+		
+		commandTimeoutMillis = 0;
 	}
 
 	public ActionBase( ActionBase base , String stream , String actionInfo ) {
@@ -135,6 +139,7 @@ abstract public class ActionBase extends ActionCore {
 		this.artefactory = base.artefactory;
 		
 		this.shell = base.shell;
+		this.commandTimeoutMillis = base.commandTimeoutMillis;
 		
 		context = new CommandContext( this , base.context , stream );
 	}
@@ -511,7 +516,7 @@ abstract public class ActionBase extends ActionCore {
 		if( file.startsWith( "~/" ) )
 			file = shell.getHomePath() + file.substring( 1 );
 		
-		String path = shell.getLocalPath( file );
+		String path = shell.getOSPath( this , file );
 		String msg = "logging started to " + path;
 		outputChannel = output.startRedirect( context , outputChannel , file , msg , title );
 	}
@@ -586,7 +591,7 @@ abstract public class ActionBase extends ActionCore {
 		shell.appendExecuteLog( this , msg );
 	}
 	
-	public void executeCmdLive( Account account , String cmdRun , int commandTimeoutMillis ) throws Exception {
+	public void executeCmdLive( Account account , String cmdRun ) throws Exception {
 		if( !isExecute() ) {
 			info( account.getPrintName() + ": " + cmdRun + " (showonly)" );
 			return;
@@ -596,17 +601,17 @@ abstract public class ActionBase extends ActionCore {
 		ShellExecutor shell = getShell( account );
 		shell.appendExecuteLog( this , cmdRun );
 
-		shell.customCheckErrorsNormal( this , cmdRun , commandTimeoutMillis );
+		shell.customCheckErrorsNormal( this , cmdRun );
 	}
 
-	public void executeCmd( Account hostLogin , String cmdRun , int commandTimeoutMillis ) throws Exception {
+	public void executeCmd( Account hostLogin , String cmdRun ) throws Exception {
 		ShellExecutor shell = getShell( hostLogin );
-		shell.customCheckErrorsDebug( this , cmdRun , commandTimeoutMillis );
+		shell.customCheckErrorsDebug( this , cmdRun );
 	}
 
-	public String executeCmdGetValue( Account hostLogin , String cmdRun , int commandTimeoutMillis ) throws Exception {
+	public String executeCmdGetValue( Account hostLogin , String cmdRun ) throws Exception {
 		ShellExecutor shell = getShell( hostLogin );
-		return( shell.customGetValue( this , cmdRun , commandTimeoutMillis ) );
+		return( shell.customGetValue( this , cmdRun ) );
 	}
 
     public void sleep( long millis ) throws Exception {
@@ -618,6 +623,24 @@ abstract public class ActionBase extends ActionCore {
 		output.setLogLevel( this , logLevelLimit );
 	}
     
+	public int setTimeout( int timeoutMillis ) {
+		int saveTimeout = commandTimeoutMillis;
+		commandTimeoutMillis = timeoutMillis;
+		return( saveTimeout );
+	}
+    
+	public int setTimeoutUnlimited() {
+		return( setTimeout( 0 ) );
+	}
+	
+	public int setTimeoutDefault() {
+		return( setTimeout( context.CTX_TIMEOUT ) );
+	}
+
+	public String getOSPath( String dirPath ) throws Exception {
+		return( shell.getOSPath( this , dirPath ) );	
+	}
+
 	public boolean isLocalWindows() {
 		return( context.account.isWindows() );
 	}

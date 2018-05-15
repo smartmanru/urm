@@ -27,7 +27,7 @@ import org.urm.engine.action.ActionInit;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.jmx.EngineCommandMBean;
-import org.urm.meta.system.AppProduct;
+import org.urm.meta.engine.AppProduct;
 
 import com.sun.jdmk.comm.HtmlAdaptorServer;
 

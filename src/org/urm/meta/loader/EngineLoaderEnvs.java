@@ -5,6 +5,7 @@ import org.urm.common.Common;
 import org.urm.db.DBConnection;
 import org.urm.db.env.DBEnvData;
 import org.urm.db.env.DBMetaEnv;
+import org.urm.db.env.DBMetaMonitoring;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.transaction.TransactionBase;
@@ -19,6 +20,7 @@ import org.w3c.dom.Node;
 public class EngineLoaderEnvs {
 
 	public static String XML_ROOT_ENV = "environment";
+	public static String XML_ROOT_MONITORING = "monitoring";
 	
 	public EngineLoader loader;
 	public ProductMeta set;
@@ -37,6 +39,7 @@ public class EngineLoaderEnvs {
 	
 	public void exportxmlAll( ProductStorage ms ) throws Exception {
 		exportxmlEnvs( ms );
+		exportxmlMonitoring( ms );
 	}
 
 	public void importxmlAll( EngineProduct ep , ProductStorage ms , boolean update ) throws Exception {
@@ -44,6 +47,7 @@ public class EngineLoaderEnvs {
 		set.setEnvs( envs );
 		
 		importxmlEnvs( ep , ms , update , envs );
+		importxmlMonitoring( ms , envs );
 	}
 	
 	private void importxmlEnvs( EngineProduct ep , ProductStorage ms , boolean update , ProductEnvs envs ) throws Exception {
@@ -65,6 +69,23 @@ public class EngineLoaderEnvs {
 		}
 	}
 	
+	private void importxmlMonitoring( ProductStorage ms , ProductEnvs envs ) throws Exception {
+		ActionBase action = loader.getAction();
+		try {
+			// read
+			String file = ms.getMonitoringConfFile( action );
+			action.debug( "read monitoring definition file " + file + "..." );
+			Document doc = action.readXmlFile( file );
+			Node root = doc.getDocumentElement();
+			
+			// monitoring settings
+			DBMetaMonitoring.importxml( loader , set , envs , root );
+		}
+		catch( Throwable e ) {
+			loader.setLoadFailed( action , _Error.UnableLoadProductMonitoring1 , e , "unable to import monitoring metadata, product=" + set.NAME , set.NAME );
+		}
+	}
+
 	private void exportxmlEnvs( ProductStorage ms ) throws Exception {
 		ProductEnvs envs = set.getEnviroments();
 		for( String envName : envs.getEnvNames() ) {
@@ -78,6 +99,18 @@ public class EngineLoaderEnvs {
 		set.setEnvs( envs );
 		
 		DBMetaEnv.loaddbProductEnvs( loader , set , envs );
+		DBMetaMonitoring.loaddbProductMonitoring( loader , set , envs );
+	}
+	
+	public void exportxmlMonitoring( ProductStorage ms ) throws Exception {
+		ActionBase action = loader.getAction();
+		String file = ms.getMonitoringConfFile( action );
+		action.debug( "export product monitoring file " + file + "..." );
+		Document doc = Common.xmlCreateDoc( XML_ROOT_MONITORING );
+		Element root = doc.getDocumentElement();
+		
+		DBMetaMonitoring.exportxml( loader , set , doc , root );
+		ms.saveFile( action , doc , file );
 	}
 	
 	private void importxmlEnvData( EngineProduct ep , ProductStorage ms , String envFile ) throws Exception {

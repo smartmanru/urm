@@ -66,16 +66,20 @@ public class DBMetaEnv {
 	}
 
 	public static void matchBaseline( EngineLoader loader , ProductMeta storage , MetaEnv env ) throws Exception {
+		EngineEntities entities = loader.getEntities();
+		EngineMatcher matcher = loader.getMatcher();
 		ProductEnvs envs = storage.getEnviroments();
 		DBConnection c = loader.getConnection();
 		
 		MatchItem BASELINE = env.getBaselineMatchItem();
 		if( BASELINE != null ) {
-			MetaEnv baseline = envs.findMetaEnv( BASELINE );
+			String value = matcher.matchEnvBefore( env , BASELINE.FKNAME , env.ID , entities.entityAppEnvPrimary , MetaEnv.PROPERTY_BASELINE , null );
+			MetaEnv baseline = envs.findMetaEnv( value );
 			if( baseline != null ) {
 				BASELINE.match( baseline.ID );
 				modifyEnvMatch( c , storage , env );
 			}
+			matcher.matchEnvDone( BASELINE );
 			
 			if( baseline != null ) {
 				for( MetaEnvSegment sg : env.getSegments() )
@@ -181,7 +185,7 @@ public class DBMetaEnv {
 				entity.exportxmlString( env.NAME ) ,
 				entity.exportxmlString( env.DESC ) ,
 				entity.exportxmlEnum( env.ENV_TYPE ) ,
-				entity.exportxmlString( envs.getProductEnvName( env.getBaselineMatchItem() ) ) ,
+				entity.exportxmlString( envs.getMetaEnvName( env.getBaselineMatchItem() ) ) ,
 				entity.exportxmlBoolean( env.OFFLINE ) ,
 				entity.exportxmlString( resources.getResourceName( env.getEnvKeyMatchItem() ) ) ,
 				entity.exportxmlBoolean( env.DISTR_REMOTE ) ,
@@ -302,7 +306,6 @@ public class DBMetaEnv {
 			}
 			catch( Throwable e ) {
 				loader.log( "unable to load environment=" + env.NAME , e );
-				env.deleteObject();
 			}
 		}
 		
@@ -312,11 +315,10 @@ public class DBMetaEnv {
 			if( env.checkMatched() ) {
 				loader.trace( "successfully matched env=" + env.NAME );
 				env.refreshProperties();
-				envs.addEnv( env );
 			}
-			else {
+			else
 				loader.trace( "match failed env=" + env.NAME );
-			}
+			envs.addEnv( env );
 		}
 	}
 

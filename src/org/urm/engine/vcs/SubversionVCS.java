@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
@@ -18,7 +17,7 @@ import org.urm.meta.product.MetaSourceProject;
 
 public class SubversionVCS extends GenericVCS {
 
-	public static String MASTERBRANCH = "trunk";
+	static String MASTERBRANCH = "trunk";
 
 	String SVNPATH;
 	String SVNAUTH;
@@ -56,49 +55,6 @@ public class SubversionVCS extends GenericVCS {
 	public boolean ignoreFile( String name ) {
 		return( false );
 	}
-
-	@Override 
-	public String[] getBranches( MetaSourceProject project ) throws Exception {
-		List<String> list = new LinkedList<String>();
-		String projectPath = getProjectPath( project );
-		String BRANCH_PATH = Common.getPath( projectPath , "trunk" );
-		if( checkSvnPathExists( BRANCH_PATH ) )
-			list.add( "(trunk)" );
-		
-		BRANCH_PATH = Common.getPath( projectPath , "branches" );
-		if( checkSvnPathExists( BRANCH_PATH ) ) {
-			String[] items = shell.customGetLines( action , "svn list " + SVNAUTH + " " + BRANCH_PATH , Shell.WAIT_DEFAULT );
-			items = Common.getSortedList( items );
-			for( String s : items ) {
-				if( s.endsWith( "/" ) ) {
-					s = Common.trim( s , '/' );
-					list.add( s );
-				}
-			}
-		}
-		
-		return( list.toArray( new String[0] ) );
-	}
-	
-	@Override 
-	public String[] getTags( MetaSourceProject project ) throws Exception {
-		List<String> list = new LinkedList<String>();
-		String projectPath = getProjectPath( project );
-		
-		String TAGS_PATH = Common.getPath( projectPath , "tags" );
-		if( checkSvnPathExists( TAGS_PATH ) ) {
-			String[] items = shell.customGetLines( action , "svn list " + SVNAUTH + " " + TAGS_PATH , Shell.WAIT_DEFAULT );
-			items = Common.getSortedList( items );
-			for( String s : items ) {
-				if( s.endsWith( "/" ) ) {
-					s = Common.trim( s , '/' );
-					list.add( s );
-				}
-			}
-		}
-		
-		return( list.toArray( new String[0] ) );
-	}
 	
 	@Override 
 	public boolean checkout( MetaSourceProject project , LocalFolder PATCHFOLDER , String BRANCH ) throws Exception {
@@ -111,21 +67,22 @@ public class SubversionVCS extends GenericVCS {
 		CO_PATH = Common.getPath( projectPath , XBRANCH );
 
 		String REVISION;
-		if( shell.isLinux() ) {
+		if( action.isLocalLinux() ) {
 			REVISION = shell.customGetValue( action , "svn info " + SVNAUTH + " " + CO_PATH + " | grep Revision | tr -d " + Common.getQuoted( " " ) + 
-					" | cut -d " + Common.getQuoted( ":" ) + " -f2" , Shell.WAIT_DEFAULT );
+					" | cut -d " + Common.getQuoted( ":" ) + " -f2" );
 		}
 		else {
-			REVISION = shell.customGetValue( action , "svn info " + SVNAUTH + " " + CO_PATH + " | findstr Revision" , Shell.WAIT_DEFAULT );
+			REVISION = shell.customGetValue( action , "svn info " + SVNAUTH + " " + CO_PATH + " | findstr Revision" );
 			REVISION = Common.getListItem( REVISION , ":" , 1 );
 		}
 		
 		REVISION = REVISION.trim();
 
-		String ospath = shell.getLocalPath( PATCHFOLDER.folderPath );
-		action.info( "svn: checkout sources from " + CO_PATH + " (branch=" + BRANCH + ", revision=" + REVISION + ") to " + ospath + "..." );
+		action.info( "svn: checkout sources from " + CO_PATH + " (branch=" + BRANCH + ", revision=" + REVISION + ") to " + PATCHFOLDER.folderPath + "..." );
 		
-		int status = shell.customGetStatus( action , "svn co " + SVNAUTH + " " + CO_PATH + " " + ospath , Shell.WAIT_LONG );
+		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
+		int status = shell.customGetStatus( action , "svn co " + SVNAUTH + " " + CO_PATH + " " + ospath );
+
 		if( status == 0 )
 			return( true );
 		
@@ -136,17 +93,17 @@ public class SubversionVCS extends GenericVCS {
 	@Override 
 	public boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHFOLDER , String COMMENT ) throws Exception {
 		if( !PATCHFOLDER.checkExists( action ) ) {
-			action.error( "directory " + shell.getLocalPath( PATCHFOLDER.folderPath ) + " does not exist " );
+			action.error( "directory " + PATCHFOLDER.folderPath + " does not exist " );
 			return( false );
 		}
 		
-		String ospath = shell.getLocalPath( PATCHFOLDER.folderPath );
-		shell.customCheckStatus( action , "svn commit -m " + Common.getQuoted( COMMENT ) + " " + SVNAUTH + " " + ospath , Shell.WAIT_LONG );
+		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
+		shell.customCheckStatus( action , "svn commit -m " + Common.getQuoted( COMMENT ) + " " + SVNAUTH + " " + ospath );
 		return( true );
 	}
 
 	@Override 
-	public boolean copyBranchToBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 , boolean deleteOld ) throws Exception {
+	public boolean copyBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
 		// check source status
 		String BRANCH1X = BRANCH1;
 		if( !BRANCH1X.equals( "trunk" ) )
@@ -166,22 +123,17 @@ public class SubversionVCS extends GenericVCS {
 		
 		String branch2Path = Common.getPath( projectPath , BRANCH2X );
 		if( checkSvnPathExists( branch2Path ) ) {
-			if( !deleteOld ) {
-				action.error( "cannot copy branch to branch - target branch already exists" );
-				return( false );
-			}
-			
-			action.info( "drop already existing branch ..." );
-			dropBranchInternal( branch2Path , "drop branch before copy from branch=" + BRANCH1 );
+			action.error( "cannot copy branch to branch - target branch already exists" );
+			return( false );
 		}
 
 		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: copy branch from " + BRANCH1 ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: copy branch" ) );
 		return( true );
 	}
 
 	@Override 
-	public boolean renameBranchToBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 , boolean deleteOld ) throws Exception {
+	public boolean renameBranchToNewBranch( MetaSourceProject project , String BRANCH1 , String BRANCH2 ) throws Exception {
 		// check source status
 		String BRANCH1X = BRANCH1;
 		if( !BRANCH1X.equals( "trunk" ) )
@@ -201,22 +153,17 @@ public class SubversionVCS extends GenericVCS {
 		
 		String branch2Path = Common.getPath( projectPath , BRANCH2X );
 		if( checkSvnPathExists( branch2Path ) ) {
-			if( !deleteOld ) {
-				action.info( "skip rename branch to branch - target branch already exists" );
-				return( false );
-			}
-			
-			action.info( "drop already existing branch ..." );
-			dropBranchInternal( branch2Path , "drop branch before rename from branch=" + BRANCH1 );
+			action.info( "skip rename branch to branch - target branch already exists" );
+			return( false );
 		}
 
 		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: rename branch" ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + branch1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: rename branch" ) );
 		return( true );
 	}
 
 	@Override 
-	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 , boolean deleteOld ) throws Exception {
+	public boolean copyTagToNewTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -228,22 +175,17 @@ public class SubversionVCS extends GenericVCS {
 		// check destination status
 		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
 		if( checkSvnPathExists( tag2Path ) ) {
-			if( !deleteOld ) {
-				action.error( "cannot copy tag - target tag already exists" );
-				return( false );
-			}
-			
-			action.info( "drop already existing tag ..." );
-			dropTagInternal( tag2Path , "drop tag before copy from tag=" + TAG1 );
+			action.error( "cannot copy tag - target tag already exists" );
+			return( false );
 		}
 
 		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: create tag from " + TAG1 ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: copy tag" ) );
 		return( true );
 	}
 
 	@Override 
-	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 , boolean deleteOld ) throws Exception {
+	public boolean copyTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -253,24 +195,41 @@ public class SubversionVCS extends GenericVCS {
 		}
 
 		// check destination status
-		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
 		String tracker = getTracker();
+		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
 		if( checkSvnPathExists( tag2Path ) ) {
-			if( !deleteOld ) {
-				action.error( "cannot rename tag - target tag already exists" );
-				return( false );
-			}
-			
-			action.info( "drop already existing tag ..." );
-			dropTagInternal( tag2Path , "drop tag before rename tag=" + TAG1 );
+			action.info( "drop already existing new tag ..." );
+			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: drop tag before svn copy" ) );
 		}
 
-		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: rename tag" ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: copy tag" ) );
 		return( true );
 	}
 	
 	@Override 
-	public boolean copyTagToBranch( MetaSourceProject project , String TAG1 , String BRANCH2 , boolean deleteOld ) throws Exception {
+	public boolean renameTagToTag( MetaSourceProject project , String TAG1 , String TAG2 ) throws Exception {
+		// check source status
+		String projectPath = getProjectPath( project );
+		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
+		if( !checkSvnPathExists( tag1Path ) ) {
+			action.error( tag1Path + ": svn path does not exist" );
+			return( false );
+		}
+
+		// check destination status
+		String tag2Path = Common.getPath( projectPath , "tags" , TAG2 );
+		String tracker = getTracker();
+		if( checkSvnPathExists( tag2Path ) ) {
+			action.info( "drop already existing new tag ..." );
+			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: drop tag before svn rename" ) );
+		}
+
+		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " " + tag1Path + " " + tag2Path + " -m " + Common.getQuoted( tracker + "-0000: rename tag" ) );
+		return( true );
+	}
+	
+	@Override 
+	public boolean copyTagToNewBranch( MetaSourceProject project , String TAG1 , String BRANCH2 ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String tag1Path = Common.getPath( projectPath , "tags" , TAG1 );
@@ -285,17 +244,12 @@ public class SubversionVCS extends GenericVCS {
 			BRANCH2X = Common.getPath( "branches" , BRANCH2 );
 		String branch2Path = Common.getPath( projectPath , BRANCH2X );
 		if( checkSvnPathExists( branch2Path ) ) {
-			if( !deleteOld ) {
-				action.error( "cannot copy tag to branch - target branch already exists" );
-				return( false );
-			}
-			
-			action.info( "drop already existing branch ..." );
-			dropBranchInternal( branch2Path , "drop branch before create from tag=" + TAG1 );
+			action.error( "cannot copy tag to branch - target branch already exists" );
+			return( false );
 		}
 
 		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: create branch from tag " + TAG1 ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + tag1Path + " " + branch2Path + " -m " + Common.getQuoted( tracker + "-0000: copy tag to branch" ) );
 		return( true );
 	}
 	
@@ -309,7 +263,8 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 		
-		dropTagInternal( tagPath , "drop tag" );
+		String tracker = getTracker();
+		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( tracker + "-0000: drop tag" ) );
 		return( true );
 	}
 	
@@ -326,7 +281,8 @@ public class SubversionVCS extends GenericVCS {
 			return( false );
 		}
 		
-		dropBranchInternal( branchPath , "drop branch" );
+		String tracker = getTracker();
+		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + branchPath + " -m " + Common.getQuoted( tracker + "-0000: drop branch" ) );
 		return( true );
 	}
 	
@@ -350,26 +306,25 @@ public class SubversionVCS extends GenericVCS {
 		if( !FILENAME.isEmpty() )
 			CO_PATH = Common.getPath( CO_PATH , FILENAME );
 
-		String patchospath = shell.getLocalPath( PATCHFOLDER.folderPath );
 		if( FILENAME.isEmpty() ) {
 			Folder BASEDIR = PATCHFOLDER.getParentFolder( action );
-			String baseospath = shell.getLocalPath( BASEDIR.folderPath );
-			if( !shell.checkDirExists( action , BASEDIR.folderPath ) )
-				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + baseospath + " does not exist" , baseospath );
-			if( shell.checkDirExists( action , PATCHFOLDER.folderPath ) )
-				action.exit1( _Error.LocalDirectoryShouldNotExist1 , "exportFromPath: local directory " + patchospath + " should not exist" , patchospath );
+			if( !BASEDIR.checkExists( action ) )
+				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + BASEDIR.folderPath + " does not exist" , BASEDIR.folderPath );
+			if( PATCHFOLDER.checkExists( action ) )
+				action.exit1( _Error.LocalDirectoryShouldNotExist1 , "exportFromPath: local directory " + PATCHFOLDER.folderPath + " should not exist" , PATCHFOLDER.folderPath );
 		}
 		else {
-			if( !shell.checkDirExists( action , PATCHFOLDER.folderPath ) )
-				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + patchospath + " does not exist" , patchospath );
+			if( !PATCHFOLDER.checkExists( action ) )
+				action.exit1( _Error.MissingLocalDirectory1 , "exportFromPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
 		}
 
-		shell.customCheckStatus( action , "svn export " + SVNAUTH + " " + CO_PATH + " " + patchospath , Shell.WAIT_LONG );
+		String ospath = action.getOSPath( PATCHFOLDER.folderPath );
+		shell.customCheckStatus( action , "svn export " + SVNAUTH + " " + CO_PATH + " " + ospath );
 		return( true );
 	}
 
 	@Override 
-	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE , boolean deleteOld ) throws Exception {
+	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String BRANCHDATE ) throws Exception {
 		// check source status
 		String projectPath = getProjectPath( project );
 		String BRANCHX = BRANCH;
@@ -384,21 +339,16 @@ public class SubversionVCS extends GenericVCS {
 		String tagPath = Common.getPath( projectPath , "tags" , TAG );
 		String tracker = getTracker();
 		if( checkSvnPathExists( tagPath ) ) {
-			if( !deleteOld ) {
-				action.error( "cannot set tag to branch - tag already exists" );
-				return( false );
-			}
-			
 			action.info( "drop already existing tag ..." );
-			dropTagInternal( tagPath , "drop tag before set on branch" );
+			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( tracker + "-0000: drop tag before svn rename" ) );
 		}
 		
 		if( !BRANCHDATE.isEmpty() )
 			shell.customCheckStatus( action , "svn copy " + SVNAUTH + " --revision {" + Common.getQuoted( BRANCHDATE ) + "} " + branchPath + " " + tagPath + 
-					" -m " + Common.getQuoted( tracker + "-0000: set tag on branch head by date " + BRANCHDATE ) , Shell.WAIT_DEFAULT );
+					" -m " + Common.getQuoted( tracker + "-0000: set tag on branch head by date " + BRANCHDATE ) );
 		else
 			shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + branchPath + " " + tagPath + 
-					" -m " + Common.getQuoted( tracker + "-0000: set tag on branch head" ) , Shell.WAIT_DEFAULT );
+					" -m " + Common.getQuoted( tracker + "-0000: set tag on branch head" ) );
 		
 		return( true );
 	}
@@ -421,16 +371,14 @@ public class SubversionVCS extends GenericVCS {
 		if( !isValidRepositoryMasterPath( mirror , ITEMPATH ) )
 			return( false );
 			
-		if( !shell.checkDirExists( action , PATCHFOLDER.folderPath ) ) {
-			String patchospath = shell.getLocalPath( PATCHFOLDER.folderPath );
-			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryMasterPath: local directory " + patchospath + " does not exist" , patchospath );
-		}
+		if( !PATCHFOLDER.checkExists( action ) )
+			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryMasterPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
 
 		String CO_PATH = getTrunkRepositoryPath( mirror , ITEMPATH );
 		if( name.isEmpty() )
 			name = Common.getBaseName( ITEMPATH );
 		
-		shell.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export " + SVNAUTH + " " + CO_PATH + " " + name + " > " + shell.getOSDevNull() , Shell.WAIT_LONG );
+		shell.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export " + SVNAUTH + " " + CO_PATH + " " + name + " > " + shell.getOSDevNull()  );
 		return( true );
 	}
 
@@ -439,16 +387,14 @@ public class SubversionVCS extends GenericVCS {
 		if( !isValidRepositoryTagPath( mirror , TAG , ITEMPATH ) )
 			return( false );
 		
-		if( !shell.checkDirExists( action , PATCHFOLDER.folderPath ) ) {
-			String patchospath = shell.getLocalPath( PATCHFOLDER.folderPath );
-			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryTagPath: local directory " + patchospath + " does not exist" , patchospath );
-		}
+		if( !PATCHFOLDER.checkExists( action ) )
+			action.exit1( _Error.MissingLocalDirectory1 , "exportRepositoryTagPath: local directory " + PATCHFOLDER.folderPath + " does not exist" , PATCHFOLDER.folderPath );
 
 		String CO_PATH = getTagRepositoryPath( mirror , TAG , ITEMPATH );
 		if( name.isEmpty() )
 			name = Common.getBaseName( ITEMPATH );
 		
-		shell.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export " + SVNAUTH + " " + CO_PATH + " " + name + " > " + shell.getOSDevNull() , Shell.WAIT_LONG );
+		shell.customCheckStatus( action , PATCHFOLDER.folderPath , "svn export " + SVNAUTH + " " + CO_PATH + " " + name + " > " + shell.getOSDevNull() );
 		return( true );
 	}
 
@@ -461,7 +407,7 @@ public class SubversionVCS extends GenericVCS {
 	@Override 
 	public boolean createMasterFolder( MirrorRepository mirror , String ITEMPATH , String commitMessage ) throws Exception {
 		String fullPath = getTrunkRepositoryPath( mirror , ITEMPATH ); 
-		shell.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( fullPath ) + " > " + shell.getOSDevNull() , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( fullPath ) + " > " + shell.getOSDevNull() );
 		return( true );
 	}
 	
@@ -470,15 +416,15 @@ public class SubversionVCS extends GenericVCS {
 		String F_ITEMDIR = Common.getDirName( itemPath );
 		String dstFullPath = getTrunkRepositoryPath( mirror , Common.getPath( dstFolder , F_ITEMDIR ) ); 
 		String srcFullPath = getTrunkRepositoryPath( mirror , Common.getPath( srcFolder , itemPath ) ); 
-		shell.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( srcFullPath ) + " > " + shell.getOSDevNull() , Shell.WAIT_DEFAULT );
-		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " " + Common.getQuoted( srcFullPath ) + " " + Common.getQuoted( dstFullPath ) + " > " + shell.getOSDevNull() , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( srcFullPath ) + " > " + shell.getOSDevNull() );
+		shell.customCheckStatus( action , "svn rename " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " " + Common.getQuoted( srcFullPath ) + " " + Common.getQuoted( dstFullPath ) + " > " + shell.getOSDevNull() );
 		return( true );
 	}
 
 	@Override 
 	public String[] listMasterItems( MirrorRepository mirror , String masterFolder ) throws Exception {
 		String fullPath = getTrunkRepositoryPath( mirror , masterFolder );
-		String s = shell.customGetValue( action , "svn list " + SVNAUTH + " " + fullPath , Shell.WAIT_DEFAULT );
+		String s = shell.customGetValue( action , "svn list " + SVNAUTH + " " + fullPath );
 		s = Common.replace( s , "/" , "" );
 		s = Common.replace( s , "\n" , " " );
 		s.trim();
@@ -488,33 +434,33 @@ public class SubversionVCS extends GenericVCS {
 	@Override 
 	public void deleteMasterFolder( MirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = getTrunkRepositoryPath( mirror , masterFolder );
-		shell.customCheckStatus( action , "svn delete -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + fullPath , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn delete -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + fullPath );
 	}
 	
 	@Override 
 	public void checkoutMasterFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
 		String fullPath = getTrunkRepositoryPath( mirror , masterFolder );
-		String ospath = shell.getLocalPath( PATCHPATH.folderPath );
-		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath , Shell.WAIT_LONG );
+		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath );
 	}
 	
 	@Override 
 	public void importMasterFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = getTrunkRepositoryPath( mirror , masterFolder );
-		String ospath = shell.getLocalPath( PATCHPATH.folderPath );
-		shell.customCheckStatus( action , "svn import -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + ospath + " " + fullPath , Shell.WAIT_LONG );
+		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		shell.customCheckStatus( action , "svn import -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + ospath + " " + fullPath );
 	}
 	
 	@Override 
 	public void ensureMasterFolderExists( MirrorRepository mirror , String masterFolder , String commitMessage ) throws Exception {
 		String fullPath = getTrunkRepositoryPath( mirror , masterFolder );
-		shell.customCheckStatus( action , "svn mkdir --parents -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + fullPath , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn mkdir --parents -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH + " " + fullPath );
 	}
 	
 	@Override 
 	public boolean commitMasterFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder , String commitMessage ) {
 		try {
-			shell.customCheckStatus( action , Common.getPath( PATCHPATH.folderPath , masterFolder ) , "svn commit -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH , Shell.WAIT_LONG );
+			shell.customCheckStatus( action , Common.getPath( PATCHPATH.folderPath , masterFolder ) , "svn commit -m " + Common.getQuoted( commitMessage ) + " " + SVNAUTH );
 			return( true );
 		}
 		catch( Throwable e ) {
@@ -525,26 +471,26 @@ public class SubversionVCS extends GenericVCS {
 	
 	@Override 
 	public void addFileToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
-		String ospath = shell.getLocalPath( PATCHPATH.getFilePath( action , Common.getPath( folder , file ) ) );
-		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath , Shell.WAIT_DEFAULT );
+		String ospath = action.getOSPath( Common.getPath( folder , file ) );
+		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath );
 	}
 	
 	@Override 
 	public void deleteFileToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder , String file ) throws Exception {
-		String ospath = shell.getLocalPath( PATCHPATH.getFilePath( action , Common.getPath( folder , file ) ) );
-		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath , Shell.WAIT_DEFAULT );
+		String ospath = action.getOSPath( Common.getPath( folder , file ) );
+		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath );
 	}
 	
 	@Override 
 	public void addDirToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
-		String ospath = shell.getLocalPath( PATCHPATH.getFilePath( action , folder ) );
-		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath , Shell.WAIT_DEFAULT );
+		String ospath = action.getOSPath( folder );
+		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn add " + ospath );
 	}
 	
 	@Override 
 	public void deleteDirToCommit( MirrorRepository mirror , LocalFolder PATCHPATH , String folder ) throws Exception {
-		String ospath = shell.getLocalPath( PATCHPATH.getFilePath( action , folder ) );
-		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath , Shell.WAIT_DEFAULT );
+		String ospath = action.getOSPath( folder );
+		shell.customCheckStatus( action , PATCHPATH.folderPath , "svn delete " + ospath );
 	}
 
 	@Override 
@@ -559,15 +505,15 @@ public class SubversionVCS extends GenericVCS {
 		// check destination status
 		if( checkSvnPathExists( fullPathTag ) ) {
 			action.debug( "drop already existing new tag ..." );
-			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + fullPathTag + " -m " + Common.getQuoted( commitMessage ) , Shell.WAIT_DEFAULT );
+			shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + fullPathTag + " -m " + Common.getQuoted( commitMessage ) );
 		}
 
 		action.debug( "create new tag ..." );
 		String fullPathTagTarget = Common.getPath( fullPathTag , masterFolder );
 		String fullPathTagTargetDir = Common.getDirName( fullPathTagTarget );
 		
-		shell.customCheckStatus( action , "svn mkdir --parents " + SVNAUTH + " " + fullPathTagTargetDir + " " + " -m " + Common.getQuoted( commitMessage ) , Shell.WAIT_DEFAULT );
-		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + fullPathSrc + " " + fullPathTagTarget + " -m " + Common.getQuoted( commitMessage ) , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn mkdir --parents " + SVNAUTH + " " + fullPathTagTargetDir + " " + " -m " + Common.getQuoted( commitMessage ) );
+		shell.customCheckStatus( action , "svn copy " + SVNAUTH + " " + fullPathSrc + " " + fullPathTagTarget + " -m " + Common.getQuoted( commitMessage ) );
 	}
 
 	@Override
@@ -600,7 +546,7 @@ public class SubversionVCS extends GenericVCS {
 	private boolean createRepositoryFolder( MirrorRepository mirror , String folder , String commitMessage ) throws Exception {
 		String rootPath = getRepositoryPath( mirror );
 		String fullPath = Common.getPath( rootPath , folder );
-		shell.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( fullPath ) + " > " + shell.getOSDevNull() , Shell.WAIT_DEFAULT );
+		shell.customCheckStatus( action , "svn mkdir " + SVNAUTH + " -m " + Common.getQuoted( commitMessage ) + " --parents " + Common.getQuoted( fullPath ) + " > " + shell.getOSDevNull() );
 		return( true );
 	}
 	
@@ -620,12 +566,13 @@ public class SubversionVCS extends GenericVCS {
 
 	public void checkoutMasterRootFolder( MirrorRepository mirror , LocalFolder PATCHPATH , String masterFolder ) throws Exception {
 		String fullPath = Common.getPath( getRepositoryPath( mirror ) , masterFolder );
-		String ospath = shell.getLocalPath( PATCHPATH.folderPath );
-		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath , Shell.WAIT_LONG );
+		String ospath = action.getOSPath( PATCHPATH.folderPath );
+		action.setTimeoutUnlimited();
+		shell.customCheckStatus( action , "svn co " + SVNAUTH + " " + fullPath + " " + ospath );
 	}
 	
 	public boolean checkSvnPathExists( String path ) throws Exception {
-		int status = shell.customGetStatus( action , "svn info " + SVNAUTH + " " + path + " > " + shell.getOSDevNull() , Shell.WAIT_DEFAULT );
+		int status = shell.customGetStatus( action , "svn info " + SVNAUTH + " " + path + " > " + shell.getOSDevNull() );
 		if( status != 0 )
 			return( false );
 		return( true );
@@ -651,7 +598,7 @@ public class SubversionVCS extends GenericVCS {
 	}
 	
 	public boolean checkVersioned( MirrorRepository mirror , String path ) throws Exception {
-		String value = action.shell.customGetValue( action , "svn status " + path + " --depth empty" , Shell.WAIT_DEFAULT );
+		String value = action.shell.customGetValue( action , "svn status " + path + " --depth empty" );
 		if( value.startsWith( "?" ) )
 			return( false );
 		return( true );
@@ -661,7 +608,7 @@ public class SubversionVCS extends GenericVCS {
 		if( !checkVersioned( mirror , pfMaster.folderPath ) )
 			action.exit1( _Error.NotUnderVersionControl1 , "folder=" + pfMaster.folderPath + " is not under verson control" , pfMaster.folderPath );
 		
-		String[] lines = action.shell.customGetLines( action , pfMaster.folderPath , "svn status" , Shell.WAIT_DEFAULT );
+		String[] lines = action.shell.customGetLines( action , pfMaster.folderPath , "svn status" );
 		List<String> values = new LinkedList<String>();
 		for( String s : lines ) {
 			if( s.startsWith( "?" ) ) {
@@ -680,16 +627,6 @@ public class SubversionVCS extends GenericVCS {
 	private String getTracker() {
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
 		return( core.CONFIG_ADM_TRACKER );
-	}
-
-	private void dropBranchInternal( String branchPath , String msg ) throws Exception {
-		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + branchPath + " -m " + Common.getQuoted( tracker + "-0000: " + msg ) , Shell.WAIT_DEFAULT );
-	}
-
-	private void dropTagInternal( String tagPath , String msg ) throws Exception {
-		String tracker = getTracker();
-		shell.customCheckStatus( action , "svn delete " + SVNAUTH + " " + tagPath + " -m " + Common.getQuoted( tracker + "-0000: " + msg ) , Shell.WAIT_DEFAULT );
 	}
 	
 }

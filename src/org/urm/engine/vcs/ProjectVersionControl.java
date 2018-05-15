@@ -31,18 +31,9 @@ public class ProjectVersionControl {
 			return( vcs.getMainBranch() );
 		return( BRANCH );
 	}
-
-	public String[] listBranches( MetaSourceProject project ) throws Exception {
-		GenericVCS vcs = getVCS( project );
-		return( vcs.getBranches( project ) );
-	}
-	
-	public String[] listTags( MetaSourceProject project ) throws Exception {
-		GenericVCS vcs = getVCS( project );
-		return( vcs.getTags( project ) );
-	}
 	
 	public boolean checkout( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH ) {
+		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
 			action.info( "checkout PATCHPATH=" + PATCHFOLDER.folderPath + ", PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + " ..." );
@@ -53,6 +44,7 @@ public class ProjectVersionControl {
 		catch( Throwable e ) {
 			action.handle( e );
 		}
+		action.setTimeout( timeout );
 		return( res );
 	}
 	
@@ -68,13 +60,13 @@ public class ProjectVersionControl {
 		return( false );
 	}
 
-	public boolean copyBranchToBranch( MetaSourceProject project , String branchFrom , String branchTo , boolean deleteOld ) {
+	public boolean copyBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) {
 		try {
 			action.info( "copyBranchToNewBranch PROJECT=" + project.NAME + ", branchFrom=" + branchFrom + ", branchTo=" + branchTo + " ..." );
 			GenericVCS vcs = getVCS( project );
 			branchFrom = checkDefaultBranch( vcs , branchFrom );
 			branchTo = checkDefaultBranch( vcs , branchTo );
-			return( vcs.copyBranchToBranch( project , branchFrom , branchTo , deleteOld ) );
+			return( vcs.copyBranchToNewBranch( project , branchFrom , branchTo ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -82,13 +74,13 @@ public class ProjectVersionControl {
 		return( false );
 	}
 
-	public boolean renameBranchToBranch( MetaSourceProject project , String branchFrom , String branchTo , boolean deleteOld ) {
+	public boolean renameBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) {
 		try {
 			action.info( "renameBranchToNewBranch PROJECT=" + project.NAME + ", branchFrom=" + branchFrom + ", branchTo=" + branchTo + " ..." );
 			GenericVCS vcs = getVCS( project );
 			branchFrom = checkDefaultBranch( vcs , branchFrom );
 			branchTo = checkDefaultBranch( vcs , branchTo );
-			return( vcs.renameBranchToBranch( project , branchFrom , branchTo , deleteOld ) );
+			return( vcs.renameBranchToNewBranch( project , branchFrom , branchTo ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -96,11 +88,23 @@ public class ProjectVersionControl {
 		return( false );
 	}
 
-	public boolean copyTagToTag( MetaSourceProject project , String tagFrom , String tagTo , boolean deleteOld ) {
+	public boolean copyTagToNewTag( MetaSourceProject project , String tagFrom , String tagTo ) {
+		try {
+			action.info( "copyTagToNewTag PROJECT=" + project.NAME + ", tagFrom=" + tagFrom + ", tagTo=" + tagTo + " ..." );
+			GenericVCS vcs = getVCS( project );
+			return( vcs.copyTagToNewTag( project , tagFrom , tagTo ) );
+		}
+		catch( Throwable e ) {
+			action.handle( e );
+		}
+		return( false );
+	}
+
+	public boolean copyTagToTag( MetaSourceProject project , String tagFrom , String tagTo ) {
 		try {
 			action.info( "copyTagToTag PROJECT=" + project.NAME + ", tagFrom=" + tagFrom + ", tagTo=" + tagTo + " ..." );
 			GenericVCS vcs = getVCS( project );
-			return( vcs.copyTagToTag( project , tagFrom , tagTo , deleteOld ) );
+			return( vcs.copyTagToTag( project , tagFrom , tagTo ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -108,11 +112,11 @@ public class ProjectVersionControl {
 		return( false );
 	}
 
-	public boolean renameTagToTag( MetaSourceProject project , String tagFrom , String tagTo , boolean deleteOld ) {
+	public boolean renameTagToTag( MetaSourceProject project , String tagFrom , String tagTo ) {
 		try {
 			action.info( "renameTagToTag PROJECT=" + project.NAME + ", tagFrom=" + tagFrom + ", tagTo=" + tagTo + " ..." );
 			GenericVCS vcs = getVCS( project );
-			return( vcs.renameTagToTag( project , tagFrom , tagTo , deleteOld ) );
+			return( vcs.renameTagToTag( project , tagFrom , tagTo ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -120,12 +124,12 @@ public class ProjectVersionControl {
 		return( false );
 	}
 
-	public boolean copyTagToBranch( MetaSourceProject project , String tagFrom , String branchTo , boolean deleteOld ) {
+	public boolean copyTagToNewBranch( MetaSourceProject project , String tagFrom , String branchTo ) {
 		try {
 			action.info( "copyTagToNewBranch PROJECT=" + project.NAME + ", tagFrom=" + tagFrom + ", branchTo=" + branchTo + " ..." );
 			GenericVCS vcs = getVCS( project );
 			branchTo = checkDefaultBranch( vcs , branchTo );
-			return( vcs.copyTagToBranch( project , tagFrom , branchTo , deleteOld ) );
+			return( vcs.copyTagToNewBranch( project , tagFrom , branchTo ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );
@@ -159,6 +163,7 @@ public class ProjectVersionControl {
 	}
 
 	public boolean export( LocalFolder PATCHFOLDER , MetaSourceProject project , String BRANCH , String TAG , String SINGLEFILE , ProjectBuilder builder ) {
+		int timeout = action.setTimeoutUnlimited();
 		boolean res = false;
 		try {
 			action.info( "export PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", singlefile=" + SINGLEFILE + " ..." );
@@ -169,15 +174,16 @@ public class ProjectVersionControl {
 		catch( Throwable e ) {
 			action.handle( e );
 		}
+		action.setTimeout( timeout );
 		return( res );
 	}
 
-	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String branchDate , boolean deleteOld ) {
+	public boolean setTag( MetaSourceProject project , String BRANCH , String TAG , String branchDate ) {
 		try {
 			action.info( "setTag PROJECT=" + project.NAME + ", BRANCH=" + BRANCH + ", TAG=" + TAG + ", branchDate=" + branchDate + " ..." );
 			GenericVCS vcs = getVCS( project );
 			BRANCH = checkDefaultBranch( vcs , BRANCH );
-			return( vcs.setTag( project , BRANCH , TAG , branchDate , deleteOld ) );
+			return( vcs.setTag( project , BRANCH , TAG , branchDate ) );
 		}
 		catch( Throwable e ) {
 			action.handle( e );

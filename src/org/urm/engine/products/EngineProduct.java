@@ -7,10 +7,10 @@ import org.urm.engine.Engine;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineProducts;
 import org.urm.engine.dist.DistRepository;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
 
 public class EngineProduct {
 

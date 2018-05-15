@@ -33,6 +33,8 @@ import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.BaseCategory;
 import org.urm.meta.engine.BaseGroup;
@@ -42,6 +44,7 @@ import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.engine.Network;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
+import org.urm.meta.env.MetaDump;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -49,6 +52,9 @@ import org.urm.meta.env.MetaEnvServerDeployment;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.env.MetaEnvStartGroup;
 import org.urm.meta.env.MetaEnvStartInfo;
+import org.urm.meta.env.MetaMonitoring;
+import org.urm.meta.env.MetaMonitoringItem;
+import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
@@ -69,13 +75,6 @@ import org.urm.meta.product.MetaSourceProjectSet;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaUnits;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
-import org.urm.meta.system.AppSystem;
-import org.urm.meta.system.AppProductMonitoring;
-import org.urm.meta.system.AppProductMonitoringItem;
-import org.urm.meta.system.AppProductMonitoringTarget;
-import org.urm.meta.system.ProductDump;
-import org.urm.meta.system.ProductDumpMask;
 
 public class TransactionBase extends EngineObject {
 
@@ -991,31 +990,6 @@ public class TransactionBase extends EngineObject {
 		}
 	}
 	
-	public boolean requestChangeProduct( AppProduct product ) throws Exception {
-		synchronized( engine ) {
-			try {
-				if( !continueTransaction() )
-					return( false );
-
-				if( !checkSecurityProductChange( product , null ) )
-					return( false );
-				
-				EngineProduct ep = product.getEngineProduct();
-				TransactionProduct tm = createProductTransaction( product , ep );
-				if( tm.changeProduct() ) {
-					useDatabase();
-					return( true );
-				}
-			}
-			catch( Throwable e ) {
-				handle( e , "unable to change product" );
-			}
-			
-			abortTransaction( false );
-			return( false );
-		}
-	}
-	
 	public boolean requestChangeMetadata( Meta meta , boolean draft ) {
 		synchronized( engine ) {
 			try {
@@ -1180,13 +1154,6 @@ public class TransactionBase extends EngineObject {
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
 	}
 
-	protected void checkTransactionProduct( AppProduct product ) throws Exception {
-		checkTransaction();
-		TransactionProduct tm = findProductTransaction( product.NAME );
-		if( tm == null || !tm.checkTransactionProduct( product ) )
-			exit( _Error.TransactionMissingMetadataChanges0 , "Missing product changes" , null );
-	}
-
 	protected void checkTransactionCustomProperty( ObjectProperties ops ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
@@ -1321,14 +1288,10 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public ProjectBuilder getBuilder( ProjectBuilder builder ) throws Exception {
-		if( builder == null )
-			return( null );
 		return( buildersNew.getBuilder( builder.ID ) );
 	}
 	
 	public AppSystem getSystem( AppSystem system ) throws Exception {
-		if( system == null )
-			return( null );
 		if( directoryNew != null )
 			return( directoryNew.getSystem( system.ID ) );
 		EngineDirectory directory = data.getDirectory();
@@ -1336,102 +1299,53 @@ public class TransactionBase extends EngineObject {
 	}
 	
 	public AppProduct getProduct( AppProduct product ) throws Exception {
-		if( product == null )
-			return( null );
 		if( directoryNew != null )
 			return( directoryNew.getProduct( product.NAME ) );
-		
-		TransactionProduct tm = findProductTransaction( product.NAME );
-		if( tm != null ) {
-			if( tm.productNew != null )
-				return( tm.productNew );
-		}
-		
 		EngineDirectory directory = data.getDirectory();
 		return( directory.getProduct( product.ID ) );
 	}
 	
-	public ProductDump getDump( ProductDump dump ) throws Exception {
-		if( dump == null )
-			return( null );
-		AppProduct productNew = getProduct( dump.dumps.product );
-		return( productNew.getDump( dump.ID ) );
-	}
-	
-	public ProductDumpMask getDumpMask( ProductDumpMask mask ) throws Exception {
-		if( mask == null )
-			return( null );
-		ProductDump dumpNew = getDump( mask.dump );
-		return( dumpNew.getDumpMask( mask.ID ) );
-	}
-	
 	public Meta getMeta( Meta meta ) throws Exception {
-		if( meta == null )
-			return( null );
 		EngineProduct ep = meta.getEngineProduct();
 		return( ep.findSessionMeta( action , meta.getStorage() , true ) );
 	}
 
 	public MetaEnv getMetaEnv( MetaEnv env ) throws Exception {
-		if( env == null )
-			return( null );
-		Meta meta = getMeta( env.meta );
+		Meta meta = getTransactionMetadata( env.meta );
 		ProductEnvs envs = meta.getEnviroments();
 		return( envs.findMetaEnv( env.NAME ) );
 	}
 
 	public MetaEnvSegment getMetaEnvSegment( MetaEnvSegment sg ) throws Exception {
-		if( sg == null )
-			return( null );
 		MetaEnv env = getMetaEnv( sg.env );
 		return( env.findSegment( sg.NAME ) );
 	}
 
 	public MetaEnvStartInfo getStartInfo( MetaEnvStartInfo startInfo ) throws Exception {
-		if( startInfo == null )
-			return( null );
 		MetaEnvSegment sg = getMetaEnvSegment( startInfo.sg );
 		return( sg.getStartInfo() );
 	}
 	
 	public MetaEnvStartGroup getStartGroup( MetaEnvStartGroup startGroup ) throws Exception {
-		if( startGroup == null )
-			return( null );
 		MetaEnvStartInfo startInfo = getStartInfo( startGroup.startInfo );
 		return( startInfo.getStartGroup( startGroup.ID ) );
 	}
 	
 	public MetaEnvServer getMetaEnvServer( MetaEnvServer server ) throws Exception {
-		if( server == null )
-			return( null );
 		MetaEnvSegment sg = getMetaEnvSegment( server.sg );
 		return( sg.findServer( server.NAME ) );
 	}
 
 	public MetaEnvServerDeployment getMetaEnvServerDeployment( MetaEnvServerDeployment deployment ) throws Exception {
-		if( deployment == null )
-			return( null );
 		MetaEnvServer server = getMetaEnvServer( deployment.server );
 		return( server.getDeployment( deployment.ID ) );
 	}
 
 	public MetaEnvServerNode getMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {
-		if( node == null )
-			return( null );
 		MetaEnvServer server = getMetaEnvServer( node.server );
 		return( server.getNodeByPos( node.POS ) );
 	}
 
-	public AppProduct getTransactionProduct( AppProduct product ) throws Exception {
-		AppProduct productUpdated = null;
-		TransactionProduct tm = findProductTransaction( product.NAME );
-		if( tm != null )
-			productUpdated = tm.productNew;
-		if( productUpdated == null )
-			exit1( _Error.TransactionMissingProductChanges1 , "Missing changes in product=" + product.NAME , product.NAME );
-		return( productUpdated );
-	}
-	
 	public Meta[] getTransactionProductMetadataList() {
 		List<Meta> list = new LinkedList<Meta>();
 		for( TransactionProduct tm : productChanges.values() ) {
@@ -1467,10 +1381,6 @@ public class TransactionBase extends EngineObject {
 		return( null );
 	}
 
-	public MetaEnv getTransactionEnv( MetaEnv env ) throws Exception {
-		return( getTransactionEnv( env.ID ) );
-	}
-	
 	public MetaEnv getTransactionEnv( int envId ) throws Exception {
 		for( TransactionProduct tm : productChanges.values() ) {
 			MetaEnv env = tm.findTransactionEnv( envId );
@@ -1577,22 +1487,25 @@ public class TransactionBase extends EngineObject {
 		return( baseChange.getItem( item.ID ) );
 	}
 
-	public AppProductMonitoringTarget getMonitoringTarget( AppProductMonitoringTarget target ) throws Exception {
-		TransactionProduct tp = findProductTransaction( target.product.NAME );
-		if( tp == null )
-			Common.exitUnexpected();
-		
-		AppProduct productUpdated = getTransactionProduct( target.product );
-		
-		AppProductMonitoring mon = productUpdated.getMonitoring();
-		AppProductMonitoringTarget targetUpdated = mon.getTarget( target.ID );
+	public MetaDump getDump( MetaDump dump ) throws Exception {
+		Meta meta = getTransactionMetadata( dump.meta );
+		MetaDatabase db = meta.getDatabase();
+		if( dump.EXPORT )
+			return( db.findExportDump( dump.NAME ) );
+		return( db.findImportDump( dump.NAME ) );
+	}
+	
+	public MetaMonitoringTarget getMonitoringTarget( MetaMonitoringTarget target ) throws Exception {
+		Meta meta = getMeta( target.envs.meta );
+		MetaMonitoring mon = meta.getMonitoring();
+		MetaMonitoringTarget targetUpdated = mon.getTarget( target.ID );
 		if( targetUpdated == null )
 			Common.exitUnexpected();
 		return( targetUpdated );
 	}
 
-	public AppProductMonitoringItem getMonitoringItem( AppProductMonitoringItem item ) throws Exception {
-		AppProductMonitoringTarget targetUpdated = getMonitoringTarget( item.target );
+	public MetaMonitoringItem getMonitoringItem( MetaMonitoringItem item ) throws Exception {
+		MetaMonitoringTarget targetUpdated = getMonitoringTarget( item.target );
 		return( targetUpdated.getItem( item.ID ) );
 	}
 	

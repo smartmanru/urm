@@ -16,11 +16,11 @@ import org.urm.engine.events.EngineEventsSource;
 import org.urm.engine.events.EngineEventsState;
 import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.run.EngineMethod;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSourceProject;
 import org.urm.meta.release.Release;
 import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
-import org.urm.meta.system.AppProduct;
 
 public class EngineBlotterSet extends EngineEventsSource {
 

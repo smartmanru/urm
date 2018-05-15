@@ -40,7 +40,7 @@ import org.urm.engine.CallService;
 import org.urm.engine.SessionService;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
-import org.urm.meta.system.AppProduct;
+import org.urm.meta.engine.AppProduct;
 
 public class EngineCommandMBean implements DynamicMBean, NotificationBroadcaster {
 

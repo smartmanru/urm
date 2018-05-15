@@ -3,8 +3,8 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.system.AppProduct;
 
 public class UrmStorage {
 
@@ -65,7 +65,7 @@ public class UrmStorage {
 		if( dbtype == DBEnumDbmsType.FIREBIRD )
 			dbFolder = "firebird";
 		else
-			action.exit1( _Error.UnexpectedDatabaseType1 , "unexpected database type=" + dbtype.name() , dbtype.name() );
+			action.exitUnexpectedState();
 		
 		if( !remoteRun )
 			ostype = DBEnumOSType.getValue( action.execrc.osType );

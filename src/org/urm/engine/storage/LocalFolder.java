@@ -98,6 +98,11 @@ public class LocalFolder extends Folder {
 		session.copyDirContent( action , srcDir , dstDir );
 	}
 
+	public void removeVcsFiles( ActionBase action ) throws Exception {
+		ShellExecutor session = getSession( action );
+		session.customCheckStatus( action , folderPath , "rm -rf `find . -name \".svn\" -o -name \".git\"`" );
+	}
+
 	public boolean equals( LocalFolder folder ) {
 		if( folderPath.equals( folder.folderPath ) )
 			return( true );

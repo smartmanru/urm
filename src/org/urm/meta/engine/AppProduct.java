@@ -1,4 +1,4 @@
-package org.urm.meta.system;
+package org.urm.meta.engine;
 
 import org.urm.common.Common;
 import org.urm.engine.data.EngineDirectory;
@@ -6,7 +6,6 @@ import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.products.EngineProductRevisions;
-import org.urm.meta.engine._Error;
 import org.urm.meta.loader.EngineObject;
 
 public class AppProduct extends EngineObject {
@@ -46,9 +45,6 @@ public class AppProduct extends EngineObject {
 	public int SV;
 	
 	public AppProductPolicy policy;
-	public AppProductDumps dumps;
-	public AppProductMonitoring mon;
-	
 	private boolean matched;
 	
 	public AppProduct( EngineDirectory directory , AppSystem system ) {
@@ -58,10 +54,7 @@ public class AppProduct extends EngineObject {
 		this.ID = -1;
 		this.SV = 0;
 		
-		policy = new AppProductPolicy( this );
-		dumps = new AppProductDumps( this );
-		mon = new AppProductMonitoring( this );
-		
+		policy = new AppProductPolicy( directory , this );
 		matched = false;
 	}
 	
@@ -70,6 +63,10 @@ public class AppProduct extends EngineObject {
 		return( NAME );
 	}
 
+	public void setPolicy( AppProductPolicy policy ) {
+		this.policy = policy;
+	}
+	
 	public AppProduct copy( EngineDirectory nr , AppSystem rs ) {
 		AppProduct r = new AppProduct( nr , rs );
 		
@@ -89,23 +86,13 @@ public class AppProduct extends EngineObject {
 		r.NEXT_MINOR2 = NEXT_MINOR2;
 		r.SV = SV;
 		
-		r.policy = policy.copy( r );
-		r.dumps = dumps.copy( r );
-		r.mon = mon.copy( r );
+		r.policy = policy.copy( nr ,  r );
 		
 		return( r );
 	}
 	
 	public AppProductPolicy getPolicy() {
 		return( policy );
-	}
-	
-	public void setPolicy( AppProductPolicy policy ) {
-		this.policy = policy;
-	}
-	
-	public AppProductMonitoring getMonitoring() {
-		return( mon );
 	}
 	
 	public boolean isValid() {
@@ -208,25 +195,5 @@ public class AppProduct extends EngineObject {
 			return( null );
 		return( ep.getRevisions() ); 
 	}
-
-	public ProductDump findImportDump( String name ) {
-		return( dumps.findImportDump( name ) );
-	}
 	
-	public ProductDump findExportDump( String name ) {
-		return( dumps.findExportDump( name ) );
-	}
-
-	public ProductDump getDump( int id ) throws Exception {
-		return( dumps.getDump( id ) );
-	}
-
-	public String[] getExportDumpNames() {
-		return( dumps.getExportDumpNames() );
-	}
-	
-	public String[] getImportDumpNames() {
-		return( dumps.getImportDumpNames() );
-	}
-
 }

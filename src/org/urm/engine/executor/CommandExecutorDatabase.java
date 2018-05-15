@@ -14,6 +14,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.status.ScopeState;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -21,7 +22,6 @@ import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrDelivery;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
 
 public class CommandExecutorDatabase extends CommandExecutor {
 
@@ -150,18 +150,20 @@ public class CommandExecutorDatabase extends CommandExecutor {
 	private class ImportDB extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TASK = getRequiredArg( action , 0 , "TASK" );
-		String CMD = getRequiredArg( action , 1 , "CMD" );
-		String SCHEMA = getArg( action , 2 );
-		impl.importDatabase( parentState , action , TASK , CMD , SCHEMA );
+		String SERVER = getRequiredArg( action , 1 , "SERVER" );
+		String CMD = getRequiredArg( action , 2 , "CMD" );
+		String SCHEMA = getArg( action , 3 );
+		impl.importDatabase( parentState , action , SERVER , TASK , CMD , SCHEMA );
 	}
 	}
 	
 	private class ExportDB extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		String TASK = getRequiredArg( action , 0 , "TASK" );
-		String CMD = getRequiredArg( action , 1 , "CMD" );
-		String SCHEMA = getArg( action , 2 );
-		impl.exportDatabase( parentState , action , TASK , CMD , SCHEMA );
+		String SERVER = getRequiredArg( action , 1 , "SERVER" );
+		String CMD = getRequiredArg( action , 2 , "CMD" );
+		String SCHEMA = getArg( action , 3 );
+		impl.exportDatabase( parentState , action , SERVER , TASK , CMD , SCHEMA );
 	}
 	}
 	

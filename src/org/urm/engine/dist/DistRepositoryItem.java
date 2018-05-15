@@ -51,9 +51,7 @@ public class DistRepositoryItem {
 		RELEASEDIR = distFolder.folderName;
 		if( !distFolder.checkExists( action ) ) {
 			String path = distFolder.getLocalPath( action );
-			action.error( "release does not exist at " + path );
-			dist = null;
-			return( null );
+			action.exit1( _Error.MissingRelease1 , "release does not exist at " + path , path );
 		}
 		
 		dist = new Dist( releaseDist.release.getMeta() , this , releaseDist , distFolder );

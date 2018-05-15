@@ -14,6 +14,8 @@ import org.urm.engine.dist.ReleaseLabelInfo;
 import org.urm.engine.dist._Error;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.run.EngineMethod;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppProductPolicy;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.product.Meta;
@@ -26,8 +28,6 @@ import org.urm.meta.release.ReleaseSchedule;
 import org.urm.meta.release.ReleaseScope;
 import org.urm.meta.release.ReleaseRepository.ReleaseOperation;
 import org.urm.meta.release.ReleaseTicketSet;
-import org.urm.meta.system.AppProduct;
-import org.urm.meta.system.AppProductPolicy;
 
 public class DBReleaseRepository {
 

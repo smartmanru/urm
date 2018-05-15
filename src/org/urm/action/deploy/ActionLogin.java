@@ -35,7 +35,9 @@ public class ActionLogin extends ActionBase {
 				context.call.runInteractive( this , shell );
 			}
 			else {
+				int timeout = setTimeoutUnlimited();
 				shell.runInteractive( this );
+				setTimeout( timeout );
 			}
 		}
 		catch( Throwable e ) {

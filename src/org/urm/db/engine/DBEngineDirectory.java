@@ -7,7 +7,6 @@ import org.urm.db.DBConnection;
 import org.urm.db.core.DBSettings;
 import org.urm.db.system.DBAppProduct;
 import org.urm.db.system.DBAppSystem;
-import org.urm.db.system.DBSystemData;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineSettings;
 import org.urm.engine.products.EngineProductRevisions;
@@ -16,12 +15,12 @@ import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 import org.urm.engine.transaction.EngineTransaction;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.loader.EngineLoader;
 import org.urm.meta.loader.EngineMatcher;
 import org.urm.meta.product.MetaProductSettings;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
-import org.urm.meta.system.AppSystem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -68,9 +67,9 @@ public abstract class DBEngineDirectory {
 		
 		Node node = ConfReader.xmlGetFirstChild( root , ELEMENT_POLICY );
 		if( node == null )
-			DBAppProduct.createdbPolicy( c , product );
+			DBAppProduct.createdbPolicy( c , directory , product );
 		else
-			DBAppProduct.importxmlPolicy( loader , product , node );
+			DBAppProduct.importxmlPolicy( loader , directory , product , node );
 				
 		return( product );
 	}
@@ -103,6 +102,9 @@ public abstract class DBEngineDirectory {
 	public static void loaddb( EngineLoader loader , EngineDirectory directory ) throws Exception {
 		loaddbSystems( loader , directory );
 		loaddbProducts( loader , directory );
+		
+		// match systems to engine
+		matchSystems( loader , directory , false );
 	}
 	
 	private static void loaddbSystems( EngineLoader loader , EngineDirectory directory ) throws Exception {
@@ -113,6 +115,9 @@ public abstract class DBEngineDirectory {
 	
 	private static void loaddbProducts( EngineLoader loader , EngineDirectory directory ) throws Exception {
 		AppProduct[] products = DBAppProduct.loaddb( loader , directory );
+		
+		for( AppProduct product : products )
+			DBAppProduct.loaddbPolicy( loader , product );
 		
 		for( AppProduct product : products )
 			directory.addUnmatchedProduct( product );
@@ -187,7 +192,7 @@ public abstract class DBEngineDirectory {
 		DBAppProduct.modifyProduct( c , product , true );
 		
 		// create initial policy
-		DBAppProduct.createdbPolicy( c , product );
+		DBAppProduct.createdbPolicy( c , directory , product );
 		
 		directory.addMatchedProduct( product );
 		return( product );
@@ -217,7 +222,7 @@ public abstract class DBEngineDirectory {
 		if( directory.getProduct( product.ID ) != product )
 			transaction.exit( _Error.UnknownProduct1 , "product=" + product.NAME + " is unknown or mismatched" , new String[] { product.NAME } );
 		
-		DBSystemData.dropProductData( c , product );
+		DBAppProduct.deleteProduct( c , product );
 		directory.removeProduct( product );
 		
 		if( fsDeleteFlag ) {

@@ -36,19 +36,18 @@ public abstract class GenericVCS {
 	public abstract boolean ignoreDir( String name );
 	public abstract boolean ignoreFile( String name );
 	
-	public abstract String[] getBranches( MetaSourceProject project ) throws Exception;
-	public abstract String[] getTags( MetaSourceProject project ) throws Exception;
 	public abstract boolean checkout( MetaSourceProject project , LocalFolder PATCHPATH , String BRANCH ) throws Exception;
 	public abstract boolean commit( MetaSourceProject project , String BRANCH , LocalFolder PATCHPATH , String MESSAGE ) throws Exception;
-	public abstract boolean copyBranchToBranch( MetaSourceProject project , String branchFrom , String branchTo , boolean deleteOld ) throws Exception;
-	public abstract boolean renameBranchToBranch( MetaSourceProject project , String branchFrom , String branchTo , boolean deleteOld ) throws Exception;
-	public abstract boolean copyTagToTag( MetaSourceProject project , String tagFrom , String tagTo , boolean deleteOld ) throws Exception;
-	public abstract boolean renameTagToTag( MetaSourceProject project , String tagFrom , String tagTo , boolean deleteOld ) throws Exception;
-	public abstract boolean copyTagToBranch( MetaSourceProject project , String tagFrom , String branchTo , boolean deleteOld ) throws Exception;
+	public abstract boolean copyBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) throws Exception;
+	public abstract boolean renameBranchToNewBranch( MetaSourceProject project , String branchFrom , String branchTo ) throws Exception;
+	public abstract boolean copyTagToNewTag( MetaSourceProject project , String tagFrom , String tagTo ) throws Exception;
+	public abstract boolean copyTagToTag( MetaSourceProject project , String tagFrom , String tagTo ) throws Exception;
+	public abstract boolean renameTagToTag( MetaSourceProject project , String tagFrom , String tagTo ) throws Exception;
+	public abstract boolean copyTagToNewBranch( MetaSourceProject project , String tagFrom , String branchTo ) throws Exception;
 	public abstract boolean dropTag( MetaSourceProject project , String tag ) throws Exception;
 	public abstract boolean dropBranch( MetaSourceProject project , String branch ) throws Exception;
-	public abstract boolean setTag( MetaSourceProject project , String branch , String tag , String branchDate , boolean deleteOld ) throws Exception;
 	public abstract boolean export( MetaSourceProject project , LocalFolder PATCHPATH , String branch , String tag , String singlefile ) throws Exception;
+	public abstract boolean setTag( MetaSourceProject project , String branch , String tag , String branchDate ) throws Exception;
 	
 	public abstract boolean exportRepositoryMasterPath( MirrorRepository mirror , LocalFolder PATCHPATH , String ITEMPATH , String name ) throws Exception;
 	public abstract boolean exportRepositoryTagPath( MirrorRepository mirror , LocalFolder PATCHPATH , String TAG , String ITEMPATH , String name ) throws Exception;
@@ -102,7 +101,7 @@ public abstract class GenericVCS {
 		if( res.isGit() )
 			return( new GitVCS( action , meta , res , shell , builder ) );
 		
-		action.exit2( _Error.UnexectedVcsType2 , "unexpected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.RESOURCE_TYPE ) , res.NAME , Common.getEnumLower( res.RESOURCE_TYPE ) );
+		action.exit2( _Error.UnexectedVcsType2 , "unexected vcs=" + res.NAME + ", type=" + Common.getEnumLower( res.RESOURCE_TYPE ) , res.NAME , Common.getEnumLower( res.RESOURCE_TYPE ) );
 		return( null );
 	}
 	

@@ -213,11 +213,6 @@ public class MetaSourceProject {
 		return( res.isSvn() );
 	}
 
-	public boolean isVCS( ActionBase action ) throws Exception {
-		AuthResource res = getResource( action );
-		return( res.isVCS() );
-	}
-	
 	public boolean isBuildable() {
 		if( PROJECT_TYPE == DBEnumProjectType.BUILDABLE )
 			return( true );

@@ -90,9 +90,10 @@ public abstract class Builder {
 		// drop old
 		RedistStorage storage = action.artefactory.getRedistStorage( action , action.shell.account );
 		RemoteFolder buildFolder = storage.getRedistTmpFolder( action , "build-" + action.ID );
-		buildFolder.ensureExists( action );
+		RemoteFolder buildParent  = buildFolder.getParentFolder( action );
+		buildParent.ensureExists( action );
 		
-		CODEPATH = buildFolder.getSubFolder( action , project.NAME );
+		CODEPATH = buildParent.getSubFolder( action , project.NAME );
 		CODEPATH.removeThis( action );
 	
 		// checkout

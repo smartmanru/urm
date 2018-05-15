@@ -9,10 +9,10 @@ import org.urm.action.ActionBase;
 import org.urm.action.database.DatabaseClient;
 import org.urm.common.Common;
 import org.urm.db.EngineDB;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.product.MetaDatabase;
 import org.urm.meta.product.MetaDatabaseSchema;
-import org.urm.meta.system.AppProduct;
-import org.urm.meta.system.ProductDumpMask;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -123,13 +123,53 @@ public class ProductStorage {
 		return( files.fileList.toArray( new String[0] ) );
 	}
 	
-	public void createdbDatapumpSet( ActionBase action , Map<String,List<ProductDumpMask>> tableSet , MetaEnvServer server , boolean standby , boolean export ) throws Exception {
+	public String getDatapumpFile( ActionBase action , String specFile ) throws Exception {
+		UrmStorage urm = artefactory.getUrmStorage();
+		LocalFolder folder = urm.getProductDatapumpMetadataFolder( action , product );
+		return( folder.getFilePath( action , specFile ) );
+	}
+
+	public HashMap<String,Map<String,String>> readDatapumpFile( ActionBase action , String specFile , MetaDatabase database , String schema ) throws Exception {
+		String tablesetPath = getDatapumpFile( action , specFile );
+		action.info( "reading export table set file " + tablesetPath + " ..." );
+		
+		HashMap<String,Map<String,String>> tableSet = new HashMap<String,Map<String,String>>();
+		for( String line : action.readFileLines( tablesetPath ) ) {
+			if( line.isEmpty() || line.startsWith( "#" ) )
+				continue;
+			
+			String[] opts = Common.split( line , "/" );
+			if( opts.length != 2 )
+				action.exit1( _Error.InvalidTableSetLine1 , "invalid table set line=" + line , line );
+			String SN = opts[0]; 
+			String table = opts[1]; 
+			if( SN.isEmpty() || table.isEmpty() )
+				action.exit1( _Error.InvalidTableSetLine1 , "invalid table set line=" + line , line );
+
+			if( !schema.isEmpty() )
+				if( !SN.equals( schema ) )
+					continue;
+			
+			Map<String,String> tables = tableSet.get( SN );
+			if( tables == null ) {
+				database.getSchema( SN );
+				tables = new HashMap<String,String>();
+				tableSet.put( SN , tables );
+			}
+			
+			tables.put( table , SN );
+		}
+		
+		return( tableSet );
+	}
+	
+	public void loadDatapumpSet( ActionBase action , Map<String,Map<String,String>> tableSet , MetaEnvServer server , boolean standby , boolean export ) throws Exception {
 		String table = ( export )? "urm_export" : "urm_import";  
 		action.info( "create table " + table + " in administrative database ..." );
 		
 		// load table set into database
-		String[] columns = { "xschema" , "xtable" , "xinclude" };
-		String[] columntypes = { "varchar(30)" , "varchar(255)" , "char(1)" };
+		String[] columns = { "xschema" , "xtable" };
+		String[] columntypes = { "varchar(30)" , "varchar(30)" };
 		List<String[]> data = new LinkedList<String[]>();
 		
 		Map<String,MetaDatabaseSchema> serverSchemas = new HashMap<String,MetaDatabaseSchema>();
@@ -138,12 +178,16 @@ public class ProductStorage {
 			
 		for( String SN : tableSet.keySet() ) {
 			MetaDatabaseSchema schema = serverSchemas.get( SN );
-			List<ProductDumpMask> tables = tableSet.get( SN );
+			Map<String,String> tables = tableSet.get( SN );
 			
 			String dbschema = server.getSchemaDBName( schema );
-			for( ProductDumpMask s : tables ) {
-				String bv = ( s.INCLUDE )? "Y" : "N";
-				data.add( new String[] { Common.getSQLQuoted( dbschema ) , Common.getSQLQuoted( s.TABLEMASK ) , Common.getSQLQuoted( bv ) } );
+			if( tables.containsKey( "*" ) ) {
+				data.add( new String[] { Common.getSQLQuoted( dbschema ) , Common.getSQLQuoted( "*" ) } );
+			}
+			else {
+				for( String s : tables.keySet() ) {
+					data.add( new String[] { Common.getSQLQuoted( dbschema ) , Common.getSQLQuoted( s ) } );
+				}
 			}
 		}
 
@@ -154,7 +198,7 @@ public class ProductStorage {
 		client.createTableData( action , server.getAdmSchema() , table , columns , columntypes , data );  
 	}
 
-	public void saveDatapumpSet( ActionBase action , Map<String,List<ProductDumpMask>> tableSet , MetaEnvServer server , String filePath ) throws Exception {
+	public void saveDatapumpSet( ActionBase action , Map<String,Map<String,String>> tableSet , MetaEnvServer server , String filePath ) throws Exception {
 		Map<String,MetaDatabaseSchema> serverSchemas = new HashMap<String,MetaDatabaseSchema>();
 		for( MetaDatabaseSchema schema : server.getSchemaSet() )
 			serverSchemas.put( schema.NAME , schema );
@@ -163,12 +207,16 @@ public class ProductStorage {
 		
 		for( String SN : tableSet.keySet() ) {
 			MetaDatabaseSchema schema = serverSchemas.get( SN );
-			List<ProductDumpMask> tables = tableSet.get( SN );
+			Map<String,String> tables = tableSet.get( SN );
 
 			String dbschema = server.getSchemaDBName( schema );
-			for( ProductDumpMask s : tables ) {
-				String bv = ( s.INCLUDE )? "include" : "exclude";
-				conf.add( dbschema + "/" + s.TABLEMASK + "/" + bv );
+			if( tables.containsKey( "*" ) ) {
+				conf.add( dbschema + "/*" );
+			}
+			else {
+				for( String s : tables.keySet() ) {
+					conf.add( dbschema + "/" + s );
+				}
 			}
 		}
 		

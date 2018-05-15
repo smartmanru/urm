@@ -4,10 +4,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.urm.engine.status.StatusData.OBJECT_STATE;
+import org.urm.meta.engine.WholeUrlFailed;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.loader.Types.*;
-import org.urm.meta.system.WholeUrlFailed;
 
 public class NodeStatus extends Status {
 

@@ -8,7 +8,6 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.events.EngineEventsApp;
 import org.urm.engine.events.EngineEventsListener;
 import org.urm.engine.events.EngineEventsSubscription;
-import org.urm.engine.products.EngineProduct;
 import org.urm.engine.status.AppStatus;
 import org.urm.engine.status.EngineStatusProduct;
 import org.urm.engine.status.NodeStatus;
@@ -21,6 +20,8 @@ import org.urm.engine.status.StatusSource;
 import org.urm.engine.status.SystemStatus;
 import org.urm.engine.status.StatusData.OBJECT_STATE;
 import org.urm.engine.transaction.TransactionBase;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -28,8 +29,6 @@ import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
-import org.urm.meta.system.AppSystem;
 
 public class StateService extends EngineObject {
 
@@ -265,8 +264,7 @@ public class StateService extends EngineObject {
 		action.trace( "start status tracking for product=" + product.NAME + " ..." );
 		createGlobalSource( StatusType.PRODUCT , product , product.NAME , new ProductStatus( product ) );
 		
-		EngineProduct ep = product.findEngineProduct();
-		EngineStatusProduct productStatus = new EngineStatusProduct( this , ep );
+		EngineStatusProduct productStatus = new EngineStatusProduct( this , product );
 		products.put( product.NAME , productStatus );
 		
 		productStatus.start( action );
@@ -331,8 +329,7 @@ public class StateService extends EngineObject {
 		if( source != null ) {
 			source.updateRunTime();
 			
-			EngineProduct ep = productStatus.ep;
-			AppProduct product = ep.findProduct();
+			AppProduct product = productStatus.product;
 			source = getGlobalSource( StatusType.PRODUCT , product.NAME );
 			if( source != null ) {
 				source.updateRunTime();
@@ -386,8 +383,7 @@ public class StateService extends EngineObject {
 		if( source != null ) {
 			source.finishUpdate();
 			
-			EngineProduct ep = productStatus.ep;
-			AppProduct product = ep.findProduct();
+			AppProduct product = productStatus.product;
 			source = getGlobalSource( StatusType.PRODUCT , product.NAME );
 			if( source != null ) {
 				source.finishUpdate();

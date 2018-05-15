@@ -10,11 +10,11 @@ import org.urm.common.action.CommandOptions;
 import org.urm.engine.SessionService;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.products.EngineProduct;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthContext;
 import org.urm.meta.engine.AuthUser;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
-import org.urm.meta.system.AppProduct;
 
 public class EngineSession extends EngineObject {
 

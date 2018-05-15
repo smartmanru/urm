@@ -11,16 +11,16 @@ import org.urm.common.action.CommandOptions.SQLTYPE;
 import org.urm.common.action.CommandOption.FLAG;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.Engine;
-import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.shell.Account;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.AuthResource;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
 import org.urm.meta.product.MetaProductSettings;
-import org.urm.meta.system.AppProduct;
 
 public class CommandContext {
 
@@ -405,9 +405,9 @@ public class CommandContext {
 	}
 	
 	public void loadEnv( ActionInit action , String ENV , String SG , boolean loadProps ) throws Exception {
-		AppProduct product = action.getContextProduct();
-		EngineProductEnvs envs = product.findEnvs();
-		env = envs.findEnv( ENV );
+		Meta meta = action.getContextMeta();
+		ProductEnvs envs = meta.getEnviroments();
+		env = envs.findMetaEnv( ENV );
 		
 		if( SG == null || SG.isEmpty() ) {
 			sg = null;

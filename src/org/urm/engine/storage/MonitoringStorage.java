@@ -3,9 +3,9 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
-import org.urm.meta.system.AppProductMonitoringTarget;
 
 public class MonitoringStorage {
 
@@ -19,9 +19,9 @@ public class MonitoringStorage {
 		this.workFolder = workFolder;
 	}
 	
-	public LocalFolder getDataFolder( ActionBase action , AppProductMonitoringTarget target ) throws Exception {
+	public LocalFolder getDataFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		if( sg == null )
 			Common.exitUnexpected();
 		
@@ -29,7 +29,7 @@ public class MonitoringStorage {
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
-	public LocalFolder getReportsFolder( ActionBase action , AppProductMonitoringTarget target ) throws Exception {
+	public LocalFolder getReportsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
 		String path = core.MONITORING_DIR_REPORTS;
 		return( artefactory.getAnyFolder( action , path ) );
@@ -41,9 +41,9 @@ public class MonitoringStorage {
 		return( artefactory.getAnyFolder( action , path ) );
 	}
 	
-	public LocalFolder getLogsFolder( ActionBase action , AppProductMonitoringTarget target ) throws Exception {
+	public LocalFolder getLogsFolder( ActionBase action , MetaMonitoringTarget target ) throws Exception {
 		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		MetaEnvSegment sg = target.findSegment();
+		MetaEnvSegment sg = target.getSegment();
 		String path = Common.getPath( core.MONITORING_DIR_LOGS , sg.env.NAME );
 		return( artefactory.getAnyFolder( action , path ) );
 	}
@@ -53,25 +53,25 @@ public class MonitoringStorage {
 		return( core.MONITORING_RESOURCE_URL );
 	}
 	
-	public String getHistoryImageFile( AppProductMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+	public String getHistoryImageFile( MetaMonitoringTarget target ) throws Exception {
+		MetaEnvSegment sg = target.getSegment();
 		String file = "history." + sg.env.NAME + "." + sg.NAME + ".png";
 		return( file );
 	}
 	
-	public String getRrdFile( AppProductMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+	public String getRrdFile( MetaMonitoringTarget target ) throws Exception {
+		MetaEnvSegment sg = target.getSegment();
 		String file = "env." + sg.NAME + ".rrd";
 		return( file );
 	}
 	
-	public String getCheckEnvFile( AppProductMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+	public String getCheckEnvFile( MetaMonitoringTarget target ) throws Exception {
+		MetaEnvSegment sg = target.getSegment();
 		String file = "checkenv." + sg.NAME + ".log";
 		return( file );
 	}
 	
-	public String getCheckEnvRunningFile( AppProductMonitoringTarget target ) throws Exception {
+	public String getCheckEnvRunningFile( MetaMonitoringTarget target ) throws Exception {
 		String name = getCheckEnvFile( target );
 		return( name + ".running" );
 	}
@@ -84,8 +84,8 @@ public class MonitoringStorage {
 		return( "stopped.jpg" );
 	}
 	
-	public String getStatusReportFile( AppProductMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
+	public String getStatusReportFile( MetaMonitoringTarget target ) throws Exception {
+		MetaEnvSegment sg = target.getSegment();
 		String basename = "overall." + sg.env.NAME + "." + sg.NAME + ".html";
 		return( basename );
 	}

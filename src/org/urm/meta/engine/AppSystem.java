@@ -1,4 +1,4 @@
-package org.urm.meta.system;
+package org.urm.meta.engine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -97,10 +97,6 @@ public class AppSystem extends EngineObject {
 	}
 
 	public void addProduct( AppProduct product ) {
-		mapProducts.put( product.NAME , product );
-	}
-	
-	public void replaceProduct( AppProduct product ) {
 		mapProducts.put( product.NAME , product );
 	}
 	

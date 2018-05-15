@@ -29,8 +29,8 @@ import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.ProductStorage;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.engine.MirrorRepository;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
 
 public class EngineLoader {
 
@@ -46,24 +46,9 @@ public class EngineLoader {
 	private ActionBase action;
 
 	private EngineLoaderCore ldc;
-	private EngineLoaderSystems lds;
 	private EngineLoaderProducts ldp;
 	
 	public EngineLoader( Engine engine , DataService data , ActionBase action ) {
-		create( engine , data , action );
-	}
-
-	public EngineLoader( Engine engine , DataService data , EngineMethod method , ActionBase action ) {
-		create( engine , data , action );
-		this.method = method;
-	}
-
-	public EngineLoader( Engine engine , DataService data , TransactionBase transaction ) {
-		create( engine , data , transaction.action );
-		this.transaction = transaction;
-	}
-
-	private void create( Engine engine , DataService data , ActionBase action ) {
 		this.engine = engine;
 		this.data = data;
 		this.action = action;
@@ -71,10 +56,33 @@ public class EngineLoader {
 		this.entities = data.getEntities();
 		
 		ldc = new EngineLoaderCore( this , data );
-		lds = new EngineLoaderSystems( this , data );
 		ldp = new EngineLoaderProducts( this , data );
 	}
-	
+
+	public EngineLoader( Engine engine , DataService data , EngineMethod method , ActionBase action ) {
+		this.engine = engine;
+		this.data = data;
+		this.method = method;
+		this.action = action;
+		this.execrc = engine.execrc;
+		this.entities = data.getEntities();
+		
+		ldc = new EngineLoaderCore( this , data );
+		ldp = new EngineLoaderProducts( this , data );
+	}
+
+	public EngineLoader( Engine engine , DataService data , TransactionBase transaction ) {
+		this.engine = engine;
+		this.data = data;
+		this.transaction = transaction;
+		this.action = transaction.action;
+		this.execrc = engine.execrc;
+		this.entities = data.getEntities();
+		
+		ldc = new EngineLoaderCore( this , data );
+		ldp = new EngineLoaderProducts( this , data );
+	}
+
 	public TransactionBase getTransaction() {
 		return( transaction );
 	}
@@ -108,7 +116,7 @@ public class EngineLoader {
 	}
 
 	public EngineDirectory getDirectory() {
-		return( lds.getDirectory() );
+		return( ldc.getDirectory() );
 	}
 
 	public EngineMirrors getMirrors() {
@@ -159,10 +167,8 @@ public class EngineLoader {
 	}
 	
 	public void closeConnection( boolean commit ) throws Exception {
-		if( commit ) {
+		if( commit )
 			ldc.setData();
-			lds.setData();
-		}
 
 		if( connection != null ) {
 			if( transaction == null )
@@ -174,10 +180,8 @@ public class EngineLoader {
 	}
 
 	public void saveConnection( boolean commit ) throws Exception {
-		if( commit ) {
+		if( commit )
 			ldc.setData();
-			lds.setData();
-		}
 
 		if( connection != null )
 			connection.save( commit );
@@ -304,10 +308,8 @@ public class EngineLoader {
 	}
 	
 	public void exportRepo( MirrorRepository repo ) throws Exception {
-		if( repo.isServer() ) {
-			ldc.exportxmlEngine();
-			lds.exportxmlDirectory();
-		}
+		if( repo.isServer() )
+			ldc.exportEngine();
 		else {
 			if( repo.productId == null )
 				Common.exitUnexpected();
@@ -413,15 +415,15 @@ public class EngineLoader {
 			// systems
 			if( importxml ) {
 				if( withSystems ) {
-					lds.importxmlDirectory();
+					ldc.importxmlDirectory();
 					saveConnection( true );
 					trace( "successfully completed import of engine directory data" );
 				}
 				else
-					lds.loaddbDirectory();
+					ldc.loaddbDirectory();
 			}
 			else
-				lds.loaddbDirectory();
+				ldc.loaddbDirectory();
 			
 			closeConnection( true );
 		}

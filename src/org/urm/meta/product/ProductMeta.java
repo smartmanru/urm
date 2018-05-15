@@ -7,11 +7,12 @@ import org.urm.common.Common;
 import org.urm.engine.Engine;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaMonitoring;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.release.ReleaseRepository;
-import org.urm.meta.system.AppProduct;
 
 public class ProductMeta extends EngineObject {
 
@@ -207,6 +208,10 @@ public class ProductMeta extends EngineObject {
 		return( envs );
 	}
 
+	public MetaMonitoring getMonitoring() {
+		return( envs.getMonitoring() );
+	}
+	
 	public boolean isMatched() {
 		return( MATCHED );
 	}

@@ -1,4 +1,4 @@
-package org.urm.meta.system;
+package org.urm.meta.engine;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,14 +11,18 @@ import org.urm.engine.ScheduleService;
 import org.urm.engine.ScheduleService.ScheduleTaskCategory;
 import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.products.EngineProduct;
+import org.urm.engine.products.EngineProductRevisions;
 import org.urm.engine.schedule.ScheduleTask;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaMonitoring;
+import org.urm.meta.env.MetaMonitoringTarget;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductCoreSettings;
+import org.urm.meta.product.ProductMeta;
 
-public class RunProductMonitoring {
+public class MonitoringProduct {
 
 	class ScheduleTaskSegmentMonitoringMajor extends ScheduleTask {
 		ActionMonitorTarget targetAction;
@@ -54,7 +58,7 @@ public class RunProductMonitoring {
 	EngineProduct ep;
 	Map<Integer,ActionMonitorTarget> targets;
 	
-	public RunProductMonitoring( EngineMonitoring monitoring , EngineProduct ep ) {
+	public MonitoringProduct( EngineMonitoring monitoring , EngineProduct ep ) {
 		this.monitoring = monitoring;
 		this.ep = ep;
 		targets = new HashMap<Integer,ActionMonitorTarget>();
@@ -71,13 +75,16 @@ public class RunProductMonitoring {
 		if( product.isOffline() )
 			return;
 		
-		AppProductMonitoring mon = product.getMonitoring();
-	
-		if( !createFolders( action , mon ) )
-			return;
-			
-		for( AppProductMonitoringTarget target : mon.getTargets() )
-			startTarget( action , target );
+		EngineProductRevisions revisions = ep.getRevisions();
+		for( ProductMeta storage : revisions.getRevisions() ) {
+			MetaMonitoring mon = storage.getMonitoring();
+		
+			if( !createFolders( action , mon ) )
+				return;
+				
+			for( MetaMonitoringTarget target : mon.getTargets() )
+				startTarget( action , target );
+		}
 	}
 	
 	public synchronized void stop( ActionBase action ) throws Exception {
@@ -102,21 +109,18 @@ public class RunProductMonitoring {
 			scheduler.deleteTask( action , ScheduleTaskCategory.MONITORING , task );
 	}
 	
-	public void addTarget( AppProductMonitoringTarget target , ActionMonitorTarget ta ) {
+	public void addTarget( MetaMonitoringTarget target , ActionMonitorTarget ta ) {
 		targets.put( target.ID , ta );
 	}
 	
-	private void startTarget( ActionBase action , AppProductMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
-		if( sg == null )
-			return;
-		
+	private void startTarget( ActionBase action , MetaMonitoringTarget target ) throws Exception {
+		MetaEnvSegment sg = target.getSegment();
 		if( action.isSegmentOffline( sg ) )
 			return;
 	
 		ActionMonitorTarget targetAction = targets.get( target.ID );
 		if( targetAction == null ) {
-			MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , sg.meta );
+			MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , target.envs.meta );
 			MonitorTargetInfo info = new MonitorTargetInfo( target , storage );
 			String targetName = sg.meta.name + "-" + sg.env.NAME + sg.NAME;
 			targetAction = new ActionMonitorTarget( action , null , info , targetName );
@@ -146,39 +150,35 @@ public class RunProductMonitoring {
 		}
 	}
 	
-	private boolean createFolders( ActionBase action , AppProductMonitoring mon ) {
+	private boolean createFolders( ActionBase action , MetaMonitoring mon ) {
+		Meta meta = mon.envs.meta;
+		MetaProductCoreSettings core = meta.getProductCoreSettings();
+		if( !core.isValidMonitoringSettings() ) {
+			action.error( "monitoring is forced off because monitoring folders are not ready, check settings, product=" + meta.name );
+			return( false );
+		}
+		
 		try {
-			for( AppProductMonitoringTarget target : mon.getTargets() )
-				createFolders( action , target );
+			LocalFolder folder = action.getLocalFolder( core.MONITORING_DIR_DATA );
+			folder.ensureExists( action );
+			folder = action.getLocalFolder( core.MONITORING_DIR_REPORTS );
+			folder.ensureExists( action );
+			folder = action.getLocalFolder( core.MONITORING_DIR_LOGS );
+			folder.ensureExists( action );
+			
+			for( MetaMonitoringTarget target : mon.getTargets() )
+				createFolders( action , meta , target );
 			return( true );
 		}
 		catch( Throwable e ) {
-			action.log( "create monitoring folders failed, product=" + ep.productName , e );
+			action.log( "create monitoring folders failed, product=" + meta.name , e );
 			return( false );
 		}
 	}
 	
-	public void createFolders( ActionBase action , AppProductMonitoringTarget target ) throws Exception {
-		MetaEnvSegment sg = target.findSegment();
-		if( sg == null )
-			return;
-		
-		Meta meta = sg.meta;
-		MetaProductCoreSettings core = meta.getProductCoreSettings();
-		if( !core.isValidMonitoringSettings() ) {
-			action.error( "monitoring is forced off because monitoring folders are not ready, check settings, product=" + meta.name );
-			return;
-		}
-		
-		LocalFolder folder = action.getLocalFolder( core.MONITORING_DIR_DATA );
-		folder.ensureExists( action );
-		folder = action.getLocalFolder( core.MONITORING_DIR_REPORTS );
-		folder.ensureExists( action );
-		folder = action.getLocalFolder( core.MONITORING_DIR_LOGS );
-		folder.ensureExists( action );
-		
+	public void createFolders( ActionBase action , Meta meta , MetaMonitoringTarget target ) throws Exception {
 		MonitoringStorage storage = action.artefactory.getMonitoringStorage( action , meta );
-		folder = storage.getDataFolder( action , target );
+		LocalFolder folder = storage.getDataFolder( action , target );
 		folder.ensureExists( action );
 		folder = storage.getReportsFolder( action , target );
 		folder.ensureExists( action );
@@ -187,4 +187,3 @@ public class RunProductMonitoring {
 	}
 
 }
-

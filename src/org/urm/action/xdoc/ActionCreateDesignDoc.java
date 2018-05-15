@@ -7,10 +7,10 @@ import java.util.Map;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
-import org.urm.engine.shell.Shell;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.ProductStorage;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
@@ -20,7 +20,6 @@ import org.urm.meta.product.MetaDesignDiagram;
 import org.urm.meta.product.MetaDesignElement;
 import org.urm.meta.product.MetaDesignLink;
 import org.urm.meta.product.MetaDocs;
-import org.urm.meta.system.AppProduct;
 
 public class ActionCreateDesignDoc extends ActionBase {
 
@@ -234,7 +233,7 @@ public class ActionCreateDesignDoc extends ActionBase {
 
 	private void createPng( String fileDot , String filePng ) throws Exception {
 		String cmd = "dot -Tpng " + fileDot + " -o " + filePng;
-		shell.customCheckStatus( this , cmd , Shell.WAIT_LONG );
+		shell.customCheckStatus( this , cmd );
 	}
 	
 }

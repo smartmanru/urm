@@ -16,7 +16,7 @@ import org.urm.engine.data.EngineSettings;
 import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.system.AppSystem;
+import org.urm.meta.engine.AppSystem;
 
 public class DataService {
 

@@ -11,21 +11,19 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMonitoring;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.products.EngineProductRevisions;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
 
 public class TransactionProduct {
 
 	TransactionBase transaction;
 	AppProduct product;
-	AppProduct productNew;
 	EngineProduct ep;
 
 	protected boolean deleteProduct;
 	protected boolean createProduct;
-	protected boolean changeProduct;
 	protected boolean importProduct;
 	private List<TransactionMetadata> productMeta;
 	
@@ -36,7 +34,6 @@ public class TransactionProduct {
 		
 		productMeta = new LinkedList<TransactionMetadata>();
 		deleteProduct = false;
-		changeProduct = false;
 		createProduct = false;
 		importProduct = false;
 	}
@@ -204,12 +201,6 @@ public class TransactionProduct {
 		return( true );
 	}
 
-	public boolean checkTransactionProduct( AppProduct product ) throws Exception {
-		if( changeProduct == false || product != productNew )
-			return( false );
-		return( true );
-	}
-	
 	public Meta[] getTransactionProductMetadataList() {
 		List<Meta> list = new LinkedList<Meta>();
 		for( TransactionMetadata tm : productMeta ) {
@@ -247,21 +238,12 @@ public class TransactionProduct {
 		return( true );
 	}
 	
-	public boolean changeProduct() {
-		changeProduct = true;
-		productNew = product.copy( transaction.getDirectory() , product.system );
-		return( true );
-	}
-	
 	public boolean commitTransaction() throws Exception {
 		if( createProduct )
 			createProductFinish( product );
 		else
 		if( importProduct )
 			importProductFinish( product );
-		else
-		if( changeProduct )
-			changeProductFinish( productNew );
 		
 		for( TransactionMetadata tm : productMeta ) {
 			if( !tm.commitTransaction() )
@@ -297,16 +279,6 @@ public class TransactionProduct {
 		mon.transactionCommitCreateProduct( transaction , product );
 		
 		jmx.addProduct( product );
-	}
-	
-	private void changeProductFinish( AppProduct product ) throws Exception {
-		EngineDirectory directory = product.directory;
-		directory.replaceProduct( product );
-		
-		EngineMonitoring mon = transaction.action.getEngineMonitoring();
-
-		mon.transactionCommitDeleteProduct( transaction , product );
-		mon.transactionCommitCreateProduct( transaction , product );
 	}
 	
 	private void deleteProductFinish( AppProduct product ) throws Exception {

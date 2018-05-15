@@ -1,4 +1,4 @@
-package org.urm.meta.system;
+package org.urm.meta.engine;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -7,9 +7,8 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumLifecycleType;
 import org.urm.engine.DataService;
+import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineLifecycles;
-import org.urm.meta.engine.ReleaseLifecycle;
-import org.urm.meta.engine._Error;
 
 public class AppProductPolicy {
 
@@ -18,6 +17,7 @@ public class AppProductPolicy {
 	public static String PROPERTY_RELEASELC_URGENTANY = "urgentany";
 	public static String PROPERTY_RELEASELC_URGENTS = "urgentset";
 
+	public EngineDirectory directory;
 	public AppProduct product;
 	
 	private Integer LC_MAJOR;
@@ -26,14 +26,15 @@ public class AppProductPolicy {
 	private Integer[] LC_URGENT_LIST;
 	public int SV;
 	
-	public AppProductPolicy( AppProduct product ) {
+	public AppProductPolicy( EngineDirectory directory , AppProduct product ) {
+		this.directory = directory;
 		this.product = product;
 		LC_URGENT_All = false;
 		LC_URGENT_LIST = new Integer[0];
 	}
 
-	public AppProductPolicy copy( AppProduct rproduct ) {
-		AppProductPolicy r = new AppProductPolicy( rproduct );
+	public AppProductPolicy copy( EngineDirectory rdirectory , AppProduct rproduct ) {
+		AppProductPolicy r = new AppProductPolicy( rdirectory , rproduct );
 		
 		// stored
 		r.LC_MAJOR = LC_MAJOR;
@@ -110,7 +111,7 @@ public class AppProductPolicy {
 	}
 	
 	private ReleaseLifecycle findLifecycle( int id ) {
-		DataService data = product.directory.engine.getData();
+		DataService data = directory.engine.getData();
 		EngineLifecycles lifecycles = data.getReleaseLifecycles();
 		return( lifecycles.findLifecycle( id ) );
 	}

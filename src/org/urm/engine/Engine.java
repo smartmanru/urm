@@ -408,6 +408,7 @@ public class Engine {
 		context.update( action );
 		
 		action.setLogLevel( context.logLevelLimit );
+		action.setTimeout( context.CTX_TIMEOUT );
 		
 		if( memoryOnly )
 			trace( "memory action created: actionId=" + action.ID + ", name=" + action.actionName );

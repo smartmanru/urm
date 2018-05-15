@@ -12,7 +12,6 @@ import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.ProductMeta;
-import org.urm.meta.system.AppProduct;
 
 public class HostAccount extends EngineObject {
 

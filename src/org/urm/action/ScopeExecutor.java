@@ -21,7 +21,7 @@ import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaSources;
 import org.urm.meta.product.MetaSourceProject;
-import org.urm.meta.system.AppProduct;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;

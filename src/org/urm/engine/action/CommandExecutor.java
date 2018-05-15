@@ -17,9 +17,9 @@ import org.urm.engine.data.EngineLifecycles;
 import org.urm.engine.products.EngineProductReleases;
 import org.urm.engine.run.EngineMethod;
 import org.urm.engine.status.ScopeState;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.release.Release;
-import org.urm.meta.system.AppProduct;
 
 public abstract class CommandExecutor {
 

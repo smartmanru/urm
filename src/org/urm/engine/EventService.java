@@ -32,8 +32,6 @@ public class EventService extends EngineObject {
 	public static int EVENT_STATECHANGED = 11;
 	public static int EVENT_MONITORCHILDCHANGED = 12;
 	public static int EVENT_MONITORGRAPHCHANGED = 13;
-	public static int EVENT_STARTMACROSTATE = 14;
-	public static int EVENT_FINISHMACROSTATE = 15;
 	public static int EVENT_STARTCHILDACTION = 20;
 	public static int EVENT_FINISHCHILDACTION = 21;
 	public static int EVENT_ADDFACT = 22;

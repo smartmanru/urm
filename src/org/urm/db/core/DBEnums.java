@@ -223,10 +223,6 @@ public abstract class DBEnums {
 		BASE_ITEMDATA(23,null) ,
 		APPSYSTEM(30,null) ,
 		APPPRODUCT(31,null) ,
-		APPPRODUCT_DUMP(32,null) ,
-		APPPRODUCT_DUMPMASK(33,null) ,
-		APPPRODUCT_MONTARGET(41,null) ,
-		APPPRODUCT_MONITEM(42,null) ,
 		DBSCHEMA(50,null) ,
 		META(101,null) ,
 		META_UNIT(102,null) ,
@@ -252,6 +248,8 @@ public abstract class DBEnums {
 		ENVIRONMENT_STARTGROUP(180,null) ,
 		ENVIRONMENT_STARTGROUPSERVER(181,null) ,
 		ENVIRONMENT_DEPLOYMENT(182,null) ,
+		ENVIRONMENT_MONTARGET(183,null) ,
+		ENVIRONMENT_MONITEM(184,null) ,
 		RELEASE_REPOSITORY(201,null) ,
 		RELEASE_MAIN(202,null) ,
 		RELEASE_DIST(203,null) ,
@@ -792,10 +790,6 @@ public abstract class DBEnums {
 		AUTHUSER(36,null) ,
 		APPSYSTEM(41,null) ,
 		APPPRODUCT(42,null) ,
-		APPPRODUCT_DUMP(43,null) ,
-		APPPRODUCT_DUMPMASK(44,null) ,
-		APPPRODUCT_MONTARGET(45,null) ,
-		APPPRODUCT_MONITEM(46,null) ,
 		PRODUCT(50,null) ,
 		RC_CUSTOM(111,null) ,
 		ENGINE_CUSTOM(112,null) ,
@@ -825,6 +819,8 @@ public abstract class DBEnums {
 		ENV_SEGMENT_STARTGROUP(312,null) ,
 		ENV_SEGMENT_STARTGROUPSERVER(313,null) ,
 		ENV_SEGMENT_CUSTOM(314,null) ,
+		ENV_SEGMENT_MONTARGET(315,null) ,
+		ENV_SEGMENT_MONITEM(316,null) ,
 		ENV_SERVER_PRIMARY(321,null) ,
 		ENV_SERVER_EXTRA(322,null) ,
 		ENV_SERVER_CUSTOM(323,null) ,
@@ -1165,7 +1161,7 @@ public abstract class DBEnums {
     	
 		return( null );
     }
-
+    
     public static void verifyDatabase( EngineLoader loader ) throws Exception {
     	DBConnection c = loader.getConnection();
     	ResultSet rs = c.query( DBQueries.QUERY_ENUMS_GETALL0 );

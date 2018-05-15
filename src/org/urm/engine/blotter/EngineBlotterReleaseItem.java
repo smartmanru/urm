@@ -5,9 +5,9 @@ import org.urm.common.Common;
 import org.urm.engine.DataService;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.products.EngineProductReleases;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.product.Meta;
 import org.urm.meta.release.Release;
-import org.urm.meta.system.AppProduct;
 
 public class EngineBlotterReleaseItem extends EngineBlotterItem {
 

@@ -66,10 +66,6 @@ public class EngineEntities {
 	public PropertyEntity entityAppDirectoryProduct;
 	public PropertyEntity entityAppProductPolicy;
 	public PropertyEntity entityAppProductPolicyLifecycle;
-	public PropertyEntity entityAppProductDump;
-	public PropertyEntity entityAppProductDumpMask;
-	public PropertyEntity entityAppProductMonTarget;
-	public PropertyEntity entityAppProductMonItem;
 	public PropertyEntity entityAppDatacenter;
 	public PropertyEntity entityAppNetwork;
 	public PropertyEntity entityAppNetworkHost;
@@ -102,6 +98,8 @@ public class EngineEntities {
 	public PropertyEntity entityAppSegmentPrimary;
 	public PropertyEntity entityAppSegmentStartGroup;
 	public PropertyEntity entityAppSegmentStartGroupServer;
+	public PropertyEntity entityAppSegmentMonTarget;
+	public PropertyEntity entityAppSegmentMonItem;
 	public PropertyEntity entityAppServerPrimary;
 	public PropertyEntity entityAppServerExtra;
 	public PropertyEntity entityAppServerDeployment;
@@ -147,10 +145,6 @@ public class EngineEntities {
 		entityAppDirectoryProduct = DBSystemData.makeEntityDirectoryProduct( c , upgrade );
 		entityAppProductPolicy = DBSystemData.makeEntityProductPolicy( c , upgrade );
 		entityAppProductPolicyLifecycle = DBSystemData.makeEntityProductPolicyLifecycle( c , upgrade );
-		entityAppProductDump = DBSystemData.makeEntityDump( c , upgrade );
-		entityAppProductDumpMask = DBSystemData.makeEntityDumpMask( c , upgrade );
-		entityAppProductMonTarget = DBSystemData.makeEntityMonitoringTarget( c , upgrade );
-		entityAppProductMonItem = DBSystemData.makeEntityMonitoringItem( c , upgrade );
 		entityAppDatacenter = DBEngineInfrastructure.makeEntityDatacenter( c , upgrade );
 		entityAppNetwork = DBEngineInfrastructure.makeEntityNetwork( c , upgrade );
 		entityAppNetworkHost = DBEngineInfrastructure.makeEntityNetworkHost( c , upgrade );
@@ -183,6 +177,8 @@ public class EngineEntities {
 		entityAppSegmentPrimary = DBEnvData.makeEntitySegmentPrimary( c , upgrade );
 		entityAppSegmentStartGroup = DBEnvData.makeEntityStartGroup( c , upgrade );
 		entityAppSegmentStartGroupServer = DBEnvData.makeEntityStartGroupServer( c , upgrade );
+		entityAppSegmentMonTarget = DBEnvData.makeEntityMonitoringTarget( c , upgrade );
+		entityAppSegmentMonItem = DBEnvData.makeEntityMonitoringItem( c , upgrade );
 		entityAppServerPrimary = DBEnvData.makeEntityServerPrimary( c , upgrade );
 		entityAppServerExtra = DBEnvData.makeEntityServerExtra( c , upgrade );
 		entityAppServerDeployment = DBEnvData.makeEntityServerDeployment( c , upgrade );

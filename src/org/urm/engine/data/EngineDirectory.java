@@ -9,9 +9,9 @@ import org.urm.engine.Engine;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.transaction.TransactionBase;
+import org.urm.meta.engine.AppProduct;
+import org.urm.meta.engine.AppSystem;
 import org.urm.meta.loader.EngineObject;
-import org.urm.meta.system.AppProduct;
-import org.urm.meta.system.AppSystem;
 
 public class EngineDirectory extends EngineObject {
 
@@ -94,10 +94,6 @@ public class EngineDirectory extends EngineObject {
 	
 	public AppProduct[] getProducts() {
 		return( mapProducts.values().toArray( new AppProduct[0] ) );
-	}
-	
-	public AppProduct[] getProductsUnmatched() {
-		return( mapProductUnmatched.values().toArray( new AppProduct[0] ) );
 	}
 	
 	public String[] getSystemProductNames( String systemName ) {
@@ -212,13 +208,6 @@ public class EngineDirectory extends EngineObject {
 		mapProducts.put( product.NAME , product );
 		mapProductsById.put( product.ID , product );
 		product.system.addProduct( product );
-	}
-	
-	public void replaceProduct( AppProduct product ) {
-		mapProductUnmatched.remove( product.ID );
-		mapProducts.put( product.NAME , product );
-		mapProductsById.put( product.ID , product );
-		product.system.replaceProduct( product );
 	}
 	
 	public void updateSystem( AppSystem system ) throws Exception {

@@ -4,14 +4,13 @@ import org.urm.action.ActionBase;
 import org.urm.action.ActionEnvScopeMaker;
 import org.urm.action.ActionScope;
 import org.urm.action.deploy.ActionCheckEnv;
-import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.MonitoringStorage;
 import org.urm.meta.env.MetaEnvSegment;
-import org.urm.meta.system.AppProductMonitoringTarget;
+import org.urm.meta.env.MetaMonitoringTarget;
 
 public class ActionMonitorCheckEnv extends ActionBase {
 
@@ -27,12 +26,9 @@ public class ActionMonitorCheckEnv extends ActionBase {
 		ActionCheckEnv action = new ActionCheckEnv( this , null );
 
 		MonitoringStorage storage = info.storage;
-		AppProductMonitoringTarget target = info.target;
+		MetaMonitoringTarget target = info.target;
 		
-		MetaEnvSegment sg = target.findSegment();
-		if( sg == null )
-			Common.exitUnexpected();
-		
+		MetaEnvSegment sg = target.getSegment();
 		action.context.update( action , sg.env , sg );
 		action.context.CTX_FORCE = true;
 		

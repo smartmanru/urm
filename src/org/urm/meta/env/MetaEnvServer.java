@@ -253,6 +253,10 @@ public class MetaEnvServer extends EngineObject {
 		ops.setEnumProperty( PROPERTY_OSTYPE , OS_TYPE );
 		ops.setStringProperty( PROPERTY_SYSNAME , SYSNAME );
 		
+		MetaEnvServer serverBaseline = getBaseline();
+		if( serverBaseline != null )
+			ops.setStringProperty( PROPERTY_BASELINE , serverBaseline.NAME );
+
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		ops.setEnumProperty( PROPERTY_DBMSTYPE , DBMS_TYPE );
 		
@@ -494,13 +498,13 @@ public class MetaEnvServer extends EngineObject {
 		return( true );
 	}
 	
-	public boolean hasConfiguration() {
+	public boolean hasConfiguration() throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.isConfItem() )
 				return( true );
 			
 			if( deployment.isComponent() ) {
-				MetaDistrComponent comp = deployment.findComponent();
+				MetaDistrComponent comp = deployment.getComponent();
 				if( comp.hasConfItems() )
 					return( true );
 			}
@@ -508,7 +512,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) {
+	public boolean hasConfItemDeployment( MetaDistrConfItem confItem ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasConfItemDeployment( confItem ) )
 				return( true );
@@ -516,7 +520,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) {
+	public boolean hasBinaryItemDeployment( MetaDistrBinaryItem binaryItem ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasBinaryItemDeployment( binaryItem ) )
 				return( true );
@@ -524,7 +528,7 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( MetaDistrDelivery delivery ) {
+	public boolean hasDatabaseItemDeployment( MetaDistrDelivery delivery ) throws Exception {
 		for( MetaDatabaseSchema schema : delivery.getDatabaseSchemes() ) {
 			if( hasDatabaseItemDeployment( schema ) )
 				return( true );
@@ -532,17 +536,9 @@ public class MetaEnvServer extends EngineObject {
 		return( false );
 	}
 
-	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) {
+	public boolean hasDatabaseItemDeployment( MetaDatabaseSchema schema ) throws Exception {
 		for( MetaEnvServerDeployment deployment : deployments ) {
 			if( deployment.hasDatabaseItemDeployment( schema ) ) 
-				return( true );
-		}
-		return( false );
-	}
-	
-	public boolean hasComponentDeployment( MetaDistrComponent comp ) {
-		for( MetaEnvServerDeployment deployment : deployments ) {
-			if( deployment.isComponent( comp ) )
 				return( true );
 		}
 		return( false );
@@ -814,9 +810,6 @@ public class MetaEnvServer extends EngineObject {
 	}
 	
 	public void setBaseline( MatchItem baselineMatchItem ) throws Exception {
-		if( !sg.hasBaseline() )
-			baselineMatchItem = null;
-		
 		this.BASELINE = MatchItem.copy( baselineMatchItem );
 		refreshPrimaryProperties();
 	}
@@ -959,21 +952,20 @@ public class MetaEnvServer extends EngineObject {
 		return( null );
 	}
 
-	public void createServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname ,  
+	public void createServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
 			DBEnumOSType osType , MatchItem baselineMatch , boolean offline , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch , MatchItem baseItemMatch ) throws Exception {
 		this.BASELINE = MatchItem.copy( baselineMatch );
 		this.BASEITEM = MatchItem.copy( baseItemMatch );
 		this.OFFLINE = false;
-		modifyServer( name , desc , runType , accessType , sysname , osType , dbmsType , admSchemaMatch );
+		modifyServer( name , desc , runType , accessType , osType , dbmsType , admSchemaMatch );
 	}
 	
-	public void modifyServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , String sysname , 
+	public void modifyServer( String name , String desc , DBEnumServerRunType runType , DBEnumServerAccessType accessType , 
 			DBEnumOSType osType , DBEnumDbmsType dbmsType , MatchItem admSchemaMatch ) throws Exception {
 		this.NAME = name;
 		this.DESC = desc;
 		this.SERVERRUN_TYPE = runType;
 		this.SERVERACCESS_TYPE = accessType;
-		this.SYSNAME = sysname;
 		this.OS_TYPE = osType;
 		this.DBMS_TYPE = dbmsType;
 		this.DATABASE_ADMSCHEMA = MatchItem.copy( admSchemaMatch );

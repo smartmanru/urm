@@ -12,12 +12,10 @@ import org.urm.meta.product.MetaSourceProject;
 public class ActionSetTagOnBuildBranch extends ActionBase {
 
 	String TAG;
-	boolean force;
 	
-	public ActionSetTagOnBuildBranch( ActionBase action , String stream , String TAG , boolean force ) {
+	public ActionSetTagOnBuildBranch( ActionBase action , String stream , String TAG ) {
 		super( action , stream , "Codebase set build tag=" + TAG );
 		this.TAG = TAG;
-		this.force = force;
 	}
 
 	@Override 
@@ -52,13 +50,13 @@ public class ActionSetTagOnBuildBranch extends ActionBase {
 
 	private void setTagFromTag( String SRCTAG , String TAG , DBEnumScopeCategoryType CATEGORY , MetaSourceProject sourceProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
-		if( !vcs.copyTagToTag( sourceProject , SRCTAG , TAG , force ) )
+		if( !vcs.copyTagToTag( sourceProject , SRCTAG , TAG ) )
 			super.ifexit3( _Error.ProjectCopyTagError3 , "unable to copy tag=" + SRCTAG + " to tag=" + TAG + " for proect=" + sourceProject.NAME , SRCTAG , TAG , sourceProject.NAME );
 	}
 	
 	private void setTagFromBranch( String BRANCH , String TAG , DBEnumScopeCategoryType CATEGORY , MetaSourceProject sourceProject ) throws Exception {
 		ProjectVersionControl vcs = new ProjectVersionControl( this );
-		if( !vcs.setTag( sourceProject , BRANCH , TAG , context.CTX_DATE , force ) )
+		if( !vcs.setTag( sourceProject , BRANCH , TAG , context.CTX_DATE ) )
 			super.ifexit2( _Error.ProjectSetTagError2 , "unable to set tag=" + TAG + " on proect=" + sourceProject.NAME , TAG , sourceProject.NAME );
 	}
 	

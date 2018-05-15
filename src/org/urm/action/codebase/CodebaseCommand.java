@@ -134,7 +134,7 @@ public class CodebaseCommand {
 	}
 	
 	public static void setTag( ScopeState parentState , ActionBase action , String TAG , ActionScope scope ) throws Exception {
-		ActionSetTagOnBuildBranch ca = new ActionSetTagOnBuildBranch( action , null , TAG , true );
+		ActionSetTagOnBuildBranch ca = new ActionSetTagOnBuildBranch( action , null , TAG );
 		if( !ca.runEachBuildableProject( parentState , scope , SecurityAction.ACTION_CODEBASE , false ) )
 			action.exit1( _Error.ProjectTagError1 , "Error tagging projects, tag=" + TAG , TAG );
 	}
@@ -204,11 +204,6 @@ public class CodebaseCommand {
 	public static void export( ScopeState parentState , ActionBase action , ActionScope scope , LocalFolder CODIR , String SINGLEFILE ) throws Exception {
 		ActionGetCodebase ca = new ActionGetCodebase( action , null , CODIR , false , true , SINGLEFILE );
 		ca.runEachBuildableProject( parentState , scope , SecurityAction.ACTION_CODEBASE , false );
-	}
-	
-	public static void list( ScopeState parentState , ActionBase action , ActionScope scope , String CMD ) throws Exception {
-		ActionCodebaseList ca = new ActionCodebaseList( action , null , scope.meta , CMD );
-		ca.runEachSourceProject( parentState , scope , SecurityAction.ACTION_CODEBASE , false );
 	}
 	
 	public static void renameBranch( ScopeState parentState , ActionBase action , ActionScope scope , String BRANCH1 , String BRANCH2 ) throws Exception {

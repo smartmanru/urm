@@ -7,12 +7,13 @@ import org.urm.engine.Engine;
 import org.urm.engine.DataService;
 import org.urm.engine.products.EngineProduct;
 import org.urm.engine.session.EngineSession;
+import org.urm.meta.engine.AppProduct;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.ProductEnvs;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.loader.Types.*;
 import org.urm.meta.release.ReleaseRepository;
-import org.urm.meta.system.AppProduct;
+import org.urm.meta.env.MetaMonitoring;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -32,6 +33,7 @@ public class Meta extends EngineObject {
 	private MetaDocs docs;
 	private MetaDistr distr;
 	private MetaSources sources;
+	private MetaMonitoring monitoring;
 	
 	static String[] configurableExtensions = {
 		"cmd" , "sh" , "xml" , "txt" , "properties" , "conf" , "config" , "xconf" , "groovy" , "sql" , "yml" 
@@ -100,6 +102,7 @@ public class Meta extends EngineObject {
 		docs = null;
 		distr = null;
 		sources = null;
+		monitoring = null;
 		
 		this.storage = storage;
 	}
@@ -183,6 +186,14 @@ public class Meta extends EngineObject {
 		return( sources );
 	}
 
+	public synchronized MetaMonitoring getMonitoring() {
+		if( monitoring == null ) {
+			ProductEnvs envs = storage.getEnviroments();
+			monitoring = envs.getMonitoring();
+		}
+		return( monitoring );
+	}
+	
 	public ProductEnvs getEnviroments() {
 		return( storage.getEnviroments() );
 	}

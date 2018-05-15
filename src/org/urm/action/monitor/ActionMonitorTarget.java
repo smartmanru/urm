@@ -12,14 +12,14 @@ import org.urm.engine.status.StatusSource;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
-import org.urm.meta.system.AppProductMonitoringItem;
-import org.urm.meta.system.AppProductMonitoringTarget;
+import org.urm.meta.env.MetaMonitoringItem;
+import org.urm.meta.env.MetaMonitoringTarget;
 
 public class ActionMonitorTarget extends ActionBase {
 	
 	public MonitorTargetInfo info;
 	public String name;
-	public AppProductMonitoringTarget target;
+	public MetaMonitoringTarget target;
 	
 	volatile boolean running;
 	volatile ActionBase currentAction;
@@ -35,18 +35,15 @@ public class ActionMonitorTarget extends ActionBase {
 	public long executeOnceMajor( ScopeState state ) throws Exception {
 		ActionMonitorCheckEnv actionCheck = new ActionMonitorCheckEnv( this , null , info );
 		currentAction = actionCheck;
-		MetaEnv env = findEnv( target );
-		if( env == null )
-			Common.exitUnexpected();
-		
+		MetaEnv env = getEnv( target );
 		currentAction.runSimpleEnv( state , env , SecurityAction.ACTION_DEPLOY , false );
 		info.addCheckEnvData( this , actionCheck.timePassedMillis , actionCheck.isOK() );
 		Common.sleep( 1000 );
 		return( actionCheck.timePassedMillis );
 	}
 	
-	private MetaEnv findEnv( AppProductMonitoringTarget target ) {
-		MetaEnv env = target.findEnv();
+	private MetaEnv getEnv( MetaMonitoringTarget target ) throws Exception {
+		MetaEnv env = target.getEnv();
 		return( env );
 	}
 	
@@ -68,10 +65,7 @@ public class ActionMonitorTarget extends ActionBase {
 		if( !info.isAvailable() )
 			return;
 		
-		MetaEnvSegment sg = info.target.findSegment();
-		if( sg == null )
-			Common.exitUnexpected();
-		
+		MetaEnvSegment sg = info.target.getSegment();
 		super.trace( "refresh target graph env=" + sg.env.NAME + ", sg=" + sg.NAME );
 		info.addHistoryGraph( this );
 		info.stop( this );
@@ -87,7 +81,7 @@ public class ActionMonitorTarget extends ActionBase {
 	public long executeOnceMinor( ScopeState state ) throws Exception {
 		// system
 		int sgIndex = super.logStartCapture();
-		MetaEnvSegment sg = info.target.findSegment();
+		MetaEnvSegment sg = info.target.getSegment();
 		super.info( "Run fast segment checks, env=" + sg.env.NAME + ", sg=" + sg.NAME + " ..." );
 		
 		long timeStart = System.currentTimeMillis();
@@ -114,7 +108,7 @@ public class ActionMonitorTarget extends ActionBase {
 		}
 		
 		// direct
-		for( AppProductMonitoringItem item : target.getUrlsList() ) {
+		for( MetaMonitoringItem item : target.getUrlsList() ) {
 			if( !running )
 				break;
 			
@@ -125,7 +119,7 @@ public class ActionMonitorTarget extends ActionBase {
 				ok = false;
 		}
 		
-		for( AppProductMonitoringItem item : target.getWSList() ) {
+		for( MetaMonitoringItem item : target.getWSList() ) {
 			if( !running )
 				break;
 			
