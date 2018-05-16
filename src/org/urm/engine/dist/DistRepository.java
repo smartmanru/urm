@@ -260,7 +260,11 @@ public class DistRepository {
 		DistRepositoryItem item = new DistRepositoryItem( this );
 		item.createItem( action , info );
 		RemoteFolder distFolder = getDistFolder( action , item );
-		item.read( action , distFolder , releaseDist );
+		Dist dist = item.read( action , distFolder , releaseDist );
+		if( dist == null ) {
+			String path = distFolder.getLocalPath( method.action );
+			Common.exit1( _Error.MissingDistributive1 , "missing distributive at " + path , path );
+		}
 		
 		method.createDistItem( this , item );
 		if( releaseDist.release.isMaster() )

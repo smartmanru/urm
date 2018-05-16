@@ -18,6 +18,7 @@ public class RunErrorClass {
 	public static int BaseEngineProperties = 119000;
 	public static int BaseEngineProducts = 120000;
 	public static int BaseEngineSession = 121000;
+	public static int BaseEngineSecurity = 122000;
 	public static int BaseAction = 200000;
 	public static int BaseActionBuild = 201000;
 	public static int BaseActionConf = 202000;

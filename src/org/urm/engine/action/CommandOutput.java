@@ -91,6 +91,8 @@ public class CommandOutput {
 			return( true );
 		}
 		
+		if( logActionLevelLimit < 0 || logServerLevelLimit < 0 )
+			return( false );
 		if( logLevel > logActionLevelLimit && logLevel > logServerLevelLimit )
 			return( true );
 		return( false );

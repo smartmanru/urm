@@ -2,12 +2,12 @@ package org.urm.action.codebase;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.properties.PropertySet;
+import org.urm.engine.security.AuthResource;
 import org.urm.engine.shell.Shell;
 import org.urm.engine.shell.ShellExecutor;
 import org.urm.engine.storage.BuildStorage;
 import org.urm.engine.storage.RedistStorage;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.MetaProductBuildSettings;
 import org.urm.meta.product.MetaSourceProject;

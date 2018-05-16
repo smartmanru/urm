@@ -1,16 +1,14 @@
-package org.urm.meta.engine;
+package org.urm.engine.security;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.AuthService;
-import org.urm.engine.properties.PropertySet;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.loader.Types.EnumAuthType;
 
 public class AuthContext extends EngineObject {
 
 	AuthService auth;
-	public PropertySet properties;
 	
 	public String METHOD = "";
 	public String USER = "";
@@ -20,7 +18,7 @@ public class AuthContext extends EngineObject {
 	public String PRIVATEKEY = "";
 	
 	public static String METHOD_ANONYMOUS = "anonymous"; 
-	public static String METHOD_COMMON = "common"; 
+	public static String METHOD_COMMONPASSWORD = "common"; 
 	public static String METHOD_USER = "user";
 	public static String METHOD_SSHKEY = "sshkey";
 	
@@ -32,12 +30,6 @@ public class AuthContext extends EngineObject {
 	@Override
 	public String getName() {
 		return( "server-auth-context" );
-	}
-	
-	public void createInitialAdministrator() throws Exception {
-		USER = "admin";
-		setUserPassword( "123" );
-		createProperties();
 	}
 	
 	public void createLdap( String name ) {
@@ -80,7 +72,7 @@ public class AuthContext extends EngineObject {
 	}
 	
 	public boolean isCommon() {
-		if( METHOD.equals( METHOD_COMMON ) )
+		if( METHOD.equals( METHOD_COMMONPASSWORD ) )
 			return( true );
 		return( false );
 	}
@@ -93,34 +85,13 @@ public class AuthContext extends EngineObject {
 	
 	public AuthContext copy() throws Exception {
 		AuthContext r = new AuthContext( auth );
-		if( properties != null ) {
-			r.properties = properties.copy( properties.parent );
-			r.scatterSystemProperties();
-		}
+		r.METHOD = METHOD;
+		r.USER = USER;
+		r.PASSWORDONLINE = PASSWORDONLINE;
+		r.PASSWORDSAVE = PASSWORDSAVE;
+		r.PUBLICKEY = PUBLICKEY;
+		r.PRIVATEKEY = PRIVATEKEY;
 		return( r );
-	}
-	
-	public void load( PropertySet properties ) throws Exception {
-		this.properties = properties;
-		scatterSystemProperties();
-	}
-
-	public void createProperties() throws Exception {
-		properties = new PropertySet( "authctx" , null );
-		properties.setOriginalStringProperty( "method" , METHOD );
-		properties.setOriginalStringProperty( "user" , USER );
-		properties.setOriginalStringProperty( "password" , PASSWORDSAVE );
-		properties.setOriginalStringProperty( "publickey" , PUBLICKEY );
-		properties.setOriginalStringProperty( "privatekey" , PRIVATEKEY );
-		properties.finishRawProperties();
-	}
-	
-	private void scatterSystemProperties() throws Exception {
-		METHOD = properties.findPropertyAny( "method" );
-		USER = properties.findPropertyAny( "user" );
-		PASSWORDSAVE = properties.findPropertyAny( "password" );
-		PUBLICKEY = properties.findPropertyAny( "publickey" );
-		PRIVATEKEY = properties.findPropertyAny( "privatekey" );
 	}
 	
 	public String getSvnAuth( ActionBase action ) {
@@ -157,11 +128,12 @@ public class AuthContext extends EngineObject {
 	}
 	
 	public void setResourcePassword( String password ) {
-		METHOD = AuthContext.METHOD_COMMON;
+		METHOD = AuthContext.METHOD_COMMONPASSWORD;
 		PASSWORDSAVE = password;
 	}
 	
 	public void setResourceKeys( String publicKey , String privateKey ) {
+		METHOD = AuthContext.METHOD_SSHKEY;
 		PUBLICKEY = publicKey;
 		PRIVATEKEY = privateKey;
 	}

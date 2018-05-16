@@ -12,7 +12,7 @@ import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMirrors;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.engine.AuthResource;
+import org.urm.engine.security.AuthResource;
 import org.urm.meta.engine.MirrorRepository;
 import org.urm.meta.env.MetaEnv;
 import org.urm.meta.loader.Types.EnumModifyType;

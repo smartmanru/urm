@@ -2,6 +2,7 @@ package org.urm.engine.storage;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
@@ -62,6 +63,11 @@ public class LocalFolder extends Folder {
 		return( action.readFile( filePath ) );
 	}
 
+	@Override
+	public void copyFileRename( ActionBase action , String srcFile , String newName ) throws Exception {
+		Files.copy( Paths.get( super.getLocalFilePath( action , srcFile ) ) , Paths.get( super.getLocalFilePath( action , newName ) ) , StandardCopyOption.REPLACE_EXISTING );
+	}
+	
 	public List<String> readFileLines( ActionBase action , String FILENAME ) throws Exception {
 		String filePath = getFilePath( action , FILENAME );
 		return( action.readFileLines( filePath ) );

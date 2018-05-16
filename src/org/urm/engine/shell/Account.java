@@ -7,7 +7,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.db.core.DBEnums.DBEnumOSType;
-import org.urm.meta.engine.AuthResource;
+import org.urm.engine.security.AuthResource;
 import org.urm.meta.engine.Datacenter;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.engine.NetworkHost;

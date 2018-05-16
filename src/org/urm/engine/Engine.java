@@ -48,6 +48,8 @@ public class Engine {
 	public SessionService sessions;
 	public CleaningService houseKeeping;
 	public CacheService cache;
+	public SecurityService security;
+	
 	public ShellService shellPool;
 	private EventService events;
 	private ScheduleService scheduler;
@@ -84,6 +86,7 @@ public class Engine {
 		houseKeeping = new CleaningService( this );
 		cache = new CacheService( this ); 
 
+		security = new SecurityService( this );
 		data = new DataService( this );
 		auth = new AuthService( this );
 		events = new EventService( this );
@@ -98,6 +101,8 @@ public class Engine {
 	
 	public void init() throws Exception {
 		cache.init();
+		
+		security.init();
 		auth.init();
 		events.init();
 		scheduler.init();
@@ -123,7 +128,6 @@ public class Engine {
 			loader.initMeta();
 			loader.initCore();
 			loader.initAuth( auth );
-			auth.start( serverAction );
 			transaction.commitTransaction();
 		}
 		catch( Throwable e ) {
@@ -157,7 +161,7 @@ public class Engine {
 		
 		EngineLoader loader = createLoader();
 		loader.loadProducts( false );
-		
+
 		status.start( serverAction , data );
 		blotter.start( serverAction );
 		scheduler.start( serverAction );
@@ -200,7 +204,7 @@ public class Engine {
 		data.unloadProducts();
 		blotter.clear();
 		cache.clear();
-		auth.stop( serverAction );
+		security.stop( serverAction );
 		
 		running = false;
 		

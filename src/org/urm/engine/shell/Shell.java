@@ -11,7 +11,7 @@ import java.util.List;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.ShellService;
-import org.urm.meta.engine.AuthResource;
+import org.urm.engine.security.AuthResource;
 
 abstract public class Shell {
 

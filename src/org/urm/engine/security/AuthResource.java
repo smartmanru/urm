@@ -1,4 +1,4 @@
-package org.urm.meta.engine;
+package org.urm.engine.security;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.AuthService;
@@ -127,8 +127,7 @@ public class AuthResource extends EngineObject {
 	
 	public void setAuthData( AuthContext acdata ) throws Exception {
 		AuthService auth = resources.engine.getAuth();
-		String authKey = auth.getAuthKey( AuthService.AUTH_GROUP_RESOURCE , NAME );
-		ac = auth.loadAuthData( authKey );
+		ac = auth.loadAuthResourceData( this );
 		ac.setData( acdata );
 		
 		this.VERIFIED = false;
@@ -137,8 +136,7 @@ public class AuthResource extends EngineObject {
 	public void saveAuthData() throws Exception {
 		AuthService auth = resources.engine.getAuth();
 		if( ac != null ) {
-			String authKey = auth.getAuthKey( AuthService.AUTH_GROUP_RESOURCE , NAME );
-			auth.saveAuthData( authKey , ac );
+			auth.saveAuthResourceData( this , ac );
 		}
 	}
 	
@@ -147,8 +145,7 @@ public class AuthResource extends EngineObject {
 			return;
 		
 		AuthService auth = resources.engine.getAuth();
-		String authKey = auth.getAuthKey( AuthService.AUTH_GROUP_RESOURCE , NAME );
-		ac = auth.loadAuthData( authKey );
+		ac = auth.loadAuthResourceData( this );
 	}
 
 	public boolean vcsVerify( ActionBase action , String repo , String repoPath ) {

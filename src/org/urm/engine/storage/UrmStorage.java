@@ -12,6 +12,7 @@ public class UrmStorage {
 
 	public static String INSTALL_FOLDER = "install";
 	public static String PRODUCTS_FOLDER = "products";
+	public static String CRYPTO_FOLDER = "crypto";
 	public static String SERVER_SETTINGS_FILE = "server.xml";
 	public static String VERSION_SETTINGS_FILE = "version.xml";
 	public static String CORE_SETTINGS_FILE = "product.xml";
@@ -157,4 +158,9 @@ public class UrmStorage {
 		return( folder.getSubFolder( action , PRODUCTS_FOLDER ) );
 	}
 	
+	public LocalFolder getServerCryptoFolder( ActionBase action ) throws Exception {
+		LocalFolder folder = getServerFolder( action );
+		return( folder.getSubFolder( action , CRYPTO_FOLDER ) );
+	}
+
 }

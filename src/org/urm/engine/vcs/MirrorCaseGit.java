@@ -5,10 +5,10 @@ import java.util.List;
 
 import org.urm.common.Common;
 import org.urm.common.ConfReader;
+import org.urm.engine.security.AuthResource;
 import org.urm.engine.shell.Shell;
 import org.urm.engine.storage.Folder;
 import org.urm.engine.storage.LocalFolder;
-import org.urm.meta.engine.AuthResource;
 import org.urm.meta.engine.MirrorRepository;
 
 public class MirrorCaseGit extends MirrorCase {

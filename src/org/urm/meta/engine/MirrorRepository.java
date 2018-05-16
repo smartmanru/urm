@@ -4,6 +4,7 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.data.EngineMirrors;
+import org.urm.engine.security.AuthResource;
 import org.urm.meta.loader.EngineObject;
 
 public class MirrorRepository extends EngineObject {

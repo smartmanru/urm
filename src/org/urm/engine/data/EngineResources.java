@@ -8,7 +8,7 @@ import java.util.Map;
 import org.urm.common.Common;
 import org.urm.db.core.DBEnums.DBEnumResourceType;
 import org.urm.engine.Engine;
-import org.urm.meta.engine.AuthResource;
+import org.urm.engine.security.AuthResource;
 import org.urm.meta.engine._Error;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.loader.MatchItem;

@@ -1,6 +1,5 @@
 package org.urm.engine;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -14,18 +13,17 @@ import org.urm.common.Common;
 import org.urm.common.RunContext;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.db.core.DBEnums.*;
-import org.urm.engine.action.ActionInit;
 import org.urm.engine.products.EngineProductEnvs;
 import org.urm.engine.properties.ObjectProperties;
-import org.urm.engine.properties.PropertySet;
+import org.urm.engine.security.AuthContext;
+import org.urm.engine.security.AuthGroup;
+import org.urm.engine.security.AuthLdap;
+import org.urm.engine.security.AuthLdapUser;
+import org.urm.engine.security.AuthResource;
+import org.urm.engine.security.AuthRoleSet;
+import org.urm.engine.security.AuthUser;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
-import org.urm.meta.engine.AuthContext;
-import org.urm.meta.engine.AuthGroup;
-import org.urm.meta.engine.AuthLdap;
-import org.urm.meta.engine.AuthLdapUser;
-import org.urm.meta.engine.AuthRoleSet;
-import org.urm.meta.engine.AuthUser;
 import org.urm.meta.engine.Network;
 import org.urm.meta.engine._Error;
 import org.urm.meta.env.MetaEnv;
@@ -55,6 +53,7 @@ public class AuthService extends EngineObject {
 	
 	public static String MASTER_ADMIN = "admin";
 	
+	AuthUser masterUser;
 	Map<String,AuthUser> mapLocalUsers;
 	Map<Integer,AuthUser> mapLocalUsersById;
 	Map<String,AuthUser> mapLdapUsers;
@@ -72,7 +71,10 @@ public class AuthService extends EngineObject {
 		mapLdapUsersById = new HashMap<Integer,AuthUser>();
 		groups = new HashMap<String,AuthGroup>();
 		groupsById = new HashMap<Integer,AuthGroup>();
-		ldapSettings = new AuthLdap( this ); 
+		ldapSettings = new AuthLdap( this );
+		
+		masterUser = new AuthUser( this );
+		masterUser.createMaster();
 	}
 	
 	@Override
@@ -83,30 +85,10 @@ public class AuthService extends EngineObject {
 	public void init() throws Exception {
 	}
 
-	public void start( ActionInit action ) throws Exception {
-		if( !mapLocalUsers.containsKey( MASTER_ADMIN ) )
-			Common.exit0( _Error.MissingAdminUser0 , "Missing master administrator user (" + MASTER_ADMIN + ")" );
-			
-		// create initial admin user
-		String authKey = getAuthKey( AUTH_GROUP_USER , MASTER_ADMIN );
-		String authPath = getAuthFile( authKey );
+	public void addLocalUser( AuthUser user ) throws Exception {
+		if( user.NAME.equals( MASTER_ADMIN ) )
+			Common.exitUnexpected();
 		
-		File authDir = new File( getAuthDir() );
-		if( !authDir.isDirectory() )
-			authDir.mkdir();
-		
-		File authUserFile = new File( authPath );
-		if( !authUserFile.isFile() ) {
-			AuthContext ac = new AuthContext( this );
-			ac.createInitialAdministrator();
-			saveAuthData( authKey , ac );
-		}
-	}
-	
-	public void stop( ActionInit action ) throws Exception {
-	}
-	
-	public void addLocalUser( AuthUser user ) {
 		mapLocalUsers.put( user.NAME , user );
 		mapLocalUsersById.put( user.ID , user );
 	}
@@ -122,10 +104,16 @@ public class AuthService extends EngineObject {
 	}
 	
 	public void updateUser( AuthUser user ) throws Exception {
+		if( user.NAME.equals( MASTER_ADMIN ) )
+			Common.exitUnexpected();
+		
 		Common.changeMapKey( mapLocalUsers , user , user.NAME );
 	}
 	
-	public void addLdapUser( AuthUser user ) {
+	public void addLdapUser( AuthUser user ) throws Exception {
+		if( user.NAME.equals( MASTER_ADMIN ) )
+			Common.exitUnexpected();
+		
 		mapLdapUsers.put( user.NAME , user );
 		mapLdapUsersById.put( user.ID , user );
 	}
@@ -148,57 +136,48 @@ public class AuthService extends EngineObject {
 		return( groups.values().toArray( new AuthGroup[0] ) );
 	}
 	
-	private String getAuthDir() {
-		String authPath = engine.execrc.authPath;
-		if( authPath.isEmpty() )
-			authPath = Common.getPath( engine.execrc.userHome, ".auth" );
-		return( authPath );
-	}
-	
-	private String getAuthFile( String authKey ) {
-		String authPath = getAuthDir();
-		String filePath = Common.getPath( authPath , authKey + ".properties" );
-		return( filePath );
-	}
-	
-	public String getAuthKey( String group , String name ) {
-		return( group + "-" + name );
-	}
-	
-	public AuthContext loadAuthData( String authKey ) throws Exception {
-		PropertySet props = new PropertySet( "authfile" , null );
-		String filePath = getAuthFile( authKey );
-		
-		File file = new File( engine.execrc.getLocalPath( filePath ) );
-		if( file.isFile() )
-			props.loadFromPropertyFile( filePath , engine.execrc , false );
-		props.finishRawProperties();
-		
+	public AuthContext loadAuthUserData( AuthUser user ) throws Exception {
 		AuthContext ac = new AuthContext( this );
-		ac.load( props );
+		SecurityService ss = engine.security; 
+		ss.loadAuthUserData( engine.serverAction , user , ac );
 		return( ac );
 	}
 
-	public void saveAuthData( String authKey , AuthContext ac ) throws Exception {
-		String filePath = getAuthFile( authKey );
-		engine.trace( "save auth file: " + filePath );
-		ac.createProperties();
-		ac.properties.saveToPropertyFile( filePath , engine.execrc , false , "auth file" );
+	public AuthContext loadAuthResourceData( AuthResource res ) throws Exception {
+		AuthContext ac = new AuthContext( this );
+		SecurityService ss = engine.security; 
+		ss.loadAuthResourceData( engine.serverAction , res , ac );
+		return( ac );
+	}
+
+	public void saveAuthUserData( AuthUser user , AuthContext ac , String password ) throws Exception {
+		engine.trace( "save auth user: " + user.NAME );
+		SecurityService ss = engine.security;
+		ss.saveAuthUserData( engine.serverAction , user , ac , password );
+	}
+
+	public void saveAuthResourceData( AuthResource res , AuthContext ac ) throws Exception {
+		engine.trace( "save auth resource: " + res.NAME );
+		SecurityService ss = engine.security;
+		ss.saveAuthResourceData( engine.serverAction , res , ac );
 	}
 
 	public EngineSession connect( String username , String password , RunContext clientrc ) throws Exception {
+		AuthContext ac = null;
+		
+		SecurityService ss = engine.security;
+		if( username.equals( MASTER_ADMIN ) ) {
+			if( !engine.isRunning() )
+				ss.start( engine.serverAction , password );
+		}
+		
 		AuthUser user = getUser( username );
 		if( user == null )
 			return( null );
 		
-		AuthContext ac = null;
-		
 		if( user.LOCAL ) {
-			String authKey = getAuthKey( AUTH_GROUP_USER , username );
-			ac = loadAuthData( authKey );
-				
-			String passwordMD5 = Common.getMD5( password );
-			if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) )
+			ac = loadAuthUserData( user );
+			if( !ss.checkUser( engine.serverAction , ac , password ) )
 				return( null );
 		}
 		else {
@@ -317,6 +296,9 @@ public class AuthService extends EngineObject {
 	}
 
 	public AuthUser getUser( String username ) throws Exception {
+		if( username.equals( MASTER_ADMIN ) )
+			return( masterUser );
+		
 		AuthUser user = findLocalUser( username );
 		if( user == null )
 			user = findLdapUser( username );
@@ -385,11 +367,9 @@ public class AuthService extends EngineObject {
 
 	public void setUserPassword( AuthUser user , String password ) throws Exception {
 		// create initial admin user
-		String authKey = getAuthKey( AUTH_GROUP_USER , user.NAME );
-		AuthContext ac = loadAuthData( authKey );
+		AuthContext ac = loadAuthUserData( user );
 		ac.setUserPassword( password );
-		ac.createProperties();
-		saveAuthData( authKey , ac );
+		saveAuthUserData( user , ac , password );
 	}
 
 	public AuthGroup[] getUserGroups( AuthUser user ) {
@@ -623,8 +603,7 @@ public class AuthService extends EngineObject {
 		
 		try {
 			if( user.LOCAL ) {
-				String authKey = getAuthKey( AUTH_GROUP_USER , username );
-				AuthContext ac = loadAuthData( authKey );
+				AuthContext ac = loadAuthUserData( user );
 				if( !ac.PUBLICKEY.isEmpty() ) {
 			        String checkMessage = ClientAuth.getCheckMessage( username );
 					if( ClientAuth.verifySigned( checkMessage , password , ac.PUBLICKEY ) ) {

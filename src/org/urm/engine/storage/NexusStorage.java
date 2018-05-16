@@ -3,7 +3,7 @@ package org.urm.engine.storage;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.SimpleHttp;
-import org.urm.meta.engine.AuthResource;
+import org.urm.engine.security.AuthResource;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrBinaryItem;

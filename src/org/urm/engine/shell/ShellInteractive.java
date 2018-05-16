@@ -2,7 +2,7 @@ package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.ShellService;
-import org.urm.meta.engine.AuthResource;
+import org.urm.engine.security.AuthResource;
 
 public class ShellInteractive extends Shell {
 

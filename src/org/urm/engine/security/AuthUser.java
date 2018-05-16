@@ -1,4 +1,4 @@
-package org.urm.meta.engine;
+package org.urm.engine.security;
 
 import org.urm.common.Common;
 import org.urm.engine.AuthService;
@@ -23,11 +23,28 @@ public class AuthUser {
 	public boolean LOCAL;
 	public int UV;
 	
+	private boolean master;
+	
 	public AuthUser( AuthService auth ) {
 		this.auth = auth;
+		this.master = false;
 	}
 
+	public void createMaster() {
+		ID = 0;
+		NAME = "admin";
+		DESC = "(master administrator)";
+		FULLNAME = "(master administrator)";
+		EMAIL = "";
+		ADMIN = true;
+		LOCAL = true;
+		UV = -1;
+		
+		master = true;
+	}
+	
 	public void createUser( String name , String desc , String full , String email , boolean admin , boolean local ) {
+		master = false;
 		modifyUser( name , desc , full , email , admin , local );
 	}
 
@@ -37,6 +54,10 @@ public class AuthUser {
 		this.EMAIL = Common.nonull( email );
 		this.FULLNAME = Common.nonull( full );
 		this.ADMIN = admin;
+	}
+
+	public boolean isMaster() {
+		return( master );
 	}
 	
 }

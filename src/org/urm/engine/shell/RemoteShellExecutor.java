@@ -2,8 +2,8 @@ package org.urm.engine.shell;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.ShellService;
+import org.urm.engine.security.AuthResource;
 import org.urm.engine.storage.Folder;
-import org.urm.meta.engine.AuthResource;
 
 public class RemoteShellExecutor extends ShellExecutor {
 	

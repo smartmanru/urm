@@ -33,7 +33,7 @@ import org.urm.engine.products.EngineProduct;
 import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.properties.PropertyEntity;
-import org.urm.meta.engine.AuthResource;
+import org.urm.engine.security.AuthResource;
 import org.urm.meta.engine.BaseCategory;
 import org.urm.meta.engine.BaseGroup;
 import org.urm.meta.engine.BaseItem;

@@ -70,5 +70,6 @@ public class _Error {
 	public static final int ActiveEnvExists0 = ErrorBase + 66;
 	public static final int ReleaseExists0 = ErrorBase + 67;
 	public static final int EnvExists0 = ErrorBase + 68;
+	public static final int MissingDistributive1 = ErrorBase + 69;
 	
 }

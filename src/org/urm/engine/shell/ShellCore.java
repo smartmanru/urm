@@ -8,8 +8,8 @@ import java.util.Map;
 import org.urm.action.ActionBase;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.action.CommandOutput;
+import org.urm.engine.security.AuthResource;
 import org.urm.engine.storage.Folder;
-import org.urm.meta.engine.AuthResource;
 import org.urm.meta.loader.Types.*;
 
 abstract public class ShellCore {

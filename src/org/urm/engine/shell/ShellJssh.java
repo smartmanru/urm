@@ -8,9 +8,9 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.security.AuthResource;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.RemoteFolder;
-import org.urm.meta.engine.AuthResource;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;

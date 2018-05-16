@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.urm.engine.AuthService;
 import org.urm.engine.AuthService.SpecialRights;
-import org.urm.meta.engine.AuthContext;
-import org.urm.meta.engine.AuthGroup;
-import org.urm.meta.engine.AuthUser;
-import org.urm.meta.engine.AuthRoleSet;
+import org.urm.engine.security.AuthContext;
+import org.urm.engine.security.AuthGroup;
+import org.urm.engine.security.AuthRoleSet;
+import org.urm.engine.security.AuthUser;
 
 public class SessionSecurity {
 
@@ -49,11 +49,18 @@ public class SessionSecurity {
 	}
 	
 	public boolean isAdminCore() {
+		if( isAdminMaster() )
+			return( false );
+		
 		if( isAdminAny() )
 			return( true );
 		if( checkSpecial( SpecialRights.SPECIAL_ADMCORE ) )
 			return( true );
 		return( false );
+	}
+
+	public boolean isAdminMaster() {
+		return( user.isMaster() );
 	}
 	
 	public void setServer() {

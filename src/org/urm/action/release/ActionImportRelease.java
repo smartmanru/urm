@@ -31,7 +31,8 @@ public class ActionImportRelease extends ActionBase {
 		this.RELEASELABEL = RELEASELABEL;
 	}
 
-	@Override protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeSimple( ScopeState state ) throws Exception {
 		EngineMethod method = super.method;
 		
 		EngineProduct ep = meta.getEngineProduct();

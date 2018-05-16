@@ -3,10 +3,10 @@ package org.urm.action.codebase;
 import org.urm.action.ActionBase;
 import org.urm.action.ActionScopeTarget;
 import org.urm.common.Common;
+import org.urm.engine.security.AuthResource;
 import org.urm.engine.shell.Shell;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
-import org.urm.meta.engine.AuthResource;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaProductBuildSettings;
 

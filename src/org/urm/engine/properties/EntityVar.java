@@ -4,7 +4,7 @@ import org.urm.common.Common;
 import org.urm.db.core.DBEnumInterface;
 import org.urm.db.core.DBEnums.*;
 import org.urm.engine.data.EngineResources;
-import org.urm.meta.engine.AuthResource;
+import org.urm.engine.security.AuthResource;
 import org.urm.meta.loader.EngineLoader;
 
 public class EntityVar {
