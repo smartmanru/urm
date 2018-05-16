@@ -164,8 +164,8 @@ public class ActionConfCheck extends ActionBase {
 					error( error );
 					S_CONFCHECK_STATUS = false;
 				}
-				else
-					ifexit( _Error.UnexpectedScopeVariable2 , error , new String[] { scope , var } );
+//				else
+//					ifexit( _Error.UnexpectedScopeVariable2 , error , new String[] { scope , var } );
 			}
 			else {
 				if( context.CTX_SHOWALL ) {
@@ -191,12 +191,12 @@ public class ActionConfCheck extends ActionBase {
 				else
 					ifexit( _Error.MissingScopeVariable2 , error , new String[] { scope , var } );
 			}
-//			else {
-//				if( context.CTX_SHOWALL ) {
-//					state.addFact( Facts.MatchedVariable , FACTVALUE.VARIABLENAME , var );
-//					info( "variable=" + var + " in " + scope + " - ok" );
-//				}
-//			}
+			else {
+				if( context.CTX_SHOWALL ) {
+					state.addFact( Facts.MatchedVariable , FACTVALUE.VARIABLENAME , var );
+					info( "variable=" + var + " in " + scope + " - ok" );
+				}
+			}
 		}
 	}
 	
