@@ -43,6 +43,16 @@ public class DeployCommandMeta extends CommandMeta {
 	public static String BASEOPS_INSTALL = "install";
 	public static String BASEOPS_CLEAR = "clear";
 	
+	public static String KEYOPS_LIST = "list";
+	public static String KEYOPS_CHANGE = "change";
+	public static String KEYOPS_ADD = "add";
+	public static String KEYOPS_SET = "set";
+	public static String KEYOPS_DELETE = "delete";
+	
+	public static String HOSTOPS_CHECK = "check";
+	public static String HOSTOPS_SET = "set";
+	public static String HOSTOPS_DELETE = "delete";
+	
 	public DeployCommandMeta( OptionsMeta options ) {
 		super( options , NAME , DESC );
 		
