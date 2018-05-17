@@ -141,8 +141,11 @@ public class SecurityService extends EngineObject {
 
 	public void saveAuthResourceData( ActionBase action , AuthResource res , AuthContext ac ) throws Exception {
 		String key = SecureData.getResourceMethodKey( res );
-		String method = master.getKey( action , key );
+		String method = ac.METHOD;
 		master.setKey( action , key , ac.METHOD );
+		
+		if( method == null )
+			method = AuthContext.METHOD_ANONYMOUS;
 		
 		if( method.equals( AuthContext.METHOD_COMMONPASSWORD ) ) {
 			key = SecureData.getResourcePasswordKey( res );
