@@ -70,20 +70,20 @@ public class CommandExecutorDeploy extends CommandExecutor {
 	}
 
 	private class BaseOps extends CommandMethod {
-	public void run( ScopeState parentState , ActionBase action ) throws Exception {
-		String CMD = getRequiredArg( action , 0 , "CMD" );
-		ActionScope scope = getServerScope( action , 1 );
-		if( CMD.equals( DeployCommandMeta.BASEOPS_INSTALL ) )
-			impl.baseInstall( parentState , action , scope );
-		else
-		if( CMD.equals( DeployCommandMeta.BASEOPS_LIST ) )
-			impl.baseList( parentState , action , scope );
-		else
-		if( CMD.equals( DeployCommandMeta.BASEOPS_CLEAR ) )
-			impl.baseClear( parentState , action , scope );
-		else
-			action.exitUnexpectedState();
-	}
+		public void run( ScopeState parentState , ActionBase action ) throws Exception {
+			String CMD = getRequiredArg( action , 0 , "CMD" );
+			ActionScope scope = getServerScope( action , 1 );
+			if( CMD.equals( DeployCommandMeta.BASEOPS_INSTALL ) )
+				impl.baseInstall( parentState , action , scope );
+			else
+			if( CMD.equals( DeployCommandMeta.BASEOPS_LIST ) )
+				impl.baseList( parentState , action , scope );
+			else
+			if( CMD.equals( DeployCommandMeta.BASEOPS_CLEAR ) )
+				impl.baseClear( parentState , action , scope );
+			else
+				action.exitUnexpectedState();
+		}
 	}
 
 	private class CheckEnv extends CommandMethod {

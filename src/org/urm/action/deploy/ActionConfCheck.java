@@ -191,12 +191,6 @@ public class ActionConfCheck extends ActionBase {
 				else
 					ifexit( _Error.MissingScopeVariable2 , error , new String[] { scope , var } );
 			}
-//			else {
-//				if( context.CTX_SHOWALL ) {
-//					state.addFact( Facts.MatchedVariable , FACTVALUE.VARIABLENAME , var );
-//					info( "variable=" + var + " in " + scope + " - ok" );
-//				}
-//			}
 		}
 	}
 	
