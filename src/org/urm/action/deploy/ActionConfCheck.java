@@ -32,7 +32,7 @@ public class ActionConfCheck extends ActionBase {
 	}
 	
 	@Override protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception {
-		info( "check configuration parameters in env=" + context.env.NAME + " ..." );
+		info( "check configuration parameters in env=" + scope.env.NAME + " ..." );
 		S_CONFCHECK_STATUS = true;
 
 		// read properties
@@ -50,13 +50,13 @@ public class ActionConfCheck extends ActionBase {
 	
 	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		// read properties
-		executeServer( state , target.envServer );
+		executeServer( state , target );
 		return( SCOPESTATE.RunSuccess );
 	}
 
 	private void executeEnv( ScopeState state , ActionScope scope ) throws Exception {
 		// read env properties...
-		ObjectProperties ops = context.env.getProperties();
+		ObjectProperties ops = scope.env.getProperties();
 		String[] S_CONFCHECK_PROPLIST_ENV = ops.getPropertyList();
 
 		if( !isExecute() ) {
@@ -69,10 +69,10 @@ public class ActionConfCheck extends ActionBase {
 		}
 		else {
 			if( context.env.hasBaseline() ) {
-				baselineEnv = context.env.getBaseline();
+				baselineEnv = scope.env.getBaseline();
 				String S_CONFCHECK_BASELINE_ENV = baselineEnv.NAME;
 				info( "============================================ check env properties baseline=" + S_CONFCHECK_BASELINE_ENV + " ..." );
-				checkConfEnv( state , context.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
+				checkConfEnv( state , scope.env , baselineEnv , S_CONFCHECK_PROPLIST_ENV );
 			}
 			else
 				trace( "ignore check env - no baseline defined" );
@@ -104,7 +104,9 @@ public class ActionConfCheck extends ActionBase {
 		}
 	}
 
-	private void executeServer( ScopeState state , MetaEnvServer server ) throws Exception {
+	private void executeServer( ScopeState state , ActionScopeTarget target ) throws Exception {
+		MetaEnvServer server = target.envServer;
+		
 		// echo read server properties...
 		ObjectProperties ops = server.getProperties();
 		String[] S_CONFCHECK_PROPLIST_SERVER = ops.getPropertyList();
@@ -118,9 +120,7 @@ public class ActionConfCheck extends ActionBase {
 			}
 		}
 		else {
-			if( context.env.hasBaseline() &&
-			   server.sg.hasBaseline() &&
-			   server.hasBaseline() ) {
+			if( context.env.hasBaseline() && server.sg.hasBaseline() && server.hasBaseline() ) {
 				MetaEnvServer baselineServer = server.getBaseline();
 				String S_CONFCHECK_BASELINE_SERVER = baselineServer.NAME;
 				info( "============================================ check sg=" + server.sg.NAME + " server=" + server.NAME + " properties baseline=" + S_CONFCHECK_BASELINE_SERVER + " ..." );
