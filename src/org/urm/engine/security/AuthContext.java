@@ -137,6 +137,11 @@ public class AuthContext extends EngineObject {
 		PUBLICKEY = publicKey;
 		PRIVATEKEY = privateKey;
 	}
+
+	public void setUserPasswordMD5( String passwordMD5 ) throws Exception {
+		METHOD = AuthContext.METHOD_USER;
+		PASSWORDSAVE = passwordMD5;
+	}
 	
 	public void setUserPassword( String password ) throws Exception {
 		METHOD = AuthContext.METHOD_USER;

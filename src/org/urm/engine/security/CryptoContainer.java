@@ -216,6 +216,7 @@ public class CryptoContainer {
 	    }
 	    
 	    valid = true;
+	    sync = true;
 	}
 	
 	private Cipher getCipher( String password , byte[] saltBytes , boolean encrypt , byte[] iv ) throws Exception {

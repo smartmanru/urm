@@ -78,16 +78,14 @@ public class SecurityService extends EngineObject {
 		if( master == null )
 			Common.exitUnexpected();
 		
-		if( user.isMaster() ) {
-			String key = SecureData.getMasterPasswordKey();
-			String passwordMD5 = master.getKey( action , key );
-			ac.setUserPassword( passwordMD5 );
-		}
-		else {
-			String key = SecureData.getUserPasswordKey( user );
-			String passwordMD5 = master.getKey( action , key );
-			ac.setUserPassword( passwordMD5 );
-		}
+		String key = null;
+		if( user.isMaster() )
+			key = SecureData.getMasterPasswordKey();
+		else
+			key = SecureData.getUserPasswordKey( user );
+		
+		String passwordMD5 = master.getKey( action , key );
+		ac.setUserPasswordMD5( passwordMD5 );
 	}
 
 	public void saveAuthUserData( ActionBase action , AuthUser user , AuthContext ac , String password ) throws Exception {
