@@ -433,7 +433,7 @@ public class TransactionBase extends EngineObject {
 		trace( "auth update, new version=" + version );
 	}
 	
-	public boolean startImport() throws Exception {
+	public boolean startImport( AppProduct product ) throws Exception {
 		synchronized( engine ) {
 			try {
 				if( !continueTransaction() )
@@ -442,8 +442,15 @@ public class TransactionBase extends EngineObject {
 				if( IMPORT )
 					return( true );
 
-				if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
-					return( false );
+				if( product == null ) {
+					if( !checkSecurityServerChange( SecurityAction.ACTION_ADMIN ) )
+						return( false );
+				}
+				else {
+					if( !checkSecurityProductChange( product , null , SecurityAction.ACTION_ADMIN ) )
+						return( false );
+				}
+					
 				
 				useDatabase();
 				IMPORT = true;
@@ -872,7 +879,7 @@ public class TransactionBase extends EngineObject {
 				if( !continueTransaction() )
 					return( false );
 
-				if( !checkSecurityProductChange( product , null ) )
+				if( !checkSecurityProductChange( product , null , SecurityAction.ACTION_ADMIN ) )
 					return( false );
 				
 				TransactionProduct tm = createProductTransaction( product , product.findEngineProduct() );
@@ -897,7 +904,7 @@ public class TransactionBase extends EngineObject {
 					return( false );
 
 				EngineProduct ep = env.getEngineProduct();
-				if( !checkSecurityProductChange( ep.getProduct() , env ) )
+				if( !checkSecurityProductChange( ep.getProduct() , env , SecurityAction.ACTION_ADMIN ) )
 					return( false );
 				
 				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
@@ -920,7 +927,7 @@ public class TransactionBase extends EngineObject {
 					return( false );
 
 				EngineProduct ep = meta.getEngineProduct();
-				if( !checkSecurityProductChange( ep.getProduct() , null ) )
+				if( !checkSecurityProductChange( ep.getProduct() , null , SecurityAction.ACTION_ADMIN ) )
 					return( false );
 				
 				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
@@ -971,7 +978,7 @@ public class TransactionBase extends EngineObject {
 				if( !continueTransaction() )
 					return( false );
 
-				if( !checkSecurityProductChange( product , null ) )
+				if( !checkSecurityProductChange( product , null , SecurityAction.ACTION_ADMIN ) )
 					return( false );
 				
 				EngineProduct ep = product.getEngineProduct();
@@ -997,7 +1004,7 @@ public class TransactionBase extends EngineObject {
 				if( !continueTransaction() )
 					return( false );
 
-				if( !checkSecurityProductChange( product , null ) )
+				if( !checkSecurityProductChange( product , null , SecurityAction.ACTION_CONFIGURE ) )
 					return( false );
 				
 				EngineProduct ep = product.getEngineProduct();
@@ -1026,7 +1033,7 @@ public class TransactionBase extends EngineObject {
 					return( false );
 
 				EngineProduct ep = meta.getEngineProduct();
-				if( !checkSecurityProductChange( ep.getProduct() , null ) )
+				if( !checkSecurityProductChange( ep.getProduct() , null , SecurityAction.ACTION_CONFIGURE ) )
 					return( false );
 				
 				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep ); 
@@ -1051,7 +1058,7 @@ public class TransactionBase extends EngineObject {
 					return( false );
 
 				EngineProduct ep = env.getEngineProduct();
-				if( !checkSecurityProductChange( ep.getProduct() , env ) )
+				if( !checkSecurityProductChange( ep.getProduct() , env , SecurityAction.ACTION_CONFIGURE ) )
 					return( false );
 				
 				TransactionProduct tm = createProductTransaction( ep.getProduct() , ep );
@@ -1627,9 +1634,9 @@ public class TransactionBase extends EngineObject {
 		return( false );
 	}
 
-	public boolean checkSecurityProductChange( AppProduct product , MetaEnv env ) {
+	public boolean checkSecurityProductChange( AppProduct product , MetaEnv env , SecurityAction sa ) {
 		AuthService auth = engine.getAuth();
-		if( auth.checkAccessProductAction( action , SecurityAction.ACTION_CONFIGURE , product , env , false ) )
+		if( auth.checkAccessProductAction( action , sa , product , env , false ) )
 			return( true );
 		
 		checkSecurityFailed();

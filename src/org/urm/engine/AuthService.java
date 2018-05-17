@@ -41,6 +41,7 @@ public class AuthService extends EngineObject {
 	};
 	
 	public enum SpecialRights {
+		SPECIAL_SECURED ,
 		SPECIAL_ADMCORE ,
 		SPECIAL_BASEADM ,
 		SPECIAL_BASEITEMS

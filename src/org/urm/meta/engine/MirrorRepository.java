@@ -68,6 +68,12 @@ public class MirrorRepository extends EngineObject {
 		return( MIRROR_TYPE == DBEnumMirrorType.PRODUCT_DATA );
 	}
 	
+	public boolean isProduct() {
+		if( isServer() )
+			return( false );
+		return( true );
+	}
+	
 	public MirrorRepository copy( EngineMirrors mirror ) throws Exception {
 		MirrorRepository r = new MirrorRepository( mirror );
 		r.ID = ID;

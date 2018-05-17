@@ -36,7 +36,7 @@ COMMENT ON TABLE main.urm_rel_main IS 'Product release';
 
 CREATE UNIQUE INDEX urm_rel_main_idx
  ON main.urm_rel_main
- ( repo_id, releasever );
+ ( repo_id, releasever, master );
 
 CREATE TABLE main.urm_rel_buildtarget (
                 buildtarget_id INTEGER NOT NULL,
