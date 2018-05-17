@@ -177,7 +177,7 @@ public class AuthService extends EngineObject {
 		
 		if( user.LOCAL ) {
 			ac = loadAuthUserData( user );
-			if( !ss.checkUser( engine.serverAction , ac , password ) )
+			if( !ss.checkUser( engine.serverAction , user , ac , password ) )
 				return( null );
 		}
 		else {

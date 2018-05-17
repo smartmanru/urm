@@ -59,7 +59,7 @@ public class SecurityService extends EngineObject {
 	public synchronized CryptoContainer open( ActionBase action , String name , String password ) throws Exception {
 		if( data.get( name ) != null )
 			Common.exitUnexpected();
-		
+
 		CryptoContainer crypto = new CryptoContainer( this , name );
 		crypto.open( action , password );
 		data.put( name , crypto );
@@ -67,10 +67,12 @@ public class SecurityService extends EngineObject {
 		return( crypto );
 	}
 
-	public boolean checkUser( ActionBase action , AuthContext ac , String password ) throws Exception {
+	public boolean checkUser( ActionBase action , AuthUser user , AuthContext ac , String password ) throws Exception {
 		String passwordMD5 = Common.getMD5( password );
-		if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) )
+		if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) ) {
+			action.trace( "failed login user=" + user.NAME );
 			return( false );
+		}
 		return( true );
 	}
 
