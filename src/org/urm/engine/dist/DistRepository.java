@@ -388,6 +388,19 @@ public class DistRepository {
 	public DistRepositoryItem findMasterItem( String NAME ) {
 		return( masterMap.get( NAME ) );
 	}
+
+	public DistRepositoryItem findItem( ReleaseLabelInfo info ) {
+		DistRepositoryItem item = findItem( info );
+		if( info.master ) {
+			if( info.VARIANT.isEmpty() )
+				item = findDefaultMasterItem();
+			else
+				item = findMasterItem( info.VARIANT );
+		}
+		else
+			item = findNormalItem( info.RELEASEDIR );
+		return( item );
+	}
 	
 	public DistRepositoryItem findItem( Dist dist ) {
 		if( dist.isMaster() )
@@ -505,6 +518,10 @@ public class DistRepository {
 			addNormalItem( item );
 	}
 
+	public DistRepositoryItem findDefaultMasterItem() {
+		return( findMasterItem( ReleaseRepository.MASTER_NAME_PRIMARY ) );
+	}
+	
 	public Dist findDefaultMasterDist() {
 		DistRepositoryItem item = findMasterItem( ReleaseRepository.MASTER_NAME_PRIMARY );
 		if( item == null )

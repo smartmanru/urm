@@ -35,9 +35,9 @@ public class ActionTouchRelease extends ActionBase {
 
 			// reload distributive
 			ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( this , meta , RELEASELABEL );
-			DistRepositoryItem item = distrepoUpdated.findNormalItem( info.RELEASEDIR );
+			DistRepositoryItem item = distrepoUpdated.findItem( info );
 			if( item == null )
-				Common.exitUnexpected();
+				Common.exit1( _Error.UnableFindDistributive1 , "unable to find distributive label=" + RELEASELABEL , RELEASELABEL );
 				
 			DistRepositoryItem itemUpdated = method.changeDistItem( distrepoUpdated , item );
 			Dist dist = distrepoUpdated.reloadDist( this , itemUpdated );

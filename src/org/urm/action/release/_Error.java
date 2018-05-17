@@ -27,5 +27,6 @@ public class _Error {
 	public static final int CannotReduceScope1 = ErrorBase + 18;
 	public static final int CannotFindMasterRelease1 = ErrorBase + 19;
 	public static final int UnableFinalizeRelease0 = ErrorBase + 20;
+	public static final int UnableFindDistributive1 = ErrorBase + 21;
 	
 }
