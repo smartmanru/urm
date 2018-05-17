@@ -114,21 +114,23 @@ public class SecurityService extends EngineObject {
 			return;
 		}
 		
+		if( method.equals( AuthContext.METHOD_ANONYMOUS ) ) {
+			ac.setAnonymous();
+		}
+		else
 		if( method.equals( AuthContext.METHOD_COMMONPASSWORD ) ) {
+			key = SecureData.getResourceUserKey( res );
+			String user = master.getKey( action , key );
+			ac.setResourceUser( user );
 			key = SecureData.getResourcePasswordKey( res );
 			String password = master.getKey( action , key );
 			ac.setResourcePassword( password );
 		}
 		else
-		if( method.equals( AuthContext.METHOD_ANONYMOUS ) ) {
-			ac.setAnonymous();
-		}
-		else
-		if( method.equals( AuthContext.METHOD_USER ) ) {
-			ac.setCurrentUser();
-		}
-		else
-		if( method.equals( AuthContext.METHOD_USER ) ) {
+		if( method.equals( AuthContext.METHOD_SSHKEY ) ) {
+			key = SecureData.getResourceUserKey( res );
+			String user = master.getKey( action , key );
+			ac.setResourceUser( user );
 			key = SecureData.getResourceSshPublicKey( res );
 			String publicKey = master.getKey( action , key );
 			key = SecureData.getResourceSshPrivateKey( res );

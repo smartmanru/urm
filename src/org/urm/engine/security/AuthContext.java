@@ -126,6 +126,10 @@ public class AuthContext extends EngineObject {
 	public void setOnlinePassword( String password ) {
 		PASSWORDONLINE = password;
 	}
+
+	public void setResourceUser( String user ) {
+		USER = user;
+	}
 	
 	public void setResourcePassword( String password ) {
 		METHOD = AuthContext.METHOD_COMMONPASSWORD;
