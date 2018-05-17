@@ -96,8 +96,16 @@ public abstract class GenericVCS {
 
 	private static GenericVCS getVCS( ActionBase action , Meta meta , AuthResource res , ShellExecutor shell , ProjectBuilder builder ) throws Exception {
 		res.loadAuthData();
-		if( res.isSvn() )
+		if( res.isSvn() ) {
+			if( res.ac == null )
+				Common.exitUnexpected();
+			if( res.ac.isCommon() ) {
+				if( res.ac.USER.isEmpty() || res.ac.PASSWORDSAVE.isEmpty() )
+					Common.exitUnexpected();
+			}
+			
 			return( new SubversionVCS( action , meta , res , shell , builder ) );
+		}
 		
 		if( res.isGit() )
 			return( new GitVCS( action , meta , res , shell , builder ) );

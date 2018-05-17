@@ -9,6 +9,7 @@ public class SecureData {
 	public static String ITEM_MASTER = "master";
 	public static String ATTR_PASSWORDMD5 = "password.md5";
 	public static String ATTR_METHOD = "method";
+	public static String ATTR_USER = "user";
 	public static String ATTR_PASSWORD = "password";
 	public static String ATTR_KEYPUBLIC = "key.public";
 	public static String ATTR_KEYPRIVATE = "key.private";
@@ -23,6 +24,10 @@ public class SecureData {
 	
 	public static String getResourceMethodKey( AuthResource res ) {
 		return( Common.getPath( GROUP_RESOURCES , res.NAME , ATTR_METHOD ) );
+	}
+	
+	public static String getResourceUserKey( AuthResource res ) {
+		return( Common.getPath( GROUP_RESOURCES , res.NAME , ATTR_USER ) );
 	}
 	
 	public static String getResourcePasswordKey( AuthResource res ) {
