@@ -7,8 +7,10 @@ import org.urm.engine.AuthService;
 import org.urm.engine.AuthService.SpecialRights;
 import org.urm.engine.security.AuthContext;
 import org.urm.engine.security.AuthGroup;
+import org.urm.engine.security.AuthProductSecurity;
 import org.urm.engine.security.AuthRoleSet;
 import org.urm.engine.security.AuthUser;
+import org.urm.meta.env.MetaEnv;
 
 public class SessionSecurity {
 
@@ -20,11 +22,11 @@ public class SessionSecurity {
 
 	AuthRoleSet secBase;
 	AuthRoleSet secResourceAny;
-	AuthRoleSet secProductAny;
 	AuthRoleSet secNetworkAny;
+	AuthProductSecurity secProductAny;
 	Map<Integer,AuthRoleSet> secResource;
-	Map<Integer,AuthRoleSet> secProduct;
 	Map<Integer,AuthRoleSet> secNetwork;
+	Map<Integer,AuthProductSecurity> secProduct;
 	Map<SpecialRights,Integer> secSpecial;
 	
 	public SessionSecurity( AuthService auth ) {
@@ -32,11 +34,11 @@ public class SessionSecurity {
 		server = false;
 		secBase = new AuthRoleSet();
 		secResourceAny = new AuthRoleSet();
-		secProductAny = new AuthRoleSet();
 		secNetworkAny = new AuthRoleSet();
+		secProductAny = new AuthProductSecurity();
 		secResource = new HashMap<Integer,AuthRoleSet>();
-		secProduct = new HashMap<Integer,AuthRoleSet>();
 		secNetwork = new HashMap<Integer,AuthRoleSet>();
+		secProduct = new HashMap<Integer,AuthProductSecurity>();
 		secSpecial = new HashMap<SpecialRights,Integer>(); 
 	}
 
@@ -121,16 +123,16 @@ public class SessionSecurity {
 				}
 				
 				if( group.anyProducts )
-					secProductAny.add( group.roles );
+					secProductAny.addRoles( group.roles );
 				else {
 					for( int productId : group.getPermissionProducts() ) {
-						AuthRoleSet roles = secProduct.get( productId );
-						if( roles == null ) {
-							roles = new AuthRoleSet( group.roles );
-							secProduct.put( productId , roles );
+						AuthProductSecurity ps = secProduct.get( productId );
+						if( ps == null ) {
+							ps = new AuthProductSecurity();
+							secProduct.put( productId , ps );
 						}
-						else
-							roles.add( group.roles );
+						
+						ps.addRoles( group.roles );
 					}
 				}
 				
@@ -148,8 +150,17 @@ public class SessionSecurity {
 					}
 				}
 				
-				for( SpecialRights sr : group.getPermissionSpecial() )
+				for( SpecialRights sr : group.getPermissionSpecial() ) {
 					secSpecial.put( sr , 0 );
+					if( group.anyProducts )
+						secProductAny.addSpecial( sr );
+					else {
+						for( int productId : group.getPermissionProducts() ) {
+							AuthProductSecurity ps = secProduct.get( productId );
+							ps.addSpecial( sr );
+						}
+					}
+				}
 			}
 		}
 	}
@@ -160,15 +171,7 @@ public class SessionSecurity {
 
 	public synchronized AuthRoleSet getResourceRoles( int resourceId ) {
 		AuthRoleSet set = new AuthRoleSet( secResourceAny );
-		AuthRoleSet roles = secProduct.get( resourceId );
-		if( roles != null )
-			set.add( roles );
-		return( set );
-	}
-	
-	public synchronized AuthRoleSet getProductRoles( int productId ) {
-		AuthRoleSet set = new AuthRoleSet( secProductAny );
-		AuthRoleSet roles = secProduct.get( productId );
+		AuthRoleSet roles = secResource.get( resourceId );
 		if( roles != null )
 			set.add( roles );
 		return( set );
@@ -182,9 +185,49 @@ public class SessionSecurity {
 		return( set );
 	}
 
+	public synchronized AuthRoleSet getProductRoles( int productId ) {
+		AuthRoleSet set = new AuthRoleSet( secProductAny.roles );
+		AuthProductSecurity ps = secProduct.get( productId );
+		if( ps != null )
+			set.add( ps.roles );
+		return( set );
+	}
+	
 	public synchronized boolean checkSpecial( SpecialRights sr ) {
 		if( secSpecial.containsKey( sr ) )
 			return( true );
+		return( false );
+	}
+
+	public synchronized boolean checkEngineSecured() {
+		if( user.ADMIN )
+			return( true );
+		return( false );
+	}
+	
+	public synchronized boolean checkProductSecured( int productId ) {
+		if( secProductAny.specialSecured )
+			return( true );
+		AuthProductSecurity ps = secProduct.get( productId );
+		if( ps != null )
+			return( ps.specialSecured );
+		return( false );
+	}
+
+	public synchronized boolean checkEnvSecured( MetaEnv env ) {
+		if( !checkProductSecured( env.meta.ep.productId ) )
+			return( false );
+
+		AuthRoleSet roles = getProductRoles( env.meta.ep.productId );
+		if( env.isProd() && roles.secOpr )
+			return( true );
+
+		if( env.isUAT() && roles.secRel )
+			return( true );
+		
+		if( env.isDEV() && roles.secDev )
+			return( true );
+		
 		return( false );
 	}
 	

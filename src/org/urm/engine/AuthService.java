@@ -564,6 +564,8 @@ public class AuthService extends EngineObject {
 		}
 		
 		if( sa == SecurityAction.ACTION_ADMIN ) {
+			if( roles.secRel )
+				return( true );
 			return( false );
 		}
 				

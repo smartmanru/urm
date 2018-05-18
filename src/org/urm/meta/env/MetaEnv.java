@@ -212,6 +212,14 @@ public class MetaEnv extends EngineObject {
 		return( ENV_TYPE == DBEnumEnvType.PRODUCTION );
 	}
 	
+	public boolean isUAT() {
+		return( ENV_TYPE == DBEnumEnvType.UAT );
+	}
+	
+	public boolean isDEV() {
+		return( ENV_TYPE == DBEnumEnvType.DEVELOPMENT );
+	}
+	
 	public boolean hasBaseline() {
 		if( BASELINE == null )
 			return( false );
