@@ -42,6 +42,22 @@ public class SessionSecurity {
 		secSpecial = new HashMap<SpecialRights,Integer>(); 
 	}
 
+	public AuthRoleSet getAnyResourceRoles() {
+		return( secResourceAny );
+	}
+	
+	public AuthRoleSet getAnyNetworkRoles() {
+		return( secNetworkAny );
+	}
+	
+	public AuthRoleSet getAnyProductRoles() {
+		return( secProductAny.roles );
+	}
+	
+	public boolean getAnyProductSecured() {
+		return( secProductAny.specialSecured );
+	}
+	
 	public boolean isCurrentPassword( String password ) {
 		if( password.equals( ac.PASSWORDONLINE ) )
 			return( true );
@@ -229,6 +245,22 @@ public class SessionSecurity {
 			return( true );
 		
 		return( false );
+	}
+
+	public Integer[] getResources() {
+		return( secResource.keySet().toArray( new Integer[0] ) );
+	}
+	
+	public Integer[] getProducts() {
+		return( secProduct.keySet().toArray( new Integer[0] ) );
+	}
+	
+	public Integer[] getNetworks() {
+		return( secNetwork.keySet().toArray( new Integer[0] ) );
+	}
+	
+	public SpecialRights[] getSpecialRights() {
+		return( secSpecial.keySet().toArray( new SpecialRights[0] ) );
 	}
 	
 }
