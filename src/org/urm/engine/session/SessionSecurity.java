@@ -221,6 +221,12 @@ public class SessionSecurity {
 		return( false );
 	}
 	
+	public synchronized boolean checkAnyProductSecured() {
+		if( secProductAny.specialSecured )
+			return( true );
+		return( false );
+	}
+	
 	public synchronized boolean checkProductSecured( int productId ) {
 		if( secProductAny.specialSecured )
 			return( true );

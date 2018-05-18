@@ -26,6 +26,7 @@ CREATE TABLE main.urm_auth_group (
                 roleopr BOOLEAN NOT NULL,
                 roleinfra BOOLEAN NOT NULL,
                 specialrights_admcore BOOLEAN NOT NULL,
+                specialrights_secured BOOLEAN NOT NULL,
                 specialrights_baseadm BOOLEAN NOT NULL,
                 specialrights_baseitems BOOLEAN NOT NULL,
                 uv INTEGER NOT NULL,
