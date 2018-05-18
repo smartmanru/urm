@@ -31,6 +31,7 @@ import org.urm.engine.executor.CommandExecutorMonitor;
 import org.urm.engine.executor.CommandExecutorRelease;
 import org.urm.engine.executor.CommandExecutorXDoc;
 import org.urm.engine.run.EngineMethod;
+import org.urm.engine.security.AuthUser;
 import org.urm.engine.session.EngineSession;
 import org.urm.engine.session.SessionSecurity;
 import org.urm.engine.shell.ShellCoreJNI;
@@ -246,7 +247,8 @@ public class Engine {
 		if( options == null )
 			return( null );
 		
-		ActionInit action = createRootAction( RootActionType.InteractiveSession , options , session , "web-" + session.sessionId , null , false , "Interactive session id=" + session.sessionId + ", user=" + session.getLoginAuth().USER );
+		AuthUser user = session.getUser();
+		ActionInit action = createRootAction( RootActionType.InteractiveSession , options , session , "web-" + session.sessionId , null , false , "Interactive session id=" + session.sessionId + ", user=" + user.NAME );
 		startAction( action );
 		
 		return( action );
