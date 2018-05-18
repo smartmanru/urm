@@ -31,5 +31,6 @@ public class _Error {
 	public static final int UnknownProperty2 = ErrorBase + 24;
 	public static final int NotCustomProperty2 = ErrorBase + 25;
 	public static final int DuplicateProperty2 = ErrorBase + 26;
+	public static final int AccessDenied0 = ErrorBase + 27;
 	
 }

@@ -979,6 +979,10 @@ public class Common {
 	public static void exitUnexpected() throws Exception {
 		throw new RunError( _Error.UnexpectedState0 , "Unexpected State" , null );
 	}
+
+	public static void exitAccessDenied() throws Exception {
+		throw new RunError( _Error.AccessDenied0 , "Access Denied" , null );
+	}
 	
 	public static void exit0( int errorCode , String msg ) throws Exception {
 		throw new RunError( errorCode , msg , null );

@@ -354,14 +354,16 @@ public abstract class DBEngineEntities {
 		return( var );
 	}
 	
-	public static EntityVar modifyCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
+	public static void modifyCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , EntityVar var , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , boolean inherited , String[] enumList ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ops.ownerId )
 			transaction.exitUnexpectedState();
-			
+
+		if( var.entity != entity )
+			Common.exitUnexpected();
+		
 		// check unique
-		EntityVar var = meta.getVar( paramId );
 		EntityVar check = meta.findVar( name );
 		if( check != null && check != var )
 			Common.exitUnexpected();
@@ -384,17 +386,17 @@ public abstract class DBEngineEntities {
 		if( !originalName.equals( name ) )
 			renameProperty( transaction , ops , originalName , name );
 		recalculateProperties( transaction , ops );
-		
-		return( var );
 	}
 	
-	public static void deleteCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , int paramId ) throws Exception {
+	public static void deleteCustomProperty( TransactionBase transaction , EngineEntities entities , ObjectProperties ops , EntityVar var ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		if( entity.META_OBJECT_ID != ops.ownerId )
 			transaction.exitUnexpectedState();
 		
-		EntityVar var = meta.getVar( paramId );
+		if( var.entity != entity )
+			transaction.exitUnexpectedState();
+		
 		DBSettings.deleteCustomProperty( transaction , var );
 		PropertySet set = ops.getProperties();
 		set.removeCustomProperty( var.NAME );

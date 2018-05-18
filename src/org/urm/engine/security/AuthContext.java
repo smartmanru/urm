@@ -124,27 +124,27 @@ public class AuthContext extends EngineObject {
 	}
 
 	public void setOnlinePassword( String password ) {
-		PASSWORDONLINE = password;
+		PASSWORDONLINE = Common.nonull( password );
 	}
 
 	public void setResourceUser( String user ) {
-		USER = user;
+		USER = Common.nonull( user );
 	}
 	
 	public void setResourcePassword( String password ) {
 		METHOD = AuthContext.METHOD_COMMONPASSWORD;
-		PASSWORDSAVE = password;
+		PASSWORDSAVE = Common.nonull( password );
 	}
 	
 	public void setResourceKeys( String publicKey , String privateKey ) {
 		METHOD = AuthContext.METHOD_SSHKEY;
-		PUBLICKEY = publicKey;
-		PRIVATEKEY = privateKey;
+		PUBLICKEY = Common.nonull( publicKey );
+		PRIVATEKEY = Common.nonull( privateKey );
 	}
 
 	public void setUserPasswordMD5( String passwordMD5 ) throws Exception {
 		METHOD = AuthContext.METHOD_USER;
-		PASSWORDSAVE = passwordMD5;
+		PASSWORDSAVE = Common.nonull( passwordMD5 );
 	}
 	
 	public void setUserPassword( String password ) throws Exception {
@@ -153,11 +153,11 @@ public class AuthContext extends EngineObject {
 	}
 
 	public void setData( AuthContext acdata ) {
-		this.METHOD = acdata.METHOD;
-		this.USER = acdata.USER;
-		this.PASSWORDSAVE = acdata.PASSWORDSAVE;
-		this.PUBLICKEY = acdata.PUBLICKEY;
-		this.PRIVATEKEY = acdata.PRIVATEKEY;
+		this.METHOD = Common.nonull( acdata.METHOD );
+		this.USER = Common.nonull( acdata.USER );
+		this.PASSWORDSAVE = Common.nonull( acdata.PASSWORDSAVE );
+		this.PUBLICKEY = Common.nonull( acdata.PUBLICKEY );
+		this.PRIVATEKEY = Common.nonull( acdata.PRIVATEKEY );
 	}
 	
 }

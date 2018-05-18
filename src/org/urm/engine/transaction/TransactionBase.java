@@ -1194,27 +1194,36 @@ public class TransactionBase extends EngineObject {
 			exit( _Error.TransactionMissingMetadataChanges0 , "Missing product changes" , null );
 	}
 
-	protected void checkTransactionCustomProperty( ObjectProperties ops ) throws Exception {
+	protected void checkTransactionCustomProperty( ObjectProperties ops , boolean secured ) throws Exception {
 		ObjectMeta meta = ops.getMeta();
 		PropertyEntity entity = meta.getCustomEntity();
 		
+		AuthService auth = getAuth();
 		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.RC_CUSTOM || 
 			entity.PARAMENTITY_TYPE == DBEnumParamEntityType.ENGINE_CUSTOM ) {
 			checkTransactionSettings();
+			if( secured )
+				auth.verifyAccessServerAction( action , SecurityAction.ACTION_SECURED , false );
+		}
+		else
+		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.BASEITEM_CUSTOM ) {
+			checkTransactionBase();
+			if( secured )
+				auth.verifyAccessServerAction( action , SecurityAction.ACTION_SECURED , false );
 		}
 		else
 		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.SYSTEM_CUSTOM ) {
 			checkTransactionDirectory( directoryNew );
+			if( secured )
+				auth.verifyAccessServerAction( action , SecurityAction.ACTION_SECURED , false );
 		}
 		else
 		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.PRODUCT_CUSTOM ) {
 			Meta productMeta = getTransactionMetadata( ops.ownerId );
 			if( productMeta == null )
 				exit( _Error.TransactionMissingMetadataChanges0 , "Missing metadata changes" , null );
-		}
-		else
-		if( entity.PARAMENTITY_TYPE == DBEnumParamEntityType.BASEITEM_CUSTOM ) {
-			checkTransactionBase();
+			if( secured )
+				auth.verifyAccessProductAction( action , SecurityAction.ACTION_SECURED , productMeta , false );
 		}
 		else
 			exitUnexpectedState();

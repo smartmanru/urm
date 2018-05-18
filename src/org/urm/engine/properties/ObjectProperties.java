@@ -543,4 +543,46 @@ public class ObjectProperties {
 			}
 		}
 	}
+
+	public void verifyNoSecuredVars( String value ) throws Exception {
+		if( !checkNoSecuredVars( value ) )
+			Common.exitAccessDenied();
+	}
+	
+	public boolean checkNoSecuredVars( String value ) {
+		String[] varNames = getValueVars( value );
+		for( String name : varNames ) {
+			EntityVar var = findVar( name );
+			if( var != null && var.isSecured() )
+				return( false );
+		}
+		return( true );
+	}
+	
+	public static String[] getValueVars( String value ) {
+		int index1 = value.indexOf( "@" );
+		if( index1 < 0 )
+			return( new String[0] );
+		
+		int index2 = value.indexOf( "@" , index1 + 1);
+		if( index2 < 0 )
+			return( new String[0] );
+		
+		List<String> list = new LinkedList<String>();
+		list.add( value.substring( index1 + 1 , index2 ) );
+		while( true ) {
+			index1 = value.indexOf( "@" , index2 + 1 );
+			if( index1 < 0 )
+				break;
+			
+			index2 = value.indexOf( "@" , index1 + 1);
+			if( index2 < 0 )
+				break;
+			
+			list.add( value.substring( index1 + 1 , index2 ) );
+		}
+		
+		return( list.toArray( new String[0] ) );
+	}
+	
 }

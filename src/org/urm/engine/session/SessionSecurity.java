@@ -222,10 +222,10 @@ public class SessionSecurity {
 		if( env.isProd() && roles.secOpr )
 			return( true );
 
-		if( env.isUAT() && roles.secRel )
+		if( env.isUAT() && ( roles.secRel || roles.secTest ) )
 			return( true );
 		
-		if( env.isDEV() && roles.secDev )
+		if( env.isDEV() && ( roles.secDev || roles.secTest ) )
 			return( true );
 		
 		return( false );

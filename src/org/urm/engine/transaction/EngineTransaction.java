@@ -96,25 +96,25 @@ public class EngineTransaction extends TransactionBase {
 	}
 
 	public EntityVar createCustomProperty( ObjectProperties ops , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
-		super.checkTransactionCustomProperty( ops );
+		super.checkTransactionCustomProperty( ops , secured );
 		EngineEntities entities = getEntities();
 		EntityVar var = DBEngineEntities.createCustomProperty( this , entities , ops , name , desc , type , subtype , defValue , secured , false , enumList );
 		entityNew = var.entity;
 		return( var );
 	}
 	
-	public EntityVar modifyCustomProperty( ObjectProperties ops , int paramId , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
-		super.checkTransactionCustomProperty( ops );
+	public void modifyCustomProperty( ObjectProperties ops , EntityVar var , String name , String desc , DBEnumParamValueType type , DBEnumParamValueSubType subtype , String defValue , boolean secured , String[] enumList ) throws Exception {
+		boolean checkSecured = ( var.SECURED || secured )? true : false;
+		super.checkTransactionCustomProperty( ops , checkSecured );
 		EngineEntities entities = getEntities();
-		EntityVar var = DBEngineEntities.modifyCustomProperty( this , entities , ops , paramId , name , desc , type , subtype , defValue , secured , false , enumList );
+		DBEngineEntities.modifyCustomProperty( this , entities , ops , var , name , desc , type , subtype , defValue , secured , false , enumList );
 		entityNew = var.entity;
-		return( var );
 	}
 	
-	public void deleteCustomProperty( ObjectProperties ops , int paramId ) throws Exception {
-		super.checkTransactionCustomProperty( ops );
+	public void deleteCustomProperty( ObjectProperties ops , EntityVar var ) throws Exception {
+		super.checkTransactionCustomProperty( ops , var.SECURED );
 		EngineEntities entities = getEntities();
-		DBEngineEntities.deleteCustomProperty( this , entities , ops , paramId );
+		DBEngineEntities.deleteCustomProperty( this , entities , ops , var );
 		ObjectMeta meta = ops.getMeta();
 		entityNew = meta.getCustomEntity();
 	}

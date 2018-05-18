@@ -393,6 +393,11 @@ public class AuthService extends EngineObject {
 		return( list.toArray( new AuthGroup[0] ) );
 	}
 
+	public void verifyAccessServerAction( ActionBase action , SecurityAction sa , boolean readOnly ) throws Exception {
+		if( !checkAccessServerAction( action , sa , readOnly ) )
+			Common.exitAccessDenied();
+	}
+	
 	public boolean checkAccessServerAction( ActionBase action , SecurityAction sa , boolean readOnly ) {
 		if( action == null )
 			return( false );
@@ -401,9 +406,12 @@ public class AuthService extends EngineObject {
 		if( security.isAdminAny() )
 			return( true );
 		
-		if( sa == SecurityAction.ACTION_SECURED || sa == SecurityAction.ACTION_ADMIN )
+		if( sa == SecurityAction.ACTION_ADMIN )
 			return( false );
 
+		if( sa == SecurityAction.ACTION_SECURED )
+			return( security.checkEngineSecured() );
+				
 		if( security.isAdminCore() )
 			return( true );
 		
@@ -435,6 +443,11 @@ public class AuthService extends EngineObject {
 		return( checkAccessProductAction( action , sa , product , null , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
 	
+	public void verifyAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , boolean readOnly ) throws Exception {
+		if( !checkAccessProductAction( action , sa , meta , readOnly ) )
+			Common.exitAccessDenied();
+	}
+	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , boolean readOnly ) {
 		return( checkAccessProductAction( action , sa , meta.findProduct() , null , DBEnumBuildModeType.UNKNOWN , readOnly ) );
 	}
@@ -442,7 +455,7 @@ public class AuthService extends EngineObject {
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , DBEnumBuildModeType mode , boolean readOnly ) {
 		return( checkAccessProductAction( action , sa , meta.findProduct() , null , mode , readOnly ) );
 	}
-	
+
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , Meta meta , String envName , boolean readOnly ) {
 		ProductEnvs envs = meta.getEnviroments();
 		MetaEnv env = envs.findMetaEnv( envName );
@@ -451,6 +464,11 @@ public class AuthService extends EngineObject {
 
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , MetaEnv env , boolean readOnly ) {
 		return( checkAccessProductAction( action , sa , product , env , DBEnumBuildModeType.UNKNOWN , readOnly ) );
+	}
+
+	public void verifyAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , String envName , boolean readOnly ) throws Exception {
+		if( !checkAccessProductAction( action , sa , product , envName , readOnly ) )
+			Common.exitAccessDenied();
 	}
 	
 	public boolean checkAccessProductAction( ActionBase action , SecurityAction sa , AppProduct product , String envName , boolean readOnly ) {
@@ -487,19 +505,10 @@ public class AuthService extends EngineObject {
 		DBEnumEnvType envtype = ( env == null )? DBEnumEnvType.UNKNOWN : env.ENV_TYPE;
 		
 		if( sa == SecurityAction.ACTION_SECURED ) {
-			if( env == null ) {
-				if( roles.secRel )
-					return( true );
-			}
-			else {
-				if( ( roles.secDev && envtype == DBEnumEnvType.DEVELOPMENT ) || 
-					( roles.secRel && envtype == DBEnumEnvType.UAT ) || 
-					( roles.secTest && envtype == DBEnumEnvType.DEVELOPMENT ) || 
-					( roles.secTest && envtype == DBEnumEnvType.UAT ) || 
-					( roles.secOpr && envtype == DBEnumEnvType.PRODUCTION ) )
-					return( true );
-			}
-			return( false );
+			if( env == null )
+				return( security.checkProductSecured( product.ID ) );
+			
+			return( security.checkEnvSecured( env ) );
 		}
 		
 		if( sa == SecurityAction.ACTION_CONFIGURE ) {
