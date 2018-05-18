@@ -366,7 +366,18 @@ public class AuthService extends EngineObject {
 		return( group );
 	}
 
-	public void setUserPassword( AuthUser user , String password ) throws Exception {
+	public void setUserPassword( ActionBase action , AuthUser user , String oldPassword , String password ) throws Exception {
+		AuthUser currentUser = action.session.getUser();
+		if( currentUser.ID == user.ID ) {
+			SessionSecurity security = action.session.getSecurity();
+			if( oldPassword == null || !security.isCurrentPassword( oldPassword ) )
+				Common.exit0( _Error.IncorrentPassword0 , "Provided password is incorrect" );
+		}
+		else {
+			if( !currentUser.ADMIN )
+				Common.exitUnexpected();
+		}
+		
 		// create initial admin user
 		AuthContext ac = loadAuthUserData( user );
 		ac.setUserPassword( password );

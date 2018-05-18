@@ -41,6 +41,7 @@ public class CryptoContainer {
 	private byte[] saltBytesReuse;
 	private SecretKey secretKeyReuse;
 	private String secretPassword;
+	private int version;
 	
 	public CryptoContainer( SecurityService security , String name ) {
 		this.security = security;
@@ -73,6 +74,7 @@ public class CryptoContainer {
 
 		try {
 			valid = true;
+			version = EngineDB.APP_VERSION;
 			save( action , password );
 		}
 		catch( Throwable e ) {
@@ -103,7 +105,7 @@ public class CryptoContainer {
 			dos = new DataOutputStream( fos );
 			
 			// version
-			dos.writeInt( EngineDB.APP_VERSION );
+			dos.writeInt( version );
 			
 			if( data.isEmpty() ) {
 				// write zero flag
@@ -169,7 +171,7 @@ public class CryptoContainer {
 	        din = new DataInputStream( fis );
 	        
 	        // version
-	        int version = din.readInt();
+	        version = din.readInt();
 	        if( version == 0 )
 	        	Common.exitUnexpected();
 
@@ -211,6 +213,7 @@ public class CryptoContainer {
 				}
 				
 				importData( rawData );
+				upgrade();
 	        }
 	    } finally {
 	        if (fis != null) {
@@ -346,6 +349,13 @@ public class CryptoContainer {
 			Common.exitUnexpected();
 
 		return( data.get( key ) );
+	}
+
+	public void upgrade() throws Exception {
+		if( version == EngineDB.APP_VERSION )
+			return;
+		
+		version = EngineDB.APP_VERSION;
 	}
 	
 }

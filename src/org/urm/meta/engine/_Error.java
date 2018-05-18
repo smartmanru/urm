@@ -47,5 +47,6 @@ public class _Error {
 	public static final int MissingReleasecycleType0 = ErrorBase + 67;
 	public static final int InconsistentVersionAttributes0 = ErrorBase + 68;
 	public static final int UnknownDump1 = ErrorBase + 69;
+	public static final int IncorrentPassword0 = ErrorBase + 70;
 	
 }

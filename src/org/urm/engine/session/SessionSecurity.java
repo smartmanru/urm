@@ -40,6 +40,12 @@ public class SessionSecurity {
 		secSpecial = new HashMap<SpecialRights,Integer>(); 
 	}
 
+	public boolean isCurrentPassword( String password ) {
+		if( password.equals( ac.PASSWORDONLINE ) )
+			return( true );
+		return( false );
+	}
+	
 	public boolean isAdminAny() {
 		if( server )
 			return( true );

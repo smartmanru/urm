@@ -107,6 +107,11 @@ public class ShellWaiter implements Runnable {
 						return( false );
 					
 					synchronized( syncObject ) {
+						if( succeeded ) {
+							succeeded = false;
+							return( true );
+						}
+						
 						syncObject.wait( finishRun - now );
 						
 						if( stop )
