@@ -283,8 +283,10 @@ public class DBEngineMirrors {
 		
 		ActionBase action = transaction.getAction();
 		GenericVCS vcs = GenericVCS.getVCS( action , null , res.ID );
-		MirrorCase mc = vcs.getMirror( null );
-		mc.removeResourceFolder();
+		if( vcs != null ) {
+			MirrorCase mc = vcs.getMirror( null );
+			mc.removeResourceFolder();
+		}
 
 		for( String name : mirrors.getRepositoryNames() ) {
 			MirrorRepository repo = mirrors.findRepository( name );

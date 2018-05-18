@@ -98,10 +98,10 @@ public abstract class GenericVCS {
 		res.loadAuthData();
 		if( res.isSvn() ) {
 			if( res.ac == null )
-				Common.exitUnexpected();
+				return( null );
 			if( res.ac.isCommon() ) {
 				if( res.ac.USER.isEmpty() || res.ac.PASSWORDSAVE.isEmpty() )
-					Common.exitUnexpected();
+					return( null );
 			}
 			
 			return( new SubversionVCS( action , meta , res , shell , builder ) );
