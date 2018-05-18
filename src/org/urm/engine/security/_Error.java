@@ -9,5 +9,6 @@ public class _Error {
 	
 	public static final int ContainerAlreadyExists1 = ErrorBase + 1;
 	public static final int UnableCreateContainer1 = ErrorBase + 2;
+	public static final int UnableOpenContainer1 = ErrorBase + 3;
 	
 }

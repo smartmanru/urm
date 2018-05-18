@@ -202,8 +202,14 @@ public class CryptoContainer {
 		        
 		        // decrypt
 				Cipher cipher = getCipher( password , saltBytes , false , iv );
-				byte[] rawData = cipher.doFinal( ciphertext );
-
+				byte[] rawData = null;
+				try {
+					rawData = cipher.doFinal( ciphertext );
+				}
+				catch( Throwable e ) {
+					Common.exit1( _Error.UnableOpenContainer1 , "unable to decode container=" + name , name );
+				}
+				
 				importData( rawData );
 	        }
 	    } finally {
