@@ -1,16 +1,15 @@
 package org.urm.engine;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.engine.security.AuthContext;
 import org.urm.engine.security.AuthResource;
 import org.urm.engine.security.AuthUser;
 import org.urm.engine.security.CryptoContainer;
+import org.urm.engine.security.EngineSecurity;
 import org.urm.engine.security.SecureData;
 import org.urm.meta.loader.EngineObject;
+import org.urm.meta.system.AppProduct;
 
 public class SecurityService extends EngineObject {
 
@@ -18,14 +17,13 @@ public class SecurityService extends EngineObject {
 	
 	Engine engine;
 
-	private Map<String,CryptoContainer> data;
+	private EngineSecurity security;
 	private CryptoContainer master;
 	
 	public SecurityService( Engine engine ) {
 		super( null );
 		this.engine = engine;
-		
-		data = new HashMap<String,CryptoContainer>(); 
+		this.security = new EngineSecurity( this );
 	}
 	
 	@Override
@@ -37,36 +35,19 @@ public class SecurityService extends EngineObject {
 	}
 	
 	public void start( ActionBase action , String password ) throws Exception {
-		data.clear();
-		master = open( action , MASTER_CONTAINER , password );
+		security.closeAll();
+		master = security.openContainer( action , MASTER_CONTAINER , password );
 	}
 
 	public synchronized void stop( ActionBase action ) throws Exception {
-		data.clear();
+		security.closeAll();
 	}
 	
-	public synchronized CryptoContainer create( ActionBase action , String name , String password ) throws Exception {
-		if( data.get( name ) != null )
-			Common.exitUnexpected();
-		
-		CryptoContainer crypto = new CryptoContainer( this , name );
-		crypto.create( action , password );
-		data.put( name , crypto );
-		
-		return( crypto );
+	public String getProductContainerName( ActionBase action , AppProduct product ) throws Exception {
+		String key = SecureData.getProductContainerName( product );
+		return( master.getKey( action , key ) );
 	}
 	
-	public synchronized CryptoContainer open( ActionBase action , String name , String password ) throws Exception {
-		if( data.get( name ) != null )
-			Common.exitUnexpected();
-
-		CryptoContainer crypto = new CryptoContainer( this , name );
-		crypto.open( action , password );
-		data.put( name , crypto );
-		
-		return( crypto );
-	}
-
 	public boolean checkUser( ActionBase action , AuthUser user , AuthContext ac , String password ) throws Exception {
 		String passwordMD5 = Common.getMD5( password );
 		if( password == null || !passwordMD5.equals( ac.PASSWORDSAVE ) ) {

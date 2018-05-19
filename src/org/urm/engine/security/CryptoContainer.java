@@ -23,7 +23,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.db.EngineDB;
-import org.urm.engine.SecurityService;
 import org.urm.engine.storage.LocalFolder;
 import org.urm.engine.storage.UrmStorage;
 
@@ -31,7 +30,7 @@ public class CryptoContainer {
 
 	public static String CRYPTO_TYPE = "JKS";
 	
-	public SecurityService security;
+	public EngineSecurity security;
 	
 	public String name;
 	public boolean valid;
@@ -43,7 +42,7 @@ public class CryptoContainer {
 	private String secretPassword;
 	private int version;
 	
-	public CryptoContainer( SecurityService security , String name ) {
+	public CryptoContainer( EngineSecurity security , String name ) {
 		this.security = security;
 		this.name = name;
 		this.valid = false;

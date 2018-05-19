@@ -8,6 +8,7 @@ import org.urm.engine.AuthService;
 import org.urm.engine.DataService;
 import org.urm.engine.EventService;
 import org.urm.engine.ScheduleService;
+import org.urm.engine.SecurityService;
 import org.urm.engine.StateService;
 import org.urm.engine.data.EngineBase;
 import org.urm.engine.data.EngineBuilders;
@@ -184,6 +185,10 @@ public class ActionInit extends ActionBase {
 	
 	public EngineMonitoring getEngineMonitoring() {
 		return( data.getMonitoring() );
+	}
+	
+	public SecurityService getEngineSecurity() {
+		return( engine.getSecurity() );
 	}
 	
 	public AuthService getServerAuth() {

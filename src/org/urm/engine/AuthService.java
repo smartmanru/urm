@@ -139,34 +139,34 @@ public class AuthService extends EngineObject {
 	
 	public AuthContext loadAuthUserData( AuthUser user ) throws Exception {
 		AuthContext ac = new AuthContext( this );
-		SecurityService ss = engine.security; 
+		SecurityService ss = engine.getSecurity(); 
 		ss.loadAuthUserData( engine.serverAction , user , ac );
 		return( ac );
 	}
 
 	public AuthContext loadAuthResourceData( AuthResource res ) throws Exception {
 		AuthContext ac = new AuthContext( this );
-		SecurityService ss = engine.security; 
+		SecurityService ss = engine.getSecurity(); 
 		ss.loadAuthResourceData( engine.serverAction , res , ac );
 		return( ac );
 	}
 
 	public void saveAuthUserData( AuthUser user , AuthContext ac , String password ) throws Exception {
 		engine.trace( "save auth user: " + user.NAME );
-		SecurityService ss = engine.security;
+		SecurityService ss = engine.getSecurity(); 
 		ss.saveAuthUserData( engine.serverAction , user , ac , password );
 	}
 
 	public void saveAuthResourceData( AuthResource res , AuthContext ac ) throws Exception {
 		engine.trace( "save auth resource: " + res.NAME );
-		SecurityService ss = engine.security;
+		SecurityService ss = engine.getSecurity(); 
 		ss.saveAuthResourceData( engine.serverAction , res , ac );
 	}
 
 	public EngineSession connect( String username , String password , RunContext clientrc ) throws Exception {
 		AuthContext ac = null;
 		
-		SecurityService ss = engine.security;
+		SecurityService ss = engine.getSecurity(); 
 		if( username.equals( MASTER_ADMIN ) ) {
 			if( !engine.isRunning() )
 				ss.start( engine.serverAction , password );

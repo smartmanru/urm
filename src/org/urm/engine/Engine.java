@@ -49,7 +49,7 @@ public class Engine {
 	public SessionService sessions;
 	public CleaningService houseKeeping;
 	public CacheService cache;
-	public SecurityService security;
+	private SecurityService security;
 	
 	public ShellService shellPool;
 	private EventService events;
@@ -569,6 +569,10 @@ public class Engine {
 		return( tasks );
 	}
 	
+	public SecurityService getSecurity() {
+		return( security );
+	}
+
 	public AuthService getAuth() {
 		return( auth );
 	}
