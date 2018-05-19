@@ -90,7 +90,7 @@ public class SecurityService extends EngineObject {
 	public void loadAuthResourceData( ActionBase action , AuthResource res , AuthContext ac ) throws Exception {
 		String key = SecureData.getResourceMethodKey( res );
 		String method = master.getKey( action , key );
-		if( method == null ) {
+		if( method.isEmpty() ) {
 			ac.setAnonymous();
 			return;
 		}

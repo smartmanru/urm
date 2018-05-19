@@ -347,7 +347,10 @@ public class CryptoContainer {
 		if( !valid )
 			Common.exitUnexpected();
 
-		return( data.get( key ) );
+		String value = data.get( key );
+		if( value == null )
+			return( "" );
+		return( value );
 	}
 
 	public void upgrade() throws Exception {
