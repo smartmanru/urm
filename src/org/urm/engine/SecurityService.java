@@ -204,6 +204,7 @@ public class SecurityService extends EngineObject {
 		openContainer( action , res );
 		String key = SecureData.getProductContainerName( product );
 		master.setKey( action , key , containerName );
+		master.save( action , null );
 	}
 
 	public void clearProductContainer( ActionBase action , AppProduct product ) throws Exception {
