@@ -14,6 +14,7 @@ import org.urm.db.core.DBEnums.DBEnumObjectType;
 import org.urm.db.core.DBEnums.DBEnumObjectVersionType;
 import org.urm.db.core.DBEnums.DBEnumParamEntityType;
 import org.urm.db.core.DBEnums.DBEnumResourceType;
+import org.urm.engine.SecurityService;
 import org.urm.engine.data.EngineMirrors;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.data.EngineEntities;
@@ -145,7 +146,7 @@ public class DBEngineResources {
 		
 		if( resources.findResource( rcdata.NAME ) != null )
 			transaction.exit1( _Error.DuplicateResource1 , "resource already exists name=" + rcdata.NAME , rcdata.NAME );
-			
+
 		AuthResource rc = new AuthResource( resources );
 		rc.createResource( rcdata.NAME , rcdata.DESC , rcdata.RESOURCE_TYPE , rcdata.BASEURL );
 		
@@ -155,6 +156,12 @@ public class DBEngineResources {
 		}
 
 		modifyResource( c , rc , true );
+		
+		if( rcdata.isCrypto() ) {
+			SecurityService ss = transaction.engine.getSecurity();
+			ActionBase action = transaction.getAction();
+			ss.createContainer( action , rc );
+		}
 		
 		resources.addResource( rc );
 		return( rc );
@@ -178,8 +185,20 @@ public class DBEngineResources {
 	}
 	
 	public static void modifyResourceAuth( EngineTransaction transaction , EngineResources resources , AuthResource rc , AuthResource rcdata ) throws Exception {
+		if( rc.isCrypto() ) {
+			ActionBase action = transaction.getAction(); 
+			SecurityService ss = transaction.engine.getSecurity();
+			ss.openContainer( action , rc );
+		}
+		
 		rc.setAuthData( rcdata.ac );
 		rc.saveAuthData();
+		
+		if( rc.isCrypto() ) {
+			ActionBase action = transaction.getAction(); 
+			SecurityService ss = transaction.engine.getSecurity();
+			ss.saveContainer( action , rc );
+		}
 	}
 	
 	public static void verifyResource( EngineTransaction transaction , EngineResources resources , AuthResource rc ) throws Exception {

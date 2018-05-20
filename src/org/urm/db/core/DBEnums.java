@@ -48,10 +48,11 @@ public abstract class DBEnums {
 	public enum DBEnumResourceType implements DBEnumInterface {
 		UNKNOWN(0,null) ,
 		CREDENTIALS(1,null) ,
-		SSH(2,null) ,
-		SVN(3,null) ,
-		GIT(4,null) ,
-		NEXUS(5,null);
+		CRYPTO(2,null) ,
+		SSH(3,null) ,
+		SVN(4,null) ,
+		GIT(5,null) ,
+		NEXUS(6,null);
 		
 		public boolean isAuthResource() {
 			if( this == GIT || this == NEXUS || this == SVN )

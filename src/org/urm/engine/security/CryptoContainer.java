@@ -55,6 +55,10 @@ public class CryptoContainer {
 		return( name + ".crypto" );
 	}
 	
+	private static String getFileName( String name ) {
+		return( name + ".crypto" );
+	}
+	
 	public void create( ActionBase action , String password ) throws Exception {
 		data.clear();
 		saltBytesReuse = null;
@@ -87,12 +91,15 @@ public class CryptoContainer {
 		if( !valid )
 			Common.exitUnexpected();
 		
-		if( sync )
-			return;
-
 		if( password == null )
 			password = secretPassword;
 		
+		if( sync ) {
+			// check for change password
+			if( password.equals( secretPassword ) )
+				return;
+		}
+
 		UrmStorage urm = action.artefactory.getUrmStorage();
 		LocalFolder path = urm.getServerCryptoFolder( action );
 		String fileName = getFileName();
@@ -152,6 +159,13 @@ public class CryptoContainer {
 		path.copyFileRename( action , fileName , fileName + ".save" );
 	}
 
+	public static boolean checkExists( ActionBase action , String name ) throws Exception {
+		UrmStorage urm = action.artefactory.getUrmStorage();
+		LocalFolder path = urm.getServerCryptoFolder( action );
+		String fileName = getFileName( name );
+		return( path.checkFileExists( action , fileName ) );
+	}
+	
 	public void open( ActionBase action , String password ) throws Exception {
 		data.clear();
 		saltBytesReuse = null;
@@ -343,6 +357,22 @@ public class CryptoContainer {
 		data.put( key , value );
 	}
 
+	public void deleteKey( ActionBase action , String key ) throws Exception {
+		data.remove( key );
+	}
+	
+	public void clearKeySet( ActionBase action , String key ) throws Exception {
+		String keyFolder = key;
+		if( !keyFolder.endsWith( "/" ) )
+			keyFolder += "/";
+			
+		for( String dataKey : data.keySet().toArray( new String[0] ) ) {
+			if( dataKey.startsWith( keyFolder ) )
+				data.remove( dataKey );
+		}
+		data.remove( key );
+	}
+	
 	public String getKey( ActionBase action , String key ) throws Exception {
 		if( !valid )
 			Common.exitUnexpected();

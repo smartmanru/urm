@@ -8,7 +8,6 @@ public class SecureData {
 	public static String GROUP_USERS = "users"; 
 	public static String GROUP_RESOURCES = "resources"; 
 	public static String GROUP_PRODUCTS = "products";
-	public static String GROUP_CONTAINERS = "containers";
 	
 	public static String ITEM_MASTER = "master";
 	
@@ -49,7 +48,11 @@ public class SecureData {
 	}
 
 	public static String getProductContainerName( AppProduct product ) {
-		return( Common.getPath( GROUP_RESOURCES , product.NAME , ATTR_CONTAINERNAME ) );
+		return( Common.getPath( GROUP_PRODUCTS , product.NAME , ATTR_CONTAINERNAME ) );
 	}
-	
+
+	public static String getProductFolder( AppProduct product ) {
+		return( Common.getPath( GROUP_PRODUCTS , product.NAME ) );
+	}
+
 }

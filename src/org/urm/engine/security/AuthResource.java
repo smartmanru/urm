@@ -2,6 +2,7 @@ package org.urm.engine.security;
 
 import org.urm.action.ActionBase;
 import org.urm.engine.AuthService;
+import org.urm.engine.SecurityService;
 import org.urm.engine.ShellService;
 import org.urm.engine.data.EngineResources;
 import org.urm.engine.shell.Account;
@@ -102,6 +103,12 @@ public class AuthResource extends EngineObject {
 		return( false );
 	}
 
+	public boolean isCrypto() {
+		if( RESOURCE_TYPE == DBEnumResourceType.CRYPTO )
+			return( true );
+		return( false );
+	}
+
 	public void createResource( String name , String desc , DBEnumResourceType type , String baseurl ) throws Exception {
 		modifyResource( name , desc , type , baseurl );
 	}
@@ -193,4 +200,23 @@ public class AuthResource extends EngineObject {
 		return( false );
 	}
 
+	public boolean cryptoVerify( ActionBase action ) throws Exception {
+		try {
+			loadAuthData();
+			SecurityService ss = resources.engine.getSecurity();
+			if( ss.verifyContainer( action , this ) )
+				return( true );
+		}
+		catch( Throwable e ) {
+			action.log( "verify crypto resource" , e );
+		}
+		return( false );
+	}
+
+	public void checkPassword( ActionBase action , String password ) throws Exception {
+		loadAuthData();
+		if( !ac.PASSWORDSAVE.equals( password ) )
+			Common.exitAccessDenied();
+	}
+	
 }

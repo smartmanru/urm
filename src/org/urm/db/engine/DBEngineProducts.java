@@ -7,6 +7,7 @@ import org.urm.db.product.DBProductData;
 import org.urm.db.release.DBReleaseData;
 import org.urm.engine.Engine;
 import org.urm.engine.AuthService;
+import org.urm.engine.SecurityService;
 import org.urm.engine.action.ActionInit;
 import org.urm.engine.data.EngineDirectory;
 import org.urm.engine.data.EngineMirrors;
@@ -86,6 +87,11 @@ public class DBEngineProducts {
 		DBEngineAuth.deleteProductAccess( c , auth , product );
 		DBEngineMirrors.deleteProductResources( transaction , mirrors , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
 		DBEngineDirectory.deleteProduct( transaction , product.directory , product , fsDeleteFlag , vcsDeleteFlag , logsDeleteFlag );
+		
+		if( fsDeleteFlag ) {
+			SecurityService ss =  transaction.engine.getSecurity();
+			ss.clearProductContainer( action , product );
+		}
 	}
 	
 }

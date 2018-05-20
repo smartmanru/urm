@@ -118,6 +118,9 @@ public class EngineResources extends EngineObject {
 			else
 			if( ( rcCategory == EnumResourceCategory.SOURCE || rcCategory == EnumResourceCategory.VCS ) && res.isVCS() )
 				list.add( res.NAME );
+			else
+			if( rcCategory == EnumResourceCategory.CRYPTO && res.isCrypto() )
+				list.add( res.NAME );
 		}
 		return( Common.getSortedList( list ) );
 	}

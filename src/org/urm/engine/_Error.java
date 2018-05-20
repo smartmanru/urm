@@ -27,5 +27,4 @@ public class _Error {
 	public static final int TransactionCannotChangeEnv1 = ErrorBase + 41;
 	public static final int TransactionMissingProductChanges1 = ErrorBase + 42;
 	
-	
 }

@@ -21,6 +21,10 @@ public class EngineSecurity {
 		data.clear();
 	}
 	
+	public synchronized CryptoContainer findContainer( String name ) {
+		return( data.get( name ) );
+	}
+	
 	public synchronized CryptoContainer openContainer( ActionBase action , String name , String password ) throws Exception {
 		if( data.get( name ) != null )
 			Common.exitUnexpected();
@@ -41,6 +45,14 @@ public class EngineSecurity {
 		data.put( name , crypto );
 		
 		return( crypto );
+	}
+	
+	public synchronized void saveContainer( ActionBase action , String name , String password ) throws Exception {
+		CryptoContainer crypto = data.get( name );
+		if( crypto == null )
+			Common.exitUnexpected();
+		
+		crypto.save( action , password );
 	}
 	
 }

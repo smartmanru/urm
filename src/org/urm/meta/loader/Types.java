@@ -17,7 +17,8 @@ public class Types {
 		SSH ,
 		CREDENTIALS ,
 		NEXUS ,
-		SOURCE;
+		SOURCE ,
+		CRYPTO
 	};
 	
 	public enum EnumAuthType {
