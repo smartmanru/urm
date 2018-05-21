@@ -38,8 +38,6 @@ public class MirrorCaseSubversion extends MirrorCase {
 	
 	@Override
 	public void createEmptyMirrorOnServer() throws Exception {
-		useRepositoryMirror();
-		
 		LocalFolder comp = getComponentFolder();
 		if( !comp.checkExists( action ) ) {
 			comp.ensureExists( action );
