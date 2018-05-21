@@ -411,11 +411,27 @@ public class MetaEnv extends EngineObject {
 		return( null );
 	}
 	
+	public MetaEnvServerNode findServerNode( int id ) {
+		for( MetaEnvSegment sg : sgMap.values() ) {
+			MetaEnvServerNode node = sg.findServerNode( id );
+			if( node != null )
+				return( node );
+		}
+		return( null );
+	}
+	
 	public MetaEnvServer getServer( int id ) throws Exception {
 		MetaEnvServer server = findServer( id );
 		if( server == null )
 			Common.exitUnexpected();
 		return( server );
+	}
+	
+	public MetaEnvServerNode getServerNode( int id ) throws Exception {
+		MetaEnvServerNode node = findServerNode( id );
+		if( node == null )
+			Common.exitUnexpected();
+		return( node );
 	}
 	
 }

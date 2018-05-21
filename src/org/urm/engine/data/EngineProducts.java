@@ -89,6 +89,17 @@ public class EngineProducts {
 		EngineProduct ep = findEngineProduct( productName );
 		return( ep.findRevision( revision ) );
 	}
+
+	
+	public Meta getProductRevision( ActionBase action , int metaId ) throws Exception {
+		for( EngineProduct ep : products.values() ) {
+			Meta meta = ep.findSessionRevision( action , metaId );
+			if( meta != null )
+				return( meta );
+		}
+		Common.exitUnexpected();
+		return( null );
+	}
 	
 	public synchronized void unloadProducts() {
 		for( EngineProduct ep : products.values() )

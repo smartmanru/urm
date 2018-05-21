@@ -4,14 +4,21 @@ import org.urm.action.ActionBase;
 import org.urm.common.Common;
 import org.urm.common.action.CommandMethodMeta.SecurityAction;
 import org.urm.engine.data.EngineResources;
+import org.urm.engine.properties.EntityVar;
 import org.urm.engine.security.AuthContext;
 import org.urm.engine.security.AuthResource;
 import org.urm.engine.security.AuthUser;
 import org.urm.engine.security.CryptoContainer;
 import org.urm.engine.security.EngineSecurity;
 import org.urm.engine.security.SecureData;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.loader.EngineObject;
+import org.urm.meta.product.Meta;
 import org.urm.meta.system.AppProduct;
+import org.urm.meta.system.AppSystem;
 
 public class SecurityService extends EngineObject {
 
@@ -228,6 +235,143 @@ public class SecurityService extends EngineObject {
 		key = SecureData.getProductFolder( product );
 		master.clearKeySet( action , key );
 		master.save( action , null );
+	}
+
+	public void setEngineVar( ActionBase action , EntityVar var , String value ) throws Exception {
+		AuthService auth = engine.getAuth();
+		auth.verifyAccessServerAction( action , SecurityAction.ACTION_SECURED , false );
+		
+		String key = SecureData.getEngineVar( var );
+		master.setKey( action , key , value );
+		master.save( action , null );
+	}
+	
+	public void setSystemVar( ActionBase action , AppSystem system , EntityVar var , String value ) throws Exception {
+		AuthService auth = engine.getAuth();
+		auth.verifyAccessServerAction( action , SecurityAction.ACTION_SECURED , false );
+		
+		String key = SecureData.getSystemVar( system , var );
+		master.setKey( action , key , value );
+		master.save( action , null );
+	}
+	
+	public void setMetaVar( ActionBase action , Meta meta , EntityVar var , String value ) throws Exception {
+		AppProduct product = meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getMetaVar( meta , var );
+		container.setKey( action , key , value );
+		container.save( action , null );
+	}
+	
+	public void setEnvVar( ActionBase action , MetaEnv env , EntityVar var , String value ) throws Exception {
+		AppProduct product = env.meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getEnvVar( env , var );
+		container.setKey( action , key , value );
+		container.save( action , null );
+	}
+	
+	public void setEnvSegmentVar( ActionBase action , MetaEnvSegment sg , EntityVar var , String value ) throws Exception {
+		AppProduct product = sg.meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getEnvSegmentVar( sg , var );
+		container.setKey( action , key , value );
+		container.save( action , null );
+	}
+	
+	public void setEnvServerVar( ActionBase action , MetaEnvServer server , EntityVar var , String value ) throws Exception {
+		AppProduct product = server.meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getEnvServerVar( server , var );
+		container.setKey( action , key , value );
+		container.save( action , null );
+	}
+	
+	public void setEnvServerNodeVar( ActionBase action , MetaEnvServerNode node , EntityVar var , String value ) throws Exception {
+		AppProduct product = node.meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getEnvServerNodeVar( node , var );
+		container.setKey( action , key , value );
+		container.save( action , null );
+	}
+	
+	public String getEngineVar( ActionBase action , EntityVar var ) throws Exception {
+		AuthService auth = engine.getAuth();
+		auth.verifyAccessServerAction( action , SecurityAction.ACTION_SECURED , false );
+		
+		String key = SecureData.getEngineVar( var );
+		return( master.getKey( action , key ) );
+	}
+	
+	public String getSystemVar( ActionBase action , AppSystem system , EntityVar var ) throws Exception {
+		AuthService auth = engine.getAuth();
+		auth.verifyAccessServerAction( action , SecurityAction.ACTION_SECURED , false );
+		
+		String key = SecureData.getSystemVar( system , var );
+		return( master.getKey( action , key ) );
+	}
+	
+	public String getMetaVar( ActionBase action , Meta meta , EntityVar var ) throws Exception {
+		AppProduct product = meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getMetaVar( meta , var );
+		return( container.getKey( action , key ) );
+	}
+	
+	public String getEnvVar( ActionBase action , MetaEnv env , EntityVar var ) throws Exception {
+		AppProduct product = env.meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getEnvVar( env , var );
+		return( container.getKey( action , key ) );
+	}
+	
+	public String getEnvSegmentVar( ActionBase action , MetaEnvSegment sg , EntityVar var ) throws Exception {
+		AppProduct product = sg.meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getEnvSegmentVar( sg , var );
+		return( container.getKey( action , key ) );
+	}
+	
+	public String getEnvServerVar( ActionBase action , MetaEnvServer server , EntityVar var ) throws Exception {
+		AppProduct product = server.meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getEnvServerVar( server , var );
+		return( container.getKey( action , key ) );
+	}
+	
+	public String getEnvServerNodeVar( ActionBase action , MetaEnvServerNode node , EntityVar var ) throws Exception {
+		AppProduct product = node.meta.getProduct();
+		CryptoContainer container = getProductContainer( action , product );
+		
+		String key = SecureData.getEnvServerNodeVar( node , var );
+		return( container.getKey( action , key ) );
+	}
+
+	private CryptoContainer getProductContainer( ActionBase action , AppProduct product ) throws Exception {
+		AuthService auth = engine.getAuth();
+		auth.verifyAccessProductAction( action , SecurityAction.ACTION_SECURED , product , "" , false );
+		
+		String key = SecureData.getProductContainerName( product );
+		String containerName = master.getKey( action , key );
+		
+		CryptoContainer container = security.findContainer( containerName );
+		if( container != null )
+			return( container );
+		
+		DataService data = engine.getData();
+		EngineResources resources = data.getResources();
+		AuthResource res = resources.getResource( containerName );
+		
+		return( security.openContainer( action , containerName , res.ac.PASSWORDSAVE ) );
 	}
 	
 }

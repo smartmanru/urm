@@ -1095,5 +1095,13 @@ public class MetaEnvServer extends EngineObject {
 		}
 		return( null );
 	}
+
+	public MetaEnvServerNode findNodeById( int id ) {
+		for( MetaEnvServerNode node : nodes ) {
+			if( node.ID == id )
+				return( node );
+		}
+		return( null );
+	}
 	
 }

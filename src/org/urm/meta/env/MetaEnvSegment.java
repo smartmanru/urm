@@ -171,6 +171,15 @@ public class MetaEnvSegment extends EngineObject {
 		return( serverMapById.get( id ) );
 	}
 	
+	public MetaEnvServerNode findServerNode( int id ) {
+		for( MetaEnvServer server : serverMap.values() ) {
+			MetaEnvServerNode node = server.findNodeById( id );
+			if( node != null )
+				return( node );
+		}
+		return( null );
+	}
+	
 	public MetaEnvServer getServer( String name ) throws Exception {
 		MetaEnvServer server = serverMap.get( name );
 		if( server == null )

@@ -1,13 +1,27 @@
 package org.urm.engine.security;
 
 import org.urm.common.Common;
+import org.urm.engine.properties.EntityVar;
+import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvSegment;
+import org.urm.meta.env.MetaEnvServer;
+import org.urm.meta.env.MetaEnvServerNode;
+import org.urm.meta.product.Meta;
 import org.urm.meta.system.AppProduct;
+import org.urm.meta.system.AppSystem;
 
 public class SecureData {
 
 	public static String GROUP_USERS = "users"; 
 	public static String GROUP_RESOURCES = "resources"; 
 	public static String GROUP_PRODUCTS = "products";
+	public static String GROUP_REVISIONS = "revisions";
+	public static String GROUP_VARS = "vars";
+	public static String GROUP_SYSTEMS = "systems";
+	public static String GROUP_ENVS = "envs";
+	public static String GROUP_SEGMENTS = "segments";
+	public static String GROUP_SERVERS = "servers";
+	public static String GROUP_NODES = "nodes";
 	
 	public static String ITEM_MASTER = "master";
 	
@@ -55,4 +69,62 @@ public class SecureData {
 		return( Common.getPath( GROUP_PRODUCTS , product.NAME ) );
 	}
 
+	public static String getEngineVar( EntityVar var ) {
+		return( Common.getPath( GROUP_VARS , var.NAME ) );
+	}
+	
+	public static String getSystemVar( AppSystem system , EntityVar var ) {
+		return( Common.getPath( GROUP_SYSTEMS , GROUP_VARS , var.NAME ) );
+	}
+
+	public static String getMetaFolder( Meta meta ) {
+		String productFolder = getProductFolder( meta.findProduct() );
+		return( Common.getPath( productFolder , GROUP_REVISIONS , meta.getRevision() ) );
+	}
+	
+	public static String getEnvFolder( MetaEnv env ) {
+		String metaFolder = getMetaFolder( env.meta );
+		return( Common.getPath( metaFolder , GROUP_ENVS , env.NAME ) );
+	}
+
+	public static String getEnvSegmentFolder( MetaEnvSegment sg ) {
+		String envFolder = getEnvFolder( sg.env );
+		return( Common.getPath( envFolder , GROUP_SEGMENTS , sg.NAME ) );
+	}
+
+	public static String getEnvServerFolder( MetaEnvServer server ) {
+		String sgFolder = getEnvSegmentFolder( server.sg );
+		return( Common.getPath( sgFolder , GROUP_SERVERS , server.NAME ) );
+	}
+	
+	public static String getEnvServerNodeFolder( MetaEnvServerNode node ) {
+		String sgFolder = getEnvServerFolder( node.server );
+		return( Common.getPath( sgFolder , GROUP_NODES , "node" + node.POS ) );
+	}
+	
+	public static String getMetaVar( Meta meta , EntityVar var ) {
+		String metaFolder = getMetaFolder( meta );
+		return( Common.getPath( metaFolder , GROUP_VARS , var.NAME ) );
+	}
+
+	public static String getEnvVar( MetaEnv env , EntityVar var ) {
+		String envFolder = getEnvFolder( env );
+		return( Common.getPath( envFolder , GROUP_VARS , var.NAME ) );
+	}
+	
+	public static String getEnvSegmentVar( MetaEnvSegment sg , EntityVar var ) {
+		String sgFolder = getEnvSegmentFolder( sg );
+		return( Common.getPath( sgFolder , GROUP_VARS , var.NAME ) );
+	}
+	
+	public static String getEnvServerVar( MetaEnvServer server , EntityVar var ) {
+		String serverFolder = getEnvServerFolder( server );
+		return( Common.getPath( serverFolder , GROUP_VARS , var.NAME ) );
+	}
+	
+	public static String getEnvServerNodeVar( MetaEnvServerNode node , EntityVar var ) {
+		String nodeFolder = getEnvServerNodeFolder( node );
+		return( Common.getPath( nodeFolder , GROUP_VARS , var.NAME ) );
+	}
+	
 }
