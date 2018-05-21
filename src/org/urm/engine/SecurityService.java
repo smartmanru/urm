@@ -370,6 +370,7 @@ public class SecurityService extends EngineObject {
 		DataService data = engine.getData();
 		EngineResources resources = data.getResources();
 		AuthResource res = resources.getResource( containerName );
+		res.loadAuthData();
 		
 		return( security.openContainer( action , containerName , res.ac.PASSWORDSAVE ) );
 	}

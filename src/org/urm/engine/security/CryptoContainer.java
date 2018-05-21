@@ -116,7 +116,6 @@ public class CryptoContainer {
 			if( data.isEmpty() ) {
 				// write zero flag
 				dos.writeInt( 0 );
-				secretPassword = password;
 			}
 			else {
 				// create key
@@ -156,6 +155,7 @@ public class CryptoContainer {
 	    }
 		
 		sync = true;
+		secretPassword = password;
 		path.copyFileRename( action , fileName , fileName + ".save" );
 	}
 
