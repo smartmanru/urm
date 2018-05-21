@@ -213,8 +213,14 @@ public class DBEngineResources {
 		EngineEntities entities = c.getEntities();
 			
 		dropResourceMirrors( transaction , rc );
-		
 		DBEngineEntities.deleteAppObject( c , entities.entityAppResource , rc.ID , c.getNextCoreVersion() );
+		
+		if( rc.isCrypto() ) {
+			ActionBase action = transaction.getAction(); 
+			SecurityService ss = transaction.engine.getSecurity();
+			ss.deleteContainer( action , rc );
+		}
+			
 		resources.removeResource( rc );
 		rc.deleteObject();
 	}

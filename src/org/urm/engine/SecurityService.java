@@ -61,6 +61,10 @@ public class SecurityService extends EngineObject {
 		else
 			security.createContainer( action , rc.NAME , rc.ac.PASSWORDSAVE );
 	}
+
+	public void deleteContainer( ActionBase action , AuthResource rc ) throws Exception {
+		security.deleteContainer( action , rc.NAME );
+	}
 	
 	public void openContainer( ActionBase action , AuthResource rc ) throws Exception {
 		if( security.findContainer( rc.NAME ) != null )

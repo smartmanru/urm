@@ -156,7 +156,7 @@ public class MetaEnvServer extends EngineObject {
 		r.OS_TYPE = OS_TYPE;
 		r.SYSNAME = SYSNAME;
 		r.BASELINE = MatchItem.copy( BASELINE );
-		r.OFFLINE = false;
+		r.OFFLINE = OFFLINE;
 		r.DBMS_TYPE = DBMS_TYPE;
 		r.DATABASE_ADMSCHEMA = MatchItem.copy( DATABASE_ADMSCHEMA );
 		r.BASEITEM = MatchItem.copy( BASEITEM );
