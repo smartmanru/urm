@@ -165,7 +165,7 @@ public class SecurityService extends EngineObject {
 		String method = ac.METHOD;
 		master.setKey( action , key , ac.METHOD );
 		
-		if( method == null )
+		if( method == null || method.isEmpty() )
 			method = AuthContext.METHOD_ANONYMOUS;
 		
 		if( method.equals( AuthContext.METHOD_ANONYMOUS ) ) {
