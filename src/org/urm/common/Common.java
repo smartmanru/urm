@@ -170,7 +170,7 @@ public class Common {
 	}
 	
 	public static void createFileFromStringList( RunContext execrc , String path , List<String> content , Charset charset ) throws Exception {
-		FileWriter writer = new FileWriter( path );
+		FileWriter writer = new FileWriter( execrc.getLocalPath( path ) );
 		for( String s : content )
 			writer.write( s + "\n" );
 		writer.close();

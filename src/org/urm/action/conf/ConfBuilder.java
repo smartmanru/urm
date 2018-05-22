@@ -7,10 +7,14 @@ import java.util.List;
 
 import org.urm.action.ActionBase;
 import org.urm.common.Common;
+import org.urm.engine.SecurityService;
 import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
+import org.urm.engine.properties.EntityVar;
+import org.urm.engine.properties.ObjectMeta;
 import org.urm.engine.properties.ObjectProperties;
+import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.properties.PropertyValue;
 import org.urm.engine.shell.Shell;
 import org.urm.engine.storage.Artefactory;
@@ -22,6 +26,7 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
 import org.urm.meta.product.MetaDistrConfItem;
+import org.urm.meta.product.MetaProductSettings;
 
 public class ConfBuilder {
 
@@ -102,11 +107,14 @@ public class ConfBuilder {
 		hidden.copyHiddenConf( action , server , confItem , live );
 		
 		// process parameters
+		ObjectProperties ops = node.getProperties();
+		ops = getSecuredOps( node , ops );
+		
 		String[] files = ( action.context.account.isLinux() )? getLinuxFiles( live , confItem ) : getWindowsFiles( live , confItem ); 
 		for( String file : files ) {
 			if( file.startsWith( "./" ) )
 				file = file.substring( 2 );
-			configureFile( live , file , node , null , StandardCharsets.UTF_8 );
+			configureFileInternal( live , file , ops , StandardCharsets.UTF_8 , node.server.isWindows() );
 		}
 	}
 
@@ -156,9 +164,10 @@ public class ConfBuilder {
 		FileSet files = folder.getFileSet( action );
 		if( ops == null )
 			ops = server.getProperties();
+		ops = getSecuredOps( server , ops );
 		
 		for( String file : files.fileList )
-			configureFile( folder , file , server , ops , charset );
+			configureFileInternal( folder , file , ops , charset , server.isWindows() );
 	}
 
 	public void configureFolder( ActionBase action , LocalFolder folder , MetaEnvServerNode node , ObjectProperties ops ) throws Exception {
@@ -171,23 +180,27 @@ public class ConfBuilder {
 		
 		if( ops == null )
 			ops = node.getProperties();
+		ops = getSecuredOps( node , ops );
 		
 		for( String file : files.fileList )
-			configureFile( folder , file , node , ops , charset );
+			configureFileInternal( folder , file , ops , charset , node.server.isWindows() );
 	}
 	
 	public void configureFile( LocalFolder live , String file , MetaEnvServer server , ObjectProperties ops , Charset charset ) throws Exception {
+		if( ops == null )
+			Common.exitUnexpected();
+		configureFileInternal( live , file , ops , charset , server.isWindows() );
+	}
+	
+	private void configureFileInternal( LocalFolder live , String file , ObjectProperties ops , Charset charset , boolean isWindows ) throws Exception {
 		action.trace( "parse file=" + file + " ..." );
 		String filePath = live.getFilePath( action , file );
 		List<String> fileLines = action.readFileLines( filePath , charset );
 		
-		if( ops == null )
-			ops = server.getProperties();
-		
 		boolean changed = false;
 		for( int k = 0; k < fileLines.size(); k++ ) {
 			String s = fileLines.get( k );
-			PropertyValue res = ops.getFinalValue( s , server.isWindows() , true , false );
+			PropertyValue res = ops.getFinalValue( s , isWindows , true , false );
 			if( res != null ) {
 				fileLines.set( k , res.getFinalValue() );
 				changed = true;
@@ -197,27 +210,45 @@ public class ConfBuilder {
 		if( changed )
 			Common.createFileFromStringList( action.execrc , filePath , fileLines , charset );
 	}
-	
-	public void configureFile( LocalFolder live , String file , MetaEnvServerNode node , ObjectProperties ops , Charset charset ) throws Exception {
-		action.trace( "parse file=" + file + " ..." );
-		String filePath = live.getFilePath( action , file );
-		List<String> fileLines = action.readFileLines( filePath , charset );
+
+	public ObjectProperties getSecuredOps( MetaEnvServer server , ObjectProperties ops ) throws Exception {
+		ObjectProperties tops = ops.copy( ops.getParent() );
+		tops.recalculateProperties();
 		
-		if( ops == null )
-			ops = node.getProperties();
+		MetaProductSettings settings = server.meta.getProductSettings();
+		ObjectProperties pops = settings.getParameters();
+		ObjectMeta om = pops.getMeta();
+		PropertyEntity entity = om.getCustomEntity();
 		
-		boolean changed = false;
-		for( int k = 0; k < fileLines.size(); k++ ) {
-			String s = fileLines.get( k );
-			PropertyValue res = ops.getFinalValue( s , node.server.isWindows() , true , false );
-			if( res != null ) {
-				fileLines.set( k , res.getFinalValue() );
-				changed = true;
+		SecurityService ss = action.engine.getSecurity();
+		for( EntityVar var : entity.getVars() ) {
+			if( var.isSecured() ) {
+				String value = ss.getEnvServerVarEffective( action , server , var );
+				tops.setManualStringProperty( var.NAME , value );
 			}
 		}
-
-		if( changed )
-			Common.createFileFromStringList( action.execrc , filePath , fileLines , charset );
+		
+		return( tops );
+	}
+	
+	public ObjectProperties getSecuredOps( MetaEnvServerNode node , ObjectProperties ops ) throws Exception {
+		ObjectProperties tops = ops.copy( ops.getParent() );
+		tops.recalculateProperties();
+		
+		MetaProductSettings settings = node.meta.getProductSettings();
+		ObjectProperties pops = settings.getParameters();
+		ObjectMeta om = pops.getMeta();
+		PropertyEntity entity = om.getCustomEntity();
+		
+		SecurityService ss = action.engine.getSecurity();
+		for( EntityVar var : entity.getVars() ) {
+			if( var.isSecured() ) {
+				String value = ss.getEnvServerNodeVarEffective( action , node , var );
+				tops.setManualStringProperty( var.NAME , value );
+			}
+		}
+		
+		return( tops );
 	}
 	
 }

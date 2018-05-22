@@ -58,7 +58,7 @@ public class EngineSecurity {
 	public synchronized void deleteContainer( ActionBase action , String name ) throws Exception {
 		CryptoContainer crypto = data.get( name );
 		if( crypto == null )
-			Common.exitUnexpected();
+			crypto = new CryptoContainer( this , name );
 	
 		crypto.delete( action );
 		data.remove( name );

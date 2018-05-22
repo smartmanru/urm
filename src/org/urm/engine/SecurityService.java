@@ -303,6 +303,10 @@ public class SecurityService extends EngineObject {
 		container.setKey( action , key , value );
 		container.save( action , null );
 	}
+
+	public String getEngineVarEffective( ActionBase action , EntityVar var ) throws Exception {
+		return( getEngineVar( action , var ) );
+	}
 	
 	public String getEngineVar( ActionBase action , EntityVar var ) throws Exception {
 		AuthService auth = engine.getAuth();
@@ -310,6 +314,13 @@ public class SecurityService extends EngineObject {
 		
 		String key = SecureData.getEngineVar( var );
 		return( master.getKey( action , key ) );
+	}
+
+	public String getSystemVarEffective( ActionBase action , AppSystem system , EntityVar var ) throws Exception {
+		String value = getSystemVar( action , system , var );
+		if( !value.isEmpty() )
+			return( value );
+		return( getEngineVar( action , var ) );
 	}
 	
 	public String getSystemVar( ActionBase action , AppSystem system , EntityVar var ) throws Exception {
@@ -319,6 +330,10 @@ public class SecurityService extends EngineObject {
 		String key = SecureData.getSystemVar( system , var );
 		return( master.getKey( action , key ) );
 	}
+
+	public String getMetaVarEffective( ActionBase action , Meta meta , EntityVar var ) throws Exception {
+		return( getMetaVar( action , meta , var ) );
+	}
 	
 	public String getMetaVar( ActionBase action , Meta meta , EntityVar var ) throws Exception {
 		AppProduct product = meta.getProduct();
@@ -327,6 +342,13 @@ public class SecurityService extends EngineObject {
 		String key = SecureData.getMetaVar( meta , var );
 		return( container.getKey( action , key ) );
 	}
+
+	public String getEnvVarEffective( ActionBase action , MetaEnv env , EntityVar var ) throws Exception {
+		String value = getEnvVar( action , env , var );
+		if( !value.isEmpty() )
+			return( value );
+		return( getMetaVarEffective( action , env.meta , var ) );
+	}
 	
 	public String getEnvVar( ActionBase action , MetaEnv env , EntityVar var ) throws Exception {
 		AppProduct product = env.meta.getProduct();
@@ -334,6 +356,13 @@ public class SecurityService extends EngineObject {
 		
 		String key = SecureData.getEnvVar( env , var );
 		return( container.getKey( action , key ) );
+	}
+
+	public String getEnvSegmentVarEffective( ActionBase action , MetaEnvSegment sg , EntityVar var ) throws Exception {
+		String value = getEnvSegmentVar( action , sg , var );
+		if( !value.isEmpty() )
+			return( value );
+		return( getEnvVarEffective( action , sg.env , var ) );
 	}
 	
 	public String getEnvSegmentVar( ActionBase action , MetaEnvSegment sg , EntityVar var ) throws Exception {
@@ -344,12 +373,26 @@ public class SecurityService extends EngineObject {
 		return( container.getKey( action , key ) );
 	}
 	
+	public String getEnvServerVarEffective( ActionBase action , MetaEnvServer server , EntityVar var ) throws Exception {
+		String value = getEnvServerVar( action , server , var );
+		if( !value.isEmpty() )
+			return( value );
+		return( getEnvSegmentVarEffective( action , server.sg , var ) );
+	}
+	
 	public String getEnvServerVar( ActionBase action , MetaEnvServer server , EntityVar var ) throws Exception {
 		AppProduct product = server.meta.getProduct();
 		CryptoContainer container = getProductContainer( action , product );
 		
 		String key = SecureData.getEnvServerVar( server , var );
 		return( container.getKey( action , key ) );
+	}
+	
+	public String getEnvServerNodeVarEffective( ActionBase action , MetaEnvServerNode node , EntityVar var ) throws Exception {
+		String value = getEnvServerNodeVar( action , node , var );
+		if( !value.isEmpty() )
+			return( value );
+		return( getEnvServerVarEffective( action , node.server , var ) );
 	}
 	
 	public String getEnvServerNodeVar( ActionBase action , MetaEnvServerNode node , EntityVar var ) throws Exception {

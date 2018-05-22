@@ -1,5 +1,6 @@
 package org.urm.action.database;
 
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import org.urm.engine.dist.Dist;
 import org.urm.engine.dist.ReleaseDistScope;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeSet;
+import org.urm.engine.properties.ObjectProperties;
 import org.urm.engine.shell.Shell;
 import org.urm.engine.status.ScopeState;
 import org.urm.engine.status.ScopeState.SCOPESTATE;
@@ -144,9 +146,16 @@ public class ActionApplyAutomatic extends ActionBase {
 		scriptFolder.ensureExists( this );
 		logReleaseExecute.ensureExists( this );
 		
+		ConfBuilder builder = new ConfBuilder( this , server.meta );
+		MetaProductSettings settings = server.meta.getProductSettings();
+		MetaProductCoreSettings core = settings.getCoreSettings();
+		
+		ObjectProperties ops = server.getProperties();
+		ops = builder.getSecuredOps( server , ops );
+		
 		for( String file : deliveryFiles.getAllFiles() ) {
 			if( checkApplicable( server , file , schemaSet ) ) {
-				prepareFile( server , scriptFolder , logReleaseExecute , distFolder , file );
+				prepareFile( server , scriptFolder , logReleaseExecute , distFolder , file , builder , core.charset , ops );
 				copy = true;
 			}
 		}
@@ -156,16 +165,13 @@ public class ActionApplyAutomatic extends ActionBase {
 		return( copy );
 	}
 
-	private void prepareFile( MetaEnvServer server , LocalFolder scriptFolder , LocalFolder logReleaseExecute , String distFolder , String file ) throws Exception {
+	private void prepareFile( MetaEnvServer server , LocalFolder scriptFolder , LocalFolder logReleaseExecute , String distFolder , String file , ConfBuilder builder , Charset charset , ObjectProperties ops ) throws Exception {
 		DatabaseScriptFile dsf = new DatabaseScriptFile();
 		dsf.setDistFile( this , file );
 		dist.copyDistToFolder( this , scriptFolder , distFolder , file );
 		scriptFolder.copyFiles( this , file , logReleaseExecute );
 		
-		ConfBuilder builder = new ConfBuilder( this , server.meta );
-		MetaProductSettings settings = server.meta.getProductSettings();
-		MetaProductCoreSettings core = settings.getCoreSettings();
-		builder.configureFile( logReleaseExecute , file , server , null , core.charset );
+		builder.configureFile( logReleaseExecute , file , server , ops , charset );
 		
 		if( !dsf.REGIONALINDEX.equals( "RR" ) )
 			return;
