@@ -400,8 +400,7 @@ public class DBRelease {
 		DBReleaseSchedule.finish( method , action , release , schedule );
 		
 		// replace group scope with items
-		ReleaseScope scope = release.getScope();
-		DBReleaseScope.finish( method , action , release , scope );
+		DBReleaseScope.finish( method , action , release );
 		
 		// create file information records
 		createFileRecords( method , action , release , dist );

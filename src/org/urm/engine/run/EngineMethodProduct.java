@@ -156,7 +156,12 @@ public class EngineMethodProduct {
 	
 	public synchronized DistRepositoryItem updateDistItem( DistRepositoryItem item ) throws Exception {
 		changeDistRepository();
-		DistRepositoryItem itemUpdated = updateDistRepository.findNormalItem( item.RELEASEDIR );
+		
+		DistRepositoryItem itemUpdated = null;
+		if( item.dist.isMaster() )
+			itemUpdated = updateDistRepository.findDefaultMasterItem();
+		else
+			itemUpdated = updateDistRepository.findNormalItem( item.RELEASEDIR );
 		
 		EngineMethodProductDist emmd = mapDist.get( item.RELEASEDIR );
 		if( emmd == null ) {

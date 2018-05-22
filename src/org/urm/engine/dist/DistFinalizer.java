@@ -8,6 +8,7 @@ import org.urm.engine.storage.RemoteFolder;
 import org.urm.meta.product.MetaDistr;
 import org.urm.meta.product.MetaDistrBinaryItem;
 import org.urm.meta.product.MetaDistrDelivery;
+import org.urm.meta.product.MetaProductDoc;
 import org.urm.meta.release.Release;
 
 public class DistFinalizer {
@@ -45,6 +46,8 @@ public class DistFinalizer {
 			for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
 				for( MetaDistrBinaryItem item : delivery.getBinaryItems() )
 					createExpectedMasterDeliveryItem( action , fsd , fs , delivery , item );
+				for( MetaProductDoc doc : delivery.getDocs() )
+					createExpectedMasterDeliveryItem( action , fsd , fs , delivery , doc );
 			}
 		}
 		else {
@@ -110,6 +113,17 @@ public class DistFinalizer {
 		String file = fsd.findDistItem( action , item , folder );
 		if( file == null )
 			file = item.getBaseFile();
+		
+		FileSet dir = fs.createDir( folder );
+		dir.addFile( file );
+		dir.addFile( file + ".md5" );
+	}
+	
+	private void createExpectedMasterDeliveryItem( ActionBase action , FileSet fsd , FileSet fs , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
+		String folder = dist.getDeliveryDocFolder( action , delivery );
+		String file = fsd.findDistItem( action , doc , folder );
+		if( file == null )
+			file = doc.getBaseFile();
 		
 		FileSet dir = fs.createDir( folder );
 		dir.addFile( file );
@@ -204,6 +218,10 @@ public class DistFinalizer {
 				if( dir.equals( Dist.DOC_FOLDER ) ) {
 					if( !finishDistDeliveryDoc( action , delivery , dirFilesDist , dirFilesRelease ) )
 						return( false );
+					if( dist.isMaster() ) {
+						if( !finishDistDeliveryMaster( action , delivery ) )
+							return( false );
+					}
 				}
 				else
 					action.exitUnexpectedState();
@@ -393,7 +411,7 @@ public class DistFinalizer {
 	}
 	
 	private boolean finishDistMaster( ActionBase action ) throws Exception {
-		return( false );
+		return( true );
 	}
 
 	private boolean finishDistDeliveryMaster( ActionBase action , MetaDistrDelivery delivery ) throws Exception {
@@ -401,12 +419,20 @@ public class DistFinalizer {
 			if( !finishDistDeliveryMasterItem( action , delivery , item ) )
 				return( false );
 		}
+		for( MetaProductDoc doc : delivery.getDocs() ) {
+			if( !finishDistDeliveryMasterItem( action , delivery , doc ) )
+				return( false );
+		}
 		
 		return( true );
 	}
 
 	private boolean finishDistDeliveryMasterItem( ActionBase action , MetaDistrDelivery delivery , MetaDistrBinaryItem distItem ) throws Exception {
-		return( false );
+		return( true );
+	}
+	
+	private boolean finishDistDeliveryMasterItem( ActionBase action , MetaDistrDelivery delivery , MetaProductDoc doc ) throws Exception {
+		return( true );
 	}
 	
 }

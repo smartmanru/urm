@@ -238,11 +238,6 @@ public class DistRepository {
 		return( item );
 	}
 
-	public DistRepositoryItem createRepositoryMasterItem( EngineMethod method , ActionBase action , Meta meta ) throws Exception {
-		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , ReleaseLabelInfo.LABEL_MASTER );
-		return( createRepositoryItem( method , action , info ) );
-	}
-	
 	public DistRepositoryItem createRepositoryItem( EngineMethod method , ActionBase action , ReleaseLabelInfo info ) throws Exception {
 		DistRepositoryItem item = new DistRepositoryItem( this );
 		item.createItem( action , info );
@@ -366,12 +361,14 @@ public class DistRepository {
 	}
 
 	public synchronized Dist createMasterCopy( EngineMethod method , ActionBase action , Dist src , Release release , ReleaseDist releaseDist ) throws Exception {
+		src.loadState( action );
 		if( !src.isCompleted() )
 			action.exit1( _Error.NotCompletedSource1 , "Unable to use incomplete source release " + src.RELEASEDIR , src.RELEASEDIR );
 
 		Meta meta = release.getMeta();
 		ReleaseLabelInfo info = getLabelInfo( action , meta , ReleaseLabelInfo.LABEL_MASTER );
-		DistRepositoryItem item = createRepositoryMasterItem( method , action , meta );
+		
+		DistRepositoryItem item = new DistRepositoryItem( this );
 		item.createItem( action , info );
 		
 		RemoteFolder distFolder = repoFolder.getSubFolder( action , info.DISTPATH );
@@ -390,7 +387,7 @@ public class DistRepository {
 	}
 
 	public DistRepositoryItem findItem( ReleaseLabelInfo info ) {
-		DistRepositoryItem item = findItem( info );
+		DistRepositoryItem item = null;
 		if( info.master ) {
 			if( info.VARIANT.isEmpty() )
 				item = findDefaultMasterItem();
@@ -409,6 +406,8 @@ public class DistRepository {
 	}
 	
 	public Dist findDist( ReleaseLabelInfo info ) {
+		if( info.master )
+			return( findDefaultMasterDist() );
 		return( findDist( info.RELEASEDIR ) );
 	}
 	
@@ -442,7 +441,7 @@ public class DistRepository {
 		if( item.dist.isMaster() )
 			masterMap.remove( item.dist.release.NAME );
 		else
-			normalMap.remove( item.dist.RELEASEDIR );
+			normalMap.remove( item.RELEASEDIR );
 	}
 
 	public synchronized DistRepositoryItem[] getNormalItems() {
@@ -540,6 +539,13 @@ public class DistRepository {
 	}
 
 	public Dist findDefaultDist( Release release ) {
+		if( release.isMaster() ) {
+			DistRepositoryItem item = findMasterItem( release.NAME );
+			if( item != null )
+				return( item.dist );
+			return( null );
+		}
+		
 		ReleaseDist dist = release.getDefaultReleaseDist();
 		return( findDist( dist.getReleaseDir() ) );
 	}

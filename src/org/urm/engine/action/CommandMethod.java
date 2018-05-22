@@ -38,7 +38,12 @@ abstract public class CommandMethod {
 		Meta meta = action.getContextMeta();
 		ReleaseLabelInfo info = ReleaseLabelInfo.getLabelInfo( action , meta , RELEASELABEL );
 		EngineProductReleases releases = ep.getReleases();
-		Release release = releases.findRelease( info.RELEASEVER );
+		Release release = null;
+		if( info.normal )
+			release = releases.findRelease( info.RELEASEVER );
+		else
+			release = releases.findDefaultMaster();
+		
 		if( release == null )
 			action.exit0( _Error.UnknownRelease1 , "unable to find release version=" + info.RELEASEVER );
 		return( release );

@@ -739,11 +739,40 @@ public class DBReleaseScope {
 		}
 	}
 
-	public static void finish( EngineMethod method , ActionBase action , Release release , ReleaseScope scope ) throws Exception {
+	public static void finish( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		if( release.isMaster() )
+			finishMasterScope( method , action , release );
+		else
+			finishNormalScope( method , action , release );
+	}
+
+	private static void finishMasterScope( EngineMethod method , ActionBase action , Release release ) throws Exception {
 		DBConnection c = method.getMethodConnection( action );
 		
 		Meta meta = release.getMeta();
 		MetaDistr distr = meta.getDistr();
+		
+		ReleaseScope scope = release.getScope();
+		// replace full scope
+		for( MetaDistrDelivery delivery : distr.getDeliveries() ) {
+			for( MetaDistrBinaryItem binary : delivery.getBinaryItems() ) {
+				ReleaseDistTarget target = DBReleaseDistTarget.createBinaryItemTarget( c , release , scope , binary );
+				scope.addDistTarget( target );
+			}
+			for( MetaProductDoc doc : delivery.getDocs() ) {
+				ReleaseDistTarget target = DBReleaseDistTarget.createDeliveryDocTarget( c , release , scope , delivery , doc );
+				scope.addDistTarget( target );
+			}
+		}
+	}
+
+	private static void finishNormalScope( EngineMethod method , ActionBase action , Release release ) throws Exception {
+		DBConnection c = method.getMethodConnection( action );
+		
+		Meta meta = release.getMeta();
+		MetaDistr distr = meta.getDistr();
+		
+		ReleaseScope scope = release.getScope();
 		for( ReleaseDistTarget target : scope.getDistTargets() ) {
 			// replace full scope
 			if( target.isDistAll() ) {
@@ -832,7 +861,7 @@ public class DBReleaseScope {
 			}
 		}
 	}
-
+	
 	private static void finishCreateItem( EngineMethod method , ActionBase action , Release release , ReleaseScope scope , MetaSourceProjectItem item ) throws Exception { 
 		DBConnection c = method.getMethodConnection( action );
 		
