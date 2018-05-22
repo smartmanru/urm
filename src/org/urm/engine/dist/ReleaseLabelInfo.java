@@ -55,6 +55,8 @@ public class ReleaseLabelInfo {
 			VARIANT = "";
 			local = true;
 			primary = true;
+			master = false;
+			normal = true;
 			return;
 		}
 		
@@ -63,8 +65,9 @@ public class ReleaseLabelInfo {
 			RELEASEDIR = DistRepository.REPO_FOLDER_RELEASES_MASTER;
 			DISTPATH = RELEASEDIR;
 			VARIANT = "";
-			master = true;
 			primary = true;
+			master = true;
+			normal = false;
 		}
 		else
 		if( RELEASELABEL.indexOf( "-" ) > 0 ) {
@@ -73,6 +76,8 @@ public class ReleaseLabelInfo {
 			VARIANT = Common.getPartAfterFirst( RELEASEDIR , "-" );
 			this.primary = false;
 			this.archived = archived;
+			master = false;
+			normal = true;
 		}
 		else {
 			RELEASEVER = getReleaseVerByLabel( action , RELEASELABEL );
@@ -81,6 +86,8 @@ public class ReleaseLabelInfo {
 			VARIANT = "";
 			this.primary = true;
 			this.archived = archived;
+			master = false;
+			normal = true;
 		}
 	}
 	
