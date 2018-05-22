@@ -7,6 +7,7 @@ import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.system.AppProduct;
 import org.urm.meta.system.AppSystem;
 
@@ -17,6 +18,7 @@ public class SecureData {
 	public static String GROUP_PRODUCTS = "products";
 	public static String GROUP_REVISIONS = "revisions";
 	public static String GROUP_VARS = "vars";
+	public static String GROUP_CONFFILES = "conf";
 	public static String GROUP_SYSTEMS = "systems";
 	public static String GROUP_ENVS = "envs";
 	public static String GROUP_SEGMENTS = "segments";
@@ -125,6 +127,26 @@ public class SecureData {
 	public static String getEnvServerNodeVar( MetaEnvServerNode node , EntityVar var ) {
 		String nodeFolder = getEnvServerNodeFolder( node );
 		return( Common.getPath( nodeFolder , GROUP_VARS , var.NAME ) );
+	}
+
+	public static String getEnvConfFolder( MetaEnv env , MetaDistrConfItem conf ) {
+		String envFolder = getEnvFolder( env );
+		return( Common.getPath( envFolder , GROUP_CONFFILES , conf.NAME ) );
+	}
+	
+	public static String getEnvSegmentConfFolder( MetaEnvSegment sg , MetaDistrConfItem conf ) {
+		String envFolder = getEnvSegmentFolder( sg );
+		return( Common.getPath( envFolder , GROUP_CONFFILES , conf.NAME ) );
+	}
+	
+	public static String getEnvServerConfFolder( MetaEnvServer server , MetaDistrConfItem conf ) {
+		String envFolder = getEnvServerFolder( server );
+		return( Common.getPath( envFolder , GROUP_CONFFILES , conf.NAME ) );
+	}
+	
+	public static String getEnvServerNodeConfFolder( MetaEnvServerNode node , MetaDistrConfItem conf ) {
+		String envFolder = getEnvServerNodeFolder( node );
+		return( Common.getPath( envFolder , GROUP_CONFFILES , conf.NAME ) );
 	}
 	
 }

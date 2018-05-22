@@ -59,7 +59,7 @@ public class CryptoContainer {
 		return( name + ".crypto" );
 	}
 	
-	public void create( ActionBase action , String password ) throws Exception {
+	public synchronized void create( ActionBase action , String password ) throws Exception {
 		data.clear();
 		saltBytesReuse = null;
 		secretKeyReuse = null;
@@ -87,7 +87,7 @@ public class CryptoContainer {
 		}
 	}
 
-	public void save( ActionBase action , String password ) throws Exception {
+	public synchronized void save( ActionBase action , String password ) throws Exception {
 		if( !valid )
 			Common.exitUnexpected();
 		
@@ -166,7 +166,7 @@ public class CryptoContainer {
 		return( path.checkFileExists( action , fileName ) );
 	}
 	
-	public void open( ActionBase action , String password ) throws Exception {
+	public synchronized void open( ActionBase action , String password ) throws Exception {
 		data.clear();
 		saltBytesReuse = null;
 		secretKeyReuse = null;
@@ -330,7 +330,7 @@ public class CryptoContainer {
 		}
 	}
 	
-	public void delete( ActionBase action ) throws Exception {
+	public synchronized void delete( ActionBase action ) throws Exception {
 		UrmStorage urm = action.artefactory.getUrmStorage();
 		LocalFolder path = urm.getServerCryptoFolder( action );
 		String fileName = getFileName();
@@ -342,7 +342,7 @@ public class CryptoContainer {
 		this.sync = false;
 	}
 
-	public void setKey( ActionBase action , String key , String value ) throws Exception {
+	public synchronized void setKey( ActionBase action , String key , String value ) throws Exception {
 		if( !valid )
 			Common.exitUnexpected();
 
@@ -357,11 +357,11 @@ public class CryptoContainer {
 		data.put( key , value );
 	}
 
-	public void deleteKey( ActionBase action , String key ) throws Exception {
+	public synchronized void deleteKey( ActionBase action , String key ) throws Exception {
 		data.remove( key );
 	}
 	
-	public void clearKeySet( ActionBase action , String key ) throws Exception {
+	public synchronized void clearKeySet( ActionBase action , String key ) throws Exception {
 		String keyFolder = key;
 		if( !keyFolder.endsWith( "/" ) )
 			keyFolder += "/";
@@ -373,7 +373,7 @@ public class CryptoContainer {
 		data.remove( key );
 	}
 	
-	public String getKey( ActionBase action , String key ) throws Exception {
+	public synchronized String getKey( ActionBase action , String key ) throws Exception {
 		if( !valid )
 			Common.exitUnexpected();
 
@@ -383,11 +383,23 @@ public class CryptoContainer {
 		return( value );
 	}
 
-	public void upgrade() throws Exception {
+	private void upgrade() throws Exception {
 		if( version == EngineDB.APP_VERSION )
 			return;
 		
 		version = EngineDB.APP_VERSION;
+	}
+
+	public synchronized boolean checkFolderExists( ActionBase action , String key ) throws Exception {
+		String keyFolder = key;
+		if( !keyFolder.endsWith( "/" ) )
+			keyFolder += "/";
+		
+		for( String dataKey : data.keySet() ) {
+			if( dataKey.startsWith( keyFolder ) )
+				return( true );
+		}
+		return( false );
 	}
 	
 }

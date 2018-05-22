@@ -17,6 +17,7 @@ import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.loader.EngineObject;
 import org.urm.meta.product.Meta;
+import org.urm.meta.product.MetaDistrConfItem;
 import org.urm.meta.system.AppProduct;
 import org.urm.meta.system.AppSystem;
 
@@ -420,6 +421,38 @@ public class SecurityService extends EngineObject {
 		res.loadAuthData();
 		
 		return( security.openContainer( action , containerName , res.ac.PASSWORDSAVE ) );
+	}
+
+	public boolean hasEnvObjectConf( ActionBase action , EngineObject owner , MetaDistrConfItem conf ) throws Exception {
+		String key = "";
+		AppProduct product = null;
+		
+		if( owner instanceof MetaEnv ) {
+			MetaEnv env = ( MetaEnv )owner; 
+			product = env.meta.getProduct();
+			key = SecureData.getEnvConfFolder( env , conf );
+		}
+		else
+		if( owner instanceof MetaEnvSegment ) {
+			MetaEnvSegment sg = ( MetaEnvSegment )owner; 
+			product = sg.meta.getProduct();
+			key = SecureData.getEnvSegmentConfFolder( sg , conf );
+		}
+		else
+		if( owner instanceof MetaEnvServer ) {
+			MetaEnvServer server = ( MetaEnvServer )owner; 
+			product = server.meta.getProduct();
+			key = SecureData.getEnvServerConfFolder( server , conf );
+		}
+		else
+		if( owner instanceof MetaEnvServerNode ) {
+			MetaEnvServerNode node = ( MetaEnvServerNode )owner; 
+			product = node.meta.getProduct();
+			key = SecureData.getEnvServerNodeConfFolder( node , conf );
+		}
+
+		CryptoContainer container = getProductContainer( action , product );
+		return( container.checkFolderExists( action , key ) );
 	}
 	
 }
