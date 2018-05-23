@@ -5,6 +5,7 @@ import org.urm.db.core.DBSettings;
 import org.urm.db.core.DBEnums.*;
 import org.urm.db.engine.*;
 import org.urm.db.env.DBMetaEnv;
+import org.urm.db.env.DBMetaEnvDeployGroup;
 import org.urm.db.env.DBMetaEnvSegment;
 import org.urm.db.env.DBMetaEnvServer;
 import org.urm.db.env.DBMetaEnvServerDeployment;
@@ -42,6 +43,7 @@ import org.urm.engine.security.AuthUser;
 import org.urm.engine.shell.Account;
 import org.urm.meta.engine.*;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvDeployGroup;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
@@ -1038,6 +1040,26 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnv.setEnvBaseline( this , storage , env , envBaselineId );
 	}
 	
+	public MetaEnvDeployGroup createMetaEnvDeployGroup( MetaEnv env , String name , String desc ) throws Exception {
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		return( DBMetaEnvDeployGroup.createDeployGroup( this , storage , env , name , desc ) );
+	}
+	
+	public void modifyMetaEnvDeployGroup( MetaEnvDeployGroup dg , String name , String desc ) throws Exception {
+		MetaEnv env = dg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvDeployGroup.modifyDeployGroup( this , storage , env , dg , name , desc );
+	}
+	
+	public void deleteMetaEnvDeployGroup( MetaEnvDeployGroup dg ) throws Exception {
+		MetaEnv env = dg.env;
+		super.checkTransactionEnv( env );
+		ProductMeta storage = getTransactionProductMetadata( env.meta );
+		DBMetaEnvDeployGroup.deleteDeployGroup( this , storage , env , dg );
+	}
+	
 	public MetaEnvSegment createMetaEnvSegment( MetaEnv env , String name , String desc , Integer dcId ) throws Exception {
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
@@ -1156,11 +1178,11 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnvServer.setServerOffline( this , storage , env , server , offline );
 	}
 	
-	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
+	public MetaEnvServerNode createMetaEnvServerNode( MetaEnvServer server , int pos , DBEnumNodeType nodeType , Integer deployGroup , HostAccount account ) throws Exception {
 		MetaEnv env = server.sg.env;
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		return( DBMetaEnvServerNode.createNode( this , storage , env , server , pos , nodeType , account ) );
+		return( DBMetaEnvServerNode.createNode( this , storage , env , server , pos , nodeType , deployGroup , account ) );
 	}
 	
 	public MetaEnvServerDeployment createMetaEnvServerBinaryDeployment( MetaEnvServer server , MetaDistrBinaryItem item , 
@@ -1234,11 +1256,11 @@ public class EngineTransaction extends TransactionBase {
 		DBMetaEnvServerDeployment.deleteDeployment( this , storage , env , deployment.server , deployment );
 	}
 	
-	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
+	public void modifyMetaEnvServerNode( MetaEnvServerNode node , int pos , DBEnumNodeType nodeType , Integer deployGroup , HostAccount account ) throws Exception {
 		MetaEnv env = node.server.sg.env;
 		super.checkTransactionEnv( env );
 		ProductMeta storage = getTransactionProductMetadata( env.meta );
-		DBMetaEnvServerNode.modifyNode( this , storage , env , node , pos , nodeType , account );
+		DBMetaEnvServerNode.modifyNode( this , storage , env , node , pos , nodeType , deployGroup , account );
 	}
 
 	public void deleteMetaEnvServerNode( MetaEnvServerNode node ) throws Exception {

@@ -77,6 +77,8 @@ public class MetaEnv extends EngineObject {
 
 	private Map<String,MetaEnvSegment> sgMap;
 	private Map<Integer,MetaEnvSegment> sgMapById;
+	private Map<String,MetaEnvDeployGroup> deployGroup;
+	private Map<Integer,MetaEnvDeployGroup> deployGroupById;
 
 	public MetaEnv( ProductMeta storage , Meta meta , ProductEnvs envs ) {
 		super( null );
@@ -86,6 +88,8 @@ public class MetaEnv extends EngineObject {
 		ID = -1;
 		EV = -1;
 		MATCHED = false;
+		deployGroup = new HashMap<String,MetaEnvDeployGroup>();
+		deployGroupById = new HashMap<Integer,MetaEnvDeployGroup>(); 
 		sgMap = new HashMap<String,MetaEnvSegment>();
 		sgMapById = new HashMap<Integer,MetaEnvSegment>();
 	}
@@ -116,6 +120,11 @@ public class MetaEnv extends EngineObject {
 		
 		if( rmeta.isDraft() && r.isProd() )
 			r.OFFLINE = true;
+
+		for( MetaEnvDeployGroup group : deployGroupById.values() ) {
+			MetaEnvDeployGroup rgroup = group.copy( rmeta , r );
+			r.addDeployGroup( rgroup );
+		}
 		
 		for( MetaEnvSegment sg : sgMap.values() ) {
 			MetaEnvSegment rsg = sg.copy( rmeta , r );
@@ -230,16 +239,47 @@ public class MetaEnv extends EngineObject {
 		MetaEnv env = envs.getProductEnv( BASELINE );
 		return( env );
 	}
+
+	public void addDeployGroup( MetaEnvDeployGroup dg ) {
+		deployGroup.put( dg.NAME , dg );
+		deployGroupById.put( dg.ID , dg );
+	}
 	
 	public void addSegment( MetaEnvSegment sg ) {
 		sgMap.put( sg.NAME , sg );
 		sgMapById.put( sg.ID , sg );
 	}
 	
+	public void updateDeployGroup( MetaEnvDeployGroup dg ) throws Exception {
+		Common.changeMapKey( deployGroup , dg , dg.NAME );
+	}
+	
 	public void updateSegment( MetaEnvSegment sg ) throws Exception {
 		Common.changeMapKey( sgMap , sg , sg.NAME );
 	}
+
+	public MetaEnvDeployGroup getDeployGroup( String name ) throws Exception {
+		MetaEnvDeployGroup dg = deployGroup.get( name );
+		if( dg == null )
+			Common.exit1( _Error.UnknownDeployGroup1 , "unknown deploy group=" + name , name );
+		return( dg );
+	}
 	
+	public MetaEnvDeployGroup getDeployGroup( int id ) throws Exception {
+		MetaEnvDeployGroup dg = deployGroupById.get( id );
+		if( dg == null )
+			Common.exit1( _Error.UnknownDeployGroup1 , "unknown deploy group=" + id , "" + id );
+		return( dg );
+	}
+	
+	public MetaEnvDeployGroup findDeployGroup( String name ) {
+		return( deployGroup.get( name ) );
+	}
+
+	public MetaEnvDeployGroup findDeployGroup( int id ) {
+		return( deployGroupById.get( id ) );
+	}
+
 	public MetaEnvSegment findSegment( MatchItem item ) {
 		if( item == null )
 			return( null );
@@ -285,6 +325,10 @@ public class MetaEnv extends EngineObject {
 		return( sg.NAME );
 	}
 	
+	public String[] getDeployGroupNames() {
+		return( Common.getSortedKeys( deployGroup ) );
+	}
+	
 	public String[] getSegmentNames() {
 		return( Common.getSortedKeys( sgMap ) );
 	}
@@ -302,8 +346,14 @@ public class MetaEnv extends EngineObject {
 		return( sgMap.size() > 1 );
 	}
 	
+	public void removeDeployGroup( MetaEnvDeployGroup dg ) {
+		deployGroup.remove( dg.NAME );
+		deployGroupById.remove( dg.ID );
+	}
+	
 	public void removeSegment( MetaEnvSegment sg ) {
 		sgMap.remove( sg.NAME );
+		sgMapById.remove( sg.ID );
 	}
 	
 	public void setBaseline( MatchItem envMatchItem ) throws Exception {

@@ -27,6 +27,8 @@ public class MetaEnvStartGroup {
 		this.meta = meta;
 		this.startInfo = startInfo;
 		servers = new LinkedList<MetaEnvServer>();
+		ID = -1;
+		EV = -1;
 	}
 
 	public MetaEnvStartGroup copy( Meta rmeta , MetaEnvStartInfo rstartInfo ) throws Exception {

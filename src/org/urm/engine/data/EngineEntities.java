@@ -99,6 +99,7 @@ public class EngineEntities {
 	public PropertyEntity entityAppMetaDistrCompItem;
 	public PropertyEntity entityAppEnvPrimary;
 	public PropertyEntity entityAppEnvExtra;
+	public PropertyEntity entityAppEnvDeployGroup;
 	public PropertyEntity entityAppSegmentPrimary;
 	public PropertyEntity entityAppSegmentStartGroup;
 	public PropertyEntity entityAppSegmentStartGroupServer;
@@ -180,6 +181,7 @@ public class EngineEntities {
 		entityAppMetaDistrCompItem = DBProductData.makeEntityMetaDistrCompItem( c , upgrade );
 		entityAppEnvPrimary = DBEnvData.makeEntityEnvPrimary( c , upgrade );
 		entityAppEnvExtra = DBEnvData.makeEntityEnvExtra( c , upgrade );
+		entityAppEnvDeployGroup = DBEnvData.makeEntityDeployGroup( c , upgrade );
 		entityAppSegmentPrimary = DBEnvData.makeEntitySegmentPrimary( c , upgrade );
 		entityAppSegmentStartGroup = DBEnvData.makeEntityStartGroup( c , upgrade );
 		entityAppSegmentStartGroupServer = DBEnvData.makeEntityStartGroupServer( c , upgrade );

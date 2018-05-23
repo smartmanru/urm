@@ -22,6 +22,17 @@ CREATE TABLE main.urm_env (
 COMMENT ON TABLE main.urm_env IS 'Product environment';
 
 
+CREATE TABLE main.urm_env_deploygroup (
+                deploygroup_id INTEGER NOT NULL,
+                env_id INTEGER NOT NULL,
+                name VARCHAR(30) NOT NULL,
+                xdesc VARCHAR,
+                ev INTEGER NOT NULL,
+                CONSTRAINT urm_env_deploygroup_pk PRIMARY KEY (deploygroup_id)
+);
+COMMENT ON TABLE main.urm_env_deploygroup IS 'Deploy group';
+
+
 CREATE TABLE main.urm_env_segment (
                 segment_id INTEGER NOT NULL,
                 env_id INTEGER NOT NULL,
@@ -70,7 +81,7 @@ CREATE TABLE main.urm_env_node (
                 node_type INTEGER NOT NULL,
                 account_fkid INTEGER,
                 account_fkname VARCHAR(64),
-                deploygroup VARCHAR(64),
+                deploygroup_id INTEGER,
                 offline BOOLEAN NOT NULL,
                 dbinstance VARCHAR(64),
                 dbstandby BOOLEAN NOT NULL,
@@ -148,6 +159,20 @@ NOT DEFERRABLE;
 ALTER TABLE main.urm_env_segment ADD CONSTRAINT urm_env_segment_fk
 FOREIGN KEY (env_id)
 REFERENCES main.urm_env (env_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE main.urm_env_deploygroup ADD CONSTRAINT urm_env_urm_env_deploygroup_fk
+FOREIGN KEY (env_id)
+REFERENCES main.urm_env (env_id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE main.urm_env_node ADD CONSTRAINT urm_env_deploygroup_urm_env_node_fk
+FOREIGN KEY (deploygroup_id)
+REFERENCES main.urm_env_deploygroup (deploygroup_id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;

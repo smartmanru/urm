@@ -43,6 +43,7 @@ import org.urm.meta.engine.Network;
 import org.urm.meta.engine.ProjectBuilder;
 import org.urm.meta.engine.ReleaseLifecycle;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvDeployGroup;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
@@ -1394,6 +1395,13 @@ public class TransactionBase extends EngineObject {
 		Meta meta = getMeta( env.meta );
 		ProductEnvs envs = meta.getEnviroments();
 		return( envs.findMetaEnv( env.NAME ) );
+	}
+
+	public MetaEnvDeployGroup getMetaEnvDeployGroup( MetaEnvDeployGroup dg ) throws Exception {
+		if( dg == null )
+			return( null );
+		MetaEnv env = getMetaEnv( dg.env );
+		return( env.findDeployGroup( dg.NAME ) );
 	}
 
 	public MetaEnvSegment getMetaEnvSegment( MetaEnvSegment sg ) throws Exception {

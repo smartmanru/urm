@@ -1103,5 +1103,14 @@ public class MetaEnvServer extends EngineObject {
 		}
 		return( null );
 	}
-	
+
+	public int getLastNodePos() {
+		int pos = 0;
+		for( MetaEnvServerNode node : nodes ) {
+			if( node.POS > pos )
+				pos = node.POS;
+		}
+		return( pos );
+	}
+		
 }

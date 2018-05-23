@@ -9,6 +9,7 @@ import org.urm.engine.dist.ReleaseBuildScopeProject;
 import org.urm.engine.dist.ReleaseBuildScopeProjectItem;
 import org.urm.engine.dist.ReleaseDistScopeDelivery;
 import org.urm.engine.dist.ReleaseDistScopeDeliveryItem;
+import org.urm.meta.env.MetaEnvDeployGroup;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
 import org.urm.meta.product.Meta;
@@ -464,14 +465,12 @@ public class ActionScopeTarget {
 				
 			// check matches deploygroup or startgroup
 			if( !action.context.CTX_DEPLOYGROUP.isEmpty() ) {
-				if( node.DEPLOYGROUP.isEmpty() ) {
-					if( !action.context.CTX_DEPLOYGROUP.equals( "default" ) )
-						return( null );
-				}
-				else {
-					if( !action.context.CTX_DEPLOYGROUP.equals( node.DEPLOYGROUP ) ) 
+				MetaEnvDeployGroup dg = node.server.sg.env.getDeployGroup( action.context.CTX_DEPLOYGROUP );
+				if( node.DEPLOYGROUP == null )
 					return( null );
-				}
+				
+				if( dg.ID != node.DEPLOYGROUP ) 
+					return( null );
 			}
 		}
 		

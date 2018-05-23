@@ -34,7 +34,7 @@ public class MetaEnvServerNode extends EngineObject {
 	public int POS;
 	public DBEnumNodeType NODE_TYPE;
 	private MatchItem ACCOUNT;
-	public String DEPLOYGROUP;
+	public Integer DEPLOYGROUP;
 	public boolean OFFLINE;
 	public String DBINSTANCE;
 	public boolean DBSTANDBY;
@@ -96,13 +96,21 @@ public class MetaEnvServerNode extends EngineObject {
 				ops.setStringProperty( PROPERTY_HOSTLOGIN , account.getFinalAccount() );
 		}
 		
-		ops.setStringProperty( PROPERTY_DEPLOYGROUP , DEPLOYGROUP );
+		MetaEnvDeployGroup dg = findDeployGroup();
+		if( dg != null )
+			ops.setStringProperty( PROPERTY_DEPLOYGROUP , dg.NAME );
 		ops.setBooleanProperty( PROPERTY_OFFLINE , OFFLINE );
 		ops.setStringProperty( PROPERTY_DBINSTANCE , DBINSTANCE );
 		ops.setBooleanProperty( PROPERTY_DBSTANDBY , DBSTANDBY );
 	}
 
 	public void updateCustomSettings() throws Exception {
+	}
+	
+	public MetaEnvDeployGroup findDeployGroup() {
+		if( DEPLOYGROUP == null )
+			return( null );
+		return( server.sg.env.findDeployGroup( DEPLOYGROUP ) );
 	}
 	
 	public MetaEnvServerNode getProxyNode() throws Exception {
@@ -139,7 +147,7 @@ public class MetaEnvServerNode extends EngineObject {
 		return( NODE_TYPE == DBEnumNodeType.SLAVE );
 	}
 
-	public void setNodePrimary( int pos , DBEnumNodeType type , MatchItem account , String deployGroup , boolean offline , String dbInstance , boolean dbStandBy ) throws Exception {
+	public void setNodePrimary( int pos , DBEnumNodeType type , MatchItem account , Integer deployGroup , boolean offline , String dbInstance , boolean dbStandBy ) throws Exception {
 		this.POS = pos;
 		this.NODE_TYPE = type;
 		this.ACCOUNT = MatchItem.copy( account );
@@ -161,8 +169,9 @@ public class MetaEnvServerNode extends EngineObject {
 		refreshPrimaryProperties();
 	}
 
-	public void modifyNode( DBEnumNodeType type , MatchItem account ) {
+	public void modifyNode( DBEnumNodeType type , Integer deployGroup , MatchItem account ) {
 		this.NODE_TYPE = type;
+		this.DEPLOYGROUP = deployGroup;
 		this.ACCOUNT = MatchItem.copy( account );
 	}
 	

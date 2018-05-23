@@ -12,6 +12,7 @@ import org.urm.engine.data.EngineEntities;
 import org.urm.engine.properties.EntityVar;
 import org.urm.engine.properties.PropertyEntity;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvDeployGroup;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
@@ -29,6 +30,7 @@ public class DBEnvData {
 	public static String TABLE_STARTGROUPSERVER = "urm_env_startgroup_server";
 	public static String TABLE_DEPLOYMENT = "urm_env_deployment";
 	public static String TABLE_SERVERDEP = "urm_env_server_deps";
+	public static String TABLE_DEPLOYGROUP = "urm_env_deploygroup";
 	public static String FIELD_ENV_ID = "env_id";
 	public static String FIELD_ENV_META_ID = "meta_id";
 	public static String FIELD_ENV_TRANSITION_META_ID = "transition_meta_id";
@@ -67,6 +69,7 @@ public class DBEnvData {
 	public static String FIELD_NODE_TYPE = "node_type";
 	public static String FIELD_NODE_ACCOUNT_ID = "account_fkid";
 	public static String FIELD_NODE_ACCOUNT_NAME = "account_fkname";
+	public static String FIELD_NODE_DEPLOYGROUP_ID = "deploygroup_id";
 	public static String FIELD_STARTGROUP_ID = "startgroup_id";
 	public static String FIELD_STARTGROUP_SEGMENT_ID = "segment_id";
 	public static String FIELD_STARTGROUP_DESC = "xdesc";
@@ -89,6 +92,8 @@ public class DBEnvData {
 	public static String FIELD_SERVERDEP_SERVER_ID = "server_id";
 	public static String FIELD_SERVERDEP_SERVER_DEP_ID = "dep_server_id";
 	public static String FIELD_SERVERDEP_TYPE = "serverdependency_type";
+	public static String FIELD_DEPLOYGROUP_ID = "deploygroup_id";
+	public static String FIELD_DEPLOYGROUP_DESC = "xdesc";
 	
 	public static PropertyEntity makeEntityEnvPrimary( DBConnection c , boolean upgrade ) throws Exception {
 		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT , DBEnumParamEntityType.ENV_PRIMARY , DBEnumObjectVersionType.ENVIRONMENT , TABLE_ENV , FIELD_ENV_ID , false );
@@ -226,10 +231,25 @@ public class DBEnvData {
 				EntityVar.metaEnumVar( MetaEnvServerNode.PROPERTY_NODETYPE , FIELD_NODE_TYPE , "Node type" , true , DBEnumNodeType.UNKNOWN ) ,
 				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_ACCOUNT_ID , "infrastructure account id" , DBEnumObjectType.HOSTACCOUNT , false ) ,
 				EntityVar.metaStringVar( MetaEnvServerNode.PROPERTY_HOSTLOGIN , FIELD_NODE_ACCOUNT_NAME , "infrastructure account name" , false , null ) ,
-				EntityVar.metaString( MetaEnvServerNode.PROPERTY_DEPLOYGROUP , "deploy group" , false , null ) ,
+				EntityVar.metaStringXmlOnly( MetaEnvServerNode.PROPERTY_DEPLOYGROUP , "deploy group name" , false , null ) ,
+				EntityVar.metaObjectDatabaseOnly( FIELD_NODE_DEPLOYGROUP_ID , "deploy group id" , DBEnumObjectType.ENVIRONMENT_DEPLOYGROUP , false ) ,
 				EntityVar.metaBoolean( MetaEnvServerNode.PROPERTY_OFFLINE , "Offline" , true , false ) ,
 				EntityVar.metaString( MetaEnvServerNode.PROPERTY_DBINSTANCE , "database instance node code" , false , null ) ,
 				EntityVar.metaBoolean( MetaEnvServerNode.PROPERTY_DBSTANDBY , "standby node" , false , false ) ,
+		} ) );
+	}
+
+	public static PropertyEntity makeEntityDeployGroup( DBConnection c , boolean upgrade ) throws Exception {
+		PropertyEntity entity = PropertyEntity.getAppObjectEntity( DBEnumObjectType.ENVIRONMENT_DEPLOYGROUP , DBEnumParamEntityType.ENV_DEPLOYGROUP , DBEnumObjectVersionType.ENVIRONMENT , TABLE_DEPLOYGROUP , FIELD_DEPLOYGROUP_ID , false );
+		if( !upgrade ) {
+			DBSettings.loaddbAppEntity( c , entity );
+			return( entity );
+		}
+		
+		return( DBSettings.savedbObjectEntity( c , entity , new EntityVar[] { 
+				EntityVar.metaObjectDatabaseOnly( FIELD_ENV_ID , "environment id" , DBEnumObjectType.ENVIRONMENT , true ) ,
+				EntityVar.metaString( MetaEnvDeployGroup.PROPERTY_NAME , "name" , true , null ) ,
+				EntityVar.metaStringVar( MetaEnvDeployGroup.PROPERTY_DESC , FIELD_DEPLOYGROUP_DESC , "Description" , false , null ) ,
 		} ) );
 	}
 
@@ -322,6 +342,7 @@ public class DBEnvData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentStartGroup , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppServerPrimary , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentPrimary , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppEnvDeployGroup , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppEnvPrimary , DBQueries.FILTER_ENV_META1 , new String[] { EngineDB.getInteger( storage.ID ) } );
 	}
 
@@ -341,6 +362,7 @@ public class DBEnvData {
 		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentStartGroup , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppServerPrimary , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppSegmentPrimary , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
+		DBEngineEntities.dropAppObjects( c , entities.entityAppEnvDeployGroup , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
 		DBEngineEntities.dropAppObjects( c , entities.entityAppEnvPrimary , DBQueries.FILTER_ENV_ID1 , new String[] { EngineDB.getInteger( env.ID ) } );
 	}
 

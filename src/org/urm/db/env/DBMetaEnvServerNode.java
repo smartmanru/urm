@@ -15,6 +15,7 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.meta.engine.HostAccount;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvDeployGroup;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerNode;
@@ -54,11 +55,18 @@ public class DBMetaEnvServerNode {
 		matcher.matchEnvDone( ACCOUNT );
 		
 		// primary
+		String deployGroupName = entity.importxmlStringAttr( root , MetaEnvServerNode.PROPERTY_DEPLOYGROUP );
+		Integer deployGroupId = null;
+		if( !deployGroupName.isEmpty() ) {
+			MetaEnvDeployGroup group = env.getDeployGroup( deployGroupName );
+			deployGroupId = group.ID;
+		}
+		
 		node.setNodePrimary(
 				pos ,
 				DBEnumNodeType.getValue( entity.importxmlEnumAttr( root , MetaEnvServerNode.PROPERTY_NODETYPE ) , true ) ,
 				ACCOUNT ,
-				entity.importxmlStringAttr( root , MetaEnvServerNode.PROPERTY_DEPLOYGROUP ) ,
+				deployGroupId ,
 				entity.importxmlBooleanAttr( root , MetaEnvServerNode.PROPERTY_OFFLINE , false ) ,
 				entity.importxmlStringAttr( root , MetaEnvServerNode.PROPERTY_DBINSTANCE ) ,
 				entity.importxmlBooleanAttr( root , MetaEnvServerNode.PROPERTY_DBSTANDBY , false ) 
@@ -82,7 +90,7 @@ public class DBMetaEnvServerNode {
 				EngineDB.getEnum( node.NODE_TYPE ) ,
 				EngineDB.getMatchId( node.getAccountMatchItem() ) ,
 				EngineDB.getMatchName( node.getAccountMatchItem() ) ,
-				EngineDB.getString( node.DEPLOYGROUP ) ,
+				EngineDB.getObject( node.DEPLOYGROUP ) ,
 				EngineDB.getBoolean( node.OFFLINE ) ,
 				EngineDB.getString( node.DBINSTANCE ) ,
 				EngineDB.getBoolean( node.DBSTANDBY )
@@ -117,7 +125,7 @@ public class DBMetaEnvServerNode {
 						entity.loaddbInt( rs , MetaEnvServerNode.PROPERTY_POS ) ,
 						DBEnumNodeType.getValue( entity.loaddbEnum( rs , MetaEnvServerNode.PROPERTY_NODETYPE ) , true ) ,
 						ACCOUNT ,
-						entity.loaddbString( rs , MetaEnvServerNode.PROPERTY_DEPLOYGROUP ) ,
+						entity.loaddbObject( rs , DBEnvData.FIELD_NODE_DEPLOYGROUP_ID ) ,
 						entity.loaddbBoolean( rs , MetaEnvServerNode.PROPERTY_OFFLINE ) ,
 						entity.loaddbString( rs , MetaEnvServerNode.PROPERTY_DBINSTANCE ) ,
 						entity.loaddbBoolean( rs , MetaEnvServerNode.PROPERTY_DBSTANDBY )
@@ -148,11 +156,13 @@ public class DBMetaEnvServerNode {
 		EngineInfrastructure infra = loader.getInfrastructure();
 		
 		// primary
+		MetaEnvDeployGroup dg = sn.findDeployGroup();
+		String deployGroupName = ( dg == null )? "" : dg.NAME;
 		DBEngineEntities.exportxmlAppObject( doc , root , entity , new String[] {
 				entity.exportxmlInt( sn.POS ) ,
 				entity.exportxmlEnum( sn.NODE_TYPE ) ,
 				entity.exportxmlString( infra.getHostAccountName( sn.getAccountMatchItem() ) ) ,
-				entity.exportxmlString( sn.DEPLOYGROUP ) ,
+				deployGroupName ,
 				entity.exportxmlBoolean( sn.OFFLINE ) ,
 				entity.exportxmlString( sn.DBINSTANCE ) ,
 				entity.exportxmlBoolean( sn.DBSTANDBY )
@@ -162,7 +172,7 @@ public class DBMetaEnvServerNode {
 		DBSettings.exportxmlCustomEntity( loader , doc , root , ops );
 	}
 	
-	public static MetaEnvServerNode createNode( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
+	public static MetaEnvServerNode createNode( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServer server , int pos , DBEnumNodeType nodeType , Integer deployGroup , HostAccount account ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		EngineEntities entities = transaction.getEntities();
 		
@@ -175,17 +185,17 @@ public class DBMetaEnvServerNode {
 		ObjectProperties ops = entities.createMetaEnvServerNodeProps( node.ID , server.getProperties() );
 		node.createSettings( ops );
 		
-		node.setNodePrimary( pos , nodeType , new MatchItem( account.ID ) , "" , true , "" , false );
+		node.setNodePrimary( pos , nodeType , new MatchItem( account.ID ) , deployGroup , true , "" , false );
 		server.addNode( node );
 		modifyNode( c , storage , env , node , true );
 		
 		return( node );
 	}
 	
-	public static void modifyNode( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServerNode node , int pos , DBEnumNodeType nodeType , HostAccount account ) throws Exception {
+	public static void modifyNode( EngineTransaction transaction , ProductMeta storage , MetaEnv env , MetaEnvServerNode node , int pos , DBEnumNodeType nodeType , Integer deployGroup , HostAccount account ) throws Exception {
 		DBConnection c = transaction.getConnection();
 		
-		node.modifyNode( nodeType , new MatchItem( account.ID ) );
+		node.modifyNode( nodeType , deployGroup , new MatchItem( account.ID ) );
 		node.server.updateNode( node );
 		modifyNode( c , storage , env , node , false );
 	}

@@ -24,4 +24,5 @@ public class _Error {
 	public static final int DuplicateBinaryItem1 = ErrorBase + 15;
 	public static final int DuplicateConfItem1 = ErrorBase + 16;
 	public static final int DuplicateSchemaItem1 = ErrorBase + 17;
+	public static final int UnknownDeployGroup1 = ErrorBase + 18;
 }

@@ -23,6 +23,7 @@ import org.urm.engine.properties.PropertyEntity;
 import org.urm.engine.transaction.EngineTransaction;
 import org.urm.engine.transaction.TransactionBase;
 import org.urm.meta.env.MetaEnv;
+import org.urm.meta.env.MetaEnvDeployGroup;
 import org.urm.meta.env.MetaEnvSegment;
 import org.urm.meta.env.MetaEnvServer;
 import org.urm.meta.env.MetaEnvServerDeployment;
@@ -42,6 +43,7 @@ import org.w3c.dom.Node;
 
 public class DBMetaEnv {
 
+	public static String ELEMENT_DEPLOYGROUP = "deploygroup";
 	public static String ELEMENT_SEGMENT = "segment";
 	public static String ATTR_VERSION = "envversion";
 	
@@ -59,6 +61,7 @@ public class DBMetaEnv {
 		MetaEnv env = new MetaEnv( storage , storage.meta , envs );
 		
 		importxmlMain( loader , storage , name , env , root );
+		importxmlDeployGroups( loader , storage , env , root );
 		importxmlSegments( loader , storage , env , root );
 		
 		envs.addEnv( env );
@@ -148,6 +151,17 @@ public class DBMetaEnv {
 		env.scatterExtraProperties();
 	}
 
+	private static void importxmlDeployGroups( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
+		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_DEPLOYGROUP );
+		if( items == null )
+			return;
+		
+		for( Node node : items ) {
+			MetaEnvDeployGroup dg = DBMetaEnvDeployGroup.importxml( loader , storage , env , node );
+			env.addDeployGroup( dg );
+		}
+	}
+	
 	private static void importxmlSegments( EngineLoader loader , ProductMeta storage , MetaEnv env , Node root ) throws Exception {
 		Node[] items = ConfReader.xmlGetChildren( root , ELEMENT_SEGMENT );
 		if( items == null )
@@ -161,6 +175,7 @@ public class DBMetaEnv {
 	
 	public static void exportxml( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
 		exportxmlMain( loader , storage , env , doc , root );
+		exportxmlDeployGroups( loader , storage , env , doc , root );
 		exportxmlSegments( loader , storage , env , doc , root );
 	}
 
@@ -194,6 +209,14 @@ public class DBMetaEnv {
 		
 		// core settings
 		DBSettings.exportxml( loader , doc , root , ops , true , false , true , DBEnumParamEntityType.ENV_EXTRA );
+	}
+	
+	private static void exportxmlDeployGroups( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
+		for( String name : env.getDeployGroupNames() ) {
+			MetaEnvDeployGroup sg = env.findDeployGroup( name );
+			Element node = Common.xmlCreateElement( doc , root , ELEMENT_DEPLOYGROUP );
+			DBMetaEnvDeployGroup.exportxml( loader , storage , env , sg , doc , node );
+		}
 	}
 	
 	private static void exportxmlSegments( EngineLoader loader , ProductMeta storage , MetaEnv env , Document doc , Element root ) throws Exception {
@@ -329,6 +352,7 @@ public class DBMetaEnv {
 		DBSettings.loaddbValues( loader , ops );
 		env.scatterExtraProperties();
 		
+		DBMetaEnvDeployGroup.loaddb( loader , storage , env );
 		DBMetaEnvSegment.loaddb( loader , storage , env );
 	}
 	
