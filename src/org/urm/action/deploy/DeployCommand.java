@@ -180,8 +180,8 @@ public class DeployCommand {
 		ca.runEnvUniqueAccounts( parentState , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 
-	public void list( ScopeState parentState , ActionBase action , ActionScope scope ) throws Exception {
-		ActionList ca = new ActionList( action , null );
+	public void list( ScopeState parentState , ActionBase action , String CMD , ActionScope scope ) throws Exception {
+		ActionList ca = new ActionList( action , null , CMD );
 		ca.runAll( parentState , scope , action.context.env , SecurityAction.ACTION_DEPLOY , false );
 	}
 

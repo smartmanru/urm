@@ -88,7 +88,7 @@ public class DeployCommandMeta extends CommandMeta {
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_RUNCMD , ACTION_ACCESS.ENV , false , SecurityAction.ACTION_DEPLOY , false , "run any shell command on environment hosts" , cmdOpts , "\"<command>\" {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_SCP , ACTION_ACCESS.ENV , false , SecurityAction.ACTION_DEPLOY , false , "direct copy items from local host to environment hosts" , cmdOpts , "<localpath> <remotepath> {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_SG";
-		super.defineAction( CommandMethodMeta.newInfo( this , METHOD_LIST , ACTION_ACCESS.ENV , true , SecurityAction.ACTION_DEPLOY , false , "list environment specification" , cmdOpts , "{all|<servers>|<server> <node1> ... <nodeN>}" ) );
+		super.defineAction( CommandMethodMeta.newInfo( this , METHOD_LIST , ACTION_ACCESS.ENV , true , SecurityAction.ACTION_DEPLOY , false , "list environment specification" , cmdOpts , "{servers|params} {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "";
 		super.defineAction( CommandMethodMeta.newNormal( this , METHOD_SENDCHAT , ACTION_ACCESS.ENV , true , SecurityAction.ACTION_DEPLOY , false , "add message to environment chat" , cmdOpts , "\"<message>\" {all|<servers>|<server> <node1> ... <nodeN>}" ) );
 		cmdOpts = "OPT_DEPLOYGROUP, OPT_STARTGROUP, OPT_SG, OPT_EXTRAARGS, OPT_UNIT, OPT_NOCHATMSG";

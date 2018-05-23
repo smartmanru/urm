@@ -18,7 +18,8 @@ public class ActionConfCheck extends ActionBase {
 	public enum Facts {
 		UnexpectedVariable ,
 		MatchedVariable ,
-		MissingVariable
+		MissingVariable ,
+		ShowVariable
 	};
 	
 	boolean S_CONFCHECK_STATUS;
@@ -31,7 +32,8 @@ public class ActionConfCheck extends ActionBase {
 		super( action , stream , "Check configuration parameters" );
 	}
 	
-	@Override protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScope( ScopeState state , ActionScope scope ) throws Exception {
 		info( "check configuration parameters in env=" + scope.env.NAME + " ..." );
 		S_CONFCHECK_STATUS = true;
 
@@ -40,7 +42,8 @@ public class ActionConfCheck extends ActionBase {
 		return( SCOPESTATE.NotRun );
 	}
 	
-	@Override protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
+	@Override 
+	protected SCOPESTATE executeScopeSet( ScopeState state , ActionScopeSet set , ActionScopeTarget[] targets ) throws Exception {
 		info( "check configuration parameters in segment=" + set.sg.NAME + " ..." );
 
 		// read properties
@@ -48,7 +51,9 @@ public class ActionConfCheck extends ActionBase {
 		return( SCOPESTATE.NotRun );
 	}
 	
-	@Override protected SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
+	@Override 
+	protected 
+	SCOPESTATE executeScopeTarget( ScopeState state , ActionScopeTarget target ) throws Exception {
 		// read properties
 		executeServer( state , target );
 		return( SCOPESTATE.RunSuccess );

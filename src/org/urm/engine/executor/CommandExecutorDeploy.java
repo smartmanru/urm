@@ -240,8 +240,9 @@ public class CommandExecutorDeploy extends CommandExecutor {
 	private class List extends CommandMethod {
 	public void run( ScopeState parentState , ActionBase action ) throws Exception {
 		action.context.CTX_ALL = true;
-		ActionScope scope = getServerScope( action );
-		impl.list( parentState , action , scope );
+		String CMD = getRequiredArg( action , 0 , "CMD" );
+		ActionScope scope = getServerScope( action , 1 );
+		impl.list( parentState , action , CMD , scope );
 	}
 	}
 
